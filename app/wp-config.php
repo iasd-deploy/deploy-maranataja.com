@@ -38,10 +38,11 @@ define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
 
 define( 'AS3CF_SETTINGS', serialize( array(
-    'provider' => 'aws',
-    'access-key-id' => $_ENV['WP_S3_ACCESS_KEY'],
-    'secret-access-key' => $_ENV['WP_S3_SECRET_KEY'],
-	'bucket' => $_ENV['WP_S3_BUCKET']
+	'provider' => 'aws',
+	'access-key-id' => $_ENV['WP_S3_ACCESS_KEY'],
+	'secret-access-key' => $_ENV['WP_S3_SECRET_KEY'],
+	'bucket' => $_ENV['WP_S3_BUCKET'],
+	'delivery-domain' => 'files.adventistas.org'
 ) ) );
 
 define( 'FORCE_SSL', true );
