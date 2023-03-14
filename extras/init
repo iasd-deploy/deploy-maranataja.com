@@ -16,7 +16,7 @@ sed -i -e "s/REPLACE_WITH_REAL_KEY/$NEWRELIC_KEY/" \
 echo "Fim da instalação do NewRelic"
 
 echo "Ajuste nas permissões da pasta uploads"
-rm -rf /var/www/html/wp-content
+# rm -rf /var/www/html/wp-content
 find /var/www/html -type d -exec chmod 755 {} \;
 find /var/www/html -type f -exec chmod 644 {} \;
 chmod 755 /var/www/html
