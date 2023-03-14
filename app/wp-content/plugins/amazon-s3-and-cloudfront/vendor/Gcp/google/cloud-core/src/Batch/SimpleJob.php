@@ -25,7 +25,7 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Batch;
  *      incompatible ways. Please use with caution, and test thoroughly when
  *      upgrading.
  */
-class SimpleJob implements JobInterface
+class SimpleJob implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Batch\JobInterface
 {
     use JobTrait;
     /**
@@ -64,6 +64,6 @@ class SimpleJob implements JobInterface
         if ($this->bootstrapFile) {
             require_once $this->bootstrapFile;
         }
-        \call_user_func($this->func);
+        call_user_func($this->func);
     }
 }

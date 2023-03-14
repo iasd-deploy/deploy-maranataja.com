@@ -14,17 +14,13 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor;
 /**
  * Injects value of gethostname in all records
  */
-class HostnameProcessor implements ProcessorInterface
+class HostnameProcessor implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor\ProcessorInterface
 {
-    /** @var string */
     private static $host;
     public function __construct()
     {
-        self::$host = (string) \gethostname();
+        self::$host = (string) gethostname();
     }
-    /**
-     * {@inheritDoc}
-     */
     public function __invoke(array $record) : array
     {
         $record['extra']['hostname'] = self::$host;

@@ -6,7 +6,7 @@ namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials;
  * Basic implementation of the AWS Credentials interface that allows callers to
  * pass in the AWS Access Key and AWS Secret Access Key in the constructor.
  */
-class Credentials implements CredentialsInterface, \Serializable
+class Credentials implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialsInterface, \Serializable
 {
     private $key;
     private $secret;
@@ -23,8 +23,8 @@ class Credentials implements CredentialsInterface, \Serializable
      */
     public function __construct($key, $secret, $token = null, $expires = null)
     {
-        $this->key = \trim($key);
-        $this->secret = \trim($secret);
+        $this->key = trim($key);
+        $this->secret = trim($secret);
         $this->token = $token;
         $this->expires = $expires;
     }
@@ -50,7 +50,7 @@ class Credentials implements CredentialsInterface, \Serializable
     }
     public function isExpired()
     {
-        return $this->expires !== null && \time() >= $this->expires;
+        return $this->expires !== null && time() >= $this->expires;
     }
     public function toArray()
     {
@@ -58,34 +58,14 @@ class Credentials implements CredentialsInterface, \Serializable
     }
     public function serialize()
     {
-        return \json_encode($this->__serialize());
+        return json_encode($this->toArray());
     }
     public function unserialize($serialized)
     {
-        $data = \json_decode($serialized, \true);
-        $this->__unserialize($data);
-    }
-    public function __serialize()
-    {
-        return $this->toArray();
-    }
-    public function __unserialize($data)
-    {
+        $data = json_decode($serialized, true);
         $this->key = $data['key'];
         $this->secret = $data['secret'];
         $this->token = $data['token'];
         $this->expires = $data['expires'];
-    }
-    public function extendExpiration()
-    {
-        $extension = \mt_rand(5, 10);
-        $this->expires = \time() + $extension * 60;
-        $message = <<<EOT
-Attempting credential expiration extension due to a credential service 
-availability issue. A refresh of these credentials will be attempted again 
-after {$extension} minutes.
-
-EOT;
-        \error_log($message);
     }
 }

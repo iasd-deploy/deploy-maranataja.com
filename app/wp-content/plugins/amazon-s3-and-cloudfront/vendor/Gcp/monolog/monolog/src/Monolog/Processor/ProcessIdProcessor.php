@@ -16,14 +16,11 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor;
  *
  * @author Andreas Hörnicke
  */
-class ProcessIdProcessor implements ProcessorInterface
+class ProcessIdProcessor implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor\ProcessorInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function __invoke(array $record) : array
     {
-        $record['extra']['process_id'] = \getmypid();
+        $record['extra']['process_id'] = getmypid();
         return $record;
     }
 }

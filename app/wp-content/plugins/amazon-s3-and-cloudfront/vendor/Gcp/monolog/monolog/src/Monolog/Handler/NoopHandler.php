@@ -20,20 +20,20 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler;
  *
  * @author Roel Harbers <roelharbers@gmail.com>
  */
-class NoopHandler extends Handler
+class NoopHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\Handler
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isHandling(array $record) : bool
     {
-        return \true;
+        return true;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handle(array $record) : bool
     {
-        return \false;
+        return false;
     }
 }

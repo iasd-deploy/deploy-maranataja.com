@@ -26,7 +26,7 @@ if ( ! class_exists( 'WP_Offload_Media_Autoloader' ) ) {
 		 * @param string $prefix
 		 * @param string $abspath
 		 */
-		public function __construct( string $prefix, string $abspath ) {
+		public function __construct( $prefix, $abspath ) {
 			$this->prefix  = $prefix;
 			$this->abspath = $abspath;
 
@@ -36,35 +36,29 @@ if ( ! class_exists( 'WP_Offload_Media_Autoloader' ) ) {
 		/**
 		 * Autoloader.
 		 *
-		 * @param string $source_path
+		 * @param string $class_name
 		 */
-		public function autoloader( string $source_path ) {
-			if ( ! $this->source_belongs_to_plugin( $source_path ) ) {
+		public function autoloader( $class_name ) {
+			if ( ! $this->class_belongs_to_plugin( $class_name ) ) {
 				return;
 			}
 
-			$bare_source_path = $this->get_bare_source_path( $source_path );
+			$path = $this->get_classes_directory() . $this->get_class_path( $class_name );
 
-			foreach ( array( 'classes', 'interfaces', 'traits' ) as $type ) {
-				$path = $this->get_source_directory( $type ) . $bare_source_path;
-
-				if ( file_exists( $path ) ) {
-					require_once $path;
-
-					return;
-				}
+			if ( file_exists( $path ) ) {
+				require_once $path;
 			}
 		}
 
 		/**
-		 * Does source path belong to plugin.
+		 * Class belong to plugin.
 		 *
-		 * @param string $source_path
+		 * @param string $class_name
 		 *
 		 * @return bool
 		 */
-		protected function source_belongs_to_plugin( string $source_path ): bool {
-			if ( 0 !== strpos( $source_path, $this->vendor . '\\' . $this->prefix . '\\' ) ) {
+		protected function class_belongs_to_plugin( $class_name ) {
+			if ( 0 !== strpos( $class_name, $this->vendor . '\\' . $this->prefix . '\\' ) ) {
 				return false;
 			}
 
@@ -72,14 +66,14 @@ if ( ! class_exists( 'WP_Offload_Media_Autoloader' ) ) {
 		}
 
 		/**
-		 * Get un-prefixed source path.
+		 * Get class path.
 		 *
-		 * @param string $source_path
+		 * @param string $class_name
 		 *
 		 * @return string
 		 */
-		protected function get_bare_source_path( string $source_path ): string {
-			$parts = explode( '\\', strtolower( $source_path ) );
+		protected function get_class_path( $class_name ) {
+			$parts = explode( '\\', strtolower( $class_name ) );
 			$parts = array_slice( $parts, 2 );
 
 			$filename = implode( DIRECTORY_SEPARATOR, $parts ) . '.php';
@@ -88,14 +82,13 @@ if ( ! class_exists( 'WP_Offload_Media_Autoloader' ) ) {
 		}
 
 		/**
-		 * Get source directory for type.
-		 *
-		 * @param string $type
+		 * Get classes directory.
 		 *
 		 * @return string
 		 */
-		protected function get_source_directory( string $type ): string {
-			return $this->abspath . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR;
+		protected function get_classes_directory() {
+			return $this->abspath . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR;
 		}
+
 	}
 }

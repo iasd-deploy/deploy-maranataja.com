@@ -2,7 +2,6 @@
 
 namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws;
 
-use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\PromisorInterface;
 use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\EachPromise;
 /**
@@ -11,7 +10,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\EachPromise;
  * The pool will read command objects from an iterator until it is cancelled or
  * until the iterator is consumed.
  */
-class CommandPool implements PromisorInterface
+class CommandPool implements \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\PromisorInterface
 {
     /** @var EachPromise */
     private $each;
@@ -41,7 +40,7 @@ class CommandPool implements PromisorInterface
      * @param array|\Iterator    $commands Iterable that yields commands.
      * @param array              $config   Associative array of options.
      */
-    public function __construct(AwsClientInterface $client, $commands, array $config = [])
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\AwsClientInterface $client, $commands, array $config = [])
     {
         if (!isset($config['concurrency'])) {
             $config['concurrency'] = 25;
@@ -62,10 +61,10 @@ class CommandPool implements PromisorInterface
                 }
             }
         };
-        $this->each = new EachPromise($mapFn($commands), $config);
+        $this->each = new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\EachPromise($mapFn($commands), $config);
     }
     /**
-     * @return PromiseInterface
+     * @return \GuzzleHttp\Promise\PromiseInterface
      */
     public function promise()
     {
@@ -82,13 +81,13 @@ class CommandPool implements PromisorInterface
      * @return array
      * @see \Aws\CommandPool::__construct for available configuration options.
      */
-    public static function batch(AwsClientInterface $client, $commands, array $config = [])
+    public static function batch(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\AwsClientInterface $client, $commands, array $config = [])
     {
         $results = [];
         self::cmpCallback($config, 'fulfilled', $results);
         self::cmpCallback($config, 'rejected', $results);
         return (new self($client, $commands, $config))->promise()->then(static function () use(&$results) {
-            \ksort($results);
+            ksort($results);
             return $results;
         })->wait();
     }
@@ -100,7 +99,7 @@ class CommandPool implements PromisorInterface
         if (!isset($config['before'])) {
             return null;
         }
-        if (\is_callable($config['before'])) {
+        if (is_callable($config['before'])) {
             return $config['before'];
         }
         throw new \InvalidArgumentException('before must be callable');

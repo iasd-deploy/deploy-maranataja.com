@@ -14,8 +14,7 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\LogglyFormatter;
-use function array_key_exists;
-use CurlHandle;
+use function DeliciousBrains\WP_Offload_Media\Gcp\array_key_exists;
 /**
  * Sends errors to Loggly.
  *
@@ -23,7 +22,7 @@ use CurlHandle;
  * @author Adam Pancutt <adam@pancutt.com>
  * @author Gregory Barchard <gregory@barchard.net>
  */
-class LogglyHandler extends AbstractProcessingHandler
+class LogglyHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
     protected const HOST = 'logs-01.loggly.com';
     protected const ENDPOINT_SINGLE = 'inputs';
@@ -31,22 +30,22 @@ class LogglyHandler extends AbstractProcessingHandler
     /**
      * Caches the curl handlers for every given endpoint.
      *
-     * @var resource[]|CurlHandle[]
+     * @var array
      */
     protected $curlHandlers = [];
-    /** @var string */
     protected $token;
-    /** @var string[] */
     protected $tag = [];
     /**
-     * @param string $token API token supplied by Loggly
+     * @param string     $token  API token supplied by Loggly
+     * @param string|int $level  The minimum logging level to trigger this handler
+     * @param bool       $bubble Whether or not messages that are handled should bubble up the stack.
      *
      * @throws MissingExtensionException If the curl extension is missing
      */
-    public function __construct(string $token, $level = Logger::DEBUG, bool $bubble = \true)
+    public function __construct(string $token, $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG, bool $bubble = true)
     {
-        if (!\extension_loaded('curl')) {
-            throw new MissingExtensionException('The curl extension is needed to use the LogglyHandler');
+        if (!extension_loaded('curl')) {
+            throw new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\MissingExtensionException('The curl extension is needed to use the LogglyHandler');
         }
         $this->token = $token;
         parent::__construct($level, $bubble);
@@ -56,12 +55,12 @@ class LogglyHandler extends AbstractProcessingHandler
      *
      * @param string $endpoint
      *
-     * @return resource|CurlHandle
+     * @return resource
      */
     protected function getCurlHandler(string $endpoint)
     {
-        if (!array_key_exists($endpoint, $this->curlHandlers)) {
-            $this->curlHandlers[$endpoint] = $this->loadCurlHandle($endpoint);
+        if (!\DeliciousBrains\WP_Offload_Media\Gcp\array_key_exists($endpoint, $this->curlHandlers)) {
+            $this->curlHandlers[$endpoint] = $this->loadCurlHandler($endpoint);
         }
         return $this->curlHandlers[$endpoint];
     }
@@ -70,15 +69,15 @@ class LogglyHandler extends AbstractProcessingHandler
      *
      * @param string $endpoint
      *
-     * @return resource|CurlHandle
+     * @return resource
      */
-    private function loadCurlHandle(string $endpoint)
+    private function loadCurlHandler(string $endpoint)
     {
-        $url = \sprintf("https://%s/%s/%s/", static::HOST, $endpoint, $this->token);
-        $ch = \curl_init();
-        \curl_setopt($ch, \CURLOPT_URL, $url);
-        \curl_setopt($ch, \CURLOPT_POST, \true);
-        \curl_setopt($ch, \CURLOPT_RETURNTRANSFER, \true);
+        $url = sprintf("https://%s/%s/%s/", static::HOST, $endpoint, $this->token);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         return $ch;
     }
     /**
@@ -87,7 +86,7 @@ class LogglyHandler extends AbstractProcessingHandler
     public function setTag($tag) : self
     {
         $tag = !empty($tag) ? $tag : [];
-        $this->tag = \is_array($tag) ? $tag : [$tag];
+        $this->tag = is_array($tag) ? $tag : [$tag];
         return $this;
     }
     /**
@@ -96,8 +95,8 @@ class LogglyHandler extends AbstractProcessingHandler
     public function addTag($tag) : self
     {
         if (!empty($tag)) {
-            $tag = \is_array($tag) ? $tag : [$tag];
-            $this->tag = \array_unique(\array_merge($this->tag, $tag));
+            $tag = is_array($tag) ? $tag : [$tag];
+            $this->tag = array_unique(array_merge($this->tag, $tag));
         }
         return $this;
     }
@@ -108,7 +107,7 @@ class LogglyHandler extends AbstractProcessingHandler
     public function handleBatch(array $records) : void
     {
         $level = $this->level;
-        $records = \array_filter($records, function ($record) use($level) {
+        $records = array_filter($records, function ($record) use($level) {
             return $record['level'] >= $level;
         });
         if ($records) {
@@ -120,14 +119,14 @@ class LogglyHandler extends AbstractProcessingHandler
         $ch = $this->getCurlHandler($endpoint);
         $headers = ['Content-Type: application/json'];
         if (!empty($this->tag)) {
-            $headers[] = 'X-LOGGLY-TAG: ' . \implode(',', $this->tag);
+            $headers[] = 'X-LOGGLY-TAG: ' . implode(',', $this->tag);
         }
-        \curl_setopt($ch, \CURLOPT_POSTFIELDS, $data);
-        \curl_setopt($ch, \CURLOPT_HTTPHEADER, $headers);
-        Curl\Util::execute($ch, 5, \false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\Curl\Util::execute($ch, 5, false);
     }
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new LogglyFormatter();
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\LogglyFormatter();
     }
 }

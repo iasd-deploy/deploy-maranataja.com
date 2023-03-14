@@ -2,7 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_Media\Providers\Delivery;
 
-class KeyCDN extends Delivery_Provider {
+class KeyCDN extends Another_CDN {
 
 	/**
 	 * Which storage providers does the delivery provider support, empty means all.
@@ -59,18 +59,4 @@ class KeyCDN extends Delivery_Provider {
 	 * @var string
 	 */
 	protected static $provider_service_quick_start_slug = 'how-to-set-up-a-custom-domain-for-digitalocean-spaces-with-keycdn';
-
-	/**
-	 * @var string
-	 */
-	protected $console_url = 'https://app.keycdn.com/zones/index';
-
-	/**
-	 * Title to be shown for provider's console link.
-	 *
-	 * @return string
-	 */
-	public static function get_console_title(): string {
-		return _x( 'KeyCDN Dashboard', 'Provider console link text', 'amazon-s3-and-cloudfront' );
-	}
 }

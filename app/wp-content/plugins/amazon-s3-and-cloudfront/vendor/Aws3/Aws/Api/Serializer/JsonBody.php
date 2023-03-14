@@ -5,7 +5,6 @@ namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Shape;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\TimestampShape;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\InvalidJsonException;
 /**
  * Formats the JSON body of a JSON-REST or JSON-RPC operation.
  * @internal
@@ -13,7 +12,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\InvalidJsonException;
 class JsonBody
 {
     private $api;
-    public function __construct(Service $api)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $api)
     {
         $this->api = $api;
     }
@@ -24,17 +23,9 @@ class JsonBody
      *
      * @return string
      */
-    public static function getContentType(Service $service)
+    public static function getContentType(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $service)
     {
-        if ($service->getMetadata('protocol') === 'rest-json') {
-            return 'application/json';
-        }
-        $jsonVersion = $service->getMetadata('jsonVersion');
-        if (empty($jsonVersion)) {
-            throw new \InvalidArgumentException('invalid json');
-        } else {
-            return 'application/x-amz-json-' . @\number_format($service->getMetadata('jsonVersion'), 1);
-        }
+        return 'application/x-amz-json-' . number_format($service->getMetadata('jsonVersion'), 1);
     }
     /**
      * Builds the JSON body based on an array of arguments.
@@ -44,19 +35,16 @@ class JsonBody
      *
      * @return string
      */
-    public function build(Shape $shape, array $args)
+    public function build(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Shape $shape, array $args)
     {
-        $result = \json_encode($this->format($shape, $args));
+        $result = json_encode($this->format($shape, $args));
         return $result == '[]' ? '{}' : $result;
     }
-    private function format(Shape $shape, $value)
+    private function format(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Shape $shape, $value)
     {
         switch ($shape['type']) {
             case 'structure':
                 $data = [];
-                if (isset($shape['document']) && $shape['document']) {
-                    return $value;
-                }
                 foreach ($value as $k => $v) {
                     if ($v !== null && $shape->hasMember($k)) {
                         $valueShape = $shape->getMember($k);
@@ -83,10 +71,10 @@ class JsonBody
                 }
                 return $value;
             case 'blob':
-                return \base64_encode($value);
+                return base64_encode($value);
             case 'timestamp':
                 $timestampFormat = !empty($shape['timestampFormat']) ? $shape['timestampFormat'] : 'unixTimestamp';
-                return TimestampShape::format($value, $timestampFormat);
+                return \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\TimestampShape::format($value, $timestampFormat);
             default:
                 return $value;
         }

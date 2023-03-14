@@ -17,8 +17,7 @@
  */
 namespace DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core;
 
-use DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7\Query;
-use DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7\Utils;
+use DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7;
 use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Http\Message\UriInterface;
 use DeliciousBrains\WP_Offload_Media\Gcp\Rize\UriTemplate;
 /**
@@ -34,7 +33,7 @@ trait UriTrait
      */
     public function expandUri($uri, array $variables)
     {
-        $template = new UriTemplate();
+        $template = new \DeliciousBrains\WP_Offload_Media\Gcp\Rize\UriTemplate();
         return $template->expand($uri, $variables);
     }
     /**
@@ -44,17 +43,17 @@ trait UriTrait
      */
     public function buildUriWithQuery($uri, array $query)
     {
-        $query = \array_filter($query, function ($v) {
+        $query = array_filter($query, function ($v) {
             return $v !== null;
         });
         // @todo fix this hack. when using build_query booleans are converted to
         // 1 or 0 which the API does not accept. this casts bools to their
         // string representation
         foreach ($query as $k => &$v) {
-            if (\is_bool($v)) {
+            if (is_bool($v)) {
                 $v = $v ? 'true' : 'false';
             }
         }
-        return Utils::uriFor($uri)->withQuery(Query::build($query));
+        return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7\uri_for($uri)->withQuery(\DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7\build_query($query));
     }
 }

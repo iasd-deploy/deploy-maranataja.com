@@ -7,7 +7,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service;
 /**
  * @internal
  */
-class RestXmlSerializer extends RestSerializer
+class RestXmlSerializer extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer\RestSerializer
 {
     /** @var XmlBody */
     private $xmlBody;
@@ -16,27 +16,14 @@ class RestXmlSerializer extends RestSerializer
      * @param string  $endpoint Endpoint to connect to
      * @param XmlBody $xmlBody  Optional XML formatter to use
      */
-    public function __construct(Service $api, $endpoint, XmlBody $xmlBody = null)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $api, $endpoint, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer\XmlBody $xmlBody = null)
     {
         parent::__construct($api, $endpoint);
-        $this->xmlBody = $xmlBody ?: new XmlBody($api);
+        $this->xmlBody = $xmlBody ?: new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer\XmlBody($api);
     }
-    protected function payload(StructureShape $member, array $value, array &$opts)
+    protected function payload(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape $member, array $value, array &$opts)
     {
         $opts['headers']['Content-Type'] = 'application/xml';
-        $opts['body'] = $this->getXmlBody($member, $value);
-    }
-    /**
-     * @param StructureShape $member
-     * @param array $value
-     * @return string
-     */
-    private function getXmlBody(StructureShape $member, array $value)
-    {
-        $xmlBody = (string) $this->xmlBody->build($member, $value);
-        $xmlBody = \str_replace("'", "&apos;", $xmlBody);
-        $xmlBody = \str_replace('\\r', "&#13;", $xmlBody);
-        $xmlBody = \str_replace('\\n', "&#10;", $xmlBody);
-        return $xmlBody;
+        $opts['body'] = (string) $this->xmlBody->build($member, $value);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials;
 
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws;
+use Aws;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\DateTimeResult;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\CacheInterface;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\CredentialsException;
@@ -53,17 +53,14 @@ class CredentialProvider
     const ENV_TOKEN_FILE = 'AWS_WEB_IDENTITY_TOKEN_FILE';
     const ENV_SHARED_CREDENTIALS_FILE = 'AWS_SHARED_CREDENTIALS_FILE';
     /**
-     * Create a default credential provider that
-     * first checks for environment variables,
-     * then checks for assumed role via web identity,
-     * then checks for cached SSO credentials from the CLI,
-     * then check for credential_process in the "default" profile in ~/.aws/credentials,
-     * then checks for the "default" profile in ~/.aws/credentials,
-     * then for credential_process in the "default profile" profile in ~/.aws/config,
+     * Create a default credential provider that first checks for environment
+     * variables, then checks for the "default" profile in ~/.aws/credentials,
      * then checks for "profile default" profile in ~/.aws/config (which is
-     * the default profile of AWS CLI),
-     * then tries to make a GET Request to fetch credentials if ECS environment variable is presented,
-     * finally checks for EC2 instance profile credentials.
+     * the default profile of AWS CLI), then tries to make a GET Request to
+     * fetch credentials if Ecs environment variable is presented, then checks
+     * for credential_process in the "default" profile in ~/.aws/credentials,
+     * then for credential_process in the "default profile" profile in
+     * ~/.aws/config, and finally checks for EC2 instance profile credentials.
      *
      * This provider is automatically wrapped in a memoize function that caches
      * previously provided credentials.
@@ -75,21 +72,19 @@ class CredentialProvider
      */
     public static function defaultProvider(array $config = [])
     {
-        $cacheable = ['web_identity', 'sso', 'process_credentials', 'process_config', 'ecs', 'instance'];
-        $profileName = \getenv(self::ENV_PROFILE) ?: 'default';
+        $cacheable = ['web_identity', 'sso', 'ecs', 'process_credentials', 'process_config', 'instance'];
         $defaultChain = ['env' => self::env(), 'web_identity' => self::assumeRoleWithWebIdentityCredentialProvider($config)];
-        if (!isset($config['use_aws_shared_config_files']) || $config['use_aws_shared_config_files'] !== \false) {
-            $defaultChain['sso'] = self::sso('profile ' . $profileName, self::getHomeDir() . '/.aws/config', $config);
-            $defaultChain['process_credentials'] = self::process();
+        if (!isset($config['use_aws_shared_config_files']) || $config['use_aws_shared_config_files'] !== false) {
+            $defaultChain['sso'] = self::sso('profile default', self::getHomeDir() . '/.aws/config', $config);
             $defaultChain['ini'] = self::ini();
-            $defaultChain['process_config'] = self::process('profile ' . $profileName, self::getHomeDir() . '/.aws/config');
-            $defaultChain['ini_config'] = self::ini('profile ' . $profileName, self::getHomeDir() . '/.aws/config');
+            $defaultChain['ini_config'] = self::ini('profile default', self::getHomeDir() . '/.aws/config');
         }
-        if (self::shouldUseEcs()) {
+        if (!empty(getenv(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\EcsCredentialProvider::ENV_URI))) {
             $defaultChain['ecs'] = self::ecsCredentials($config);
-        } else {
-            $defaultChain['instance'] = self::instanceProfile($config);
         }
+        $defaultChain['process_credentials'] = self::process();
+        $defaultChain['process_config'] = self::process('profile default', self::getHomeDir() . '/.aws/config');
+        $defaultChain['instance'] = self::instanceProfile($config);
         if (isset($config['credentials']) && $config['credentials'] instanceof CacheInterface) {
             foreach ($cacheable as $provider) {
                 if (isset($defaultChain[$provider])) {
@@ -97,7 +92,7 @@ class CredentialProvider
                 }
             }
         }
-        return self::memoize(\call_user_func_array([CredentialProvider::class, 'chain'], \array_values($defaultChain)));
+        return self::memoize(call_user_func_array('self::chain', array_values($defaultChain)));
     }
     /**
      * Create a credential provider function from a set of static credentials.
@@ -106,9 +101,9 @@ class CredentialProvider
      *
      * @return callable
      */
-    public static function fromCredentials(CredentialsInterface $creds)
+    public static function fromCredentials(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialsInterface $creds)
     {
-        $promise = Promise\Create::promiseFor($creds);
+        $promise = \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for($creds);
         return function () use($promise) {
             return $promise;
         };
@@ -122,22 +117,16 @@ class CredentialProvider
      */
     public static function chain()
     {
-        $links = \func_get_args();
+        $links = func_get_args();
         if (empty($links)) {
             throw new \InvalidArgumentException('No providers in chain');
         }
-        return function ($previousCreds = null) use($links) {
+        return function () use($links) {
             /** @var callable $parent */
-            $parent = \array_shift($links);
+            $parent = array_shift($links);
             $promise = $parent();
-            while ($next = \array_shift($links)) {
-                if ($next instanceof InstanceProfileProvider && $previousCreds instanceof Credentials) {
-                    $promise = $promise->otherwise(function () use($next, $previousCreds) {
-                        return $next($previousCreds);
-                    });
-                } else {
-                    $promise = $promise->otherwise($next);
-                }
+            while ($next = array_shift($links)) {
+                $promise = $promise->otherwise($next);
             }
             return $promise;
         };
@@ -166,10 +155,10 @@ class CredentialProvider
                 $result = $provider();
             }
             // Return credentials that could expire and refresh when needed.
-            return $result->then(function (CredentialsInterface $creds) use($provider, &$isConstant, &$result) {
+            return $result->then(function (\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialsInterface $creds) use($provider, &$isConstant, &$result) {
                 // Determine if these are constant credentials.
                 if (!$creds->getExpiration()) {
-                    $isConstant = \true;
+                    $isConstant = true;
                     return $creds;
                 }
                 // Refresh expired credentials.
@@ -177,11 +166,11 @@ class CredentialProvider
                     return $creds;
                 }
                 // Refresh the result and forward the promise.
-                return $result = $provider($creds);
+                return $result = $provider();
             })->otherwise(function ($reason) use(&$result) {
                 // Cleanup rejected promise.
                 $result = null;
-                return new Promise\RejectedPromise($reason);
+                return new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\RejectedPromise($reason);
             });
         };
     }
@@ -196,16 +185,16 @@ class CredentialProvider
      *
      * @return callable
      */
-    public static function cache(callable $provider, CacheInterface $cache, $cacheKey = null)
+    public static function cache(callable $provider, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\CacheInterface $cache, $cacheKey = null)
     {
         $cacheKey = $cacheKey ?: 'aws_cached_credentials';
         return function () use($provider, $cache, $cacheKey) {
             $found = $cache->get($cacheKey);
             if ($found instanceof CredentialsInterface && !$found->isExpired()) {
-                return Promise\Create::promiseFor($found);
+                return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for($found);
             }
-            return $provider()->then(function (CredentialsInterface $creds) use($cache, $cacheKey) {
-                $cache->set($cacheKey, $creds, null === $creds->getExpiration() ? 0 : $creds->getExpiration() - \time());
+            return $provider()->then(function (\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialsInterface $creds) use($cache, $cacheKey) {
+                $cache->set($cacheKey, $creds, null === $creds->getExpiration() ? 0 : $creds->getExpiration() - time());
                 return $creds;
             });
         };
@@ -220,10 +209,10 @@ class CredentialProvider
     {
         return function () {
             // Use credentials from environment variables, if available
-            $key = \getenv(self::ENV_KEY);
-            $secret = \getenv(self::ENV_SECRET);
+            $key = getenv(self::ENV_KEY);
+            $secret = getenv(self::ENV_SECRET);
             if ($key && $secret) {
-                return Promise\Create::promiseFor(new Credentials($key, $secret, \getenv(self::ENV_SESSION) ?: NULL));
+                return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for(new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\Credentials($key, $secret, getenv(self::ENV_SESSION) ?: NULL));
             }
             return self::reject('Could not find environment variable ' . 'credentials in ' . self::ENV_KEY . '/' . self::ENV_SECRET);
         };
@@ -239,7 +228,7 @@ class CredentialProvider
      */
     public static function instanceProfile(array $config = [])
     {
-        return new InstanceProfileProvider($config);
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\InstanceProfileProvider($config);
     }
     /**
      * Credential provider that retrieves cached SSO credentials from the CLI
@@ -250,43 +239,43 @@ class CredentialProvider
     {
         $filename = $filename ?: self::getHomeDir() . '/.aws/config';
         return function () use($ssoProfileName, $filename, $config) {
-            if (!@\is_readable($filename)) {
+            if (!is_readable($filename)) {
                 return self::reject("Cannot read credentials from {$filename}");
             }
-            $profiles = self::loadProfiles($filename);
-            if (!isset($profiles[$ssoProfileName])) {
+            $data = self::loadProfiles($filename);
+            if (empty($data[$ssoProfileName])) {
                 return self::reject("Profile {$ssoProfileName} does not exist in {$filename}.");
             }
-            $ssoProfile = $profiles[$ssoProfileName];
+            $ssoProfile = $data[$ssoProfileName];
             if (empty($ssoProfile['sso_start_url']) || empty($ssoProfile['sso_region']) || empty($ssoProfile['sso_account_id']) || empty($ssoProfile['sso_role_name'])) {
                 return self::reject("Profile {$ssoProfileName} in {$filename} must contain the following keys: " . "sso_start_url, sso_region, sso_account_id, and sso_role_name.");
             }
-            $tokenLocation = self::getHomeDir() . '/.aws/sso/cache/' . \utf8_encode(\sha1($ssoProfile['sso_start_url'])) . ".json";
-            if (!@\is_readable($tokenLocation)) {
+            $tokenLocation = self::getHomeDir() . '/.aws/sso/cache/' . utf8_encode(sha1($ssoProfile['sso_start_url'])) . ".json";
+            if (!is_readable($tokenLocation)) {
                 return self::reject("Unable to read token file at {$tokenLocation}");
             }
-            $tokenData = \json_decode(\file_get_contents($tokenLocation), \true);
+            $tokenData = json_decode(file_get_contents($tokenLocation), true);
             if (empty($tokenData['accessToken']) || empty($tokenData['expiresAt'])) {
                 return self::reject("Token file at {$tokenLocation} must contain an access token and an expiration");
             }
             try {
-                $expiration = (new DateTimeResult($tokenData['expiresAt']))->getTimestamp();
+                $expiration = (new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\DateTimeResult($tokenData['expiresAt']))->getTimestamp();
             } catch (\Exception $e) {
                 return self::reject("Cached SSO credentials returned an invalid expiration");
             }
-            $now = \time();
+            $now = time();
             if ($expiration < $now) {
                 return self::reject("Cached SSO credentials returned expired credentials");
             }
             $ssoClient = null;
             if (empty($config['ssoClient'])) {
-                $ssoClient = new Aws\SSO\SSOClient(['region' => $ssoProfile['sso_region'], 'version' => '2019-06-10', 'credentials' => \false]);
+                $ssoClient = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\SSO\SSOClient(['region' => $ssoProfile['sso_region'], 'version' => '2019-06-10', 'credentials' => false]);
             } else {
                 $ssoClient = $config['ssoClient'];
             }
             $ssoResponse = $ssoClient->getRoleCredentials(['accessToken' => $tokenData['accessToken'], 'accountId' => $ssoProfile['sso_account_id'], 'roleName' => $ssoProfile['sso_role_name']]);
             $ssoCredentials = $ssoResponse['roleCredentials'];
-            return Promise\Create::promiseFor(new Credentials($ssoCredentials['accessKeyId'], $ssoCredentials['secretAccessKey'], $ssoCredentials['sessionToken'], $expiration));
+            return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for(new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\Credentials($ssoCredentials['accessKeyId'], $ssoCredentials['secretAccessKey'], $ssoCredentials['sessionToken'], $expiration));
         };
     }
     /**
@@ -301,7 +290,7 @@ class CredentialProvider
      */
     public static function ecsCredentials(array $config = [])
     {
-        return new EcsCredentialProvider($config);
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\EcsCredentialProvider($config);
     }
     /**
      * Credential provider that creates credentials using assume role
@@ -312,7 +301,7 @@ class CredentialProvider
      */
     public static function assumeRole(array $config = [])
     {
-        return new AssumeRoleCredentialProvider($config);
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\AssumeRoleCredentialProvider($config);
     }
     /**
      * Credential provider that creates credentials by assuming role from a
@@ -326,16 +315,16 @@ class CredentialProvider
     public static function assumeRoleWithWebIdentityCredentialProvider(array $config = [])
     {
         return function () use($config) {
-            $arnFromEnv = \getenv(self::ENV_ARN);
-            $tokenFromEnv = \getenv(self::ENV_TOKEN_FILE);
+            $arnFromEnv = getenv(self::ENV_ARN);
+            $tokenFromEnv = getenv(self::ENV_TOKEN_FILE);
             $stsClient = isset($config['stsClient']) ? $config['stsClient'] : null;
             $region = isset($config['region']) ? $config['region'] : null;
             if ($tokenFromEnv && $arnFromEnv) {
-                $sessionName = \getenv(self::ENV_ROLE_SESSION_NAME) ? \getenv(self::ENV_ROLE_SESSION_NAME) : null;
-                $provider = new AssumeRoleWithWebIdentityCredentialProvider(['RoleArn' => $arnFromEnv, 'WebIdentityTokenFile' => $tokenFromEnv, 'SessionName' => $sessionName, 'client' => $stsClient, 'region' => $region]);
+                $sessionName = getenv(self::ENV_ROLE_SESSION_NAME) ? getenv(self::ENV_ROLE_SESSION_NAME) : null;
+                $provider = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\AssumeRoleWithWebIdentityCredentialProvider(['RoleArn' => $arnFromEnv, 'WebIdentityTokenFile' => $tokenFromEnv, 'SessionName' => $sessionName, 'client' => $stsClient, 'region' => $region]);
                 return $provider();
             }
-            $profileName = \getenv(self::ENV_PROFILE) ?: 'default';
+            $profileName = getenv(self::ENV_PROFILE) ?: 'default';
             if (isset($config['filename'])) {
                 $profiles = self::loadProfiles($config['filename']);
             } else {
@@ -348,7 +337,7 @@ class CredentialProvider
                 }
                 if (isset($profile['web_identity_token_file']) && isset($profile['role_arn'])) {
                     $sessionName = isset($profile['role_session_name']) ? $profile['role_session_name'] : null;
-                    $provider = new AssumeRoleWithWebIdentityCredentialProvider(['RoleArn' => $profile['role_arn'], 'WebIdentityTokenFile' => $profile['web_identity_token_file'], 'SessionName' => $sessionName, 'client' => $stsClient, 'region' => $region]);
+                    $provider = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\AssumeRoleWithWebIdentityCredentialProvider(['RoleArn' => $profile['role_arn'], 'WebIdentityTokenFile' => $profile['web_identity_token_file'], 'SessionName' => $sessionName, 'client' => $stsClient, 'region' => $region]);
                     return $provider();
                 }
             } else {
@@ -379,16 +368,16 @@ class CredentialProvider
     public static function ini($profile = null, $filename = null, array $config = [])
     {
         $filename = self::getFileName($filename);
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
         return function () use($profile, $filename, $config) {
-            $preferStaticCredentials = isset($config['preferStaticCredentials']) ? $config['preferStaticCredentials'] : \false;
-            $disableAssumeRole = isset($config['disableAssumeRole']) ? $config['disableAssumeRole'] : \false;
+            $preferStaticCredentials = isset($config['preferStaticCredentials']) ? $config['preferStaticCredentials'] : false;
+            $disableAssumeRole = isset($config['disableAssumeRole']) ? $config['disableAssumeRole'] : false;
             $stsClient = isset($config['stsClient']) ? $config['stsClient'] : null;
-            if (!@\is_readable($filename)) {
+            if (!is_readable($filename)) {
                 return self::reject("Cannot read credentials from {$filename}");
             }
             $data = self::loadProfiles($filename);
-            if ($data === \false) {
+            if ($data === false) {
                 return self::reject("Invalid credentials file: {$filename}");
             }
             if (!isset($data[$profile])) {
@@ -417,7 +406,7 @@ class CredentialProvider
             if (empty($data[$profile]['aws_session_token'])) {
                 $data[$profile]['aws_session_token'] = isset($data[$profile]['aws_security_token']) ? $data[$profile]['aws_security_token'] : null;
             }
-            return Promise\Create::promiseFor(new Credentials($data[$profile]['aws_access_key_id'], $data[$profile]['aws_secret_access_key'], $data[$profile]['aws_session_token']));
+            return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for(new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\Credentials($data[$profile]['aws_access_key_id'], $data[$profile]['aws_secret_access_key'], $data[$profile]['aws_session_token']));
         };
     }
     /**
@@ -434,13 +423,13 @@ class CredentialProvider
     public static function process($profile = null, $filename = null)
     {
         $filename = self::getFileName($filename);
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
         return function () use($profile, $filename) {
-            if (!@\is_readable($filename)) {
+            if (!is_readable($filename)) {
                 return self::reject("Cannot read process credentials from {$filename}");
             }
-            $data = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($filename, \true, \INI_SCANNER_RAW);
-            if ($data === \false) {
+            $data = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($filename, true, INI_SCANNER_RAW);
+            if ($data === false) {
                 return self::reject("Invalid credentials file: {$filename}");
             }
             if (!isset($data[$profile])) {
@@ -450,8 +439,8 @@ class CredentialProvider
                 return self::reject("No credential_process present in INI profile " . "'{$profile}' ({$filename})");
             }
             $credentialProcess = $data[$profile]['credential_process'];
-            $json = \shell_exec($credentialProcess);
-            $processData = \json_decode($json, \true);
+            $json = shell_exec($credentialProcess);
+            $processData = json_decode($json, true);
             // Only support version 1
             if (isset($processData['Version'])) {
                 if ($processData['Version'] !== 1) {
@@ -463,11 +452,11 @@ class CredentialProvider
             }
             if (isset($processData['Expiration'])) {
                 try {
-                    $expiration = new DateTimeResult($processData['Expiration']);
+                    $expiration = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\DateTimeResult($processData['Expiration']);
                 } catch (\Exception $e) {
                     return self::reject("credential_process returned invalid expiration");
                 }
-                $now = new DateTimeResult();
+                $now = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\DateTimeResult();
                 if ($expiration < $now) {
                     return self::reject("credential_process returned expired credentials");
                 }
@@ -478,7 +467,7 @@ class CredentialProvider
             if (empty($processData['SessionToken'])) {
                 $processData['SessionToken'] = null;
             }
-            return Promise\Create::promiseFor(new Credentials($processData['AccessKeyId'], $processData['SecretAccessKey'], $processData['SessionToken'], $expires));
+            return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for(new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\Credentials($processData['AccessKeyId'], $processData['SecretAccessKey'], $processData['SessionToken'], $expires));
         };
     }
     /**
@@ -490,7 +479,7 @@ class CredentialProvider
     {
         $roleProfile = $profiles[$profileName];
         $roleArn = isset($roleProfile['role_arn']) ? $roleProfile['role_arn'] : '';
-        $roleSessionName = isset($roleProfile['role_session_name']) ? $roleProfile['role_session_name'] : 'aws-sdk-php-' . \round(\microtime(\true) * 1000);
+        $roleSessionName = isset($roleProfile['role_session_name']) ? $roleProfile['role_session_name'] : 'aws-sdk-php-' . round(microtime(true) * 1000);
         if (empty($roleProfile['source_profile']) == empty($roleProfile['credential_source'])) {
             return self::reject("Either source_profile or credential_source must be set " . "using profile " . $profileName . ", but not both.");
         }
@@ -500,7 +489,7 @@ class CredentialProvider
             if (!isset($profiles[$sourceProfileName])) {
                 return self::reject("source_profile " . $sourceProfileName . " using profile " . $profileName . " does not exist");
             }
-            if (isset($config['visited_profiles']) && \in_array($roleProfile['source_profile'], $config['visited_profiles'])) {
+            if (isset($config['visited_profiles']) && in_array($roleProfile['source_profile'], $config['visited_profiles'])) {
                 return self::reject("Circular source_profile reference found.");
             }
             $config['visited_profiles'][] = $roleProfile['source_profile'];
@@ -511,18 +500,18 @@ class CredentialProvider
         }
         if (empty($stsClient)) {
             $sourceRegion = isset($profiles[$sourceProfileName]['region']) ? $profiles[$sourceProfileName]['region'] : 'us-east-1';
-            $config['preferStaticCredentials'] = \true;
+            $config['preferStaticCredentials'] = true;
             $sourceCredentials = null;
             if (!empty($roleProfile['source_profile'])) {
-                $sourceCredentials = \call_user_func(CredentialProvider::ini($sourceProfileName, $filename, $config))->wait();
+                $sourceCredentials = call_user_func(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialProvider::ini($sourceProfileName, $filename, $config))->wait();
             } else {
                 $sourceCredentials = self::getCredentialsFromSource($profileName, $filename);
             }
-            $stsClient = new StsClient(['credentials' => $sourceCredentials, 'region' => $sourceRegion, 'version' => '2011-06-15']);
+            $stsClient = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Sts\StsClient(['credentials' => $sourceCredentials, 'region' => $sourceRegion, 'version' => '2011-06-15']);
         }
         $result = $stsClient->assumeRole(['RoleArn' => $roleArn, 'RoleSessionName' => $roleSessionName]);
         $credentials = $stsClient->createCredentials($result);
-        return Promise\Create::promiseFor($credentials);
+        return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for($credentials);
     }
     /**
      * Gets the environment's HOME directory if available.
@@ -532,12 +521,12 @@ class CredentialProvider
     private static function getHomeDir()
     {
         // On Linux/Unix-like systems, use the HOME environment variable
-        if ($homeDir = \getenv('HOME')) {
+        if ($homeDir = getenv('HOME')) {
             return $homeDir;
         }
         // Get the HOMEDRIVE and HOMEPATH values for Windows hosts
-        $homeDrive = \getenv('HOMEDRIVE');
-        $homePath = \getenv('HOMEPATH');
+        $homeDrive = getenv('HOMEDRIVE');
+        $homePath = getenv('HOMEPATH');
         return $homeDrive && $homePath ? $homeDrive . $homePath : null;
     }
     /**
@@ -545,14 +534,14 @@ class CredentialProvider
      */
     private static function loadProfiles($filename)
     {
-        $profileData = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($filename, \true, \INI_SCANNER_RAW);
+        $profileData = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($filename, true, INI_SCANNER_RAW);
         // If loading .aws/credentials, also load .aws/config when AWS_SDK_LOAD_NONDEFAULT_CONFIG is set
-        if ($filename === self::getHomeDir() . '/.aws/credentials' && \getenv('AWS_SDK_LOAD_NONDEFAULT_CONFIG')) {
+        if ($filename === self::getHomeDir() . '/.aws/credentials' && getenv('AWS_SDK_LOAD_NONDEFAULT_CONFIG')) {
             $configFilename = self::getHomeDir() . '/.aws/config';
-            $configProfileData = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($configFilename, \true, \INI_SCANNER_RAW);
+            $configProfileData = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($configFilename, true, INI_SCANNER_RAW);
             foreach ($configProfileData as $name => $profile) {
                 // standardize config profile names
-                $name = \str_replace('profile ', '', $name);
+                $name = str_replace('profile ', '', $name);
                 if (!isset($profileData[$name])) {
                     $profileData[$name] = $profile;
                 }
@@ -568,14 +557,14 @@ class CredentialProvider
         $profiles = [];
         $credFile = self::getHomeDir() . '/.aws/credentials';
         $configFile = self::getHomeDir() . '/.aws/config';
-        if (\file_exists($credFile)) {
-            $profiles = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($credFile, \true, \INI_SCANNER_RAW);
+        if (file_exists($credFile)) {
+            $profiles = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($credFile, true, INI_SCANNER_RAW);
         }
-        if (\file_exists($configFile)) {
-            $configProfileData = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($configFile, \true, \INI_SCANNER_RAW);
+        if (file_exists($configFile)) {
+            $configProfileData = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\parse_ini_file($configFile, true, INI_SCANNER_RAW);
             foreach ($configProfileData as $name => $profile) {
                 // standardize config profile names
-                $name = \str_replace('profile ', '', $name);
+                $name = str_replace('profile ', '', $name);
                 if (!isset($profiles[$name])) {
                     $profiles[$name] = $profile;
                 }
@@ -599,7 +588,7 @@ class CredentialProvider
                 $credentialsPromise = self::ecsCredentials($config);
                 break;
             default:
-                throw new CredentialsException("Invalid credential_source found in config file: {$credentialSource}. Valid inputs " . "include Environment, Ec2InstanceMetadata, and EcsContainer.");
+                throw new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\CredentialsException("Invalid credential_source found in config file: {$credentialSource}. Valid inputs " . "include Environment, Ec2InstanceMetadata, and EcsContainer.");
         }
         $credentialsResult = null;
         try {
@@ -608,12 +597,12 @@ class CredentialProvider
             return self::reject("Unable to successfully retrieve credentials from the source specified in the" . " credentials file: {$credentialSource}; failure message was: " . $reason->getMessage());
         }
         return function () use($credentialsResult) {
-            return Promise\Create::promiseFor($credentialsResult);
+            return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\promise_for($credentialsResult);
         };
     }
     private static function reject($msg)
     {
-        return new Promise\RejectedPromise(new CredentialsException($msg));
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\RejectedPromise(new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\CredentialsException($msg));
     }
     /**
      * @param $filename
@@ -622,17 +611,8 @@ class CredentialProvider
     private static function getFileName($filename)
     {
         if (!isset($filename)) {
-            $filename = \getenv(self::ENV_SHARED_CREDENTIALS_FILE) ?: self::getHomeDir() . '/.aws/credentials';
+            $filename = getenv(self::ENV_SHARED_CREDENTIALS_FILE) ?: self::getHomeDir() . '/.aws/credentials';
         }
         return $filename;
-    }
-    /**
-     * @return boolean
-     */
-    public static function shouldUseEcs()
-    {
-        //Check for relative uri. if not, then full uri.
-        //fall back to server for each as getenv is not thread-safe.
-        return !empty(\getenv(EcsCredentialProvider::ENV_URI)) || !empty($_SERVER[EcsCredentialProvider::ENV_URI]) || !empty(\getenv(EcsCredentialProvider::ENV_FULL_URI)) || !empty($_SERVER[EcsCredentialProvider::ENV_FULL_URI]);
     }
 }

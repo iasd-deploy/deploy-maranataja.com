@@ -31,7 +31,7 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\OAuth2;
  *
  * @see [Application Default Credentials](http://goo.gl/mkAHpZ)
  */
-class UserRefreshCredentials extends CredentialsLoader implements GetQuotaProjectInterface
+class UserRefreshCredentials extends \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\CredentialsLoader implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\GetQuotaProjectInterface
 {
     /**
      * The OAuth2 instance used to conduct authorization.
@@ -41,55 +41,51 @@ class UserRefreshCredentials extends CredentialsLoader implements GetQuotaProjec
     protected $auth;
     /**
      * The quota project associated with the JSON credentials
-     *
-     * @var string
      */
     protected $quotaProject;
     /**
      * Create a new UserRefreshCredentials.
      *
-     * @param string|string[] $scope the scope of the access request, expressed
+     * @param string|array $scope the scope of the access request, expressed
      *   either as an Array or as a space-delimited String.
-     * @param string|array<mixed> $jsonKey JSON credential file path or JSON credentials
+     * @param string|array $jsonKey JSON credential file path or JSON credentials
      *   as an associative array
      */
     public function __construct($scope, $jsonKey)
     {
-        if (\is_string($jsonKey)) {
-            if (!\file_exists($jsonKey)) {
+        if (is_string($jsonKey)) {
+            if (!file_exists($jsonKey)) {
                 throw new \InvalidArgumentException('file does not exist');
             }
-            $json = \file_get_contents($jsonKey);
-            if (!($jsonKey = \json_decode((string) $json, \true))) {
+            $jsonKeyStream = file_get_contents($jsonKey);
+            if (!($jsonKey = json_decode($jsonKeyStream, true))) {
                 throw new \LogicException('invalid json for auth config');
             }
         }
-        if (!\array_key_exists('client_id', $jsonKey)) {
+        if (!array_key_exists('client_id', $jsonKey)) {
             throw new \InvalidArgumentException('json key is missing the client_id field');
         }
-        if (!\array_key_exists('client_secret', $jsonKey)) {
+        if (!array_key_exists('client_secret', $jsonKey)) {
             throw new \InvalidArgumentException('json key is missing the client_secret field');
         }
-        if (!\array_key_exists('refresh_token', $jsonKey)) {
+        if (!array_key_exists('refresh_token', $jsonKey)) {
             throw new \InvalidArgumentException('json key is missing the refresh_token field');
         }
-        $this->auth = new OAuth2(['clientId' => $jsonKey['client_id'], 'clientSecret' => $jsonKey['client_secret'], 'refresh_token' => $jsonKey['refresh_token'], 'scope' => $scope, 'tokenCredentialUri' => self::TOKEN_CREDENTIAL_URI]);
-        if (\array_key_exists('quota_project_id', $jsonKey)) {
+        $this->auth = new \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\OAuth2(['clientId' => $jsonKey['client_id'], 'clientSecret' => $jsonKey['client_secret'], 'refresh_token' => $jsonKey['refresh_token'], 'scope' => $scope, 'tokenCredentialUri' => self::TOKEN_CREDENTIAL_URI]);
+        if (array_key_exists('quota_project_id', $jsonKey)) {
             $this->quotaProject = (string) $jsonKey['quota_project_id'];
         }
     }
     /**
      * @param callable $httpHandler
      *
-     * @return array<mixed> {
-     *     A set of auth related metadata, containing the following
-     *
-     *     @type string $access_token
-     *     @type int $expires_in
-     *     @type string $scope
-     *     @type string $token_type
-     *     @type string $id_token
-     * }
+     * @return array A set of auth related metadata, containing the following
+     * keys:
+     *   - access_token (string)
+     *   - expires_in (int)
+     *   - scope (string)
+     *   - token_type (string)
+     *   - id_token (string)
      */
     public function fetchAuthToken(callable $httpHandler = null)
     {
@@ -103,7 +99,7 @@ class UserRefreshCredentials extends CredentialsLoader implements GetQuotaProjec
         return $this->auth->getClientId() . ':' . $this->auth->getCacheKey();
     }
     /**
-     * @return array<mixed>
+     * @return array
      */
     public function getLastReceivedToken()
     {

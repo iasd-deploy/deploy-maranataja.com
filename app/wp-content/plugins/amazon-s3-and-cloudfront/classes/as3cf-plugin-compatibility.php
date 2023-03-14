@@ -226,6 +226,19 @@ class AS3CF_Plugin_Compatibility {
 	}
 
 	/**
+	 * Is this an AJAX process?
+	 *
+	 * @return bool
+	 */
+	function is_ajax() {
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Handler for wp_generate_attachment_metadata. Updates class
 	 * member variable when the filter has fired.
 	 *
@@ -269,8 +282,8 @@ class AS3CF_Plugin_Compatibility {
 	 *
 	 * @return bool
 	 */
-	public function maybe_process_on_action( $action_key, $ajax, $context_key = null ) {
-		if ( $ajax !== AS3CF_Utils::is_ajax() ) {
+	function maybe_process_on_action( $action_key, $ajax, $context_key = null ) {
+		if ( $ajax !== $this->is_ajax() ) {
 			return false;
 		}
 
@@ -278,7 +291,7 @@ class AS3CF_Plugin_Compatibility {
 
 		if ( isset( $_GET['action'] ) ) {
 			$action = $this->as3cf->filter_input( 'action' );
-		} elseif ( isset( $_POST['action'] ) ) {
+		} else if ( isset( $_POST['action'] ) ) {
 			$var_type = 'POST';
 			$action   = $this->as3cf->filter_input( 'action', INPUT_POST );
 		} else {
@@ -404,8 +417,8 @@ class AS3CF_Plugin_Compatibility {
 	 *
 	 * @return string
 	 */
-	public function image_editor_download_file( $url, $file, $attachment_id, Media_Library_Item $as3cf_item ) {
-		if ( ! AS3CF_Utils::is_ajax() ) {
+	function image_editor_download_file( $url, $file, $attachment_id, Media_Library_Item $as3cf_item ) {
+		if ( ! $this->is_ajax() ) {
 			return $url;
 		}
 
@@ -427,11 +440,10 @@ class AS3CF_Plugin_Compatibility {
 			}
 		}
 
-		$action = filter_input( INPUT_GET, 'action' );
-		$action = $action ? $action : filter_input( INPUT_POST, 'action' );
+		$action = filter_input( INPUT_GET, 'action' ) ?: filter_input( INPUT_POST, 'action' );
 
 		if ( in_array( $action, array( 'image-editor', 'imgedit-preview' ) ) ) { // input var okay
-			foreach ( debug_backtrace() as $caller ) { // phpcs:ignore
+			foreach ( debug_backtrace() as $caller ) {
 				if ( isset( $caller['function'] ) && '_load_image_to_edit_path' == $caller['function'] ) {
 					// check this has been called by '_load_image_to_edit_path' so as only to copy back once
 					if ( $provider_file = $this->copy_provider_file_to_server( $as3cf_item, $file ) ) {
@@ -456,7 +468,7 @@ class AS3CF_Plugin_Compatibility {
 	 * @return array
 	 */
 	public function image_editor_remove_original_image( $files_to_remove, $as3cf_item, $item_source ) {
-		if ( ! AS3CF_Utils::is_ajax() ) {
+		if ( ! $this->is_ajax() ) {
 			return $files_to_remove;
 		}
 
@@ -721,7 +733,6 @@ class AS3CF_Plugin_Compatibility {
 		}
 
 		$image_src = preg_match( '/src="([^"]+)"/', $image, $match_src ) ? $match_src[1] : '';
-
 		list( $image_src ) = explode( '?', $image_src );
 
 		// Return early if we couldn't get the image source.

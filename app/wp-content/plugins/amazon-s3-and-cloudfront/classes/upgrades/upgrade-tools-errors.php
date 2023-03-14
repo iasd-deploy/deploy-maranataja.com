@@ -2,8 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_Media\Upgrades;
 
-use DeliciousBrains\WP_Offload_Media\Pro\Tool;
-use DeliciousBrains\WP_Offload_Media\Pro\Tools_Manager;
+use DeliciousBrains\WP_Offload_Media\Pro\Sidebar_Presenter;
 
 /**
  * Upgrade_Tools_Errors Class
@@ -35,7 +34,7 @@ class Upgrade_Tools_Errors extends Upgrade {
 	 * @return string
 	 */
 	protected function get_running_update_text() {
-		return __( 'and reformatting internal data about previous errors from tools.', 'amazon-s3-and-cloudfront' );
+		return __( 'and reformatting internal data about previous errors from tools .', 'amazon-s3-and-cloudfront' );
 	}
 
 	/**
@@ -54,8 +53,8 @@ class Upgrade_Tools_Errors extends Upgrade {
 			return array();
 		}
 
-		$tools_manager = Tools_Manager::get_instance( $as3cf );
-		$tools         = $tools_manager->get_tools();
+		$sidebar_presenter = Sidebar_Presenter::get_instance( $as3cf );
+		$tools             = $sidebar_presenter->get_all_tools();
 
 		return array_keys( $tools );
 	}
@@ -76,11 +75,10 @@ class Upgrade_Tools_Errors extends Upgrade {
 			return true;
 		}
 
-		$tools_manager = Tools_Manager::get_instance( $as3cf );
-		$tools         = $tools_manager->get_tools();
+		$sidebar_presenter = Sidebar_Presenter::get_instance( $as3cf );
+		$tools             = $sidebar_presenter->get_all_tools();
 
 		if ( ! empty( $tools[ $item ] ) ) {
-			/** @var Tool $tool */
 			$tool = $tools[ $item ];
 
 			$errors     = $tool->get_errors();

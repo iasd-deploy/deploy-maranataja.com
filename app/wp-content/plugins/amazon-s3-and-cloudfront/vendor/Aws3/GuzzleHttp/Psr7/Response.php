@@ -7,7 +7,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
 /**
  * PSR-7 response implementation.
  */
-class Response implements ResponseInterface
+class Response implements \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface
 {
     use MessageTrait;
     /** @var array Map of standard HTTP status code/reason phrases */
@@ -19,7 +19,7 @@ class Response implements ResponseInterface
     /**
      * @param int                                  $status  Status code
      * @param array                                $headers Response headers
-     * @param string|resource|StreamInterface|null $body    Response body
+     * @param string|null|resource|StreamInterface $body    Response body
      * @param string                               $version Protocol version
      * @param string|null                          $reason  Reason phrase (when empty a default will be used based on the status code)
      */
@@ -30,7 +30,7 @@ class Response implements ResponseInterface
         $this->assertStatusCodeRange($status);
         $this->statusCode = $status;
         if ($body !== '' && $body !== null) {
-            $this->stream = Utils::streamFor($body);
+            $this->stream = \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\Utils::streamFor($body);
         }
         $this->setHeaders($headers);
         if ($reason == '' && isset(self::$phrases[$this->statusCode])) {
@@ -63,7 +63,7 @@ class Response implements ResponseInterface
     }
     private function assertStatusCodeIsInteger($statusCode)
     {
-        if (\filter_var($statusCode, \FILTER_VALIDATE_INT) === \false) {
+        if (filter_var($statusCode, FILTER_VALIDATE_INT) === false) {
             throw new \InvalidArgumentException('Status code must be an integer value.');
         }
     }

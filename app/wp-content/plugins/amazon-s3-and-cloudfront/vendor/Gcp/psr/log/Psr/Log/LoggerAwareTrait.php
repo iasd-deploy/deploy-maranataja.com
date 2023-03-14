@@ -10,7 +10,7 @@ trait LoggerAwareTrait
     /**
      * The logger instance.
      *
-     * @var LoggerInterface|null
+     * @var LoggerInterface
      */
     protected $logger;
     /**
@@ -18,7 +18,7 @@ trait LoggerAwareTrait
      *
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(\DeliciousBrains\WP_Offload_Media\Gcp\Psr\Log\LoggerInterface $logger)
     {
         $this->logger = $logger;
     }

@@ -6,10 +6,8 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
 /**
  * Stream decorator that can cache previously read bytes from a sequentially
  * read stream.
- *
- * @final
  */
-class CachingStream implements StreamInterface
+class CachingStream implements \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface
 {
     use StreamDecoratorTrait;
     /** @var StreamInterface Stream being wrapped */
@@ -19,33 +17,29 @@ class CachingStream implements StreamInterface
     /**
      * We will treat the buffer object as the body of the stream
      *
-     * @param StreamInterface $stream Stream to cache. The cursor is assumed to be at the beginning of the stream.
+     * @param StreamInterface $stream Stream to cache
      * @param StreamInterface $target Optionally specify where data is cached
      */
-    public function __construct(StreamInterface $stream, StreamInterface $target = null)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $stream, \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $target = null)
     {
         $this->remoteStream = $stream;
-        $this->stream = $target ?: new Stream(Utils::tryFopen('php://temp', 'r+'));
+        $this->stream = $target ?: new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\Stream(fopen('php://temp', 'r+'));
     }
     public function getSize()
     {
-        $remoteSize = $this->remoteStream->getSize();
-        if (null === $remoteSize) {
-            return null;
-        }
-        return \max($this->stream->getSize(), $remoteSize);
+        return max($this->stream->getSize(), $this->remoteStream->getSize());
     }
     public function rewind()
     {
         $this->seek(0);
     }
-    public function seek($offset, $whence = \SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET)
     {
-        if ($whence == \SEEK_SET) {
+        if ($whence == SEEK_SET) {
             $byte = $offset;
-        } elseif ($whence == \SEEK_CUR) {
+        } elseif ($whence == SEEK_CUR) {
             $byte = $offset + $this->tell();
-        } elseif ($whence == \SEEK_END) {
+        } elseif ($whence == SEEK_END) {
             $size = $this->remoteStream->getSize();
             if ($size === null) {
                 $size = $this->cacheEntireStream();
@@ -71,7 +65,7 @@ class CachingStream implements StreamInterface
     {
         // Perform a regular read on any previously read data from the buffer
         $data = $this->stream->read($length);
-        $remaining = $length - \strlen($data);
+        $remaining = $length - strlen($data);
         // More data was requested so read from the remote stream
         if ($remaining) {
             // If data was written to the buffer in a position that would have
@@ -80,9 +74,9 @@ class CachingStream implements StreamInterface
             // position. This mimics the behavior of other PHP stream wrappers.
             $remoteData = $this->remoteStream->read($remaining + $this->skipReadBytes);
             if ($this->skipReadBytes) {
-                $len = \strlen($remoteData);
-                $remoteData = \substr($remoteData, $this->skipReadBytes);
-                $this->skipReadBytes = \max(0, $this->skipReadBytes - $len);
+                $len = strlen($remoteData);
+                $remoteData = substr($remoteData, $this->skipReadBytes);
+                $this->skipReadBytes = max(0, $this->skipReadBytes - $len);
             }
             $data .= $remoteData;
             $this->stream->write($remoteData);
@@ -95,7 +89,7 @@ class CachingStream implements StreamInterface
         // to skip bytes from being read from the remote stream to emulate
         // other stream wrappers. Basically replacing bytes of data of a fixed
         // length.
-        $overflow = \strlen($string) + $this->tell() - $this->remoteStream->tell();
+        $overflow = strlen($string) + $this->tell() - $this->remoteStream->tell();
         if ($overflow > 0) {
             $this->skipReadBytes += $overflow;
         }
@@ -114,8 +108,8 @@ class CachingStream implements StreamInterface
     }
     private function cacheEntireStream()
     {
-        $target = new FnStream(['write' => 'strlen']);
-        Utils::copyToStream($this, $target);
+        $target = new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\FnStream(['write' => 'strlen']);
+        \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\Utils::copyToStream($this, $target);
         return $this->tell();
     }
 }

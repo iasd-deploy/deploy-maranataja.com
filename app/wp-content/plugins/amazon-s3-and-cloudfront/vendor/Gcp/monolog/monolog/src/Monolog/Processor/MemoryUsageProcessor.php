@@ -17,14 +17,11 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor;
  * @see Monolog\Processor\MemoryProcessor::__construct() for options
  * @author Rob Jensen
  */
-class MemoryUsageProcessor extends MemoryProcessor
+class MemoryUsageProcessor extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor\MemoryProcessor
 {
-    /**
-     * {@inheritDoc}
-     */
     public function __invoke(array $record) : array
     {
-        $usage = \memory_get_usage($this->realUsage);
+        $usage = memory_get_usage($this->realUsage);
         if ($this->useFormatting) {
             $usage = $this->formatBytes($usage);
         }

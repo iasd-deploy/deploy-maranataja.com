@@ -17,9 +17,8 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface;
  *
  * @author Simon Mönch <sm@webfactory.de>
  */
-class UidProcessor implements ProcessorInterface, ResettableInterface
+class UidProcessor implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor\ProcessorInterface, \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface
 {
-    /** @var string */
     private $uid;
     public function __construct(int $length = 7)
     {
@@ -28,9 +27,6 @@ class UidProcessor implements ProcessorInterface, ResettableInterface
         }
         $this->uid = $this->generateUid($length);
     }
-    /**
-     * {@inheritDoc}
-     */
     public function __invoke(array $record) : array
     {
         $record['extra']['uid'] = $this->uid;
@@ -42,10 +38,10 @@ class UidProcessor implements ProcessorInterface, ResettableInterface
     }
     public function reset()
     {
-        $this->uid = $this->generateUid(\strlen($this->uid));
+        $this->uid = $this->generateUid(strlen($this->uid));
     }
     private function generateUid(int $length) : string
     {
-        return \substr(\bin2hex(\random_bytes((int) \ceil($length / 2))), 0, $length);
+        return substr(bin2hex(random_bytes((int) ceil($length / 2))), 0, $length);
     }
 }

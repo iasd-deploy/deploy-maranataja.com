@@ -1,8 +1,4 @@
 <?php
-// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited, WordPress.Security.EscapeOutput.DeprecatedWhitelistCommentFound
-
-/** @var string $message */
-
 $type          = ( isset( $type ) ) ? $type : 'notice-info';
 $dismissible   = ( isset( $dismissible ) ) ? $dismissible : false;
 $inline        = ( isset( $inline ) ) ? $inline : false;

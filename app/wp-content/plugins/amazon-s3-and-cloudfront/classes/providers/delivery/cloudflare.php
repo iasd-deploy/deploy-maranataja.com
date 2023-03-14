@@ -2,7 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_Media\Providers\Delivery;
 
-class Cloudflare extends Delivery_Provider {
+class Cloudflare extends Another_CDN {
 
 	/**
 	 * Which storage providers does the delivery provider support, empty means all.
@@ -59,18 +59,4 @@ class Cloudflare extends Delivery_Provider {
 	 * @var string
 	 */
 	protected static $provider_service_quick_start_slug = 'cloudflare-setup';
-
-	/**
-	 * @var string
-	 */
-	protected $console_url = 'https://dash.cloudflare.com';
-
-	/**
-	 * Title to be shown for provider's console link.
-	 *
-	 * @return string
-	 */
-	public static function get_console_title(): string {
-		return _x( 'Cloudflare Dashboard', 'Provider console link text', 'amazon-s3-and-cloudfront' );
-	}
 }

@@ -16,36 +16,23 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor;
  *
  * @author Martijn Riemers
  */
-class TagProcessor implements ProcessorInterface
+class TagProcessor implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Processor\ProcessorInterface
 {
-    /** @var string[] */
     private $tags;
-    /**
-     * @param string[] $tags
-     */
     public function __construct(array $tags = [])
     {
         $this->setTags($tags);
     }
-    /**
-     * @param string[] $tags
-     */
     public function addTags(array $tags = []) : self
     {
-        $this->tags = \array_merge($this->tags, $tags);
+        $this->tags = array_merge($this->tags, $tags);
         return $this;
     }
-    /**
-     * @param string[] $tags
-     */
     public function setTags(array $tags = []) : self
     {
         $this->tags = $tags;
         return $this;
     }
-    /**
-     * {@inheritDoc}
-     */
     public function __invoke(array $record) : array
     {
         $record['extra']['tags'] = $this->tags;

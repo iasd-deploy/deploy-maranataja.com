@@ -11,16 +11,16 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface;
 /**
  * Parses XML errors.
  */
-class XmlErrorParser extends AbstractErrorParser
+class XmlErrorParser extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\ErrorParser\AbstractErrorParser
 {
     use PayloadParserTrait;
     protected $parser;
-    public function __construct(Service $api = null, XmlParser $parser = null)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $api = null, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\XmlParser $parser = null)
     {
         parent::__construct($api);
-        $this->parser = $parser ?: new XmlParser();
+        $this->parser = $parser ?: new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\XmlParser();
     }
-    public function __invoke(ResponseInterface $response, CommandInterface $command = null)
+    public function __invoke(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandInterface $command = null)
     {
         $code = (string) $response->getStatusCode();
         $data = ['type' => $code[0] == '4' ? 'client' : 'server', 'request_id' => null, 'code' => null, 'message' => null, 'parsed' => null];
@@ -33,7 +33,7 @@ class XmlErrorParser extends AbstractErrorParser
         $this->populateShape($data, $response, $command);
         return $data;
     }
-    private function parseHeaders(ResponseInterface $response, array &$data)
+    private function parseHeaders(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response, array &$data)
     {
         if ($response->getStatusCode() == '404') {
             $data['code'] = 'NotFound';
@@ -70,12 +70,12 @@ class XmlErrorParser extends AbstractErrorParser
         $element->registerXPathNamespace('ns', $namespaces['']);
         return 'ns:';
     }
-    protected function payload(ResponseInterface $response, StructureShape $member)
+    protected function payload(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape $member)
     {
         $xmlBody = $this->parseXml($response->getBody(), $response);
         $prefix = $this->registerNamespacePrefix($xmlBody);
         $errorBody = $xmlBody->xpath("//{$prefix}Error");
-        if (\is_array($errorBody) && !empty($errorBody[0])) {
+        if (is_array($errorBody) && !empty($errorBody[0])) {
             return $this->parser->parse($member, $errorBody[0]);
         }
     }

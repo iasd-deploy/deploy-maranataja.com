@@ -3,11 +3,11 @@
 namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws;
 
 use DeliciousBrains\WP_Offload_Media\Aws3\Doctrine\Common\Cache\Cache;
-class DoctrineCacheAdapter implements CacheInterface, Cache
+class DoctrineCacheAdapter implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\CacheInterface, \DeliciousBrains\WP_Offload_Media\Aws3\Doctrine\Common\Cache\Cache
 {
     /** @var Cache */
     private $cache;
-    public function __construct(Cache $cache)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Doctrine\Common\Cache\Cache $cache)
     {
         $this->cache = $cache;
     }

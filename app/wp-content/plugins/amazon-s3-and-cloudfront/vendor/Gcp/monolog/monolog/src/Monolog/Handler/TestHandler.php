@@ -12,7 +12,6 @@ declare (strict_types=1);
 namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler;
 
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger;
-use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Log\LogLevel;
 /**
  * Used for testing purposes.
  *
@@ -64,149 +63,112 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Log\LogLevel;
  * @method bool hasNoticeThatPasses($message)
  * @method bool hasInfoThatPasses($message)
  * @method bool hasDebugThatPasses($message)
- *
- * @phpstan-import-type Record from \Monolog\Logger
- * @phpstan-import-type Level from \Monolog\Logger
- * @phpstan-import-type LevelName from \Monolog\Logger
  */
-class TestHandler extends AbstractProcessingHandler
+class TestHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
-    /** @var Record[] */
     protected $records = [];
-    /** @var array<Level, Record[]> */
     protected $recordsByLevel = [];
-    /** @var bool */
-    private $skipReset = \false;
-    /**
-     * @return array
-     *
-     * @phpstan-return Record[]
-     */
+    private $skipReset = false;
     public function getRecords()
     {
         return $this->records;
     }
-    /**
-     * @return void
-     */
     public function clear()
     {
         $this->records = [];
         $this->recordsByLevel = [];
     }
-    /**
-     * @return void
-     */
     public function reset()
     {
         if (!$this->skipReset) {
             $this->clear();
         }
     }
-    /**
-     * @return void
-     */
     public function setSkipReset(bool $skipReset)
     {
         $this->skipReset = $skipReset;
     }
     /**
      * @param string|int $level Logging level value or name
-     *
-     * @phpstan-param Level|LevelName|LogLevel::* $level
      */
     public function hasRecords($level) : bool
     {
-        return isset($this->recordsByLevel[Logger::toMonologLevel($level)]);
+        return isset($this->recordsByLevel[\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::toMonologLevel($level)]);
     }
     /**
      * @param string|array $record Either a message string or an array containing message and optionally context keys that will be checked against all records
      * @param string|int   $level  Logging level value or name
-     *
-     * @phpstan-param array{message: string, context?: mixed[]}|string $record
-     * @phpstan-param Level|LevelName|LogLevel::*                      $level
      */
     public function hasRecord($record, $level) : bool
     {
-        if (\is_string($record)) {
+        if (is_string($record)) {
             $record = array('message' => $record);
         }
         return $this->hasRecordThatPasses(function ($rec) use($record) {
             if ($rec['message'] !== $record['message']) {
-                return \false;
+                return false;
             }
             if (isset($record['context']) && $rec['context'] !== $record['context']) {
-                return \false;
+                return false;
             }
-            return \true;
+            return true;
         }, $level);
     }
     /**
      * @param string|int $level Logging level value or name
-     *
-     * @phpstan-param Level|LevelName|LogLevel::* $level
      */
     public function hasRecordThatContains(string $message, $level) : bool
     {
         return $this->hasRecordThatPasses(function ($rec) use($message) {
-            return \strpos($rec['message'], $message) !== \false;
+            return strpos($rec['message'], $message) !== false;
         }, $level);
     }
     /**
      * @param string|int $level Logging level value or name
-     *
-     * @phpstan-param Level|LevelName|LogLevel::* $level
      */
     public function hasRecordThatMatches(string $regex, $level) : bool
     {
         return $this->hasRecordThatPasses(function (array $rec) use($regex) : bool {
-            return \preg_match($regex, $rec['message']) > 0;
+            return preg_match($regex, $rec['message']) > 0;
         }, $level);
     }
     /**
-     * @param  string|int $level Logging level value or name
-     * @return bool
+     * @psalm-param callable(array, int): mixed $predicate
      *
-     * @psalm-param callable(Record, int): mixed $predicate
-     * @phpstan-param Level|LevelName|LogLevel::* $level
+     * @param string|int $level Logging level value or name
+     * @return bool
      */
     public function hasRecordThatPasses(callable $predicate, $level)
     {
-        $level = Logger::toMonologLevel($level);
+        $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::toMonologLevel($level);
         if (!isset($this->recordsByLevel[$level])) {
-            return \false;
+            return false;
         }
         foreach ($this->recordsByLevel[$level] as $i => $rec) {
             if ($predicate($rec, $i)) {
-                return \true;
+                return true;
             }
         }
-        return \false;
+        return false;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function write(array $record) : void
     {
         $this->recordsByLevel[$record['level']][] = $record;
         $this->records[] = $record;
     }
-    /**
-     * @param  string  $method
-     * @param  mixed[] $args
-     * @return bool
-     */
     public function __call($method, $args)
     {
-        if (\preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches) > 0) {
+        if (preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches) > 0) {
             $genericMethod = $matches[1] . ('Records' !== $matches[3] ? 'Record' : '') . $matches[3];
-            $level = \constant('DeliciousBrains\\WP_Offload_Media\\Gcp\\Monolog\\Logger::' . \strtoupper($matches[2]));
-            $callback = [$this, $genericMethod];
-            if (\is_callable($callback)) {
+            $level = constant('DeliciousBrains\\WP_Offload_Media\\Gcp\\Monolog\\Logger::' . strtoupper($matches[2]));
+            if (method_exists($this, $genericMethod)) {
                 $args[] = $level;
-                return \call_user_func_array($callback, $args);
+                return call_user_func_array([$this, $genericMethod], $args);
             }
         }
-        throw new \BadMethodCallException('Call to undefined method ' . \get_class($this) . '::' . $method . '()');
+        throw new \BadMethodCallException('Call to undefined method ' . get_class($this) . '::' . $method . '()');
     }
 }

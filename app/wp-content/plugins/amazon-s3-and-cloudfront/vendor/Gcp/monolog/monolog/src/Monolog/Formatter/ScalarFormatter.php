@@ -17,30 +17,27 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter;
  *
  * @author Andrew Lawson <adlawson@gmail.com>
  */
-class ScalarFormatter extends NormalizerFormatter
+class ScalarFormatter extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\NormalizerFormatter
 {
     /**
-     * {@inheritDoc}
-     *
-     * @phpstan-return array<string, scalar|null> $record
+     * {@inheritdoc}
      */
     public function format(array $record) : array
     {
-        $result = [];
         foreach ($record as $key => $value) {
-            $result[$key] = $this->normalizeValue($value);
+            $record[$key] = $this->normalizeValue($value);
         }
-        return $result;
+        return $record;
     }
     /**
-     * @param  mixed                      $value
-     * @return scalar|null
+     * @param  mixed $value
+     * @return mixed
      */
     protected function normalizeValue($value)
     {
         $normalized = $this->normalize($value);
-        if (\is_array($normalized)) {
-            return $this->toJson($normalized, \true);
+        if (is_array($normalized) || is_object($normalized)) {
+            return $this->toJson($normalized, true);
         }
         return $normalized;
     }

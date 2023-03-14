@@ -12,7 +12,6 @@ declare (strict_types=1);
 namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\FingersCrossed;
 
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger;
-use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Log\LogLevel;
 /**
  * Channel and Error level based monolog activation strategy. Allows to trigger activation
  * based on level per channel. e.g. trigger activation on level 'ERROR' by default, except
@@ -32,36 +31,26 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Log\LogLevel;
  * </code>
  *
  * @author Mike Meessen <netmikey@gmail.com>
- *
- * @phpstan-import-type Record from \Monolog\Logger
- * @phpstan-import-type Level from \Monolog\Logger
- * @phpstan-import-type LevelName from \Monolog\Logger
  */
-class ChannelLevelActivationStrategy implements ActivationStrategyInterface
+class ChannelLevelActivationStrategy implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\FingersCrossed\ActivationStrategyInterface
 {
     /**
-     * @var Level
+     * @var int
      */
     private $defaultActionLevel;
     /**
-     * @var array<string, Level>
+     * @var array
      */
     private $channelToActionLevel;
     /**
-     * @param int|string         $defaultActionLevel   The default action level to be used if the record's category doesn't match any
-     * @param array<string, int> $channelToActionLevel An array that maps channel names to action levels.
-     *
-     * @phpstan-param array<string, Level>        $channelToActionLevel
-     * @phpstan-param Level|LevelName|LogLevel::* $defaultActionLevel
+     * @param int|string $defaultActionLevel   The default action level to be used if the record's category doesn't match any
+     * @param array      $channelToActionLevel An array that maps channel names to action levels.
      */
     public function __construct($defaultActionLevel, array $channelToActionLevel = [])
     {
-        $this->defaultActionLevel = Logger::toMonologLevel($defaultActionLevel);
-        $this->channelToActionLevel = \array_map('DeliciousBrains\\WP_Offload_Media\\Gcp\\Monolog\\Logger::toMonologLevel', $channelToActionLevel);
+        $this->defaultActionLevel = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::toMonologLevel($defaultActionLevel);
+        $this->channelToActionLevel = array_map('DeliciousBrains\\WP_Offload_Media\\Gcp\\Monolog\\Logger::toMonologLevel', $channelToActionLevel);
     }
-    /**
-     * @phpstan-param Record $record
-     */
     public function isHandlerActivated(array $record) : bool
     {
         if (isset($this->channelToActionLevel[$record['channel']])) {

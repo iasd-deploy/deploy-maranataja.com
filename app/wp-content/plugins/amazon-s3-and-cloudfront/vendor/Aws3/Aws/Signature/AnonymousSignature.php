@@ -7,19 +7,13 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\RequestInterface;
 /**
  * Provides anonymous client access (does not sign requests).
  */
-class AnonymousSignature implements SignatureInterface
+class AnonymousSignature implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Signature\SignatureInterface
 {
-    /**
-     * /** {@inheritdoc}
-     */
-    public function signRequest(RequestInterface $request, CredentialsInterface $credentials)
+    public function signRequest(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\RequestInterface $request, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialsInterface $credentials)
     {
         return $request;
     }
-    /**
-     * /** {@inheritdoc}
-     */
-    public function presign(RequestInterface $request, CredentialsInterface $credentials, $expires, array $options = [])
+    public function presign(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\RequestInterface $request, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\CredentialsInterface $credentials, $expires, array $options = [])
     {
         return $request;
     }

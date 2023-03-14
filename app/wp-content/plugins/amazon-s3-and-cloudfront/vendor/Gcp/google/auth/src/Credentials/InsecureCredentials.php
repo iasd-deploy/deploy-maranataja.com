@@ -23,17 +23,19 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\FetchAuthTokenInterface;
  * This is useful for APIs which do not require authentication, for local
  * service emulators, and for testing.
  */
-class InsecureCredentials implements FetchAuthTokenInterface
+class InsecureCredentials implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\FetchAuthTokenInterface
 {
     /**
-     * @var array{access_token:string}
+     * @var array
      */
     private $token = ['access_token' => ''];
     /**
      * Fetches the auth token. In this case it returns an empty string.
      *
      * @param callable $httpHandler
-     * @return array{access_token:string} A set of auth related metadata
+     * @return array A set of auth related metadata, containing the following
+     * keys:
+     *   - access_token (string)
      */
     public function fetchAuthToken(callable $httpHandler = null)
     {
@@ -53,7 +55,7 @@ class InsecureCredentials implements FetchAuthTokenInterface
      * Fetches the last received token. In this case, it returns the same empty string
      * auth token.
      *
-     * @return array{access_token:string}
+     * @return array
      */
     public function getLastReceivedToken()
     {

@@ -11,7 +11,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
 /**
  * @internal Parses query (XML) responses (e.g., EC2, SQS, and many others)
  */
-class QueryParser extends AbstractParser
+class QueryParser extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\AbstractParser
 {
     use PayloadParserTrait;
     /** @var bool */
@@ -23,22 +23,22 @@ class QueryParser extends AbstractParser
      *                                      back of result wrappers from the
      *                                      output structure.
      */
-    public function __construct(Service $api, XmlParser $xmlParser = null, $honorResultWrapper = \true)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $api, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\XmlParser $xmlParser = null, $honorResultWrapper = true)
     {
         parent::__construct($api);
-        $this->parser = $xmlParser ?: new XmlParser();
+        $this->parser = $xmlParser ?: new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\XmlParser();
         $this->honorResultWrapper = $honorResultWrapper;
     }
-    public function __invoke(CommandInterface $command, ResponseInterface $response)
+    public function __invoke(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response)
     {
         $output = $this->api->getOperation($command->getName())->getOutput();
         $xml = $this->parseXml($response->getBody(), $response);
         if ($this->honorResultWrapper && $output['resultWrapper']) {
             $xml = $xml->{$output['resultWrapper']};
         }
-        return new Result($this->parser->parse($output, $xml));
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Result($this->parser->parse($output, $xml));
     }
-    public function parseMemberFromStream(StreamInterface $stream, StructureShape $member, $response)
+    public function parseMemberFromStream(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $stream, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape $member, $response)
     {
         $xml = $this->parseXml($stream, $response);
         return $this->parser->parse($member, $xml);

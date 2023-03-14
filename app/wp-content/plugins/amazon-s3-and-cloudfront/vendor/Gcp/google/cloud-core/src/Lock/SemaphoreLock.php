@@ -27,7 +27,7 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\SysvTrait;
  *      incompatible ways. Please use with caution, and test thoroughly when
  *      upgrading.
  */
-class SemaphoreLock implements LockInterface
+class SemaphoreLock implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Lock\LockInterface
 {
     use LockTrait;
     use SysvTrait;
@@ -49,7 +49,7 @@ class SemaphoreLock implements LockInterface
         if (!$this->isSysvIPCLoaded()) {
             throw new \RuntimeException('SystemV IPC extensions are required.');
         }
-        if (!\is_int($key)) {
+        if (!is_int($key)) {
             throw new \InvalidArgumentException('The provided key must be an integer.');
         }
         $this->key = $key;
@@ -68,16 +68,16 @@ class SemaphoreLock implements LockInterface
      */
     public function acquire(array $options = [])
     {
-        $options += ['blocking' => \true];
+        $options += ['blocking' => true];
         if ($this->semaphoreId) {
-            return \true;
+            return true;
         }
         $this->semaphoreId = $this->initializeId();
-        if (!\sem_acquire($this->semaphoreId, !$options['blocking'])) {
+        if (!sem_acquire($this->semaphoreId, !$options['blocking'])) {
             $this->semaphoreId = null;
             throw new \RuntimeException('Failed to acquire lock.');
         }
-        return \true;
+        return true;
     }
     /**
      * Releases the lock.
@@ -87,7 +87,7 @@ class SemaphoreLock implements LockInterface
     public function release()
     {
         if ($this->semaphoreId) {
-            $released = \sem_release($this->semaphoreId);
+            $released = sem_release($this->semaphoreId);
             $this->semaphoreId = null;
             if (!$released) {
                 throw new \RuntimeException('Failed to release lock.');
@@ -102,7 +102,7 @@ class SemaphoreLock implements LockInterface
      */
     private function initializeId()
     {
-        $semaphoreId = \sem_get($this->key);
+        $semaphoreId = sem_get($this->key);
         if (!$semaphoreId) {
             throw new \RuntimeException('Failed to generate semaphore ID.');
         }

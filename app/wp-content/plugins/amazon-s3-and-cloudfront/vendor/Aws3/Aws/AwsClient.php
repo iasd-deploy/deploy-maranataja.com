@@ -14,7 +14,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\Uri;
 /**
  * Default AWS client implementation
  */
-class AwsClient implements AwsClientInterface
+class AwsClient implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\AwsClientInterface
 {
     use AwsClientTrait;
     /** @var array */
@@ -42,7 +42,7 @@ class AwsClient implements AwsClientInterface
      */
     public static function getArguments()
     {
-        return ClientResolver::getDefaultArguments();
+        return \DeliciousBrains\WP_Offload_Media\Aws3\Aws\ClientResolver::getDefaultArguments();
     }
     /**
      * The client constructor accepts the following options:
@@ -183,12 +183,12 @@ class AwsClient implements AwsClientInterface
         if (!isset($args['exception_class'])) {
             $args['exception_class'] = $exceptionClass;
         }
-        $this->handlerList = new HandlerList();
-        $resolver = new ClientResolver(static::getArguments());
+        $this->handlerList = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\HandlerList();
+        $resolver = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\ClientResolver(static::getArguments());
         $config = $resolver->resolve($args, $this->handlerList);
         $this->api = $config['api'];
         $this->signatureProvider = $config['signature_provider'];
-        $this->endpoint = new Uri($config['endpoint']);
+        $this->endpoint = new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\Uri($config['endpoint']);
         $this->credentialProvider = $config['credentials'];
         $this->region = isset($config['region']) ? $config['region'] : null;
         $this->config = $config['config'];
@@ -199,7 +199,6 @@ class AwsClient implements AwsClientInterface
         $this->addEndpointDiscoveryMiddleware($config, $args);
         $this->loadAliases();
         $this->addStreamRequestPayload();
-        $this->addRecursionDetection();
         if (isset($args['with_resolved'])) {
             $args['with_resolved']($config);
         }
@@ -233,7 +232,7 @@ class AwsClient implements AwsClientInterface
     {
         // Fail fast if the command cannot be found in the description.
         if (!isset($this->getApi()['operations'][$name])) {
-            $name = \ucfirst($name);
+            $name = ucfirst($name);
             if (!isset($this->getApi()['operations'][$name])) {
                 throw new \InvalidArgumentException("Operation not found: {$name}");
             }
@@ -243,7 +242,7 @@ class AwsClient implements AwsClientInterface
         } else {
             $args['@http'] += $this->defaultRequestOptions;
         }
-        return new Command($name, $args, clone $this->getHandlerList());
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Command($name, $args, clone $this->getHandlerList());
     }
     public function __sleep()
     {
@@ -266,25 +265,25 @@ class AwsClient implements AwsClientInterface
      */
     private function parseClass()
     {
-        $klass = \get_class($this);
+        $klass = get_class($this);
         if ($klass === __CLASS__) {
             return ['', 'DeliciousBrains\\WP_Offload_Media\\Aws3\\Aws\\Exception\\AwsException'];
         }
-        $service = \substr($klass, \strrpos($klass, '\\') + 1, -6);
-        return [\strtolower($service), "DeliciousBrains\\WP_Offload_Media\\Aws3\\Aws\\{$service}\\Exception\\{$service}Exception"];
+        $service = substr($klass, strrpos($klass, '\\') + 1, -6);
+        return [strtolower($service), "DeliciousBrains\\WP_Offload_Media\\Aws3\\Aws\\{$service}\\Exception\\{$service}Exception"];
     }
     private function addEndpointParameterMiddleware($args)
     {
         if (empty($args['disable_host_prefix_injection'])) {
             $list = $this->getHandlerList();
-            $list->appendBuild(EndpointParameterMiddleware::wrap($this->api), 'endpoint_parameter');
+            $list->appendBuild(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\EndpointParameterMiddleware::wrap($this->api), 'endpoint_parameter');
         }
     }
     private function addEndpointDiscoveryMiddleware($config, $args)
     {
         $list = $this->getHandlerList();
         if (!isset($args['endpoint'])) {
-            $list->appendBuild(EndpointDiscoveryMiddleware::wrap($this, $args, $config['endpoint_discovery']), 'EndpointDiscoveryMiddleware');
+            $list->appendBuild(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\EndpointDiscovery\EndpointDiscoveryMiddleware::wrap($this, $args, $config['endpoint_discovery']), 'EndpointDiscoveryMiddleware');
         }
     }
     private function addSignatureMiddleware()
@@ -294,7 +293,7 @@ class AwsClient implements AwsClientInterface
         $version = $this->config['signature_version'];
         $name = $this->config['signing_name'];
         $region = $this->config['signing_region'];
-        $resolver = static function (CommandInterface $c) use($api, $provider, $name, $region, $version) {
+        $resolver = static function (\DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandInterface $c) use($api, $provider, $name, $region, $version) {
             if (!empty($c['@context']['signing_region'])) {
                 $region = $c['@context']['signing_region'];
             }
@@ -310,44 +309,33 @@ class AwsClient implements AwsClientInterface
                     $version = 'v4-unsigned-body';
                     break;
             }
-            if (isset($c['@context']['signature_version'])) {
-                if ($c['@context']['signature_version'] == 'v4a') {
-                    $version = 'v4a';
-                }
-            }
-            return SignatureProvider::resolve($provider, $version, $name, $region);
+            return \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Signature\SignatureProvider::resolve($provider, $version, $name, $region);
         };
-        $this->handlerList->appendSign(Middleware::signer($this->credentialProvider, $resolver), 'signer');
+        $this->handlerList->appendSign(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Middleware::signer($this->credentialProvider, $resolver), 'signer');
     }
     private function addInvocationId()
     {
         // Add invocation id to each request
-        $this->handlerList->prependSign(Middleware::invocationId(), 'invocation-id');
+        $this->handlerList->prependSign(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Middleware::invocationId(), 'invocation-id');
     }
     private function loadAliases($file = null)
     {
         if (!isset($this->aliases)) {
-            if (\is_null($file)) {
+            if (is_null($file)) {
                 $file = __DIR__ . '/data/aliases.json';
             }
             $aliases = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\load_compiled_json($file);
             $serviceId = $this->api->getServiceId();
             $version = $this->getApi()->getApiVersion();
             if (!empty($aliases['operations'][$serviceId][$version])) {
-                $this->aliases = \array_flip($aliases['operations'][$serviceId][$version]);
+                $this->aliases = array_flip($aliases['operations'][$serviceId][$version]);
             }
         }
     }
     private function addStreamRequestPayload()
     {
-        $streamRequestPayloadMiddleware = StreamRequestPayloadMiddleware::wrap($this->api);
+        $streamRequestPayloadMiddleware = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\StreamRequestPayloadMiddleware::wrap($this->api);
         $this->handlerList->prependSign($streamRequestPayloadMiddleware, 'StreamRequestPayloadMiddleware');
-    }
-    private function addRecursionDetection()
-    {
-        // Add recursion detection header to requests
-        // originating in supported Lambda runtimes
-        $this->handlerList->appendBuild(Middleware::recursionDetection(), 'recursion-detection');
     }
     /**
      * Returns a service model and doc model with any necessary changes
@@ -374,8 +362,8 @@ class AwsClient implements AwsClientInterface
                 unset($api['operations'][$op], $docs['operations'][$op]);
             }
         }
-        \ksort($api['operations']);
-        return [new Service($api, ApiProvider::defaultProvider()), new DocModel($docs)];
+        ksort($api['operations']);
+        return [new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service($api, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\ApiProvider::defaultProvider()), new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\DocModel($docs)];
     }
     /**
      * @deprecated

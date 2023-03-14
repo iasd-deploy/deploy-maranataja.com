@@ -26,15 +26,13 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Cache\CacheItemPoolInterface;
  * it doesn't provide any locking mechanism. If multiple processes write to
  * this ItemPool, you have to avoid race condition manually in your code.
  */
-class SysVCacheItemPool implements CacheItemPoolInterface
+class SysVCacheItemPool implements \DeliciousBrains\WP_Offload_Media\Gcp\Psr\Cache\CacheItemPoolInterface
 {
     const VAR_KEY = 1;
     const DEFAULT_PROJ = 'A';
     const DEFAULT_MEMSIZE = 10000;
     const DEFAULT_PERM = 0600;
-    /**
-     * @var int
-     */
+    /** @var int */
     private $sysvKey;
     /**
      * @var CacheItemInterface[]
@@ -45,64 +43,57 @@ class SysVCacheItemPool implements CacheItemPoolInterface
      */
     private $deferredItems;
     /**
-     * @var array<mixed>
+     * @var array
      */
     private $options;
-    /**
+    /*
      * @var bool
      */
-    private $hasLoadedItems = \false;
+    private $hasLoadedItems = false;
     /**
      * Create a SystemV shared memory based CacheItemPool.
      *
-     * @param array<mixed> $options {
-     *     [optional] Configuration options.
-     *
-     *     @type int    $variableKey The variable key for getting the data from the shared memory. **Defaults to** 1.
-     *     @type string $proj        The project identifier for ftok. This needs to be a one character string.
-     *                               **Defaults to** 'A'.
-     *     @type int    $memsize     The memory size in bytes for shm_attach. **Defaults to** 10000.
-     *     @type int    $perm        The permission for shm_attach. **Defaults to** 0600.
-     * }
+     * @param array $options [optional] Configuration options.
+     * @param int $options.variableKey The variable key for getting the data from
+     *        the shared memory. **Defaults to** 1.
+     * @param $options.proj string The project identifier for ftok. This needs to
+     *        be a one character string. **Defaults to** 'A'.
+     * @param $options.memsize int The memory size in bytes for shm_attach.
+     *        **Defaults to** 10000.
+     * @param $options.perm int The permission for shm_attach. **Defaults to**
+     *        0600.
      */
     public function __construct($options = [])
     {
-        if (!\extension_loaded('sysvshm')) {
+        if (!extension_loaded('sysvshm')) {
             throw new \RuntimeException('sysvshm extension is required to use this ItemPool');
         }
         $this->options = $options + ['variableKey' => self::VAR_KEY, 'proj' => self::DEFAULT_PROJ, 'memsize' => self::DEFAULT_MEMSIZE, 'perm' => self::DEFAULT_PERM];
         $this->items = [];
         $this->deferredItems = [];
-        $this->sysvKey = \ftok(__FILE__, $this->options['proj']);
+        $this->sysvKey = ftok(__FILE__, $this->options['proj']);
     }
-    /**
-     * @param mixed $key
-     * @return CacheItemInterface
-     */
-    public function getItem($key) : CacheItemInterface
+    public function getItem($key)
     {
         $this->loadItems();
-        return \current($this->getItems([$key]));
-        // @phpstan-ignore-line
+        return current($this->getItems([$key]));
     }
     /**
-     * @param array<mixed> $keys
-     * @return iterable<CacheItemInterface>
+     * {@inheritdoc}
      */
-    public function getItems(array $keys = []) : iterable
+    public function getItems(array $keys = [])
     {
         $this->loadItems();
         $items = [];
-        $itemClass = \PHP_VERSION_ID >= 80000 ? TypedItem::class : Item::class;
         foreach ($keys as $key) {
-            $items[$key] = $this->hasItem($key) ? clone $this->items[$key] : new $itemClass($key);
+            $items[$key] = $this->hasItem($key) ? clone $this->items[$key] : new \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\Cache\Item($key);
         }
         return $items;
     }
     /**
      * {@inheritdoc}
      */
-    public function hasItem($key) : bool
+    public function hasItem($key)
     {
         $this->loadItems();
         return isset($this->items[$key]) && $this->items[$key]->isHit();
@@ -110,7 +101,7 @@ class SysVCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function clear() : bool
+    public function clear()
     {
         $this->items = [];
         $this->deferredItems = [];
@@ -119,14 +110,14 @@ class SysVCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteItem($key) : bool
+    public function deleteItem($key)
     {
         return $this->deleteItems([$key]);
     }
     /**
      * {@inheritdoc}
      */
-    public function deleteItems(array $keys) : bool
+    public function deleteItems(array $keys)
     {
         if (!$this->hasLoadedItems) {
             $this->loadItems();
@@ -139,7 +130,7 @@ class SysVCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function save(CacheItemInterface $item) : bool
+    public function save(\DeliciousBrains\WP_Offload_Media\Gcp\Psr\Cache\CacheItemInterface $item)
     {
         if (!$this->hasLoadedItems) {
             $this->loadItems();
@@ -150,23 +141,23 @@ class SysVCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function saveDeferred(CacheItemInterface $item) : bool
+    public function saveDeferred(\DeliciousBrains\WP_Offload_Media\Gcp\Psr\Cache\CacheItemInterface $item)
     {
         $this->deferredItems[$item->getKey()] = $item;
-        return \true;
+        return true;
     }
     /**
      * {@inheritdoc}
      */
-    public function commit() : bool
+    public function commit()
     {
         foreach ($this->deferredItems as $item) {
-            if ($this->save($item) === \false) {
-                return \false;
+            if ($this->save($item) === false) {
+                return false;
             }
         }
         $this->deferredItems = [];
-        return \true;
+        return true;
     }
     /**
      * Save the current items.
@@ -175,13 +166,13 @@ class SysVCacheItemPool implements CacheItemPoolInterface
      */
     private function saveCurrentItems()
     {
-        $shmid = \shm_attach($this->sysvKey, $this->options['memsize'], $this->options['perm']);
-        if ($shmid !== \false) {
-            $ret = \shm_put_var($shmid, $this->options['variableKey'], $this->items);
-            \shm_detach($shmid);
+        $shmid = shm_attach($this->sysvKey, $this->options['memsize'], $this->options['perm']);
+        if ($shmid !== false) {
+            $ret = shm_put_var($shmid, $this->options['variableKey'], $this->items);
+            shm_detach($shmid);
             return $ret;
         }
-        return \false;
+        return false;
     }
     /**
      * Load the items from the shared memory.
@@ -190,18 +181,18 @@ class SysVCacheItemPool implements CacheItemPoolInterface
      */
     private function loadItems()
     {
-        $shmid = \shm_attach($this->sysvKey, $this->options['memsize'], $this->options['perm']);
-        if ($shmid !== \false) {
-            $data = @\shm_get_var($shmid, $this->options['variableKey']);
+        $shmid = shm_attach($this->sysvKey, $this->options['memsize'], $this->options['perm']);
+        if ($shmid !== false) {
+            $data = @shm_get_var($shmid, $this->options['variableKey']);
             if (!empty($data)) {
                 $this->items = $data;
             } else {
                 $this->items = [];
             }
-            \shm_detach($shmid);
-            $this->hasLoadedItems = \true;
-            return \true;
+            shm_detach($shmid);
+            $this->hasLoadedItems = true;
+            return true;
         }
-        return \false;
+        return false;
     }
 }

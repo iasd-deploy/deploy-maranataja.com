@@ -13,16 +13,15 @@ class AWS_S3_Stream_Wrapper extends StreamWrapper {
 	/**
 	 * Register the 's3://' stream wrapper
 	 *
-	 * @param S3ClientInterface $client       Client to use with the stream wrapper
-	 * @param string            $protocol     Protocol to register as.
-	 * @param CacheInterface    $cache        Default cache for the protocol.
-	 * @param bool              $v2_existence Whether or not to use V2 bucket and object existence methods
+	 * @param S3ClientInterface $client   Client to use with the stream wrapper
+	 * @param string            $protocol Protocol to register as.
+	 * @param CacheInterface    $cache    Default cache for the protocol.
 	 */
-	public static function register( S3ClientInterface $client, $protocol = 's3', CacheInterface $cache = null, $v2_existence = false ) {
+	public static function register( S3ClientInterface $client, $protocol = 's3', CacheInterface $cache = null ) {
 		// Keep a shadow copy of the protocol for use with context options.
 		static::$wrapper = $protocol;
 
-		parent::register( $client, $protocol, $cache, $v2_existence );
+		parent::register( $client, $protocol, $cache );
 	}
 
 	/**

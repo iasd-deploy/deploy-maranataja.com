@@ -5,7 +5,7 @@ namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws;
 /**
  * AWS command object.
  */
-class Command implements CommandInterface
+class Command implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandInterface
 {
     use HasDataTrait;
     /** @var string */
@@ -21,11 +21,11 @@ class Command implements CommandInterface
      * @param array       $args           Arguments to pass to the command
      * @param HandlerList $list           Handler list
      */
-    public function __construct($name, array $args = [], HandlerList $list = null)
+    public function __construct($name, array $args = [], \DeliciousBrains\WP_Offload_Media\Aws3\Aws\HandlerList $list = null)
     {
         $this->name = $name;
         $this->data = $args;
-        $this->handlerList = $list ?: new HandlerList();
+        $this->handlerList = $list ?: new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\HandlerList();
         if (!isset($this->data['@http'])) {
             $this->data['@http'] = [];
         }
@@ -43,7 +43,7 @@ class Command implements CommandInterface
     }
     public function hasParam($name)
     {
-        return \array_key_exists($name, $this->data);
+        return array_key_exists($name, $this->data);
     }
     public function getHandlerList()
     {

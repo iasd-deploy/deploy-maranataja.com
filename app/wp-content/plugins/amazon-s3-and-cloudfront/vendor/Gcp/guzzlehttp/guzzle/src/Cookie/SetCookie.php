@@ -10,7 +10,7 @@ class SetCookie
     /**
      * @var array
      */
-    private static $defaults = ['Name' => null, 'Value' => null, 'Domain' => null, 'Path' => '/', 'Max-Age' => null, 'Expires' => null, 'Secure' => \false, 'Discard' => \false, 'HttpOnly' => \false];
+    private static $defaults = ['Name' => null, 'Value' => null, 'Domain' => null, 'Path' => '/', 'Max-Age' => null, 'Expires' => null, 'Secure' => false, 'Discard' => false, 'HttpOnly' => false];
     /**
      * @var array Cookie data
      */
@@ -27,14 +27,14 @@ class SetCookie
         // Explode the cookie string using a series of semicolons
         $pieces = \array_filter(\array_map('trim', \explode(';', $cookie)));
         // The name of the cookie (first kvp) must exist and include an equal sign.
-        if (!isset($pieces[0]) || \strpos($pieces[0], '=') === \false) {
+        if (!isset($pieces[0]) || \strpos($pieces[0], '=') === false) {
             return new self($data);
         }
         // Add the cookie pieces into the parsed data array
         foreach ($pieces as $part) {
             $cookieParts = \explode('=', $part, 2);
             $key = \trim($cookieParts[0]);
-            $value = isset($cookieParts[1]) ? \trim($cookieParts[1], " \n\r\t\x00\v") : \true;
+            $value = isset($cookieParts[1]) ? \trim($cookieParts[1], " \n\r\t\0\v") : true;
             // Only check for non-cookies when cookies have been found
             if (!isset($data['Name'])) {
                 $data['Name'] = $key;
@@ -72,13 +72,13 @@ class SetCookie
     }
     public function __toString()
     {
-        $str = $this->data['Name'] . '=' . ($this->data['Value'] ?? '') . '; ';
+        $str = $this->data['Name'] . '=' . $this->data['Value'] . '; ';
         foreach ($this->data as $k => $v) {
-            if ($k !== 'Name' && $k !== 'Value' && $v !== null && $v !== \false) {
+            if ($k !== 'Name' && $k !== 'Value' && $v !== null && $v !== false) {
                 if ($k === 'Expires') {
                     $str .= 'Expires=' . \gmdate('D, d M Y H:i:s \\G\\M\\T', $v) . '; ';
                 } else {
-                    $str .= ($v === \true ? $k : "{$k}={$v}") . '; ';
+                    $str .= ($v === true ? $k : "{$k}={$v}") . '; ';
                 }
             }
         }
@@ -104,10 +104,7 @@ class SetCookie
      */
     public function setName($name) : void
     {
-        if (!\is_string($name)) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a string to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Name'] = (string) $name;
+        $this->data['Name'] = $name;
     }
     /**
      * Get the cookie value.
@@ -125,10 +122,7 @@ class SetCookie
      */
     public function setValue($value) : void
     {
-        if (!\is_string($value)) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a string to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Value'] = (string) $value;
+        $this->data['Value'] = $value;
     }
     /**
      * Get the domain.
@@ -142,14 +136,11 @@ class SetCookie
     /**
      * Set the domain of the cookie.
      *
-     * @param string|null $domain
+     * @param string $domain
      */
     public function setDomain($domain) : void
     {
-        if (!\is_string($domain) && null !== $domain) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a string or null to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Domain'] = null === $domain ? null : (string) $domain;
+        $this->data['Domain'] = $domain;
     }
     /**
      * Get the path.
@@ -167,10 +158,7 @@ class SetCookie
      */
     public function setPath($path) : void
     {
-        if (!\is_string($path)) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a string to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Path'] = (string) $path;
+        $this->data['Path'] = $path;
     }
     /**
      * Maximum lifetime of the cookie in seconds.
@@ -179,19 +167,16 @@ class SetCookie
      */
     public function getMaxAge()
     {
-        return null === $this->data['Max-Age'] ? null : (int) $this->data['Max-Age'];
+        return $this->data['Max-Age'];
     }
     /**
      * Set the max-age of the cookie.
      *
-     * @param int|null $maxAge Max age of the cookie in seconds
+     * @param int $maxAge Max age of the cookie in seconds
      */
     public function setMaxAge($maxAge) : void
     {
-        if (!\is_int($maxAge) && null !== $maxAge) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing an int or null to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Max-Age'] = $maxAge === null ? null : (int) $maxAge;
+        $this->data['Max-Age'] = $maxAge;
     }
     /**
      * The UNIX timestamp when the cookie Expires.
@@ -205,19 +190,16 @@ class SetCookie
     /**
      * Set the unix timestamp for which the cookie will expire.
      *
-     * @param int|string|null $timestamp Unix timestamp or any English textual datetime description.
+     * @param int|string $timestamp Unix timestamp or any English textual datetime description.
      */
     public function setExpires($timestamp) : void
     {
-        if (!\is_int($timestamp) && !\is_string($timestamp) && null !== $timestamp) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing an int, string or null to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Expires'] = null === $timestamp ? null : (\is_numeric($timestamp) ? (int) $timestamp : \strtotime((string) $timestamp));
+        $this->data['Expires'] = \is_numeric($timestamp) ? (int) $timestamp : \strtotime($timestamp);
     }
     /**
      * Get whether or not this is a secure cookie.
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSecure()
     {
@@ -230,10 +212,7 @@ class SetCookie
      */
     public function setSecure($secure) : void
     {
-        if (!\is_bool($secure)) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a bool to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Secure'] = (bool) $secure;
+        $this->data['Secure'] = $secure;
     }
     /**
      * Get whether or not this is a session cookie.
@@ -251,10 +230,7 @@ class SetCookie
      */
     public function setDiscard($discard) : void
     {
-        if (!\is_bool($discard)) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a bool to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['Discard'] = (bool) $discard;
+        $this->data['Discard'] = $discard;
     }
     /**
      * Get whether or not this is an HTTP only cookie.
@@ -272,10 +248,7 @@ class SetCookie
      */
     public function setHttpOnly($httpOnly) : void
     {
-        if (!\is_bool($httpOnly)) {
-            trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing a bool to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
-        }
-        $this->data['HttpOnly'] = (bool) $httpOnly;
+        $this->data['HttpOnly'] = $httpOnly;
     }
     /**
      * Check if the cookie matches a path value.
@@ -297,15 +270,15 @@ class SetCookie
         $cookiePath = $this->getPath();
         // Match on exact matches or when path is the default empty "/"
         if ($cookiePath === '/' || $cookiePath == $requestPath) {
-            return \true;
+            return true;
         }
         // Ensure that the cookie-path is a prefix of the request path.
         if (0 !== \strpos($requestPath, $cookiePath)) {
-            return \false;
+            return false;
         }
         // Match if the last character of the cookie-path is "/"
         if (\substr($cookiePath, -1, 1) === '/') {
-            return \true;
+            return true;
         }
         // Match if the first character not included in cookie path is "/"
         return \substr($requestPath, \strlen($cookiePath), 1) === '/';
@@ -319,20 +292,19 @@ class SetCookie
     {
         $cookieDomain = $this->getDomain();
         if (null === $cookieDomain) {
-            return \true;
+            return true;
         }
         // Remove the leading '.' as per spec in RFC 6265.
         // https://tools.ietf.org/html/rfc6265#section-5.2.3
-        $cookieDomain = \ltrim(\strtolower($cookieDomain), '.');
-        $domain = \strtolower($domain);
+        $cookieDomain = \ltrim($cookieDomain, '.');
         // Domain not set or exact match.
-        if ('' === $cookieDomain || $domain === $cookieDomain) {
-            return \true;
+        if (!$cookieDomain || !\strcasecmp($domain, $cookieDomain)) {
+            return true;
         }
         // Matching the subdomain according to RFC 6265.
         // https://tools.ietf.org/html/rfc6265#section-5.1.3
         if (\filter_var($domain, \FILTER_VALIDATE_IP)) {
-            return \false;
+            return false;
         }
         return (bool) \preg_match('/\\.' . \preg_quote($cookieDomain, '/') . '$/', $domain);
     }
@@ -370,6 +342,6 @@ class SetCookie
         if ($domain === null || $domain === '') {
             return 'The cookie domain must not be empty';
         }
-        return \true;
+        return true;
     }
 }

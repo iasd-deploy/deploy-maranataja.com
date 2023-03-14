@@ -20,7 +20,7 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Exception;
 /**
  * Exception thrown when a resource is not found.
  */
-class NotFoundException extends ServiceException
+class NotFoundException extends \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Exception\ServiceException
 {
     /**
      * Allows overriding message for injection of Whitelist Notice.

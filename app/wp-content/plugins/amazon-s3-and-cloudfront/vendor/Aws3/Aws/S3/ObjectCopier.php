@@ -7,16 +7,15 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\AccessPointArn;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\MultipartUploadException;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Result;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\Exception\S3Exception;
-use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\Coroutine;
 use DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\PromisorInterface;
 use InvalidArgumentException;
 /**
  * Copies objects from one S3 location to another, utilizing a multipart copy
  * when appropriate.
  */
-class ObjectCopier implements PromisorInterface
+class ObjectCopier implements \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\PromisorInterface
 {
-    const DEFAULT_MULTIPART_THRESHOLD = MultipartUploader::PART_MAX_SIZE;
+    const DEFAULT_MULTIPART_THRESHOLD = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\MultipartUploader::PART_MAX_SIZE;
     private $client;
     private $source;
     private $destination;
@@ -44,7 +43,7 @@ class ObjectCopier implements PromisorInterface
      *
      * @throws InvalidArgumentException
      */
-    public function __construct(S3ClientInterface $client, array $source, array $destination, $acl = 'private', array $options = [])
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\S3ClientInterface $client, array $source, array $destination, $acl = 'private', array $options = [])
     {
         $this->validateLocation($source);
         $this->validateLocation($destination);
@@ -58,23 +57,21 @@ class ObjectCopier implements PromisorInterface
      * Perform the configured copy asynchronously. Returns a promise that is
      * fulfilled with the result of the CompleteMultipartUpload or CopyObject
      * operation or rejected with an exception.
-     *
-     * @return Coroutine
      */
     public function promise()
     {
-        return Coroutine::of(function () {
+        return \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Promise\coroutine(function () {
             $headObjectCommand = $this->client->getCommand('HeadObject', $this->options['params'] + $this->source);
-            if (\is_callable($this->options['before_lookup'])) {
+            if (is_callable($this->options['before_lookup'])) {
                 $this->options['before_lookup']($headObjectCommand);
             }
             $objectStats = (yield $this->client->executeAsync($headObjectCommand));
             if ($objectStats['ContentLength'] > $this->options['mup_threshold']) {
-                $mup = new MultipartCopy($this->client, $this->getSourcePath(), ['source_metadata' => $objectStats, 'acl' => $this->acl] + $this->destination + $this->options);
+                $mup = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\MultipartCopy($this->client, $this->getSourcePath(), ['source_metadata' => $objectStats, 'acl' => $this->acl] + $this->destination + $this->options);
                 (yield $mup->promise());
             } else {
                 $defaults = ['ACL' => $this->acl, 'MetadataDirective' => 'COPY', 'CopySource' => $this->getSourcePath()];
-                $params = \array_diff_key($this->options, self::$defaults) + $this->destination + $defaults + $this->options['params'];
+                $params = array_diff_key($this->options, self::$defaults) + $this->destination + $defaults + $this->options['params'];
                 (yield $this->client->executeAsync($this->client->getCommand('CopyObject', $params)));
             }
         });
@@ -100,14 +97,14 @@ class ObjectCopier implements PromisorInterface
     }
     private function getSourcePath()
     {
-        if (ArnParser::isArn($this->source['Bucket'])) {
+        if (\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\ArnParser::isArn($this->source['Bucket'])) {
             try {
-                new AccessPointArn($this->source['Bucket']);
+                new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\AccessPointArn($this->source['Bucket']);
             } catch (\Exception $e) {
                 throw new \InvalidArgumentException('Provided ARN was a not a valid S3 access point ARN (' . $e->getMessage() . ')', 0, $e);
             }
         }
-        $sourcePath = "/{$this->source['Bucket']}/" . \rawurlencode($this->source['Key']);
+        $sourcePath = "/{$this->source['Bucket']}/" . rawurlencode($this->source['Key']);
         if (isset($this->source['VersionId'])) {
             $sourcePath .= "?versionId={$this->source['VersionId']}";
         }

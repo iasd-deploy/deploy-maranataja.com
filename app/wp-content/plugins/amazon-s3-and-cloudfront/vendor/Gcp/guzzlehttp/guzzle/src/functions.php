@@ -15,7 +15,7 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp;
  */
 function describe_type($input) : string
 {
-    return Utils::describeType($input);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::describeType($input);
 }
 /**
  * Parses an array of header lines into an associative array of headers.
@@ -27,7 +27,7 @@ function describe_type($input) : string
  */
 function headers_from_lines(iterable $lines) : array
 {
-    return Utils::headersFromLines($lines);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::headersFromLines($lines);
 }
 /**
  * Returns a debug stream based on the provided variable.
@@ -40,7 +40,7 @@ function headers_from_lines(iterable $lines) : array
  */
 function debug_resource($value = null)
 {
-    return Utils::debugResource($value);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::debugResource($value);
 }
 /**
  * Chooses and creates a default handler to use based on the environment.
@@ -55,7 +55,7 @@ function debug_resource($value = null)
  */
 function choose_handler() : callable
 {
-    return Utils::chooseHandler();
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::chooseHandler();
 }
 /**
  * Get the default User-Agent string to use with Guzzle.
@@ -64,7 +64,7 @@ function choose_handler() : callable
  */
 function default_user_agent() : string
 {
-    return Utils::defaultUserAgent();
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::defaultUserAgent();
 }
 /**
  * Returns the default cacert bundle for the current system.
@@ -83,7 +83,7 @@ function default_user_agent() : string
  */
 function default_ca_bundle() : string
 {
-    return Utils::defaultCaBundle();
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::defaultCaBundle();
 }
 /**
  * Creates an associative array of lowercase header names to the actual
@@ -93,7 +93,7 @@ function default_ca_bundle() : string
  */
 function normalize_header_keys(array $headers) : array
 {
-    return Utils::normalizeHeaderKeys($headers);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::normalizeHeaderKeys($headers);
 }
 /**
  * Returns true if the provided host matches any of the no proxy areas.
@@ -118,7 +118,7 @@ function normalize_header_keys(array $headers) : array
  */
 function is_host_in_noproxy(string $host, array $noProxyArray) : bool
 {
-    return Utils::isHostInNoProxy($host, $noProxyArray);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::isHostInNoProxy($host, $noProxyArray);
 }
 /**
  * Wrapper for json_decode that throws when an error occurs.
@@ -136,9 +136,9 @@ function is_host_in_noproxy(string $host, array $noProxyArray) : bool
  * @link https://www.php.net/manual/en/function.json-decode.php
  * @deprecated json_decode will be removed in guzzlehttp/guzzle:8.0. Use Utils::jsonDecode instead.
  */
-function json_decode(string $json, bool $assoc = \false, int $depth = 512, int $options = 0)
+function json_decode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
 {
-    return Utils::jsonDecode($json, $assoc, $depth, $options);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::jsonDecode($json, $assoc, $depth, $options);
 }
 /**
  * Wrapper for JSON encoding that throws when an error occurs.
@@ -154,5 +154,5 @@ function json_decode(string $json, bool $assoc = \false, int $depth = 512, int $
  */
 function json_encode($value, int $options = 0, int $depth = 512) : string
 {
-    return Utils::jsonEncode($value, $options, $depth);
+    return \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Utils::jsonEncode($value, $options, $depth);
 }

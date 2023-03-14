@@ -4,11 +4,9 @@ namespace DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7;
 
 use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
 /**
- * Decorator used to return only a subset of a stream.
- *
- * @final
+ * Decorator used to return only a subset of a stream
  */
-class LimitStream implements StreamInterface
+class LimitStream implements \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface
 {
     use StreamDecoratorTrait;
     /** @var int Offset to start reading from */
@@ -22,7 +20,7 @@ class LimitStream implements StreamInterface
      * @param int             $offset Position to seek to before reading (only
      *                                works on seekable streams).
      */
-    public function __construct(StreamInterface $stream, $limit = -1, $offset = 0)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $stream, $limit = -1, $offset = 0)
     {
         $this->stream = $stream;
         $this->setLimit($limit);
@@ -32,11 +30,11 @@ class LimitStream implements StreamInterface
     {
         // Always return true if the underlying stream is EOF
         if ($this->stream->eof()) {
-            return \true;
+            return true;
         }
         // No limit and the underlying stream is not at EOF
         if ($this->limit == -1) {
-            return \false;
+            return false;
         }
         return $this->stream->tell() >= $this->offset + $this->limit;
     }
@@ -51,17 +49,17 @@ class LimitStream implements StreamInterface
         } elseif ($this->limit == -1) {
             return $length - $this->offset;
         } else {
-            return \min($this->limit, $length - $this->offset);
+            return min($this->limit, $length - $this->offset);
         }
     }
     /**
      * Allow for a bounded seek on the read limited stream
      * {@inheritdoc}
      */
-    public function seek($offset, $whence = \SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET)
     {
-        if ($whence !== \SEEK_SET || $offset < 0) {
-            throw new \RuntimeException(\sprintf('Cannot seek to offset %s with whence %s', $offset, $whence));
+        if ($whence !== SEEK_SET || $offset < 0) {
+            throw new \RuntimeException(sprintf('Cannot seek to offset %s with whence %s', $offset, $whence));
         }
         $offset += $this->offset;
         if ($this->limit !== -1) {
@@ -123,7 +121,7 @@ class LimitStream implements StreamInterface
         if ($remaining > 0) {
             // Only return the amount of requested data, ensuring that the byte
             // limit is not exceeded
-            return $this->stream->read(\min($remaining, $length));
+            return $this->stream->read(min($remaining, $length));
         }
         return '';
     }

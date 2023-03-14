@@ -14,8 +14,6 @@ class EcsCredentialProvider
 {
     const SERVER_URI = 'http://169.254.170.2';
     const ENV_URI = "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI";
-    const ENV_FULL_URI = "AWS_CONTAINER_CREDENTIALS_FULL_URI";
-    const ENV_AUTH_TOKEN = "AWS_CONTAINER_AUTHORIZATION_TOKEN";
     const ENV_TIMEOUT = 'AWS_METADATA_SERVICE_TIMEOUT';
     /** @var callable */
     private $client;
@@ -30,11 +28,7 @@ class EcsCredentialProvider
      */
     public function __construct(array $config = [])
     {
-        $timeout = \getenv(self::ENV_TIMEOUT);
-        if (!$timeout) {
-            $timeout = isset($_SERVER[self::ENV_TIMEOUT]) ? $_SERVER[self::ENV_TIMEOUT] : (isset($config['timeout']) ? $config['timeout'] : 1.0);
-        }
-        $this->timeout = (float) $timeout;
+        $this->timeout = (double) getenv(self::ENV_TIMEOUT) ?: (isset($config['timeout']) ? $config['timeout'] : 1.0);
         $this->client = isset($config['client']) ? $config['client'] : \DeliciousBrains\WP_Offload_Media\Aws3\Aws\default_http_handler();
     }
     /**
@@ -45,29 +39,15 @@ class EcsCredentialProvider
     public function __invoke()
     {
         $client = $this->client;
-        $request = new Request('GET', self::getEcsUri());
-        $headers = $this->setHeaderForAuthToken();
-        return $client($request, ['timeout' => $this->timeout, 'proxy' => '', 'headers' => $headers])->then(function (ResponseInterface $response) {
+        $request = new \DeliciousBrains\WP_Offload_Media\Aws3\GuzzleHttp\Psr7\Request('GET', self::getEcsUri());
+        return $client($request, ['timeout' => $this->timeout, 'proxy' => ''])->then(function (\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response) {
             $result = $this->decodeResult((string) $response->getBody());
-            return new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']));
+            return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Credentials\Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], strtotime($result['Expiration']));
         })->otherwise(function ($reason) {
-            $reason = \is_array($reason) ? $reason['exception'] : $reason;
+            $reason = is_array($reason) ? $reason['exception'] : $reason;
             $msg = $reason->getMessage();
-            throw new CredentialsException("Error retrieving credential from ECS ({$msg})");
+            throw new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\CredentialsException("Error retrieving credential from ECS ({$msg})");
         });
-    }
-    private function getEcsAuthToken()
-    {
-        return \getenv(self::ENV_AUTH_TOKEN);
-    }
-    public function setHeaderForAuthToken()
-    {
-        $authToken = self::getEcsAuthToken();
-        $headers = [];
-        if (!empty($authToken)) {
-            $headers = ['Authorization' => $authToken];
-        }
-        return $headers;
     }
     /**
      * Fetch credential URI from ECS environment variable
@@ -76,26 +56,14 @@ class EcsCredentialProvider
      */
     private function getEcsUri()
     {
-        $credsUri = \getenv(self::ENV_URI);
-        if ($credsUri === \false) {
-            $credsUri = isset($_SERVER[self::ENV_URI]) ? $_SERVER[self::ENV_URI] : '';
-        }
-        if (empty($credsUri)) {
-            $credFullUri = \getenv(self::ENV_FULL_URI);
-            if ($credFullUri === \false) {
-                $credFullUri = isset($_SERVER[self::ENV_FULL_URI]) ? $_SERVER[self::ENV_FULL_URI] : '';
-            }
-            if (!empty($credFullUri)) {
-                return $credFullUri;
-            }
-        }
-        return self::SERVER_URI . $credsUri;
+        $creds_uri = getenv(self::ENV_URI);
+        return self::SERVER_URI . $creds_uri;
     }
     private function decodeResult($response)
     {
-        $result = \json_decode($response, \true);
+        $result = json_decode($response, true);
         if (!isset($result['AccessKeyId'])) {
-            throw new CredentialsException('Unexpected ECS credential value');
+            throw new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\CredentialsException('Unexpected ECS credential value');
         }
         return $result;
     }

@@ -11,95 +11,77 @@ declare (strict_types=1);
  */
 namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter;
 
-use MongoDB\BSON\Type;
-use MongoDB\BSON\UTCDateTime;
+use DeliciousBrains\WP_Offload_Media\Gcp\MongoDB\BSON\UTCDateTime;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Utils;
 /**
  * Formats a record for use with the MongoDBHandler.
  *
  * @author Florian Plattner <me@florianplattner.de>
  */
-class MongoDBFormatter implements FormatterInterface
+class MongoDBFormatter implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface
 {
-    /** @var bool */
     private $exceptionTraceAsString;
-    /** @var int */
     private $maxNestingLevel;
-    /** @var bool */
     private $isLegacyMongoExt;
     /**
      * @param int  $maxNestingLevel        0 means infinite nesting, the $record itself is level 1, $record['context'] is 2
      * @param bool $exceptionTraceAsString set to false to log exception traces as a sub documents instead of strings
      */
-    public function __construct(int $maxNestingLevel = 3, bool $exceptionTraceAsString = \true)
+    public function __construct(int $maxNestingLevel = 3, bool $exceptionTraceAsString = true)
     {
-        $this->maxNestingLevel = \max($maxNestingLevel, 0);
+        $this->maxNestingLevel = max($maxNestingLevel, 0);
         $this->exceptionTraceAsString = $exceptionTraceAsString;
-        $this->isLegacyMongoExt = \extension_loaded('mongodb') && \version_compare((string) \phpversion('mongodb'), '1.1.9', '<=');
+        $this->isLegacyMongoExt = version_compare(phpversion('mongodb'), '1.1.9', '<=');
     }
     /**
      * {@inheritDoc}
-     *
-     * @return mixed[]
      */
     public function format(array $record) : array
     {
-        /** @var mixed[] $res */
-        $res = $this->formatArray($record);
-        return $res;
+        return $this->formatArray($record);
     }
     /**
      * {@inheritDoc}
-     *
-     * @return array<mixed[]>
      */
     public function formatBatch(array $records) : array
     {
-        $formatted = [];
         foreach ($records as $key => $record) {
-            $formatted[$key] = $this->format($record);
+            $records[$key] = $this->format($record);
         }
-        return $formatted;
+        return $records;
     }
     /**
-     * @param  mixed[]        $array
-     * @return mixed[]|string Array except when max nesting level is reached then a string "[...]"
+     * @return array|string Array except when max nesting level is reached then a string "[...]"
      */
-    protected function formatArray(array $array, int $nestingLevel = 0)
+    protected function formatArray(array $record, int $nestingLevel = 0)
     {
-        if ($this->maxNestingLevel > 0 && $nestingLevel > $this->maxNestingLevel) {
-            return '[...]';
-        }
-        foreach ($array as $name => $value) {
-            if ($value instanceof \DateTimeInterface) {
-                $array[$name] = $this->formatDate($value, $nestingLevel + 1);
-            } elseif ($value instanceof \Throwable) {
-                $array[$name] = $this->formatException($value, $nestingLevel + 1);
-            } elseif (\is_array($value)) {
-                $array[$name] = $this->formatArray($value, $nestingLevel + 1);
-            } elseif (\is_object($value) && !$value instanceof Type) {
-                $array[$name] = $this->formatObject($value, $nestingLevel + 1);
+        if ($this->maxNestingLevel == 0 || $nestingLevel <= $this->maxNestingLevel) {
+            foreach ($record as $name => $value) {
+                if ($value instanceof \DateTimeInterface) {
+                    $record[$name] = $this->formatDate($value, $nestingLevel + 1);
+                } elseif ($value instanceof \Throwable) {
+                    $record[$name] = $this->formatException($value, $nestingLevel + 1);
+                } elseif (is_array($value)) {
+                    $record[$name] = $this->formatArray($value, $nestingLevel + 1);
+                } elseif (is_object($value)) {
+                    $record[$name] = $this->formatObject($value, $nestingLevel + 1);
+                }
             }
+        } else {
+            $record = '[...]';
         }
-        return $array;
+        return $record;
     }
-    /**
-     * @param  mixed          $value
-     * @return mixed[]|string
-     */
     protected function formatObject($value, int $nestingLevel)
     {
-        $objectVars = \get_object_vars($value);
-        $objectVars['class'] = Utils::getClass($value);
+        $objectVars = get_object_vars($value);
+        $objectVars['class'] = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Utils::getClass($value);
         return $this->formatArray($objectVars, $nestingLevel);
     }
-    /**
-     * @return mixed[]|string
-     */
     protected function formatException(\Throwable $exception, int $nestingLevel)
     {
-        $formattedException = ['class' => Utils::getClass($exception), 'message' => $exception->getMessage(), 'code' => (int) $exception->getCode(), 'file' => $exception->getFile() . ':' . $exception->getLine()];
-        if ($this->exceptionTraceAsString === \true) {
+        $formattedException = ['class' => \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Utils::getClass($exception), 'message' => $exception->getMessage(), 'code' => (int) $exception->getCode(), 'file' => $exception->getFile() . ':' . $exception->getLine()];
+        if ($this->exceptionTraceAsString === true) {
             $formattedException['trace'] = $exception->getTraceAsString();
         } else {
             $formattedException['trace'] = $exception->getTrace();
@@ -115,7 +97,7 @@ class MongoDBFormatter implements FormatterInterface
     }
     private function getMongoDbDateTime(\DateTimeInterface $value) : UTCDateTime
     {
-        return new UTCDateTime((int) \floor((float) $value->format('U.u') * 1000));
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\MongoDB\BSON\UTCDateTime((int) (string) floor($value->format('U.u') * 1000));
     }
     /**
      * This is needed to support MongoDB Driver v1.19 and below
@@ -126,9 +108,8 @@ class MongoDBFormatter implements FormatterInterface
      */
     private function legacyGetMongoDbDateTime(\DateTimeInterface $value) : UTCDateTime
     {
-        $milliseconds = \floor((float) $value->format('U.u') * 1000);
-        $milliseconds = \PHP_INT_SIZE == 8 ? (int) $milliseconds : (string) $milliseconds;
-        // @phpstan-ignore-next-line
-        return new UTCDateTime($milliseconds);
+        $milliseconds = floor($value->format('U.u') * 1000);
+        $milliseconds = PHP_INT_SIZE == 8 ? (int) $milliseconds : (string) $milliseconds;
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\MongoDB\BSON\UTCDateTime($milliseconds);
     }
 }

@@ -14,25 +14,25 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
  *
  * @internal
  */
-class RetryableMalformedResponseParser extends AbstractParser
+class RetryableMalformedResponseParser extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\AbstractParser
 {
     /** @var string */
     private $exceptionClass;
-    public function __construct(callable $parser, $exceptionClass = AwsException::class)
+    public function __construct(callable $parser, $exceptionClass = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\AwsException::class)
     {
         $this->parser = $parser;
         $this->exceptionClass = $exceptionClass;
     }
-    public function __invoke(CommandInterface $command, ResponseInterface $response)
+    public function __invoke(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response)
     {
         $fn = $this->parser;
         try {
             return $fn($command, $response);
         } catch (ParserException $e) {
-            throw new $this->exceptionClass("Error parsing response for {$command->getName()}:" . " AWS parsing error: {$e->getMessage()}", $command, ['connection_error' => \true, 'exception' => $e], $e);
+            throw new $this->exceptionClass("Error parsing response for {$command->getName()}:" . " AWS parsing error: {$e->getMessage()}", $command, ['connection_error' => true, 'exception' => $e], $e);
         }
     }
-    public function parseMemberFromStream(StreamInterface $stream, StructureShape $member, $response)
+    public function parseMemberFromStream(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $stream, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape $member, $response)
     {
         return $this->parser->parseMemberFromStream($stream, $member, $response);
     }

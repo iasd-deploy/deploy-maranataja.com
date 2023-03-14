@@ -30,7 +30,7 @@ trait NeedsTrait
     {
         if (!$condition) {
             if (!$exceptionClass) {
-                $exceptionClass = CryptoPolyfillException::class;
+                $exceptionClass = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\CryptoPolyfillException::class;
             }
             throw new $exceptionClass($errorMessage);
         }

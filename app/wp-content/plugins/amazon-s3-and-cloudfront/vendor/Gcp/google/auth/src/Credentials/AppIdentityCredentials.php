@@ -27,8 +27,6 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\CredentialsLoader;
 use DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\ProjectIdProviderInterface;
 use DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\SignBlobInterface;
 /**
- * @deprecated
- *
  * AppIdentityCredentials supports authorization on Google App Engine.
  *
  * It can be used to authorize requests using the AuthTokenMiddleware or
@@ -55,18 +53,18 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\SignBlobInterface;
  * $res = $client->get('volumes?q=Henry+David+Thoreau&country=US');
  * ```
  */
-class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterface, ProjectIdProviderInterface
+class AppIdentityCredentials extends \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\CredentialsLoader implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\SignBlobInterface, \DeliciousBrains\WP_Offload_Media\Gcp\Google\Auth\ProjectIdProviderInterface
 {
     /**
      * Result of fetchAuthToken.
      *
-     * @var array<mixed>
+     * @var array
      */
     protected $lastReceivedToken;
     /**
      * Array of OAuth2 scopes to be requested.
      *
-     * @var string[]
+     * @var array
      */
     private $scope;
     /**
@@ -74,11 +72,11 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
      */
     private $clientName;
     /**
-     * @param string|string[] $scope One or more scopes.
+     * @param array $scope One or more scopes.
      */
-    public function __construct($scope = [])
+    public function __construct($scope = array())
     {
-        $this->scope = \is_array($scope) ? $scope : \explode(' ', (string) $scope);
+        $this->scope = $scope;
     }
     /**
      * Determines if this an App Engine instance, by accessing the
@@ -89,15 +87,15 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
      */
     public static function onAppEngine()
     {
-        $appEngineProduction = isset($_SERVER['SERVER_SOFTWARE']) && 0 === \strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine');
+        $appEngineProduction = isset($_SERVER['SERVER_SOFTWARE']) && 0 === strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine');
         if ($appEngineProduction) {
-            return \true;
+            return true;
         }
         $appEngineDevAppServer = isset($_SERVER['APPENGINE_RUNTIME']) && $_SERVER['APPENGINE_RUNTIME'] == 'php';
         if ($appEngineDevAppServer) {
-            return \true;
+            return true;
         }
-        return \false;
+        return false;
     }
     /**
      * Implements FetchAuthTokenInterface#fetchAuthToken.
@@ -107,12 +105,10 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
      * the GuzzleHttp\ClientInterface instance passed in will not be used.
      *
      * @param callable $httpHandler callback which delivers psr7 request
-     * @return array<mixed> {
-     *     A set of auth related metadata, containing the following
-     *
-     *     @type string $access_token
-     *     @type string $expiration_time
-     * }
+     * @return array A set of auth related metadata, containing the following
+     *     keys:
+     *         - access_token (string)
+     *         - expiration_time (string)
      */
     public function fetchAuthToken(callable $httpHandler = null)
     {
@@ -121,8 +117,9 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
         } catch (\Exception $e) {
             return [];
         }
-        /** @phpstan-ignore-next-line */
-        $token = AppIdentityService::getAccessToken($this->scope);
+        // AppIdentityService expects an array when multiple scopes are supplied
+        $scope = is_array($this->scope) ? $this->scope : explode(' ', $this->scope);
+        $token = \DeliciousBrains\WP_Offload_Media\Gcp\google\appengine\api\app_identity\AppIdentityService::getAccessToken($scope);
         $this->lastReceivedToken = $token;
         return $token;
     }
@@ -135,11 +132,10 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
      * @return string The signature, base64-encoded.
      * @throws \Exception If AppEngine SDK or mock is not available.
      */
-    public function signBlob($stringToSign, $forceOpenSsl = \false)
+    public function signBlob($stringToSign, $forceOpenSsl = false)
     {
         $this->checkAppEngineContext();
-        /** @phpstan-ignore-next-line */
-        return \base64_encode(AppIdentityService::signForApp($stringToSign)['signature']);
+        return base64_encode(\DeliciousBrains\WP_Offload_Media\Gcp\google\appengine\api\app_identity\AppIdentityService::signForApp($stringToSign)['signature']);
     }
     /**
      * Get the project ID from AppIdentityService.
@@ -149,15 +145,14 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
      * @param callable $httpHandler Not used by this type.
      * @return string|null
      */
-    public function getProjectId(callable $httpHandler = null)
+    public function getProjectId(callable $httpHander = null)
     {
         try {
             $this->checkAppEngineContext();
         } catch (\Exception $e) {
             return null;
         }
-        /** @phpstan-ignore-next-line */
-        return AppIdentityService::getApplicationId();
+        return \DeliciousBrains\WP_Offload_Media\Gcp\google\appengine\api\app_identity\AppIdentityService::getApplicationId();
     }
     /**
      * Get the client name from AppIdentityService.
@@ -172,13 +167,12 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
     {
         $this->checkAppEngineContext();
         if (!$this->clientName) {
-            /** @phpstan-ignore-next-line */
-            $this->clientName = AppIdentityService::getServiceAccountName();
+            $this->clientName = \DeliciousBrains\WP_Offload_Media\Gcp\google\appengine\api\app_identity\AppIdentityService::getServiceAccountName();
         }
         return $this->clientName;
     }
     /**
-     * @return array{access_token:string,expires_at:int}|null
+     * @return array|null
      */
     public function getLastReceivedToken()
     {
@@ -197,12 +191,9 @@ class AppIdentityCredentials extends CredentialsLoader implements SignBlobInterf
     {
         return '';
     }
-    /**
-     * @return void
-     */
     private function checkAppEngineContext()
     {
-        if (!self::onAppEngine() || !\class_exists('DeliciousBrains\\WP_Offload_Media\\Gcp\\google\\appengine\\api\\app_identity\\AppIdentityService')) {
+        if (!self::onAppEngine() || !class_exists('DeliciousBrains\\WP_Offload_Media\\Gcp\\google\\appengine\\api\\app_identity\\AppIdentityService')) {
             throw new \Exception('This class must be run in App Engine, or you must include the AppIdentityService ' . 'mock class defined in tests/mocks/AppIdentityService.php');
         }
     }

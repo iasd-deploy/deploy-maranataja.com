@@ -55,9 +55,9 @@ class Metadata
     /**
      * @param ReaderInterface $reader [optional] A metadata reader implementation.
      */
-    public function __construct(ReaderInterface $reader = null)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Compute\Metadata\Readers\ReaderInterface $reader = null)
     {
-        $this->reader = $reader ?: new HttpHandlerReader();
+        $this->reader = $reader ?: new \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Compute\Metadata\Readers\HttpHandlerReader();
     }
     /**
      * Replace the default reader implementation
@@ -66,7 +66,7 @@ class Metadata
      *     construction.
      * @param ReaderInterface $reader The reader implementation
      */
-    public function setReader(ReaderInterface $reader)
+    public function setReader(\DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Compute\Metadata\Readers\ReaderInterface $reader)
     {
         $this->reader = $reader;
     }

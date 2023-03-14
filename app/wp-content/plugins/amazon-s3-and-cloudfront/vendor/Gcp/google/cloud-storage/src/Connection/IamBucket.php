@@ -21,7 +21,7 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Iam\IamConnectionInte
 /**
  * IAM Implementation for GCS Buckets
  */
-class IamBucket implements IamConnectionInterface
+class IamBucket implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Iam\IamConnectionInterface
 {
     /**
      * @var ConnectionInterface
@@ -30,7 +30,7 @@ class IamBucket implements IamConnectionInterface
     /**
      * @param  ConnectionInterface $connection
      */
-    public function __construct(ConnectionInterface $connection)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Storage\Connection\ConnectionInterface $connection)
     {
         $this->connection = $connection;
     }

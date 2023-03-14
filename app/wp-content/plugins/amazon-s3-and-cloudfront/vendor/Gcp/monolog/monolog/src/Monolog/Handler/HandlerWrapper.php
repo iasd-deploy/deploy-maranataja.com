@@ -30,46 +30,46 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface;
  *
  * @author Alexey Karapetov <alexey@karapetov.com>
  */
-class HandlerWrapper implements HandlerInterface, ProcessableHandlerInterface, FormattableHandlerInterface, ResettableInterface
+class HandlerWrapper implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\HandlerInterface, \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\ProcessableHandlerInterface, \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\FormattableHandlerInterface, \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface
 {
     /**
      * @var HandlerInterface
      */
     protected $handler;
-    public function __construct(HandlerInterface $handler)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\HandlerInterface $handler)
     {
         $this->handler = $handler;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isHandling(array $record) : bool
     {
         return $this->handler->isHandling($record);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handle(array $record) : bool
     {
         return $this->handler->handle($record);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleBatch(array $records) : void
     {
         $this->handler->handleBatch($records);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function close() : void
     {
         $this->handler->close();
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function pushProcessor(callable $callback) : HandlerInterface
     {
@@ -77,43 +77,42 @@ class HandlerWrapper implements HandlerInterface, ProcessableHandlerInterface, F
             $this->handler->pushProcessor($callback);
             return $this;
         }
-        throw new \LogicException('The wrapped handler does not implement ' . ProcessableHandlerInterface::class);
+        throw new \LogicException('The wrapped handler does not implement ' . \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\ProcessableHandlerInterface::class);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function popProcessor() : callable
     {
         if ($this->handler instanceof ProcessableHandlerInterface) {
             return $this->handler->popProcessor();
         }
-        throw new \LogicException('The wrapped handler does not implement ' . ProcessableHandlerInterface::class);
+        throw new \LogicException('The wrapped handler does not implement ' . \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\ProcessableHandlerInterface::class);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function setFormatter(FormatterInterface $formatter) : HandlerInterface
+    public function setFormatter(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface $formatter) : HandlerInterface
     {
         if ($this->handler instanceof FormattableHandlerInterface) {
             $this->handler->setFormatter($formatter);
-            return $this;
         }
-        throw new \LogicException('The wrapped handler does not implement ' . FormattableHandlerInterface::class);
+        throw new \LogicException('The wrapped handler does not implement ' . \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\FormattableHandlerInterface::class);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFormatter() : FormatterInterface
     {
         if ($this->handler instanceof FormattableHandlerInterface) {
             return $this->handler->getFormatter();
         }
-        throw new \LogicException('The wrapped handler does not implement ' . FormattableHandlerInterface::class);
+        throw new \LogicException('The wrapped handler does not implement ' . \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\FormattableHandlerInterface::class);
     }
     public function reset()
     {
         if ($this->handler instanceof ResettableInterface) {
-            $this->handler->reset();
+            return $this->handler->reset();
         }
     }
 }

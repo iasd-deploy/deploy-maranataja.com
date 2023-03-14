@@ -10,9 +10,9 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Rize\UriTemplate\Parser;
  * | 3   |    {/keys}    /semi,%3B,dot,.,comma,%2C        | /(\w+,?)+
  * | 4   |    {/keys*}   /semi=%3B/dot=./comma=%2C        | /(?:\w+=\w+/?)*
  */
-class UnNamed extends Abstraction
+class UnNamed extends \DeliciousBrains\WP_Offload_Media\Gcp\Rize\UriTemplate\Operator\Abstraction
 {
-    public function toRegex(Parser $parser, Node\Variable $var)
+    public function toRegex(\DeliciousBrains\WP_Offload_Media\Gcp\Rize\UriTemplate\Parser $parser, \DeliciousBrains\WP_Offload_Media\Gcp\Rize\UriTemplate\Node\Variable $var)
     {
         $regex = null;
         $value = $this->getRegex();

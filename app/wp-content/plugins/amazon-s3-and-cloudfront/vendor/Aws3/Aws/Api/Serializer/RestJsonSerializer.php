@@ -8,7 +8,7 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape;
  * Serializes requests for the REST-JSON protocol.
  * @internal
  */
-class RestJsonSerializer extends RestSerializer
+class RestJsonSerializer extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer\RestSerializer
 {
     /** @var JsonBody */
     private $jsonFormatter;
@@ -19,16 +19,15 @@ class RestJsonSerializer extends RestSerializer
      * @param string   $endpoint      Endpoint to connect to
      * @param JsonBody $jsonFormatter Optional JSON formatter to use
      */
-    public function __construct(Service $api, $endpoint, JsonBody $jsonFormatter = null)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $api, $endpoint, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer\JsonBody $jsonFormatter = null)
     {
         parent::__construct($api, $endpoint);
-        $this->contentType = JsonBody::getContentType($api);
-        $this->jsonFormatter = $jsonFormatter ?: new JsonBody($api);
+        $this->contentType = 'application/json';
+        $this->jsonFormatter = $jsonFormatter ?: new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Serializer\JsonBody($api);
     }
-    protected function payload(StructureShape $member, array $value, array &$opts)
+    protected function payload(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape $member, array $value, array &$opts)
     {
-        $body = isset($value) ? (string) $this->jsonFormatter->build($member, $value) : "{}";
         $opts['headers']['Content-Type'] = $this->contentType;
-        $opts['body'] = $body;
+        $opts['body'] = (string) $this->jsonFormatter->build($member, $value);
     }
 }

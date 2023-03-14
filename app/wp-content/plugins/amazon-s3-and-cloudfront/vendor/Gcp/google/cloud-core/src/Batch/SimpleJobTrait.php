@@ -66,12 +66,12 @@ trait SimpleJobTrait
         $identifier = $options['identifier'];
         $configStorage = $options['configStorage'] ?: $this->defaultConfigStorage();
         $result = $configStorage->lock();
-        if ($result === \false) {
-            return \false;
+        if ($result === false) {
+            return false;
         }
         $config = $configStorage->load();
         $config->registerJob($identifier, function ($id) use($identifier, $options) {
-            return new SimpleJob($identifier, [$this, 'run'], $id, $options);
+            return new \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Batch\SimpleJob($identifier, [$this, 'run'], $id, $options);
         });
         try {
             $result = $configStorage->save($config);
@@ -83,9 +83,9 @@ trait SimpleJobTrait
     private function defaultConfigStorage()
     {
         if ($this->isSysvIPCLoaded() && $this->isDaemonRunning()) {
-            return new SysvConfigStorage();
+            return new \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Batch\SysvConfigStorage();
         } else {
-            return InMemoryConfigStorage::getInstance();
+            return \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Batch\InMemoryConfigStorage::getInstance();
         }
     }
 }

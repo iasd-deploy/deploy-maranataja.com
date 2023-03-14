@@ -3,8 +3,6 @@
 namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn;
 
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\AccessPointArn as S3AccessPointArn;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\ObjectLambdaAccessPointArn;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\MultiRegionAccessPointArn;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\OutpostsBucketArn;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\RegionalBucketArn;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\OutpostsAccessPointArn;
@@ -23,7 +21,7 @@ class ArnParser
      */
     public static function isArn($string)
     {
-        return $string !== null && \strpos($string, 'arn:') === 0;
+        return strpos($string, 'arn:') === 0;
     }
     /**
      * Parses a string and returns an instance of ArnInterface. Returns a
@@ -35,32 +33,26 @@ class ArnParser
      */
     public static function parse($string)
     {
-        $data = Arn::parse($string);
-        if ($data['service'] === 's3-object-lambda') {
-            return new ObjectLambdaAccessPointArn($string);
-        }
+        $data = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\Arn::parse($string);
         $resource = self::explodeResourceComponent($data['resource']);
         if ($resource[0] === 'outpost') {
             if (isset($resource[2]) && $resource[2] === 'bucket') {
-                return new OutpostsBucketArn($string);
+                return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\OutpostsBucketArn($string);
             }
             if (isset($resource[2]) && $resource[2] === 'accesspoint') {
-                return new OutpostsAccessPointArn($string);
+                return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\OutpostsAccessPointArn($string);
             }
-        }
-        if (empty($data['region'])) {
-            return new MultiRegionAccessPointArn($string);
         }
         if ($resource[0] === 'accesspoint') {
             if ($data['service'] === 's3') {
-                return new S3AccessPointArn($string);
+                return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\S3\AccessPointArn($string);
             }
-            return new AccessPointArn($string);
+            return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\AccessPointArn($string);
         }
-        return new Arn($data);
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Arn\Arn($data);
     }
     private static function explodeResourceComponent($resource)
     {
-        return \preg_split("/[\\/:]/", $resource);
+        return preg_split("/[\\/:]/", $resource);
     }
 }

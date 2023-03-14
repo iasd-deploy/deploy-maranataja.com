@@ -2,7 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_Media\Providers\Delivery;
 
-class StackPath extends Delivery_Provider {
+class StackPath extends Another_CDN {
 
 	/**
 	 * Which storage providers does the delivery provider support, empty means all.
@@ -59,18 +59,4 @@ class StackPath extends Delivery_Provider {
 	 * @var string
 	 */
 	protected static $provider_service_quick_start_slug = 'stackpath-setup';
-
-	/**
-	 * @var string
-	 */
-	protected $console_url = 'https://control.stackpath.com/stacks';
-
-	/**
-	 * Title to be shown for provider's console link.
-	 *
-	 * @return string
-	 */
-	public static function get_console_title(): string {
-		return _x( 'Control Portal', 'Provider console link text', 'amazon-s3-and-cloudfront' );
-	}
 }

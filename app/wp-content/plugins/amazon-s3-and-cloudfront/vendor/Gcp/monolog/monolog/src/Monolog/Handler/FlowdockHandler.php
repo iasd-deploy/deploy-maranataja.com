@@ -25,30 +25,31 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface;
  *
  * @author Dominik Liebler <liebler.dominik@gmail.com>
  * @see https://www.flowdock.com/api/push
- *
- * @phpstan-import-type FormattedRecord from AbstractProcessingHandler
  */
-class FlowdockHandler extends SocketHandler
+class FlowdockHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\SocketHandler
 {
     /**
      * @var string
      */
     protected $apiToken;
     /**
+     * @param string|int $level  The minimum logging level at which this handler will be triggered
+     * @param bool       $bubble Whether the messages that are handled can bubble up the stack or not
+     *
      * @throws MissingExtensionException if OpenSSL is missing
      */
-    public function __construct(string $apiToken, $level = Logger::DEBUG, bool $bubble = \true, bool $persistent = \false, float $timeout = 0.0, float $writingTimeout = 10.0, ?float $connectionTimeout = null, ?int $chunkSize = null)
+    public function __construct(string $apiToken, $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG, bool $bubble = true)
     {
-        if (!\extension_loaded('openssl')) {
-            throw new MissingExtensionException('The OpenSSL PHP extension is required to use the FlowdockHandler');
+        if (!extension_loaded('openssl')) {
+            throw new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\MissingExtensionException('The OpenSSL PHP extension is required to use the FlowdockHandler');
         }
-        parent::__construct('ssl://api.flowdock.com:443', $level, $bubble, $persistent, $timeout, $writingTimeout, $connectionTimeout, $chunkSize);
+        parent::__construct('ssl://api.flowdock.com:443', $level, $bubble);
         $this->apiToken = $apiToken;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function setFormatter(FormatterInterface $formatter) : HandlerInterface
+    public function setFormatter(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface $formatter) : HandlerInterface
     {
         if (!$formatter instanceof FlowdockFormatter) {
             throw new \InvalidArgumentException('The FlowdockHandler requires an instance of Monolog\\Formatter\\FlowdockFormatter to function correctly');
@@ -63,7 +64,9 @@ class FlowdockHandler extends SocketHandler
         throw new \InvalidArgumentException('The FlowdockHandler must be configured (via setFormatter) with an instance of Monolog\\Formatter\\FlowdockFormatter to function correctly');
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
+     * @param array $record
      */
     protected function write(array $record) : void
     {
@@ -71,7 +74,7 @@ class FlowdockHandler extends SocketHandler
         $this->closeSocket();
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function generateDataStream(array $record) : string
     {
@@ -80,12 +83,10 @@ class FlowdockHandler extends SocketHandler
     }
     /**
      * Builds the body of API call
-     *
-     * @phpstan-param FormattedRecord $record
      */
     private function buildContent(array $record) : string
     {
-        return Utils::jsonEncode($record['formatted']['flowdock']);
+        return \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Utils::jsonEncode($record['formatted']['flowdock']);
     }
     /**
      * Builds the header of the API Call
@@ -95,7 +96,7 @@ class FlowdockHandler extends SocketHandler
         $header = "POST /v1/messages/team_inbox/" . $this->apiToken . " HTTP/1.1\r\n";
         $header .= "Host: api.flowdock.com\r\n";
         $header .= "Content-Type: application/json\r\n";
-        $header .= "Content-Length: " . \strlen($content) . "\r\n";
+        $header .= "Content-Length: " . strlen($content) . "\r\n";
         $header .= "\r\n";
         return $header;
     }

@@ -16,7 +16,7 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter;
  *
  * @author Julien Breux <julien.breux@gmail.com>
  */
-class LogmaticFormatter extends JsonFormatter
+class LogmaticFormatter extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\JsonFormatter
 {
     protected const MARKERS = ["sourcecode", "php"];
     /**

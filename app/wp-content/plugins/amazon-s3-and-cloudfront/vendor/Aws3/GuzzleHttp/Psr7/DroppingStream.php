@@ -6,10 +6,8 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
 /**
  * Stream decorator that begins dropping data once the size of the underlying
  * stream becomes too full.
- *
- * @final
  */
-class DroppingStream implements StreamInterface
+class DroppingStream implements \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface
 {
     use StreamDecoratorTrait;
     private $maxLength;
@@ -17,7 +15,7 @@ class DroppingStream implements StreamInterface
      * @param StreamInterface $stream    Underlying stream to decorate.
      * @param int             $maxLength Maximum size before dropping data.
      */
-    public function __construct(StreamInterface $stream, $maxLength)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $stream, $maxLength)
     {
         $this->stream = $stream;
         $this->maxLength = $maxLength;
@@ -30,9 +28,9 @@ class DroppingStream implements StreamInterface
             return 0;
         }
         // Write the stream or a subset of the stream if needed.
-        if (\strlen($string) < $diff) {
+        if (strlen($string) < $diff) {
             return $this->stream->write($string);
         }
-        return $this->stream->write(\substr($string, 0, $diff));
+        return $this->stream->write(substr($string, 0, $diff));
     }
 }

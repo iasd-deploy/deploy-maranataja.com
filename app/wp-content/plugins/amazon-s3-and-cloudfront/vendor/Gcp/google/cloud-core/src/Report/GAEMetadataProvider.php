@@ -20,7 +20,7 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Report;
 /**
  * MetadataProvider for GAE.
  */
-abstract class GAEMetadataProvider implements MetadataProviderInterface
+abstract class GAEMetadataProvider implements \DeliciousBrains\WP_Offload_Media\Gcp\Google\Cloud\Core\Report\MetadataProviderInterface
 {
     protected abstract function getTraceValue($server);
     /** @var array */

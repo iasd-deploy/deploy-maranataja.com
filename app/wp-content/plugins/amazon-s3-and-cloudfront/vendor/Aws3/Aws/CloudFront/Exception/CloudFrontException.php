@@ -6,6 +6,6 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\AwsException;
 /**
  * Represents an error interacting with the Amazon CloudFront service.
  */
-class CloudFrontException extends AwsException
+class CloudFrontException extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Exception\AwsException
 {
 }

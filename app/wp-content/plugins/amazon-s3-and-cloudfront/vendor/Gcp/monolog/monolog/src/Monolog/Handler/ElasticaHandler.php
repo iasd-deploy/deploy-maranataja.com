@@ -11,7 +11,6 @@ declare (strict_types=1);
  */
 namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler;
 
-use DeliciousBrains\WP_Offload_Media\Gcp\Elastica\Document;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\ElasticaFormatter;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger;
@@ -25,7 +24,7 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Elastica\Exception\ExceptionInterface;
  *    $client = new \Elastica\Client();
  *    $options = array(
  *        'index' => 'elastic_index_name',
- *        'type' => 'elastic_doc_type', Types have been removed in Elastica 7
+ *        'type' => 'elastic_doc_type',
  *    );
  *    $handler = new ElasticaHandler($client, $options);
  *    $log = new Logger('application');
@@ -33,30 +32,32 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Elastica\Exception\ExceptionInterface;
  *
  * @author Jelle Vink <jelle.vink@gmail.com>
  */
-class ElasticaHandler extends AbstractProcessingHandler
+class ElasticaHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
     /**
      * @var Client
      */
     protected $client;
     /**
-     * @var mixed[] Handler config options
+     * @var array Handler config options
      */
     protected $options = [];
     /**
-     * @param Client  $client  Elastica Client object
-     * @param mixed[] $options Handler configuration
+     * @param Client     $client  Elastica Client object
+     * @param array      $options Handler configuration
+     * @param int|string $level   The minimum logging level at which this handler will be triggered
+     * @param bool       $bubble  Whether the messages that are handled can bubble up the stack or not
      */
-    public function __construct(Client $client, array $options = [], $level = Logger::DEBUG, bool $bubble = \true)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Gcp\Elastica\Client $client, array $options = [], $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG, bool $bubble = true)
     {
         parent::__construct($level, $bubble);
         $this->client = $client;
-        $this->options = \array_merge([
+        $this->options = array_merge([
             'index' => 'monolog',
             // Elastic index name
             'type' => 'record',
             // Elastic document type
-            'ignore_error' => \false,
+            'ignore_error' => false,
         ], $options);
     }
     /**
@@ -67,18 +68,15 @@ class ElasticaHandler extends AbstractProcessingHandler
         $this->bulkSend([$record['formatted']]);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function setFormatter(FormatterInterface $formatter) : HandlerInterface
+    public function setFormatter(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface $formatter) : HandlerInterface
     {
         if ($formatter instanceof ElasticaFormatter) {
             return parent::setFormatter($formatter);
         }
         throw new \InvalidArgumentException('ElasticaHandler is only compatible with ElasticaFormatter');
     }
-    /**
-     * @return mixed[]
-     */
     public function getOptions() : array
     {
         return $this->options;
@@ -88,10 +86,10 @@ class ElasticaHandler extends AbstractProcessingHandler
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new ElasticaFormatter($this->options['index'], $this->options['type']);
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\ElasticaFormatter($this->options['index'], $this->options['type']);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleBatch(array $records) : void
     {
@@ -100,9 +98,6 @@ class ElasticaHandler extends AbstractProcessingHandler
     }
     /**
      * Use Elasticsearch bulk API to send list of documents
-     *
-     * @param Document[] $documents
-     *
      * @throws \RuntimeException
      */
     protected function bulkSend(array $documents) : void

@@ -17,13 +17,11 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\HtmlFormatter;
  * Base class for all mail handlers
  *
  * @author Gyula Sallai
- *
- * @phpstan-import-type Record from \Monolog\Logger
  */
-abstract class MailHandler extends AbstractProcessingHandler
+abstract class MailHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleBatch(array $records) : void
     {
@@ -32,9 +30,7 @@ abstract class MailHandler extends AbstractProcessingHandler
             if ($record['level'] < $this->level) {
                 continue;
             }
-            /** @var Record $message */
-            $message = $this->processRecord($record);
-            $messages[] = $message;
+            $messages[] = $this->processRecord($record);
         }
         if (!empty($messages)) {
             $this->send((string) $this->getFormatter()->formatBatch($messages), $messages);
@@ -45,21 +41,15 @@ abstract class MailHandler extends AbstractProcessingHandler
      *
      * @param string $content formatted email body to be sent
      * @param array  $records the array of log records that formed this content
-     *
-     * @phpstan-param Record[] $records
      */
     protected abstract function send(string $content, array $records) : void;
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function write(array $record) : void
     {
         $this->send((string) $record['formatted'], [$record]);
     }
-    /**
-     * @phpstan-param non-empty-array<Record> $records
-     * @phpstan-return Record
-     */
     protected function getHighestRecord(array $records) : array
     {
         $highestRecord = null;
@@ -72,7 +62,7 @@ abstract class MailHandler extends AbstractProcessingHandler
     }
     protected function isHtmlBody(string $body) : bool
     {
-        return ($body[0] ?? null) === '<';
+        return substr($body, 0, 1) === '<';
     }
     /**
      * Gets the default formatter.
@@ -81,6 +71,6 @@ abstract class MailHandler extends AbstractProcessingHandler
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new HtmlFormatter();
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\HtmlFormatter();
     }
 }

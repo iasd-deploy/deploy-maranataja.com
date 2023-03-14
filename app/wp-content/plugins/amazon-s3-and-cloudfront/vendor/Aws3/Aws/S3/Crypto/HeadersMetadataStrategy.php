@@ -4,7 +4,7 @@ namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\Crypto;
 
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Crypto\MetadataStrategyInterface;
 use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Crypto\MetadataEnvelope;
-class HeadersMetadataStrategy implements MetadataStrategyInterface
+class HeadersMetadataStrategy implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Crypto\MetadataStrategyInterface
 {
     /**
      * Places the information in the MetadataEnvelope in to the metadata for
@@ -17,7 +17,7 @@ class HeadersMetadataStrategy implements MetadataStrategyInterface
      *
      * @return array Updated arguments for PutObject.
      */
-    public function save(MetadataEnvelope $envelope, array $args)
+    public function save(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Crypto\MetadataEnvelope $envelope, array $args)
     {
         foreach ($envelope as $header => $value) {
             $args['Metadata'][$header] = $value;
@@ -36,8 +36,8 @@ class HeadersMetadataStrategy implements MetadataStrategyInterface
      */
     public function load(array $args)
     {
-        $envelope = new MetadataEnvelope();
-        $constantValues = MetadataEnvelope::getConstantValues();
+        $envelope = new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Crypto\MetadataEnvelope();
+        $constantValues = \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Crypto\MetadataEnvelope::getConstantValues();
         foreach ($constantValues as $constant) {
             if (!empty($args['Metadata'][$constant])) {
                 $envelope[$constant] = $args['Metadata'][$constant];

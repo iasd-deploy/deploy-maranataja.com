@@ -13,37 +13,26 @@ namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler;
 
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface;
-use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Log\LogLevel;
 /**
  * Base Handler class providing basic level/bubble support
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
- *
- * @phpstan-import-type Level from \Monolog\Logger
- * @phpstan-import-type LevelName from \Monolog\Logger
  */
-abstract class AbstractHandler extends Handler implements ResettableInterface
+abstract class AbstractHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\Handler implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface
 {
-    /**
-     * @var int
-     * @phpstan-var Level
-     */
-    protected $level = Logger::DEBUG;
-    /** @var bool */
-    protected $bubble = \true;
+    protected $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG;
+    protected $bubble = true;
     /**
      * @param int|string $level  The minimum logging level at which this handler will be triggered
      * @param bool       $bubble Whether the messages that are handled can bubble up the stack or not
-     *
-     * @phpstan-param Level|LevelName|LogLevel::* $level
      */
-    public function __construct($level = Logger::DEBUG, bool $bubble = \true)
+    public function __construct($level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG, bool $bubble = true)
     {
         $this->setLevel($level);
         $this->bubble = $bubble;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isHandling(array $record) : bool
     {
@@ -52,20 +41,18 @@ abstract class AbstractHandler extends Handler implements ResettableInterface
     /**
      * Sets minimum logging level at which this handler will be triggered.
      *
-     * @param  Level|LevelName|LogLevel::* $level Level or level name
+     * @param  int|string $level Level or level name
      * @return self
      */
     public function setLevel($level) : self
     {
-        $this->level = Logger::toMonologLevel($level);
+        $this->level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::toMonologLevel($level);
         return $this;
     }
     /**
      * Gets minimum logging level at which this handler will be triggered.
      *
      * @return int
-     *
-     * @phpstan-return Level
      */
     public function getLevel() : int
     {
@@ -93,9 +80,6 @@ abstract class AbstractHandler extends Handler implements ResettableInterface
     {
         return $this->bubble;
     }
-    /**
-     * {@inheritDoc}
-     */
     public function reset()
     {
     }

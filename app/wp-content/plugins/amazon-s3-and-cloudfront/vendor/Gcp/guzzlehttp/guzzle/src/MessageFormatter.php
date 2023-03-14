@@ -34,7 +34,7 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Psr\Http\Message\ResponseInterface;
  *
  * @final
  */
-class MessageFormatter implements MessageFormatterInterface
+class MessageFormatter implements \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\MessageFormatterInterface
 {
     /**
      * Apache Common Log Format.
@@ -64,7 +64,7 @@ class MessageFormatter implements MessageFormatterInterface
      * @param ResponseInterface|null $response Response that was received
      * @param \Throwable|null        $error    Exception that was received
      */
-    public function format(RequestInterface $request, ?ResponseInterface $response = null, ?\Throwable $error = null) : string
+    public function format(\DeliciousBrains\WP_Offload_Media\Gcp\Psr\Http\Message\RequestInterface $request, ?ResponseInterface $response = null, ?\Throwable $error = null) : string
     {
         $cache = [];
         /** @var string */
@@ -75,10 +75,10 @@ class MessageFormatter implements MessageFormatterInterface
             $result = '';
             switch ($matches[1]) {
                 case 'request':
-                    $result = Psr7\Message::toString($request);
+                    $result = \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7\Message::toString($request);
                     break;
                 case 'response':
-                    $result = $response ? Psr7\Message::toString($response) : '';
+                    $result = $response ? \DeliciousBrains\WP_Offload_Media\Gcp\GuzzleHttp\Psr7\Message::toString($response) : '';
                     break;
                 case 'req_headers':
                     $result = \trim($request->getMethod() . ' ' . $request->getRequestTarget()) . ' HTTP/' . $request->getProtocolVersion() . "\r\n" . $this->headers($request);
@@ -116,7 +116,7 @@ class MessageFormatter implements MessageFormatterInterface
                     break;
                 case 'uri':
                 case 'url':
-                    $result = $request->getUri()->__toString();
+                    $result = $request->getUri();
                     break;
                 case 'target':
                     $result = $request->getRequestTarget();
@@ -157,7 +157,7 @@ class MessageFormatter implements MessageFormatterInterface
     /**
      * Get headers from message as string
      */
-    private function headers(MessageInterface $message) : string
+    private function headers(\DeliciousBrains\WP_Offload_Media\Gcp\Psr\Http\Message\MessageInterface $message) : string
     {
         $result = '';
         foreach ($message->getHeaders() as $name => $values) {

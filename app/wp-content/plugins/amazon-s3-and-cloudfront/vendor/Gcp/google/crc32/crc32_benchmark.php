@@ -1,7 +1,5 @@
 <?php
 
-namespace DeliciousBrains\WP_Offload_Media\Gcp;
-
 /**
  * Copyright 2019 Google LLC
  *
@@ -23,11 +21,11 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\CRC32;
 use DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\Google;
 use DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\PHP;
 use DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\PHPSlicedBy4;
-\define('DeliciousBrains\\WP_Offload_Media\\Gcp\\min_duration', 5);
+\define('min_duration', 5);
 // Min duration of test in seconds.
-\define('DeliciousBrains\\WP_Offload_Media\\Gcp\\max_duration', 30);
+\define('max_duration', 30);
 // Max duration of test in seconds.
-\define('DeliciousBrains\\WP_Offload_Media\\Gcp\\min_iterations', 10000);
+\define('min_iterations', 10000);
 // Min number of iterations.
 /*
 Tested on my mid-2014 MacBook Pro (with SSE4.2)
@@ -75,10 +73,10 @@ function test($crc, $chunk_size)
         $i++;
         $now = \microtime(\true);
         $duration = $now - $start;
-        if ($duration >= \DeliciousBrains\WP_Offload_Media\Gcp\max_duration) {
+        if ($duration >= \max_duration) {
             break;
         }
-        if ($duration >= \DeliciousBrains\WP_Offload_Media\Gcp\min_duration && $i >= \DeliciousBrains\WP_Offload_Media\Gcp\min_iterations) {
+        if ($duration >= \min_duration && $i >= \min_iterations) {
             break;
         }
     }
@@ -90,9 +88,9 @@ function test($crc, $chunk_size)
     echo \sprintf("%s\t%10d\t%5d\t%8.2f MB/s\n", $name, $chunk_size, $i, $bytes / ($now - $start) / 1000000);
 }
 foreach (array(256, 4096, 1048576, 16777216) as $chunk_size) {
-    test(new PHP(CRC32::CASTAGNOLI), $chunk_size);
-    test(new PHPSlicedBy4(CRC32::CASTAGNOLI), $chunk_size);
+    \test(new \DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\PHP(\DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\CRC32::CASTAGNOLI), $chunk_size);
+    \test(new \DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\PHPSlicedBy4(\DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\CRC32::CASTAGNOLI), $chunk_size);
     // Using IEEE, avoiding the CASTAGNOLI version crc32c.so adds.
-    test(new Builtin(CRC32::IEEE), $chunk_size);
-    test(new Google(), $chunk_size);
+    \test(new \DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\Builtin(\DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\CRC32::IEEE), $chunk_size);
+    \test(new \DeliciousBrains\WP_Offload_Media\Gcp\Google\CRC32\Google(), $chunk_size);
 }

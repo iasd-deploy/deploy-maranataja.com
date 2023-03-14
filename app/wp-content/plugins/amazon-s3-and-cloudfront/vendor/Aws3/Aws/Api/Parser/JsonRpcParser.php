@@ -11,25 +11,25 @@ use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface;
 /**
  * @internal Implements JSON-RPC parsing (e.g., DynamoDB)
  */
-class JsonRpcParser extends AbstractParser
+class JsonRpcParser extends \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\AbstractParser
 {
     use PayloadParserTrait;
     /**
      * @param Service    $api    Service description
      * @param JsonParser $parser JSON body builder
      */
-    public function __construct(Service $api, JsonParser $parser = null)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Service $api, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\JsonParser $parser = null)
     {
         parent::__construct($api);
-        $this->parser = $parser ?: new JsonParser();
+        $this->parser = $parser ?: new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\Parser\JsonParser();
     }
-    public function __invoke(CommandInterface $command, ResponseInterface $response)
+    public function __invoke(\DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\ResponseInterface $response)
     {
         $operation = $this->api->getOperation($command->getName());
         $result = null === $operation['output'] ? null : $this->parseMemberFromStream($response->getBody(), $operation->getOutput(), $response);
-        return new Result($result ?: []);
+        return new \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Result($result ?: []);
     }
-    public function parseMemberFromStream(StreamInterface $stream, StructureShape $member, $response)
+    public function parseMemberFromStream(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Http\Message\StreamInterface $stream, \DeliciousBrains\WP_Offload_Media\Aws3\Aws\Api\StructureShape $member, $response)
     {
         return $this->parser->parse($member, $this->parseJson($stream, $response));
     }

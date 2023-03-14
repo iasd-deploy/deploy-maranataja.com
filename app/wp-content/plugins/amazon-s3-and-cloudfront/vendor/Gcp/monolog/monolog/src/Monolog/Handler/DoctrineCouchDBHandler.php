@@ -20,11 +20,10 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Doctrine\CouchDB\CouchDBClient;
  *
  * @author Markus Bachmann <markus.bachmann@bachi.biz>
  */
-class DoctrineCouchDBHandler extends AbstractProcessingHandler
+class DoctrineCouchDBHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
-    /** @var CouchDBClient */
     private $client;
-    public function __construct(CouchDBClient $client, $level = Logger::DEBUG, bool $bubble = \true)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Gcp\Doctrine\CouchDB\CouchDBClient $client, $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG, bool $bubble = true)
     {
         $this->client = $client;
         parent::__construct($level, $bubble);
@@ -38,6 +37,6 @@ class DoctrineCouchDBHandler extends AbstractProcessingHandler
     }
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new NormalizerFormatter();
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\NormalizerFormatter();
     }
 }

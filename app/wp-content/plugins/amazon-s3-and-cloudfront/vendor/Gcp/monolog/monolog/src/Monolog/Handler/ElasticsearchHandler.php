@@ -11,7 +11,6 @@ declare (strict_types=1);
  */
 namespace DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler;
 
-use DeliciousBrains\WP_Offload_Media\Gcp\Elastic\Elasticsearch\Response\Elasticsearch;
 use Throwable;
 use RuntimeException;
 use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger;
@@ -20,8 +19,6 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\ElasticsearchFormatte
 use InvalidArgumentException;
 use DeliciousBrains\WP_Offload_Media\Gcp\Elasticsearch\Common\Exceptions\RuntimeException as ElasticsearchRuntimeException;
 use DeliciousBrains\WP_Offload_Media\Gcp\Elasticsearch\Client;
-use DeliciousBrains\WP_Offload_Media\Gcp\Elastic\Elasticsearch\Exception\InvalidArgumentException as ElasticInvalidArgumentException;
-use DeliciousBrains\WP_Offload_Media\Gcp\Elastic\Elasticsearch\Client as Client8;
 /**
  * Elasticsearch handler
  *
@@ -43,45 +40,33 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Elastic\Elasticsearch\Client as Client8
  *
  * @author Avtandil Kikabidze <akalongman@gmail.com>
  */
-class ElasticsearchHandler extends AbstractProcessingHandler
+class ElasticsearchHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
     /**
-     * @var Client|Client8
+     * @var Client
      */
     protected $client;
     /**
-     * @var mixed[] Handler config options
+     * @var array Handler config options
      */
     protected $options = [];
     /**
-     * @var bool
+     * @param Client     $client  Elasticsearch Client object
+     * @param array      $options Handler configuration
+     * @param string|int $level   The minimum logging level at which this handler will be triggered
+     * @param bool       $bubble  Whether the messages that are handled can bubble up the stack or not
      */
-    private $needsType;
-    /**
-     * @param Client|Client8 $client  Elasticsearch Client object
-     * @param mixed[]        $options Handler configuration
-     */
-    public function __construct($client, array $options = [], $level = Logger::DEBUG, bool $bubble = \true)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Gcp\Elasticsearch\Client $client, array $options = [], $level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::DEBUG, bool $bubble = true)
     {
-        if (!$client instanceof Client && !$client instanceof Client8) {
-            throw new \TypeError('Elasticsearch\\Client or Elastic\\Elasticsearch\\Client instance required');
-        }
         parent::__construct($level, $bubble);
         $this->client = $client;
-        $this->options = \array_merge([
+        $this->options = array_merge([
             'index' => 'monolog',
             // Elastic index name
             'type' => '_doc',
             // Elastic document type
-            'ignore_error' => \false,
+            'ignore_error' => false,
         ], $options);
-        if ($client instanceof Client8 || $client::VERSION[0] === '7') {
-            $this->needsType = \false;
-            // force the type to _doc for ES8/ES7
-            $this->options['type'] = '_doc';
-        } else {
-            $this->needsType = \true;
-        }
     }
     /**
      * {@inheritDoc}
@@ -91,19 +76,19 @@ class ElasticsearchHandler extends AbstractProcessingHandler
         $this->bulkSend([$record['formatted']]);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function setFormatter(FormatterInterface $formatter) : HandlerInterface
+    public function setFormatter(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface $formatter) : HandlerInterface
     {
         if ($formatter instanceof ElasticsearchFormatter) {
             return parent::setFormatter($formatter);
         }
-        throw new InvalidArgumentException('ElasticsearchHandler is only compatible with ElasticsearchFormatter');
+        throw new \InvalidArgumentException('ElasticsearchHandler is only compatible with ElasticsearchFormatter');
     }
     /**
      * Getter options
      *
-     * @return mixed[]
+     * @return array
      */
     public function getOptions() : array
     {
@@ -114,10 +99,10 @@ class ElasticsearchHandler extends AbstractProcessingHandler
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new ElasticsearchFormatter($this->options['index'], $this->options['type']);
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\ElasticsearchFormatter($this->options['index'], $this->options['type']);
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleBatch(array $records) : void
     {
@@ -127,7 +112,7 @@ class ElasticsearchHandler extends AbstractProcessingHandler
     /**
      * Use Elasticsearch bulk API to send list of documents
      *
-     * @param  array[]           $records Records + _index/_type keys
+     * @param  array             $records
      * @throws \RuntimeException
      */
     protected function bulkSend(array $records) : void
@@ -135,18 +120,17 @@ class ElasticsearchHandler extends AbstractProcessingHandler
         try {
             $params = ['body' => []];
             foreach ($records as $record) {
-                $params['body'][] = ['index' => $this->needsType ? ['_index' => $record['_index'], '_type' => $record['_type']] : ['_index' => $record['_index']]];
+                $params['body'][] = ['index' => ['_index' => $record['_index'], '_type' => $record['_type']]];
                 unset($record['_index'], $record['_type']);
                 $params['body'][] = $record;
             }
-            /** @var Elasticsearch */
             $responses = $this->client->bulk($params);
-            if ($responses['errors'] === \true) {
+            if ($responses['errors'] === true) {
                 throw $this->createExceptionFromResponses($responses);
             }
         } catch (Throwable $e) {
             if (!$this->options['ignore_error']) {
-                throw new RuntimeException('Error sending messages to Elasticsearch', 0, $e);
+                throw new \RuntimeException('Error sending messages to Elasticsearch', 0, $e);
             }
         }
     }
@@ -155,31 +139,25 @@ class ElasticsearchHandler extends AbstractProcessingHandler
      *
      * Only the first error is converted into an exception.
      *
-     * @param mixed[]|Elasticsearch $responses returned by $this->client->bulk()
+     * @param array $responses returned by $this->client->bulk()
      */
-    protected function createExceptionFromResponses($responses) : Throwable
+    protected function createExceptionFromResponses(array $responses) : ElasticsearchRuntimeException
     {
         foreach ($responses['items'] ?? [] as $item) {
             if (isset($item['index']['error'])) {
                 return $this->createExceptionFromError($item['index']['error']);
             }
         }
-        if (\class_exists(ElasticInvalidArgumentException::class)) {
-            return new ElasticInvalidArgumentException('Elasticsearch failed to index one or more records.');
-        }
-        return new ElasticsearchRuntimeException('Elasticsearch failed to index one or more records.');
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Elasticsearch\Common\Exceptions\RuntimeException('Elasticsearch failed to index one or more records.');
     }
     /**
      * Creates elasticsearch exception from error array
      *
-     * @param mixed[] $error
+     * @param array $error
      */
-    protected function createExceptionFromError(array $error) : Throwable
+    protected function createExceptionFromError(array $error) : ElasticsearchRuntimeException
     {
         $previous = isset($error['caused_by']) ? $this->createExceptionFromError($error['caused_by']) : null;
-        if (\class_exists(ElasticInvalidArgumentException::class)) {
-            return new ElasticInvalidArgumentException($error['type'] . ': ' . $error['reason'], 0, $previous);
-        }
-        return new ElasticsearchRuntimeException($error['type'] . ': ' . $error['reason'], 0, $previous);
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Elasticsearch\Common\Exceptions\RuntimeException($error['type'] . ': ' . $error['reason'], 0, $previous);
     }
 }

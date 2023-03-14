@@ -21,19 +21,20 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\LineFormatter;
 trait FormattableHandlerTrait
 {
     /**
-     * @var ?FormatterInterface
+     * @var FormatterInterface
      */
     protected $formatter;
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     * @suppress PhanTypeMismatchReturn
      */
-    public function setFormatter(FormatterInterface $formatter) : HandlerInterface
+    public function setFormatter(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface $formatter) : HandlerInterface
     {
         $this->formatter = $formatter;
         return $this;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFormatter() : FormatterInterface
     {
@@ -49,6 +50,6 @@ trait FormattableHandlerTrait
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new LineFormatter();
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\LineFormatter();
     }
 }

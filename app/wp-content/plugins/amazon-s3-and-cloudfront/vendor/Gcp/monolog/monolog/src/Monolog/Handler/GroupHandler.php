@@ -17,21 +17,17 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface;
  * Forwards records to multiple handlers
  *
  * @author Lenar Lõhmus <lenar@city.ee>
- *
- * @phpstan-import-type Record from \Monolog\Logger
  */
-class GroupHandler extends Handler implements ProcessableHandlerInterface, ResettableInterface
+class GroupHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\Handler implements \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\ProcessableHandlerInterface, \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\ResettableInterface
 {
     use ProcessableHandlerTrait;
-    /** @var HandlerInterface[] */
     protected $handlers;
-    /** @var bool */
     protected $bubble;
     /**
      * @param HandlerInterface[] $handlers Array of Handlers.
      * @param bool               $bubble   Whether the messages that are handled can bubble up the stack or not
      */
-    public function __construct(array $handlers, bool $bubble = \true)
+    public function __construct(array $handlers, bool $bubble = true)
     {
         foreach ($handlers as $handler) {
             if (!$handler instanceof HandlerInterface) {
@@ -42,33 +38,32 @@ class GroupHandler extends Handler implements ProcessableHandlerInterface, Reset
         $this->bubble = $bubble;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isHandling(array $record) : bool
     {
         foreach ($this->handlers as $handler) {
             if ($handler->isHandling($record)) {
-                return \true;
+                return true;
             }
         }
-        return \false;
+        return false;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handle(array $record) : bool
     {
         if ($this->processors) {
-            /** @var Record $record */
             $record = $this->processRecord($record);
         }
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
         }
-        return \false === $this->bubble;
+        return false === $this->bubble;
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleBatch(array $records) : void
     {
@@ -77,7 +72,6 @@ class GroupHandler extends Handler implements ProcessableHandlerInterface, Reset
             foreach ($records as $record) {
                 $processed[] = $this->processRecord($record);
             }
-            /** @var Record[] $records */
             $records = $processed;
         }
         foreach ($this->handlers as $handler) {
@@ -101,14 +95,12 @@ class GroupHandler extends Handler implements ProcessableHandlerInterface, Reset
         }
     }
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function setFormatter(FormatterInterface $formatter) : HandlerInterface
+    public function setFormatter(\DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface $formatter) : HandlerInterface
     {
         foreach ($this->handlers as $handler) {
-            if ($handler instanceof FormattableHandlerInterface) {
-                $handler->setFormatter($formatter);
-            }
+            $handler->setFormatter($formatter);
         }
         return $this;
     }

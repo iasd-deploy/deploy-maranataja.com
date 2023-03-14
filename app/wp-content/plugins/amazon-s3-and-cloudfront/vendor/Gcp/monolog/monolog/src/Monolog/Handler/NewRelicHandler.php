@@ -24,18 +24,18 @@ use DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\FormatterInterface;
  * @see https://docs.newrelic.com/docs/agents/php-agent
  * @see https://docs.newrelic.com/docs/accounts-partnerships/accounts/security/high-security
  */
-class NewRelicHandler extends AbstractProcessingHandler
+class NewRelicHandler extends \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\AbstractProcessingHandler
 {
     /**
      * Name of the New Relic application that will receive logs from this handler.
      *
-     * @var ?string
+     * @var string|null
      */
     protected $appName;
     /**
      * Name of the current transaction
      *
-     * @var ?string
+     * @var string|null
      */
     protected $transactionName;
     /**
@@ -48,11 +48,13 @@ class NewRelicHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      *
+     * @param string|int  $level           The minimum logging level at which this handler will be triggered.
+     * @param bool        $bubble          Whether the messages that are handled can bubble up the stack or not.
      * @param string|null $appName
      * @param bool        $explodeArrays
      * @param string|null $transactionName
      */
-    public function __construct($level = Logger::ERROR, bool $bubble = \true, ?string $appName = null, bool $explodeArrays = \false, ?string $transactionName = null)
+    public function __construct($level = \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Logger::ERROR, bool $bubble = true, ?string $appName = null, bool $explodeArrays = false, ?string $transactionName = null)
     {
         parent::__construct($level, $bubble);
         $this->appName = $appName;
@@ -65,7 +67,7 @@ class NewRelicHandler extends AbstractProcessingHandler
     protected function write(array $record) : void
     {
         if (!$this->isNewRelicEnabled()) {
-            throw new MissingExtensionException('The newrelic PHP extension is required to use the NewRelicHandler');
+            throw new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Handler\MissingExtensionException('The newrelic PHP extension is required to use the NewRelicHandler');
         }
         if ($appName = $this->getAppName($record['context'])) {
             $this->setNewRelicAppName($appName);
@@ -75,14 +77,14 @@ class NewRelicHandler extends AbstractProcessingHandler
             unset($record['formatted']['context']['transaction_name']);
         }
         if (isset($record['context']['exception']) && $record['context']['exception'] instanceof \Throwable) {
-            \newrelic_notice_error($record['message'], $record['context']['exception']);
+            newrelic_notice_error($record['message'], $record['context']['exception']);
             unset($record['formatted']['context']['exception']);
         } else {
-            \newrelic_notice_error($record['message']);
+            newrelic_notice_error($record['message']);
         }
-        if (isset($record['formatted']['context']) && \is_array($record['formatted']['context'])) {
+        if (isset($record['formatted']['context']) && is_array($record['formatted']['context'])) {
             foreach ($record['formatted']['context'] as $key => $parameter) {
-                if (\is_array($parameter) && $this->explodeArrays) {
+                if (is_array($parameter) && $this->explodeArrays) {
                     foreach ($parameter as $paramKey => $paramValue) {
                         $this->setNewRelicParameter('context_' . $key . '_' . $paramKey, $paramValue);
                     }
@@ -91,9 +93,9 @@ class NewRelicHandler extends AbstractProcessingHandler
                 }
             }
         }
-        if (isset($record['formatted']['extra']) && \is_array($record['formatted']['extra'])) {
+        if (isset($record['formatted']['extra']) && is_array($record['formatted']['extra'])) {
             foreach ($record['formatted']['extra'] as $key => $parameter) {
-                if (\is_array($parameter) && $this->explodeArrays) {
+                if (is_array($parameter) && $this->explodeArrays) {
                     foreach ($parameter as $paramKey => $paramValue) {
                         $this->setNewRelicParameter('extra_' . $key . '_' . $paramKey, $paramValue);
                     }
@@ -110,13 +112,11 @@ class NewRelicHandler extends AbstractProcessingHandler
      */
     protected function isNewRelicEnabled() : bool
     {
-        return \extension_loaded('newrelic');
+        return extension_loaded('newrelic');
     }
     /**
      * Returns the appname where this log should be sent. Each log can override the default appname, set in this
      * handler's constructor, by providing the appname in it's context.
-     *
-     * @param mixed[] $context
      */
     protected function getAppName(array $context) : ?string
     {
@@ -128,8 +128,6 @@ class NewRelicHandler extends AbstractProcessingHandler
     /**
      * Returns the name of the current transaction. Each log can override the default transaction name, set in this
      * handler's constructor, by providing the transaction_name in it's context
-     *
-     * @param mixed[] $context
      */
     protected function getTransactionName(array $context) : ?string
     {
@@ -143,14 +141,14 @@ class NewRelicHandler extends AbstractProcessingHandler
      */
     protected function setNewRelicAppName(string $appName) : void
     {
-        \newrelic_set_appname($appName);
+        newrelic_set_appname($appName);
     }
     /**
      * Overwrites the name of the current transaction
      */
     protected function setNewRelicTransactionName(string $transactionName) : void
     {
-        \newrelic_name_transaction($transactionName);
+        newrelic_name_transaction($transactionName);
     }
     /**
      * @param string $key
@@ -158,10 +156,10 @@ class NewRelicHandler extends AbstractProcessingHandler
      */
     protected function setNewRelicParameter(string $key, $value) : void
     {
-        if (null === $value || \is_scalar($value)) {
-            \newrelic_add_custom_parameter($key, $value);
+        if (null === $value || is_scalar($value)) {
+            newrelic_add_custom_parameter($key, $value);
         } else {
-            \newrelic_add_custom_parameter($key, Utils::jsonEncode($value, null, \true));
+            newrelic_add_custom_parameter($key, \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Utils::jsonEncode($value, null, true));
         }
     }
     /**
@@ -169,6 +167,6 @@ class NewRelicHandler extends AbstractProcessingHandler
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
-        return new NormalizerFormatter();
+        return new \DeliciousBrains\WP_Offload_Media\Gcp\Monolog\Formatter\NormalizerFormatter();
     }
 }

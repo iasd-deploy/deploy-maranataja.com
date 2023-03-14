@@ -3,11 +3,11 @@
 namespace DeliciousBrains\WP_Offload_Media\Aws3\Aws;
 
 use DeliciousBrains\WP_Offload_Media\Aws3\Psr\Cache\CacheItemPoolInterface;
-class PsrCacheAdapter implements CacheInterface
+class PsrCacheAdapter implements \DeliciousBrains\WP_Offload_Media\Aws3\Aws\CacheInterface
 {
     /** @var CacheItemPoolInterface */
     private $pool;
-    public function __construct(CacheItemPoolInterface $pool)
+    public function __construct(\DeliciousBrains\WP_Offload_Media\Aws3\Psr\Cache\CacheItemPoolInterface $pool)
     {
         $this->pool = $pool;
     }
