@@ -20,22 +20,39 @@
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'maranataja' );
+define( 'DB_NAME', $_ENV['WP_DB_NAME']);
 
-/** Database username */
-define( 'DB_USER', 'root' );
+/** MySQL database username */
+define( 'DB_USER', $_ENV['WP_DB_USER']);
 
-/** Database password */
-define( 'DB_PASSWORD', 'root' );
+/** MySQL database password */
+define( 'DB_PASSWORD', $_ENV['WP_DB_PASSWORD']);
 
-/** Database hostname */
-define( 'DB_HOST', 'localhost' );
+/** MySQL hostname */
+define( 'DB_HOST', $_ENV['WP_DB_HOST'] .':3306');
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8mb4' );
 
 /** The database collate type. Don't change this if in doubt. */
 define( 'DB_COLLATE', '' );
+
+define( 'AS3CF_SETTINGS', serialize( array(
+    'provider' => 'aws',
+    'access-key-id' => $_ENV['WP_S3_ACCESS_KEY'],
+    'secret-access-key' => $_ENV['WP_S3_SECRET_KEY'],
+	'bucket' => $_ENV['WP_S3_BUCKET']
+) ) );
+
+define( 'FORCE_SSL', true );
+define( 'FORCE_SSL_ADMIN',true );
+$_SERVER['HTTPS']='on';	
+
+/** Ajustes adventistas.org */
+define( 'DISALLOW_FILE_EDIT', true );
+define( 'WP_AUTO_UPDATE_CORE', false );
+define( 'SITE', 'maranata' );
+define('PA_LANG', true);
 
 /**#@+
  * Authentication unique keys and salts.
