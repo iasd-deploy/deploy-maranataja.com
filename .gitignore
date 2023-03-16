@@ -5,3 +5,5 @@ update.sh
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 processa.php
+
+.DS_Store
