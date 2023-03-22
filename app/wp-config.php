@@ -99,7 +99,7 @@ $table_prefix = 'wp_';
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
 define( 'WP_DEBUG', false );
-define( 'WP_MEMORY_LIMIT', '128M' );
+define( 'WP_MEMORY_LIMIT', '1024M' );
 
 /* Add any custom values between this line and the "stop editing" line. */
 

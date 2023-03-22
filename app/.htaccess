@@ -1,3 +1,8 @@
+php_value upload_max_filesize 64M 
+php_value post_max_size 64M
+php_value max_execution_time 300
+php_value memory_limit 1512M
+
 # BEGIN WP Rocket v3.12.6.1
 # Use UTF-8 encoding for anything served text/plain or text/html
 AddDefaultCharset UTF-8
@@ -122,18 +127,9 @@ Header append Vary: Accept-Encoding
 php_value upload_max_filesize 64M
 
 # BEGIN WordPress
-# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
-# dynamically generated, and should only be modified via WordPress filters.
-# Any changes to the directives between these markers will be overwritten.
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase /
-RewriteRule ^index\.php$ - [L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.php [L]
-</IfModule>
+# As diretrizes (linhas) entre "BEGIN WordPress" e "END WordPress" são
+# geradas dinamicamente e só devem ser modificadas através de filtros do WordPress.
+# Quaisquer alterações nas diretivas entre esses marcadores serão sobrescritas.
 
 # END WordPress
 # BEGIN EWWWIO
