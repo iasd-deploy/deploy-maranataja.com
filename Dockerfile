@@ -29,4 +29,6 @@ ENV NEWRELIC_APP_NAME=$NEWRELIC_APP_NAME
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+RUN a2enmod headers
+
 EXPOSE 80
