@@ -7,3 +7,5 @@ update.sh
 processa.php
 
 .DS_Store
+
+mysql/

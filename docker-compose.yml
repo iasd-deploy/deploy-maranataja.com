@@ -18,12 +18,20 @@ services:
     container_name: feliz7play_web
     ports:
       - '80:80'
+      - '443:443'
     links:
       - feliz7play_db
     volumes:
-      - './app:/var/www/html'
+      - ./app:/var/www/html
+      - ./config/certs:/var/www/certs:ro
+      - ./config/default-ssl.conf:/etc/apache2/sites-available/default-ssl.conf:ro
+      - ./config/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh:ro
     environment:
       WEB_DOCUMENT_ROOT: /var/www/html
+      WP_DB_NAME: 'feliz7play'
+      WP_DB_USER: 'root'
+      WP_DB_PASSWORD: 'root'
+      WP_DB_HOST: 'feliz7play_db'
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
