@@ -9,3 +9,5 @@ processa.php
 .DS_Store
 
 mysql/
+
+app/wp-content/languages/wpml/
