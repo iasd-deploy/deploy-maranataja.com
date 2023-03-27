@@ -13,6 +13,7 @@ sed -i -e "s/REPLACE_WITH_REAL_KEY/$NEWRELIC_KEY/" \
   -e '$anewrelic.distributed_tracing_enabled=true' \
   -e '$anewrelic.framework.wordpress.hooks=true' \
   $(php -r "echo(PHP_CONFIG_FILE_SCAN_DIR);")/newrelic.ini
+curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash && sudo NEW_RELIC_API_KEY=NRAK-ECQZQ32ODZ01C4PUWQHWM4ZL3M6 NEW_RELIC_ACCOUNT_ID=3282075 /usr/local/bin/newrelic install -n logs-integration
 echo "Fim da instalação do NewRelic"
 
 echo "Ajuste nas permissões da pasta uploads"
