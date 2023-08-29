@@ -212,6 +212,8 @@ class Manager {
 
 			$gateways = apply_filters( 'jet-engine/forms/gateways/register', array( new PayPal() ) );
 
+			$this->_gateways = array();
+
 			foreach ( $gateways as $gateway ) {
 				$this->_gateways[ $gateway->get_id() ] = $gateway;
 			}

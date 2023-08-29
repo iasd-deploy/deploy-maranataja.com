@@ -152,7 +152,7 @@ if ( ! class_exists( 'Jet_Engine_Meta_Boxes' ) ) {
 			add_action(
 				'jet-engine/taxonomies/meta-fields',
 				function() {
-					echo '<jet-meta-fields v-model="metaFields" :hide-options="[ \'quick_editable\' ]"></jet-meta-fields>';
+					echo '<jet-meta-fields v-model="metaFields" :hide-options="[ \'quick_editable\', \'revision_support\' ]"></jet-meta-fields>';
 				}
 			);
 

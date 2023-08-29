@@ -208,6 +208,13 @@ if ( ! class_exists( 'Jet_Engine_Modules' ) ) {
 		 */
 		public function init_active_modules() {
 
+			// Initialize built-in modules
+			require_once jet_engine()->plugin_path( 'includes/modules/performance/performance.php' );
+
+			foreach( array( new Jet_Engine_Module_Performance() ) as $module ) {
+				$module->module_init();
+			}
+
 			$modules = $this->get_active_modules();
 
 			if ( empty( $modules ) ) {

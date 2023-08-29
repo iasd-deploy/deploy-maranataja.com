@@ -167,6 +167,8 @@ abstract class Jet_Elements_Base extends Widget_Base {
 
 		foreach ( $loop as $item ) {
 
+			do_action( 'jet-engine-query-gateway/do-item', $item );
+
 			$this->_processed_item = $item;
 
 			if ( ! empty( $templates['loop'] ) ) {
@@ -174,6 +176,8 @@ abstract class Jet_Elements_Base extends Widget_Base {
 			}
 			$this->_processed_index++;
 		}
+
+		do_action( 'jet-engine-query-gateway/reset-item' );
 
 		$this->_processed_item = false;
 		$this->_processed_index = 0;

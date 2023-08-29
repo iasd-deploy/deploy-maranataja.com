@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 abstract class Jet_Listing_Dynamic_Widget extends \Elementor\Widget_Base {
 
+	use \Jet_Engine\Modules\Performance\Traits\Prevent_Wrap;
+
 	private $jet_active_settings  = null;
 	private $jet_dynamic_settings = null;
 	private $jet_settings         = null;

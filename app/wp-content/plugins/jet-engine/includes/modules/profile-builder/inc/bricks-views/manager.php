@@ -23,7 +23,7 @@ class Manager {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'register_elements' ), 11 );
+		add_action( 'jet-engine/bricks-views/register-elements', array( $this, 'register_elements' ), 11 );
 	}
 
 	public function module_path( $relative_path = '' ) {
@@ -40,8 +40,6 @@ class Manager {
 		foreach ( $element_files as $file ) {
 			\Bricks\Elements::register_element( $file );
 		}
-
-		do_action( 'jet-engine/bricks-views/register-elements' );
 
 	}
 

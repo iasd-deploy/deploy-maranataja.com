@@ -21,11 +21,23 @@ require_once __DIR__.'/_assets-top-area.php';
 
     <div id="wpacu-assets-styles-collapsible-content"
          class="wpacu-assets-collapsible-content <?php if ($listAreaStatus !== 'contracted') { ?>wpacu-open<?php } ?>">
+	    <?php if (! empty($data['all']['styles'])) { ?>
+            <div class="wpacu-area-toggle-all-assets wpacu-right">
+                <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                   data-wpacu-area="all_styles_assets" href="#">Contract</a>
+                |
+                <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                   data-wpacu-area="all_styles_assets" href="#">Expand</a>
+                All Assets
+            </div>
+	    <?php } ?>
+
         <div>
             <?php
             if (! empty($data['all']['styles'])) {
                 ?>
-                <table class="wpacu_list_table wpacu_widefat wpacu_striped">
+                <table class="wpacu_list_table wpacu_widefat wpacu_striped"
+                       data-wpacu-area="all_styles_assets">
                     <tbody>
                     <?php
                     require_once __DIR__.'/_asset-style-rows.php';
@@ -60,11 +72,22 @@ require_once __DIR__.'/_assets-top-area.php';
 
     <div id="wpacu-assets-scripts-collapsible-content"
          class="wpacu-assets-collapsible-content <?php if ($listAreaStatus !== 'contracted') { ?>wpacu-open<?php } ?>">
+	    <?php if (! empty($data['all']['scripts'])) { ?>
+            <div class="wpacu-area-toggle-all-assets wpacu-right">
+                <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                   data-wpacu-area="all_scripts_assets" href="#">Contract</a>
+                |
+                <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                   data-wpacu-area="all_scripts_assets" href="#">Expand</a>
+                All Assets
+            </div>
+	    <?php } ?>
         <div>
         <?php
         if (! empty($data['all']['scripts'])) {
             ?>
-            <table class="wpacu_list_table wpacu_widefat wpacu_striped">
+            <table class="wpacu_list_table wpacu_widefat wpacu_striped"
+                   data-wpacu-area="all_scripts_assets">
                 <tbody>
                 <?php
                 require_once __DIR__.'/_asset-script-rows.php';

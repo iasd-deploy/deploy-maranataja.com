@@ -558,6 +558,20 @@ if ( ! class_exists( 'Jet_Elements_Tools' ) ) {
 			return in_array( strtolower( $tag ), $allowed_tags ) ? $tag : 'div';
 		}
 
+		public function allowed_meta_callbacks() {
+			$callbacks = apply_filters( 'jet-elements/posts/meta_callbacks', array(
+				''                        => esc_html__( 'Clean', 'jet-elements' ),
+				'get_permalink'           => 'get_permalink',
+				'get_the_title'           => 'get_the_title',
+				'wp_get_attachment_url'   => 'wp_get_attachment_url',
+				'wp_get_attachment_image' => 'wp_get_attachment_image',
+				'date'                    => esc_html__( 'Format date', 'jet-elements' ),
+				'date_i18n'               => esc_html__( 'Format date (localized)', 'jet-elements' ),
+			) );
+
+			return $callbacks;
+		}
+
 		/**
 		 * Returns the instance.
 		 *

@@ -511,7 +511,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Search' ) ) {
 				return $this->is_editor() ? __( 'Please select a provider', 'jet-smart-filters' ) : false;
 			}
 
-			$filter_id  = $settings['filter_id'];
+			$filter_id  = apply_filters( 'jet-smart-filters/render_filter_template/filter_id', $settings['filter_id'] );
 			$base_class = 'jet-smart-filters-' . $this->get_name();
 			$provider   = $settings['content_provider'];
 			$query_id   = ! empty( $settings['query_id'] ) ? $settings['query_id'] : 'default';
@@ -527,12 +527,16 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Search' ) ) {
 
 			ob_start();
 
-			printf( '<div class="%1$s jet-filter">', $base_class );
+			printf(
+				'<div class="%1$s jet-filter" data-is-block="jet-smart-filters/%2$s">',
+				$base_class,
+				$this->get_name()
+			);
 
 			include jet_smart_filters()->get_template( 'common/filter-label.php' );
 
 			jet_smart_filters()->filter_types->render_filter_template( $this->get_name(), array(
-				'filter_id'         => $settings['filter_id'],
+				'filter_id'         => $filter_id,
 				'content_provider'  => $provider,
 				'query_id'          => $query_id,
 				'apply_type'        => $apply_type,

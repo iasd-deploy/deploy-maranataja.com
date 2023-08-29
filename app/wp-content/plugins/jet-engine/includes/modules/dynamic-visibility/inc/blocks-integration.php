@@ -103,7 +103,7 @@ class Blocks_Integration extends Condition_Checker {
 			'controls' => \Jet_Engine_Tools::prepare_controls_for_js( Module::instance()->get_condition_controls() ),
 		) );
 
-		wp_add_inline_style( 'jet-engine-blocks-views', '.jet-engine-visibility-modal .components-base-control select.components-select-control__input {max-width: 100%; width: 100%; box-sizing: border-box;} .jet-engine-visibility-dynamic-trigger {display: flex; justify-content: flex-end; margin: 0 0 -24px;}' );
+		wp_add_inline_style( 'jet-engine-blocks-views', '.jet-engine-visibility-modal {overflow:visible} .jet-engine-visibility-modal .components-base-control select.components-select-control__input {max-width: 100%; width: 100%; box-sizing: border-box;} .jet-engine-visibility-dynamic-trigger {display: flex; justify-content: flex-end; margin: 0 0 -24px;}' );
 		
 	}
 

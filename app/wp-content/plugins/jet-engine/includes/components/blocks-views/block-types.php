@@ -169,6 +169,15 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Types' ) ) {
 			return $atts;
 		}
 
+		public function get_block_type_instance( $block = null ) {
+
+			if ( empty( $block ) ) {
+				return null;
+			}
+
+			return isset( $this->_types[ $block ] ) ? $this->_types[ $block ] : null;
+		}
+
 	}
 
 }

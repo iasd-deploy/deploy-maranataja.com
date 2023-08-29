@@ -211,7 +211,7 @@ class PluginTracking
 
 		$this->setupData();
 
-		$response = wp_remote_post('https://www.gabelivan.com/tracking/?wpacu_action=checkin', array(
+		$response = wp_remote_post('https://www.assetcleanup.com/tracking/?wpacu_action=checkin', array(
 			'method'      => 'POST',
 			'timeout'     => 8,
 			'redirection' => 5,

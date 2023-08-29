@@ -57,6 +57,16 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
             $hideLocationMainArea = ($locationMain === 'uploads' && $totalLocationAssets === 0);
             $hideListOfAssetsOnly = ($locationMain === 'wp_core' && $data['plugin_settings']['hide_core_files']);
 
+	        $contractExpandAllAssetsHtml = <<<HTML
+<div class="wpacu-area-toggle-all-assets wpacu-right">
+    <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+       data-wpacu-area="{$locationMain}" href="#">Contract</a>
+    |
+    <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+       data-wpacu-area="{$locationMain}" href="#">Expand</a>
+    All Assets
+</div>
+HTML;
             ob_start();
             ?>
             <div <?php if ($hideLocationMainArea) {
@@ -69,31 +79,34 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
 
             <div class="wpacu-assets-collapsible-content <?php if ($listAreaStatus !== 'contracted') { ?>wpacu-open<?php } ?>">
             <?php if ($locationMain === 'external') { ?>
-                <p class="wpacu-assets-note"><strong>Note:</strong> External .css and .js assets are considered
+                <div class="wpacu-assets-note wpacu-with-toggle-all-assets"><strong>Note:</strong> External .css and .js assets are considered
                     those who are hosted on a different domain (e.g. Google Font API, assets loaded from external
                     CDNs) and the ones outside the WordPress "plugins" (usually /wp-content/plugins/), "themes"
-                    (usually /wp-content/themes/) and "uploads" (usually /wp-content/uploads/) directories.</p>
+                    (usually /wp-content/themes/) and "uploads" (usually /wp-content/uploads/) directories.</div>
+	            <?php if (count($values) > 0) { echo $contractExpandAllAssetsHtml; } ?>
             <?php
                 // WP Core CSS/JS list is visible
             } elseif ($locationMain === 'wp_core' && ! $data['plugin_settings']['hide_core_files']) { ?>
-                <p class="wpacu-assets-note"><span style="color: red;" class="dashicons dashicons-warning"></span> <strong>Warning:</strong> Please be careful when doing any changes to the
+                <div class="wpacu-assets-note wpacu-with-toggle-all-assets"><span style="color: red;" class="dashicons dashicons-warning"></span> <strong>Warning:</strong> Please be careful when doing any changes to the
                     following core assets as they can break the functionality of the front-end website. If you're
-                    not sure about unloading any asset, just leave it loaded.</p>
+                    not sure about unloading any asset, just leave it loaded.</div>
+                <?php if (count($values) > 0) { echo $contractExpandAllAssetsHtml; } ?>
             <?php
                 // WP Core CSS/JS list is hidden
             } elseif ($locationMain === 'wp_core' && $data['plugin_settings']['hide_core_files']) {
                 ?>
-                <p class="wpacu-assets-note"><strong>Note:</strong> By default, <?php echo WPACU_PLUGIN_TITLE; ?> does not show the list of CSS/JS loaded from the WordPress core. Usually, WordPress core files are loaded for a reason and this setting was applied to prevent accidental unload of files that could be needed (e.g. jQuery library, Underscore library etc.).</p>
-                <p class="wpacu-assets-note"><span class="dashicons dashicons-info"></span> If you believe that you do not need some of the loaded core files (e.g. WordPress Gutenberg styling - Handle: 'wp-block-library') and you want to manage the files loaded from <em>/wp-includes/</em>, you can go to the plugin's <strong>"Settings"</strong>, click on the <strong>"Plugin Usage Preferences"</strong> tab, scroll to <strong>"Hide WordPress Core Files From The Assets List?"</strong> and make sure the option <strong>is turned off</strong>.</p>
+                <div class="wpacu-assets-note"><strong>Note:</strong> By default, <?php echo WPACU_PLUGIN_TITLE; ?> does not show the list of CSS/JS loaded from the WordPress core. Usually, WordPress core files are loaded for a reason and this setting was applied to prevent accidental unload of files that could be needed (e.g. jQuery library, Underscore library etc.).</div>
+                <div class="wpacu-assets-note"><span class="dashicons dashicons-info"></span> If you believe that you do not need some loaded core files (e.g. WordPress Gutenberg styling - Handle: 'wp-block-library') and you want to manage the files loaded from <em>/wp-includes/</em>, you can go to the plugin's <strong>"Settings"</strong>, click on the <strong>"Plugin Usage Preferences"</strong> tab, scroll to <strong>"Hide WordPress Core Files From The Assets List?"</strong> and make sure the option <strong>is turned off</strong>.</div>
                 <?php
             } elseif ($locationMain === 'uploads') { ?>
-                <p class="wpacu-assets-note" style="padding: 15px 15px 0 0;"><strong>Note:</strong> These are the
+                <div class="wpacu-assets-note" style="padding: 15px 15px 0 0;"><strong>Note:</strong> These are the
                     CSS/JS files load from the /wp-content/uploads/ WordPress directory. They were copied there by
                     other plugins or developers working on the website. In case the file was detected to be
                     generated by a specific plugin through various verification patterns (e.g. for plugins such as
                     Elementor, Oxygen Builder etc.), then it will be not listed here, but in the "From Plugins (.css
                     &amp; .js)" area for the detected plugin. This is to have all the files related to a plugin
-                    organised in one place.</p>
+                    organised in one place.</div>
+	            <?php if (count($values) > 0) { echo $contractExpandAllAssetsHtml; } ?>
                 <?php
             }
             ?>
@@ -182,6 +195,7 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                                     <?php
                                 } else { ?>
                                     <div data-wpacu-plugin="<?php echo esc_attr($locationChild); ?>"
+                                         data-wpacu-area="<?php echo esc_attr($locationChild); ?>_plugin"
                                          class="wpacu-location-child-area wpacu-area-expanded <?php echo esc_attr($extraClassesToAppend); ?>">
                                         <div class="wpacu-area-title">
 	                                        <?php echo wp_kses($locationChildText, array('div' => array('class' => array(), 'style' => array()), 'span' => array('class' => array()))); ?> <span style="font-weight: 200;">/</span> <span style="font-weight: 400;"><?php echo (int)$totalPluginAssets; ?></span> files
@@ -189,18 +203,34 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                                             include '_view-by-location/_plugin-list-expanded-actions.php';
                                             ?>
                                         </div>
+                                        <div class="wpacu-area-toggle-all-assets">
+                                            <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                                               data-wpacu-area="<?php echo esc_html($locationChild); ?>_plugin" href="#">Contract</a>
+                                            |
+                                            <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                                               data-wpacu-area="<?php echo esc_html($locationChild); ?>_plugin" href="#">Expand</a>
+                                            All Assets
+                                        </div>
                                     </div>
                                 <?php }
                             } elseif ( $locationMain === 'themes' ) {
                                 ?>
-                                <div data-wpacu-plugin="<?php echo esc_attr($locationChild); ?>"
+                                <div data-wpacu-area="<?php echo esc_attr($locationChild); ?>_theme"
                                      class="wpacu-location-child-area wpacu-area-expanded <?php echo esc_attr($extraClassesToAppend); ?>">
                                     <div class="wpacu-area-title <?php if ($locationChildThemeArray['has_icon'] === true) { echo 'wpacu-theme-has-icon'; } ?>"><?php echo \WpAssetCleanUp\Misc::stripIrrelevantHtmlTags($locationChildText); ?></div>
+                                    <div class="wpacu-area-toggle-all-assets">
+                                        <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                                           data-wpacu-area="<?php echo esc_html($locationChild); ?>_theme" href="#">Contract</a>
+                                        |
+                                        <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                                           data-wpacu-area="<?php echo esc_html($locationChild); ?>_theme" href="#">Expand</a>
+                                        All Assets
+                                    </div>
                                 </div>
                                 <?php
                             } else { // WordPress Core, Uploads, 3rd Party etc.
                                 ?>
-                                <div data-wpacu-plugin="<?php echo esc_attr($locationChild); ?>"
+                                <div data-wpacu-area="<?php echo esc_attr($locationChild); ?>"
                                      class="wpacu-location-child-area wpacu-area-expanded <?php echo esc_attr($extraClassesToAppend); ?>">
                                     <div class="wpacu-area-title"><?php echo wp_kses($locationChildText, array('div' => array('class' => array(), 'style' => array()), 'span' => array('class' => array()))); ?></div>
                                 </div>
@@ -209,12 +239,12 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                         }
                         ?>
 
-                        <div class="wpacu-assets-table-list-wrap <?php if ( $locationMain === 'plugins' ) { echo ' wpacu-plugin-assets-wrap '; }
+                        <div class="wpacu-assets-table-list-wrap <?php if ( $locationMain === 'plugins' ) { echo ' wpacu-area-assets-wrap '; }
                             if ( $pluginListContracted ) {
                                 echo ' wpacu-area-closed ';
 
                                 if (isset($isLastPluginAsset) && $isLastPluginAsset) {
-                                    echo ' wpacu-plugin-assets-last ';
+                                    echo ' wpacu-area-assets-last ';
                                 }
                             } ?>">
                             <?php
@@ -224,7 +254,12 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                             }
                             ?>
 
-                            <table <?php if ( $locationMain === 'plugins' ) { echo ' data-wpacu-plugin="' . $locationChild . '" '; } ?> class="wpacu_list_table wpacu_list_by_location wpacu_widefat wpacu_striped">
+                            <table <?php
+                                   if ( $locationMain === 'plugins' ) { echo ' data-wpacu-plugin="' . esc_attr($locationChild) . '" data-wpacu-area="' . esc_attr($locationChild) . '_plugin" '; }
+                                   if ( $locationMain === 'themes' ) { echo ' data-wpacu-area="' . esc_attr($locationChild) . '_theme" '; }
+                                   if ( in_array($locationMain, array('uploads', 'wp_core', 'external') ) ) { echo ' data-wpacu-area="' . esc_attr($locationMain) . '" '; }
+                                   ?>
+                                   class="wpacu_list_table wpacu_list_by_location wpacu_widefat wpacu_striped">
                                 <tbody>
                                     <?php
                                     if ( $locationMain === 'plugins' ) {

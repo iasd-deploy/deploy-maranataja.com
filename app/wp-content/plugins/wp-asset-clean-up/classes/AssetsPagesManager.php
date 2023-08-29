@@ -37,6 +37,26 @@ class AssetsPagesManager
 		    $this->data['for'] = sanitize_text_field($_GET['wpacu_for']);
 	    }
 
+	    $this->data['wpacu_post_id'] = (isset($_GET['wpacu_post_id']) && $_GET['wpacu_post_id']) ? (int)$_GET['wpacu_post_id'] : false;
+
+		if ($this->data['wpacu_post_id'] && $this->data['for'] === 'homepage') {
+			// URI is like: /wp-admin/admin.php?page=wpassetcleanup_assets_manager&wpacu_post_id=POST_ID_HERE (without any "wpacu_for")
+			// Proceed to detect the post type
+			global $wpdb;
+			$query = $wpdb->prepare("SELECT `post_type` FROM `{$wpdb->posts}` WHERE `ID`='%d'", $this->data['wpacu_post_id']);
+			$requestedPostType = $wpdb->get_var($query);
+
+			if ($requestedPostType === 'post') {
+				$this->data['for'] = 'posts';
+			} elseif ($requestedPostType === 'page') {
+				$this->data['for'] = 'posts';
+			} elseif ($requestedPostType === 'attachment') {
+				$this->data['for'] = 'media-attachment';
+			} elseif ($requestedPostType !== '') {
+				$this->data['for'] = 'custom-post-types';
+			}
+		}
+
 	    if (Menu::isPluginPage()) {
 		    $this->data['page'] = sanitize_text_field($_GET['page']);
 	    }
@@ -140,11 +160,9 @@ class AssetsPagesManager
 				    return;
 			    }
 
-			    $postObj = get_post($postId);
-
 			    if ($postId > 0) {
 				    $wpacuUpdate = new Update;
-				    $wpacuUpdate->savePost($postId, $postObj);
+				    $wpacuUpdate->savePosts($postId);
 			    }
 		    }
 	    }

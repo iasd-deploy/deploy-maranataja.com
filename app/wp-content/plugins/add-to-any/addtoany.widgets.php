@@ -217,13 +217,13 @@ class A2A_Follow_Widget extends WP_Widget {
 		</p>
 <?php foreach ( $services as $code => $service ) : 
 		$code_id = $code . '_id';
+		$id_accepted = false !== strpos( $service['href'], '${id}' );
 		$id_value = ! empty( $instance[ $code_id ] ) ? $instance[ $code_id ] : '';
-		$label_text = 'feed' == $code ? sprintf( __('%s URL:'), $service['name'] ) : sprintf( __('%s ID:'), $service['name'] );
+		$label_text = $id_accepted ? sprintf( __('%s ID:'), $service['name'] ) : sprintf( __('%s URL:'), $service['name'] );
 ?>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( $code_id ) ); ?>"><?php echo esc_attr( $label_text ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( $code_id ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( $code_id ) ); ?>" type="text" value="<?php echo esc_attr( $id_value ); ?>">
-			<br>
 			<small><?php echo wp_kses_post( str_replace( '${id}', '<u>ID</u>', $service['href'] ) ); ?></small>
 		</p>
 <?php endforeach; ?>

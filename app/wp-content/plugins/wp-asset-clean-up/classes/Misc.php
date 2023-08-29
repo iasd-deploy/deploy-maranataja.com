@@ -91,11 +91,11 @@ class Misc
 			return false;
 		}
 
-		return (substr_compare(
+		return substr_compare(
 			        $string,
 			        $endsWithString,
 			        $stringLen - $endsWithStringLen, $endsWithStringLen
-		        ) === 0);
+		        ) === 0;
 	}
 
 	/**
@@ -675,6 +675,26 @@ class Misc
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param $postType
+	 *
+	 * @return false[]
+	 */
+	public static function isValidPostType($postType)
+	{
+		global $wpdb;
+
+		$status = array('has_records' => false); // default
+
+		$hasRecords = $wpdb->get_var('SELECT COUNT(*) FROM `'.$wpdb->posts.'` WHERE post_type=\''.$postType.'\'');
+
+		if ($hasRecords) {
+			$status['has_records'] = $hasRecords;
+		}
+
+		return $status;
 	}
 
 	/**
@@ -2058,5 +2078,18 @@ SQL;
 				$wpacuTimingFormatS . 's',
 			), // clean it up
 			$htmlSource );
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return string
+	 */
+	public static function sanitizeValueForHtmlAttr($value)
+	{
+		// Keep a standard that is used for specific HTML attributes such as "id" and "for"
+		$value = str_replace(array('-', '/', '.'), array('_', '_', '_'), $value);
+
+		return esc_attr(sanitize_title_for_query($value));
 	}
 }

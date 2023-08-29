@@ -25,7 +25,7 @@ $data['locked_for_pro'] = '<span class="dashicons dashicons-info"></span> Managi
         <a href="<?php echo esc_url(admin_url('admin.php?page=wpassetcleanup_assets_manager&wpacu_for=date')); ?>" class="nav-tab for-pro <?php if ($data['for'] === 'date') { ?>nav-tab-active<?php } ?>"><img style="opacity: 0.4;" width="20" height="20" src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-lock.svg" valign="top" alt=""> <?php esc_html_e('Date', 'wp-asset-clean-up'); ?></a>
         <a href="<?php echo esc_url(admin_url('admin.php?page=wpassetcleanup_assets_manager&wpacu_for=404-not-found')); ?>" class="nav-tab for-pro <?php if ($data['for'] === '404-not-found') { ?>nav-tab-active<?php } ?>"><img style="opacity: 0.4;" width="20" height="20" src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-lock.svg" valign="top" alt=""> <?php esc_html_e('404 Not Found', 'wp-asset-clean-up'); ?></a>
     </nav>
-    <div class="wpacu-clearfix"></div>
+    <div class="wpacu_clearfix"></div>
     <?php
     if ($data['for'] === 'homepage') {
         include_once '_admin-pages-assets-manager/_homepage.php';

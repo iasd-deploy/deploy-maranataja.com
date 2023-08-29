@@ -37,6 +37,8 @@ if ( ! class_exists( 'Jet_Engine_Woo_Package' ) ) {
 			add_action( 'woocommerce_shop_loop', array( $this, 'set_object_on_each_loop_post' ) );
 			add_action( 'woocommerce_product_duplicate', [ $this, 'duplicate_custom_taxonomy_terms' ], 10, 2 );
 
+			add_action( 'jet-engine/listing/grid/before-render', array( $this, 'remove_ordering_filters_before_listing' ) );
+
 			$this->create_wc_package_instance();
 
 		}
@@ -299,6 +301,10 @@ if ( ! class_exists( 'Jet_Engine_Woo_Package' ) ) {
 			}
 
 			return $args;
+		}
+
+		public function remove_ordering_filters_before_listing() {
+			WC()->query->remove_ordering_args();
 		}
 
 	}

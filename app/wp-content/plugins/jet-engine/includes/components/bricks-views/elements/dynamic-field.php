@@ -28,6 +28,25 @@ class Dynamic_Field extends Base {
 
 	// Set builder control groups
 	public function set_control_groups() {
+
+		$this->register_general_group();
+		$this->register_field_group();
+		$this->register_icon_group();
+		$this->register_misc_group();
+
+	}
+
+	// Set builder controls
+	public function set_controls() {
+
+		$this->register_general_controls();
+		$this->register_field_controls();
+		$this->register_icon_controls();
+		$this->register_misc_controls();
+
+	}
+
+	public function register_general_group() {
 		$this->register_jet_control_group(
 			'section_general',
 			[
@@ -35,38 +54,9 @@ class Dynamic_Field extends Base {
 				'tab'   => 'content',
 			]
 		);
-
-		$this->register_jet_control_group(
-			'section_field_style',
-			[
-				'title' => esc_html__( 'Field', 'jet-engine' ),
-				'tab'   => 'style',
-			]
-		);
-
-		$this->register_jet_control_group(
-			'section_icon_style',
-			[
-				'title'    => esc_html__( 'Icon', 'jet-engine' ),
-				'tab'      => 'style',
-				'required' => [ 'selected_field_icon', '!=', '' ],
-			]
-		);
-
-		$this->register_jet_control_group(
-			'section_misc_style',
-			[
-				'title'    => esc_html__( 'Misc', 'jet-engine' ),
-				'tab'      => 'style',
-				'required' => [ 'filter_callback', '=', ['jet_engine_img_gallery_slider', 'jet_engine_img_gallery_grid'] ],
-			]
-		);
 	}
 
-	// Set builder controls
-	public function set_controls() {
-
-		$hooks = new Controls_Hook_Bridge( $this );
+	public function register_general_controls() {
 
 		$this->start_jet_control_group( 'section_general' );
 
@@ -219,16 +209,17 @@ class Dynamic_Field extends Base {
 			]
 		);
 
+		$hooks = new Controls_Hook_Bridge( $this );
 		$hooks->do_action( 'jet-engine/listings/dynamic-field/source-controls' );
 
 		$this->register_jet_control(
 			'dynamic_field_post_meta_custom',
 			[
 				'tab'         => 'content',
-				'label'       => esc_html__( 'Custom meta field/repeater key', 'jet-engine' ),
+				'label'       => esc_html__( 'Custom Object field / Meta field / Repeater key', 'jet-engine' ),
 				'type'        => 'text',
-				'description' => esc_html__( 'Note: this field will override Meta Field value', 'jet-engine' ),
-				'required'    => [ 'dynamic_field_source', '!=', [ 'object', 'query_var' ] ],
+				'description' => esc_html__( 'Note: this field will override Object field / Meta field value', 'jet-engine' ),
+				'required'    => [ 'dynamic_field_source', '!=', [ 'query_var', 'options_page', 'relations_hierarchy' ] ],
 			]
 		);
 
@@ -358,6 +349,38 @@ class Dynamic_Field extends Base {
 
 		$this->end_jet_control_group();
 
+	}
+
+	/**
+	 * Register non-DOM optimized control group
+	 * @return [type] [description]
+	 */
+	public function register_field_group() {
+
+		if ( $this->prevent_wrap() ) {
+			return;
+		}
+
+		$this->register_jet_control_group(
+			'section_field_style',
+			[
+				'title' => esc_html__( 'Field', 'jet-engine' ),
+				'tab'   => 'style',
+			]
+		);
+
+	}
+
+	/**
+	 * Register non-DOM optimized control
+	 * @return [type] [description]
+	 */
+	public function register_field_controls() {
+
+		if ( $this->prevent_wrap() ) {
+			return;
+		}
+
 		$this->start_jet_control_group( 'section_field_style' );
 
 		$this->register_jet_control(
@@ -396,23 +419,42 @@ class Dynamic_Field extends Base {
 
 		$this->end_jet_control_group();
 
-		$this->start_jet_control_group( 'section_icon_style' );
+	}
 
-		$this->register_jet_control(
-			'field_icon_direction',
+	public function register_icon_group() {
+
+		$this->register_jet_control_group(
+			'section_icon_style',
 			[
-				'tab'       => 'style',
-				'label'     => esc_html__( 'Direction', 'jet-engine' ),
-				'type'      => 'direction',
-				'direction' => 'row',
-				'css'       => [
-					[
-						'property' => 'flex-direction',
-						'selector' => '&.display-multiline, ' . $this->css_selector( '__inline-wrap' ),
-					],
-				],
+				'title'    => esc_html__( 'Icon', 'jet-engine' ),
+				'tab'      => 'style',
+				'required' => [ 'selected_field_icon', '!=', '' ],
 			]
 		);
+
+	}
+
+	public function register_icon_controls() {
+
+		$this->start_jet_control_group( 'section_icon_style' );
+
+		if ( ! $this->prevent_wrap() ) {
+			$this->register_jet_control(
+				'field_icon_direction',
+				[
+					'tab'       => 'style',
+					'label'     => esc_html__( 'Direction', 'jet-engine' ),
+					'type'      => 'direction',
+					'direction' => 'row',
+					'css'       => [
+						[
+							'property' => 'flex-direction',
+							'selector' => '.display-multiline, ' . $this->css_selector( '__inline-wrap' ),
+						],
+					],
+				]
+			);
+		}
 
 		$this->register_jet_control(
 			'field_icon_color',
@@ -427,7 +469,7 @@ class Dynamic_Field extends Base {
 					],
 					[
 						'property' => 'fill',
-						'selector' => $this->css_selector( '__icon :is(svg, path)' ),
+						'selector' => $this->css_selector( '__icon :is(svg)' ) . ', ' . $this->css_selector( '__icon :is(path)' ),
 					],
 				],
 			]
@@ -460,13 +502,30 @@ class Dynamic_Field extends Base {
 				'css'     => [
 					[
 						'property' => 'gap',
-						'selector' => '&.display-multiline, ' . $this->css_selector( '__inline-wrap' ),
+						'selector' => ! $this->prevent_wrap() ? '.display-multiline, ' . $this->css_selector( '__inline-wrap' ) : '',
 					],
 				],
 			]
 		);
 
 		$this->end_jet_control_group();
+
+	}
+
+	public function register_misc_group() {
+
+		$this->register_jet_control_group(
+			'section_misc_style',
+			[
+				'title'    => esc_html__( 'Misc', 'jet-engine' ),
+				'tab'      => 'style',
+				'required' => [ 'filter_callback', '=', ['jet_engine_img_gallery_slider', 'jet_engine_img_gallery_grid'] ],
+			]
+		);
+
+	}
+
+	public function register_misc_controls() {
 
 		$this->start_jet_control_group( 'section_misc_style' );
 
@@ -513,8 +572,6 @@ class Dynamic_Field extends Base {
 				]
 			);
 		}
-
-		$this->set_attribute( '_root', 'class', $render->get_wrapper_classes() );
 
 		echo "<div {$this->render_attributes( '_root' )}>";
 		$render->render_content();

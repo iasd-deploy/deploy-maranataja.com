@@ -101,6 +101,8 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 					$page = absint( $_REQUEST['jet_paged'] );
 				} elseif ( wp_doing_ajax() && isset( $_REQUEST['paged'] ) ) {
 					$page = absint( $_REQUEST['paged'] );
+				} elseif ( defined( 'JET_SMART_FILTERS_DOING_REQUEST' ) && isset( $_REQUEST['paged'] ) ) {
+					$page = absint( $_REQUEST['paged'] );
 				} else {
 					$page = $widget->query_vars['page'];
 				}
@@ -164,9 +166,23 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 					'provider' => 'jet-engine/' . $query_id,
 					'query'    => wp_parse_args(
 						$query,
-						isset( $filters_data['queries'][$query_id] ) ? $filters_data['queries'][$query_id] : array()
+						isset( $filters_data['queries'][ $query_id ] ) ? $filters_data['queries'][ $query_id ] : array()
 					)
 				);
+			}
+
+			$query_builder_id = false;
+
+			if ( class_exists( 'Jet_Engine\Query_Builder\Manager' ) ) {
+				$query_builder_id = Jet_Engine\Query_Builder\Manager::instance()->listings->get_query_id( $widget_settings['lisitng_id'], $widget_settings );
+			}
+
+			/**
+			 * After indexer get required data, remove query builder-related arguments from filters data to avoid it from sending
+			 * with AJAX requests and break these requests if query have to much args
+			 */
+			if ( ! empty( $query_builder_id ) && ! empty( $response['filters_data'] ) && ! empty( $response['filters_data']['queries'] ) ) {
+				$response['filters_data']['queries'][ $query_id ] = array();
 			}
 
 			return $response;
@@ -278,11 +294,14 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 
 			if ( 1 < $page ) {
 
+				$per_page = $settings['posts_num'];
+
 				if ( $render->listing_query_id ) {
-					$query    = Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $render->listing_query_id );
-					$per_page = $query->get_items_per_page();
-				} else {
-					$per_page = $settings['posts_num'];
+					$query = Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $render->listing_query_id );
+
+					if ( $query ) {
+						$per_page = $query->get_items_per_page();
+					}
 				}
 
 				$start_from = ( $page - 1 ) * absint( $per_page ) + 1;

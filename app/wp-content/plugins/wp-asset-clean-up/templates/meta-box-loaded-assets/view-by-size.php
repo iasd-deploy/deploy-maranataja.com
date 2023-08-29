@@ -67,6 +67,17 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                 </a>
 
                 <div class="wpacu-assets-collapsible-content <?php if ($listAreaStatus !== 'contracted') { ?>wpacu-open<?php } ?>">
+	                <?php if (count($values) > 0) { ?>
+                        <div class="wpacu-area-toggle-all-assets wpacu-right">
+                            <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                               data-wpacu-area="<?php echo esc_html($sizeStatus); ?>_assets" href="#">Contract</a>
+                            |
+                            <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                               data-wpacu-area="<?php echo esc_html($sizeStatus); ?>_assets" href="#">Expand</a>
+                            All Assets
+                        </div>
+	                <?php } ?>
+
 					<?php if ($sizeStatus === 'with_size') { ?>
 						<p class="wpacu-assets-note">This is the list of local files (if any) that had their size calculated and shown in descendent order, <strong>from the largest to the smallest</strong>.</p>
 					    <?php
@@ -81,7 +92,8 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
 					<?php } ?>
 
 					<?php if (count($values) > 0) { ?>
-                        <table class="wpacu_list_table wpacu_list_by_size wpacu_widefat wpacu_striped">
+                        <table class="wpacu_list_table wpacu_list_by_size wpacu_widefat wpacu_striped"
+                               data-wpacu-area="<?php echo esc_html($sizeStatus); ?>_assets">
                             <tbody>
 							<?php
 							echo \WpAssetCleanUp\Misc::stripIrrelevantHtmlTags($assetRowsOutput);

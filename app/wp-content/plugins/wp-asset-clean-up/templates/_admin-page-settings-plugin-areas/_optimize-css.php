@@ -36,6 +36,9 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
 	}
 	?>
     <table class="wpacu-form-table">
+        <?php
+        $minifyCssDisabled = ! empty($data['is_optimize_css_enabled_by_other_party']);
+        ?>
         <tr valign="top">
             <th scope="row" class="setting_title">
                 <label for="wpacu_minify_css_enable"><?php _e('CSS Files Minification', 'wp-asset-clean-up'); ?></label>
@@ -47,7 +50,11 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
                            data-target-opacity="wpacu_minify_css_area"
                            type="checkbox"
                            <?php
-                           echo (($data['minify_loaded_css'] == 1) ? 'checked="checked"' : '');
+                           if ($minifyCssDisabled) {
+                               echo 'disabled="disabled"';
+                           } else {
+	                           echo ($data['minify_loaded_css'] == 1) ? 'checked="checked"' : '';
+                           }
                            ?>
                            name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[minify_loaded_css]"
                            value="1" /> <span class="wpacu_slider wpacu_round"></span> </label>
@@ -56,7 +63,7 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
 	             <?php _e('You might want to minify the local files, the inline CSS code within STYLE tags or both.', 'wp-asset-clean-up'); ?>
 
                 <?php
-                if (! empty($data['is_optimize_css_enabled_by_other_party'])) {
+                if ($minifyCssDisabled) {
                     ?>
                     <div style="border-left: 4px solid green; background: #f2faf2; padding: 10px; margin-top: 10px;">
                         <ul style="margin: 0;">
@@ -68,17 +75,17 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
                 }
 
 				$minifyCssExceptionsAreaStyle = empty($data['is_optimize_css_enabled_by_other_party']) && ($data['minify_loaded_css'] == 1) ? 'opacity: 1;' : 'opacity: 0.4;';
-				?>
+                ?>
                 <div id="wpacu_minify_css_area" style="<?php echo esc_attr($minifyCssExceptionsAreaStyle); ?>">
-                    <!-- -->
-
                     <div style="margin-top: 8px; padding: 12px; background: #f2faf2; border-radius: 10px;">
                         <ul style="margin: 0;">
                             <li style="float: left; margin-right: 30px; margin-bottom: 0; line-height: 32px;" class="wpacu-fancy-radio">
                                 <label for="minify_loaded_css_for_link_href_radio">
                                     <input id="minify_loaded_css_for_link_href_radio"
                                            style="margin: -1px 0 0;"
-						                <?php echo (in_array($data['minify_loaded_css_for'], array('href', '')) ? 'checked="checked"' : ''); ?>
+                                            <?php
+                                            echo in_array($data['minify_loaded_css_for'], array('href', '')) ? 'checked="checked"' : '';
+                                            ?>
                                            type="radio"
                                            name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[minify_loaded_css_for]"
                                            value="href" />
@@ -147,19 +154,26 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
             </td>
         </tr>
 
+        <?php
+        $combineCssDisabled = ! empty($data['is_optimize_css_enabled_by_other_party']);
+        ?>
         <tr valign="top">
             <th scope="row" class="setting_title">
                 <label for="wpacu_combine_loaded_css_enable"><?php _e('Combine loaded CSS (Stylesheets) into fewer files', 'wp-asset-clean-up'); ?></label>
                 <p class="wpacu_subtitle"><small><em><?php _e('Helps reducing the number of HTTP Requests even further', 'wp-asset-clean-up'); ?></em></small></p>
             </th>
             <td>
-                <label class="wpacu_switch <?php if (! empty($data['is_optimize_css_enabled_by_other_party'])) { echo 'wpacu_disabled'; } ?>">
+                <label class="wpacu_switch <?php if ($combineCssDisabled) { echo 'wpacu_disabled'; } ?>">
                     <input id="wpacu_combine_loaded_css_enable"
                            data-target-opacity="wpacu_combine_loaded_css_info_area"
                            type="checkbox"
-					    <?php
-					    echo (in_array($data['combine_loaded_css'], array('for_admin', 'for_all', 1)) ? 'checked="checked"' : '');
-					    ?>
+                            <?php
+                            if ($combineCssDisabled) {
+                                echo 'disabled="disabled"';
+                            } else {
+                                echo in_array( $data['combine_loaded_css'], array( 'for_admin', 'for_all', 1 ) ) ? 'checked="checked"' : '';
+                            }
+                            ?>
                            name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[combine_loaded_css]"
                            value="1" /> <span class="wpacu_slider wpacu_round"></span> </label>
 
@@ -229,7 +243,7 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
                     <hr />
                     <p style="margin: 8px 0 4px;"><span style="color: #ffc107;" class="dashicons dashicons-lightbulb"></span> This feature will not work <strong>IF</strong>:</p>
                     <ul style="margin-top: 0; margin-left: 35px; list-style: disc;">
-                        <li>"Test Mode" is enabled, this feature will not take effect for the guest users and it will apply the changes only for you.</li>
+                        <li>"Test Mode" is enabled, this feature will not take effect for the guest users, and it will apply the changes only for you.</li>
                         <li>The URL has query strings (e.g. an URL such as //www.yourdomain.com/product/title-here/?param=1&amp;param_two=value_here)</li>
                     </ul>
                 </div>

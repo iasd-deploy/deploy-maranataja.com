@@ -39,7 +39,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Manager' ) ) {
 				return;
 			}
 
-			$dependencies = array( 'jquery' );
+			$dependencies = array( 'jquery', 'jet-plugins' );
 
 			foreach ( $this->get_filter_types() as $filter ) {
 				if ( ! method_exists( $filter, 'get_scripts' ) ) {
@@ -64,8 +64,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Manager' ) ) {
 			$localized_data = apply_filters( 'jet-smart-filters/filters/localized-data', array(
 				'ajaxurl'         => admin_url( 'admin-ajax.php' ),
 				'siteurl'         => get_site_url(),
-				'sitepath'        => wp_parse_url( home_url() )['path'],
-				'baseurl'         => rtrim( wp_parse_url( preg_replace( '/\bjsf[\/|=].*/', '', $_SERVER['REQUEST_URI'], 1 ) )['path'], '/' ) . '/',
+				'sitepath'        => jet_smart_filters()->data->get_sitepath(),
+				'baseurl'         => jet_smart_filters()->data->get_baseurl(),
 				'selectors'       => jet_smart_filters()->data->get_provider_selectors(),
 				'queries'         => jet_smart_filters()->query->get_default_queries(),
 				'settings'        => jet_smart_filters()->providers->get_provider_settings(),
@@ -90,10 +90,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Manager' ) ) {
 
 			$templates = [];
 
-			$templates['active_filter'] = jet_smart_filters()->utils->get_template_html( 'for-js/active-filter.php' );
-			$templates['active_tag'] = jet_smart_filters()->utils->get_template_html( 'for-js/active-tag.php' );
-			$templates['pagination_item'] = jet_smart_filters()->utils->get_template_html( 'for-js/pagination-item.php' );
+			$templates['active_filter']        = jet_smart_filters()->utils->get_template_html( 'for-js/active-filter.php' );
+			$templates['active_tag']           = jet_smart_filters()->utils->get_template_html( 'for-js/active-tag.php' );
+			$templates['pagination_item']      = jet_smart_filters()->utils->get_template_html( 'for-js/pagination-item.php' );
 			$templates['pagination_item_dots'] = jet_smart_filters()->utils->get_template_html( 'for-js/pagination-item-dots.php' );
+			$templates['pagination_load_more'] = jet_smart_filters()->utils->get_template_html( 'for-js/pagination-load-more.php' );
 
 			return $templates;
 		}

@@ -607,10 +607,6 @@ class CombineJs
 
 		foreach ($localAssetsPaths as $assetHref => $localAssetsPath) {
 			if ($jsContent = trim(FileSystem::fileGetContents($localAssetsPath))) {
-				if ($jsContent === '') {
-					continue;
-				}
-
 				// Does it have a source map? Strip it
 				if (strpos($jsContent, '//# sourceMappingURL=') !== false) {
 					$jsContent = OptimizeCommon::stripSourceMap($jsContent, 'js');

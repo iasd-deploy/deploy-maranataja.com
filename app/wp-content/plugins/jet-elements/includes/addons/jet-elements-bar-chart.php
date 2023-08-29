@@ -12,8 +12,6 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -84,7 +82,7 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 		$css_scheme = apply_filters(
 			'jet-elements/bar-chart/css-scheme',
 			array(
-				'container' => '.jet-bar-chart-container',
+				'container'         => '.jet-bar-chart-container',
 			)
 		);
 		
@@ -681,6 +679,7 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 				'label' => esc_html__( 'Background Color', 'jet-elements' ),
 				'type'  => Controls_Manager::COLOR,
 			),
+
 			25
 		);
 		
@@ -874,6 +873,45 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 		<?php
 		$this->_close_wrap();
 	}
+
+	/**
+	 * Set global colors.
+	 *
+	 * @return array
+	 */
+	public function get_global_colors($globals) {
+
+		$kit = Plugin::$instance->kits_manager->get_active_kit_for_frontend();
+		$kit_system = $kit->get_settings_for_display( 'system_colors' );
+		$kit_custom = $kit->get_settings_for_display( 'custom_colors' );
+
+		if (isset($globals['__globals__'])){
+
+			$kit_settings = $kit_system;
+
+			if (isset($kit_custom)){
+
+				$kit_settings = array_merge( $kit_system, $kit_custom );
+			}
+
+			foreach($globals['__globals__'] as $key => $value){
+
+				$value = str_replace('globals/colors?id=', '', $value);
+
+				foreach($kit_settings as $kit_setting){
+
+					if( $kit_setting['_id'] === $value ){
+
+						$globals[$key] = $kit_setting['color'];
+
+					}
+				}
+			}
+		}
+
+		return $globals;
+
+	}
 	
 	/**
 	 * Get prepare chart data.
@@ -882,12 +920,15 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 	 */
 	public function get_chart_data() {
 		$settings = $this->get_settings_for_display();
-		
+
 		$datasets = array();
 		$chart_data = $settings['chart_data'];
 		$chart_data = apply_filters( 'jet-elements/widget/loop-items', $chart_data, 'chart_data', $this );
-		
+
 		foreach ( $chart_data as $item_data ) {
+
+			$item_data = $this->get_global_colors($item_data);
+
 			$item_data['label']                = ! empty( $item_data['label'] ) ? $item_data['label'] : '';
 			$item_data['data']                 = ! empty( $item_data['data'] ) ? array_map('floatval', explode(',', $item_data['data'])) : '';
 			$item_data['backgroundColor']      = ! empty( $item_data['bg_color'] ) ? $item_data['bg_color'] : '#cecece';
@@ -895,7 +936,7 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 			$item_data['borderColor']          = ! empty( $item_data['border_color'] ) ? $item_data['border_color'] : '#7a7a7a';
 			$item_data['hoverBorderColor']     = ! empty( $item_data['border_hover_color'] ) ? $item_data['border_hover_color'] : '#7a7a7a';
 			$item_data['borderWidth']          = ( '' !== $settings['chart_border_width']['size'] ) ? $settings['chart_border_width']['size'] : 1;
-			
+
 			$datasets[] = $item_data;
 		}
 		
@@ -909,6 +950,8 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 	 */
 	public function get_chart_options() {
 		$settings = $this->get_settings_for_display();
+
+		$settings = $this->get_global_colors($settings);
 		
 		$labels_display   = filter_var( $settings['chart_labels_display'], FILTER_VALIDATE_BOOLEAN );
 		$tooltips_enabled = filter_var( $settings['chart_tooltip_enabled'], FILTER_VALIDATE_BOOLEAN );
@@ -944,12 +987,11 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 		
 		if ( $tooltips_enabled ) {
 
+
 			if ( ! empty( $settings['chart_tooltip_bg_color'] ) ) {
-				$options['tooltips'] = array(
-					'backgroundColor' => $settings['chart_tooltip_bg_color'],
-				);
-			}
-			
+				$options['tooltips']['backgroundColor'] = $settings['chart_tooltip_bg_color'];
+			} 
+
 			foreach ( $tooltip_title_style_dictionary as $style_property => $setting_name ) {
 				
 				if ( is_array( $setting_name ) ) {
@@ -1121,6 +1163,7 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 		
 		return $options;
 	}
+
 	
 	/**
 	 * Get font style string.
@@ -1135,7 +1178,7 @@ class Jet_Elements_Bar_Chart extends Jet_Elements_Base {
 		}
 		
 		$settings = $this->get_settings_for_display();
-		
+	
 		$font_styles = array();
 		
 		foreach ( $settings_names as $setting_name ) {

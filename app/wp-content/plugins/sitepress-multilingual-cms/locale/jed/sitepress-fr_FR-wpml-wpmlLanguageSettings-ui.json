@@ -4,7 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "lang": "fr_FR"
          },
          "Choose the image file type for flags": [
             "Choisir le type de fichier image pour les indicateurs "
@@ -12,8 +12,11 @@
          "This option affects only the built-in WPML flags, not the custom uploaded ones.": [
             "Cette option s’applique uniquement aux indicateurs WPML intégrés, pas aux indicateurs personnalisés transférés."
          ],
+         "%s format": [
+            "Format %s"
+         ],
          "Save": [
-            "Appliquer"
+            "Enregistrer"
          ],
          "The new format has been saved.": [
             "Le nouveau format a été sauvegardé."

@@ -31,7 +31,17 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Link' ) ) {
 		 */
 		public function get_delete_url( $settings ) {
 
-			$redirect = ! empty( $settings['delete_link_redirect'] ) ? esc_url( $settings['delete_link_redirect'] ) : home_url( '/' );
+			$redirect = null;
+
+			if ( ! empty( $settings['delete_link_redirect'] ) ) {
+				$redirect = jet_engine()->listings->macros->do_macros( $settings['delete_link_redirect'] );
+				$redirect = esc_url( $redirect );
+			}
+
+			if ( empty( $redirect ) ) {
+				$redirect = home_url( '/' );
+			}
+
 			$type = ! empty( $settings['delete_link_type'] ) ? $settings['delete_link_type'] : 'trash';
 
 			return jet_engine()->listings->delete_post->get_delete_url( apply_filters( 'jet-engine/listings/dynamic-link/delete-url-args', array(
@@ -155,13 +165,17 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Link' ) ) {
 				$custom_attrs .= ' data-delete-message="' . $message . '"';
 			}
 
+			if ( ! empty( $settings['aria_label_attr'] ) ) {
+				$custom_attrs .= ' aria-label="' . esc_attr( $settings['aria_label_attr'] ) . '"';
+			}
+
 			printf( $format, $url, $base_class, $icon, $label, $rel, $target, $custom_attrs );
 
 		}
 
 		public function get_link_label( $settings, $base_class, $url ) {
 
-			$label = ! empty( $settings['link_label'] ) ? $settings['link_label'] : false;
+			$label = ! Jet_Engine_Tools::is_empty( $settings['link_label'] ) ? $settings['link_label'] : false;
 
 			if ( $label ) {
 
@@ -170,8 +184,20 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Link' ) ) {
 
 				jet_engine()->listings->macros->set_macros_context( $object_context );
 
+				$format = '<span class="%1$s__label">%2$s</span>';
+
+				// If optimized DOM tweak is active and link not has an icon - we can use plain text
+				if ( $this->prevent_wrap() 
+					&& empty( $settings['link_icon'] ) 
+					&& ( empty( $settings['selected_link_icon'] ) 
+						|| empty( $settings['selected_link_icon']['value'] ) 
+					)
+				) {
+					$format = '%2$s';
+				}
+
 				$label = jet_engine()->listings->macros->do_macros( $label, $url );
-				$label = sprintf( '<span class="%1$s__label">%2$s</span>', $base_class, $label );
+				$label = sprintf( $format, $base_class, $label );
 
 				// Reset macros context to initial.
 				jet_engine()->listings->macros->set_macros_context( $macros_context );
@@ -216,24 +242,19 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Link' ) ) {
 
 			ob_start();
 
-			$classes = array(
-				'jet-listing',
-				$base_class,
-			);
-
-			if ( ! empty( $settings['className'] ) ) {
-				$classes[] = esc_attr( $settings['className'] );
+			if ( ! $this->prevent_wrap() ) {
+				printf( '<%1$s class="%2$s">', $tag, implode( ' ', $this->get_wrapper_classes() ) );
 			}
 
-			printf( '<%1$s class="%2$s">', $tag, implode( ' ', $classes ) );
+			do_action( 'jet-engine/listing/dynamic-link/before-field', $this );
 
-				do_action( 'jet-engine/listing/dynamic-link/before-field', $this );
+			$this->render_link( $settings, $base_class );
 
-				$this->render_link( $settings, $base_class );
+			do_action( 'jet-engine/listing/dynamic-link/after-field', $this );
 
-				do_action( 'jet-engine/listing/dynamic-link/after-field', $this );
-
-			printf( '</%s>', $tag );
+			if ( ! $this->prevent_wrap() ) {
+				printf( '</%s>', $tag );
+			}
 
 			$content = ob_get_clean();
 

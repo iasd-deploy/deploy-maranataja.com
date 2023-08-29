@@ -25,10 +25,15 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views' ) ) {
 		 */
 		function __construct() {
 
+			if ( ! \Jet_Engine\Modules\Performance\Module::instance()->is_tweak_active( 'enable_blocks_views' ) ) {
+				return;
+			}
+
 			if ( ! jet_engine()->components->is_component_active( 'listings' ) ) {
 				return;
 			}
 
+			add_filter( 'jet-engine/templates/listing-views', array( $this, 'add_listing_view' ), 11 );
 			add_filter( 'upload_mimes', array( $this, 'allow_svg' ) );
 			add_filter( 'jet-engine/templates/create/data', array( $this, 'inject_listing_settings' ), 0 );
 
@@ -47,6 +52,16 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views' ) ) {
 			$this->dynamic_content = new \Jet_Engine\Blocks_Views\Dynamic_Content\Manager();
 
 			new Jet_Engine_Blocks_Views_Ajax_Handlers();
+		}
+
+		/**
+		 * Register listing view
+		 * 
+		 * @param [type] $views [description]
+		 */
+		public function add_listing_view( $views ) {
+			$views['blocks'] = __( 'Blocks (Gutenberg)', 'jet-engine' );
+			return $views;
 		}
 
 		/**

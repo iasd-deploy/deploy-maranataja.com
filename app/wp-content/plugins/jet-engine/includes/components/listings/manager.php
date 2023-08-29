@@ -168,8 +168,8 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 		/**
 		 * Check if is AJAX listing request
 		 */
-		public function is_listing_ajax() {
-			return $this->ajax_handlers->is_listing_ajax();
+		public function is_listing_ajax( $handler = false ) {
+			return $this->ajax_handlers->is_listing_ajax( $handler );
 		}
 
 		public function repeater_sources() {
@@ -463,7 +463,7 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 		 * @return [type] [description]
 		 */
 		public function get_allowed_callbacks() {
-			return $this->callbacks->get_cllbacks_for_options();
+			return $this->callbacks ? $this->callbacks->get_cllbacks_for_options() : array();
 		}
 
 		/**
@@ -472,7 +472,7 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 		 * @return [type] [description]
 		 */
 		public function get_callbacks_args( $for = 'elementor' ) {
-			return $this->callbacks->get_callbacks_args( $for );
+			return $this->callbacks ? $this->callbacks->get_callbacks_args( $for ) : array();
 		}
 
 		/**
@@ -511,6 +511,41 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 				return $context;
 			}
 
+		}
+
+		/**
+		 * Returns allowed link sources for listing item.
+		 *
+		 * @return array
+		 */
+		public function get_listing_link_sources() {
+
+			$default = array(
+				'label'   => __( 'General', 'jet-engine' ),
+				'options' => array(
+					'_permalink' => __( 'Permalink', 'jet-engine' ),
+				),
+			);
+
+			$meta_fields = array();
+
+			if ( jet_engine()->options_pages ) {
+				$default['options']['options_page'] = __( 'Options', 'jet-engine' );
+			}
+
+			if ( jet_engine()->meta_boxes ) {
+				$meta_fields = jet_engine()->meta_boxes->get_fields_for_select( 'plain' );
+			}
+
+			$link_sources = apply_filters(
+				'jet-engine/listings/link/sources',
+				array_merge( array( $default ), $meta_fields )
+			);
+
+			return apply_filters(
+				'jet-engine/listings/dynamic-link/fields',
+				$link_sources
+			);
 		}
 
 	}

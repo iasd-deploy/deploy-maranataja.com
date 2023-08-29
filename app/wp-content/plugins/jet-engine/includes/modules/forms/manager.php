@@ -55,11 +55,7 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms' ) ) {
 			$this->handler = new Jet_Engine_Booking_Forms_Handler( $this );
 			$this->captcha = new Jet_Engine_Booking_Forms_Captcha();
 
-			if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
-				add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ), 11 );
-			} else {
-				add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets' ), 11 );
-			}
+			add_action( 'jet-engine/elementor-views/widgets/register', array( $this, 'register_widgets' ), 11, 2 );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 
@@ -129,6 +125,8 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms' ) ) {
 				);
 
 				$instances = apply_filters( 'jet-engine/forms/options-generators', $instances, $this );
+
+				$this->generators = array();
 
 				foreach ( $instances as $instance ) {
 					$this->generators[ $instance->get_id() ] = $instance;
@@ -431,22 +429,29 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms' ) ) {
 		/**
 		 * Register plugin widgets
 		 *
-		 * @param  [type] $widgets_manager [description]
+		 * @param $widgets_manager
+		 * @param $elementor_views
 		 *
-		 * @return [type]                  [description]
+		 * @return void
 		 */
-		public function register_widgets( $widgets_manager ) {
+		public function register_widgets( $widgets_manager, $elementor_views ) {
 
-			$base = jet_engine()->modules->modules_path( 'forms/widgets/' );
+			$elementor_views->register_widget(
+				jet_engine()->modules->modules_path( 'forms/widgets/booking-form.php' ),
+				$widgets_manager,
+				'Elementor\Jet_Engine_Booking_Form_Widget'
+			);
 
-			foreach ( glob( $base . '*.php' ) as $file ) {
-				$slug = basename( $file, '.php' );
-				$this->register_widget( $file, $widgets_manager );
-			}
+			$elementor_views->register_widget(
+				jet_engine()->modules->modules_path( 'forms/widgets/check-mark.php' ),
+				$widgets_manager,
+				'Elementor\Jet_Engine_Check_Mark_Widget'
+			);
 
 		}
 
 		/**
+		 * !!! Deprecated
 		 * Register new widget
 		 *
 		 * @return void

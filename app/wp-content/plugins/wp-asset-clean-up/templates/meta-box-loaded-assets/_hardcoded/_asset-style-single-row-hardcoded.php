@@ -127,6 +127,7 @@ if (isset($data['handle_rows_contracted']['styles'][$data['row']['obj']->handle]
 		        // Unload on all pages where this [post] post type has a certain taxonomy set for it (e.g. a Tag or a Category) (if applicable)
 		        // There has to be at least a taxonomy created for this [post] post type in order to show this option
 		        if (isset($data['post_type']) && $data['post_type'] !== 'attachment' && ! empty($data['post_type_has_tax_assoc'])) {
+			        // Unload on all pages where this [post] post type has a certain taxonomy set for it (e.g. a Tag or a Category) (if applicable)
 			        include dirname( __DIR__ ) . '/_common_lite_locked/_asset-single-row-hardcoded-unload-post-type-taxonomy.php';
 		        }
 
@@ -135,7 +136,7 @@ if (isset($data['handle_rows_contracted']['styles'][$data['row']['obj']->handle]
 
 	            do_action('wpacu_pro_bulk_unload_output', $data, $data['row']['obj'], 'css');
 	            ?>
-	            <div class="wpacu-clearfix"></div>
+	            <div class="wpacu_clearfix"></div>
 	        </div>
 	        <?php
 	        // Handle Note
@@ -143,7 +144,7 @@ if (isset($data['handle_rows_contracted']['styles'][$data['row']['obj']->handle]
             ?>
         </div>
         <img style="display: none;"
-             class="wpacu-ajax-loader"
+             class="wpacu_ajax_loader"
              src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-ajax-loading-spinner.svg" alt="<?php echo esc_html__('Loading'); ?>..." />
 	</td>
 </tr>

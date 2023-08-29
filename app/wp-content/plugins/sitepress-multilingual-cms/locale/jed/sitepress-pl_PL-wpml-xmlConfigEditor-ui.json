@@ -4,7 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "lang": "pl"
          },
          "The wpml-config.xml file in the root folder of your theme and plugins tells WPML which content is translatable. You can override these settings with your own custom settings by adding them below.": [
             "Plik wpml-config.xml file w katalogu głównym motywu i wtyczek informuje WPML, które treści są do przetłumaczenia. Możesz zastąpić te ustawienia własnymi poprzez dodanie ich poniżej."

@@ -62,8 +62,6 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
 				$minifyJsExceptionsAreaStyle = empty($data['is_optimize_js_enabled_by_other_party']) && ($data['minify_loaded_js'] == 1) ? 'opacity: 1;' : 'opacity: 0.4;';
 				?>
                 <div id="wpacu_minify_js_area" style="<?php echo esc_attr($minifyJsExceptionsAreaStyle); ?>">
-                    <!-- -->
-
                     <div style="margin-top: 8px; padding: 12px; background: #f2faf2; border-radius: 10px;">
                         <ul style="margin: 0;">
                             <li style="float: left; margin-right: 30px; margin-bottom: 0; line-height: 32px;" class="wpacu-fancy-radio">
@@ -138,19 +136,27 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
             </td>
         </tr>
 
+        <?php
+        $wpRocketIsEnabledWithDelayJs = (defined('WPACU_WP_ROCKET_DELAY_JS_ENABLED') && WPACU_WP_ROCKET_DELAY_JS_ENABLED);
+        $combineJsIsDisabled = (! empty($data['is_optimize_js_enabled_by_other_party']) || $wpRocketIsEnabledWithDelayJs);
+        ?>
 		<tr valign="top">
 			<th scope="row" class="setting_title">
 				<label for="wpacu_combine_loaded_js_enable"><?php _e('Combine loaded JS (JavaScript) into fewer files', 'wp-asset-clean-up'); ?></label>
 				<p class="wpacu_subtitle"><small><em><?php _e('Helps reducing the number of HTTP Requests even further', 'wp-asset-clean-up'); ?></em></small></p>
 			</th>
 			<td>
-				<label class="wpacu_switch <?php if (! empty($data['is_optimize_js_enabled_by_other_party'])) { echo 'wpacu_disabled'; } ?>">
+				<label class="wpacu_switch <?php if ($combineJsIsDisabled) { echo 'wpacu_disabled'; } ?>">
 					<input id="wpacu_combine_loaded_js_enable"
                            data-target-opacity="wpacu_combine_loaded_js_info_area"
 					       type="checkbox"
-						<?php
-						echo (in_array($data['combine_loaded_js'], array('for_admin', 'for_all', 1)) ? 'checked="checked"' : '');
-						?>
+                            <?php
+                            if ($combineJsIsDisabled) {
+                                echo 'disabled="disabled"';
+                            } else {
+                                echo in_array( $data['combine_loaded_js'], array( 'for_admin', 'for_all', 1 ) ) ? 'checked="checked"' : '';
+                            }
+                            ?>
 						   name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[combine_loaded_js]"
 						   value="1" /> <span class="wpacu_slider wpacu_round"></span> </label>
 
@@ -166,10 +172,19 @@ $styleTabContent = ($selectedTabArea === $tabIdArea) ? 'style="display: table-ce
                         </ul>
                     </div>
 					<?php
-				}
+				} elseif ($wpRocketIsEnabledWithDelayJs) {
+                    ?>
+                    <div style="border-left: 4px solid green; background: #f2faf2; padding: 10px; margin-top: 10px;">
+                        <ul style="margin: 0;">
+                            <li>This option is locked to avoid any compatibility problems because a similar option is enabled in WP Rocket: <a target="_blank" href="<?php echo admin_url('options-general.php?page=wprocket#file_optimization'); ?>"><em>"FILE OPTIMIZATION" - "JavaScript Files" - "Delay JavaScript execution"</em></a>.</li>
+                            <li>Both WP Rocket &amp; <?php echo WPACU_PLUGIN_TITLE; ?> can be used together as long as features are not mixed.</li>
+                        </ul>
+                    </div>
+                    <?php
+                }
 				?>
 
-				<div id="wpacu_combine_loaded_js_info_area" <?php if (empty($data['is_optimize_js_enabled_by_other_party']) && in_array($data['combine_loaded_js'], array('for_admin', 'for_all', 1))) { ?> style="opacity: 1;" <?php } else { ?>style="opacity: 0.4;"<?php } ?>>
+				<div id="wpacu_combine_loaded_js_info_area" <?php if (empty($data['is_optimize_js_enabled_by_other_party'] || $wpRocketIsEnabledWithDelayJs) && in_array($data['combine_loaded_js'], array('for_admin', 'for_all', 1))) { ?> style="opacity: 1;" <?php } else { ?>style="opacity: 0.4;"<?php } ?>>
                     <div style="margin-top: 8px; padding: 12px; background: #f2faf2; border-radius: 10px;">
                         <ul style="margin: 0;">
                             <li style="float: left; margin-right: 30px; margin-bottom: 0; line-height: 32px;" class="wpacu-fancy-radio">

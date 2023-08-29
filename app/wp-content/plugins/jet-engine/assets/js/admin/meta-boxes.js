@@ -11,9 +11,10 @@
 			self.initDateFields( $( '.cx-control' ) );
 
 			$( document ).on( 'cx-control-init', function( event, data ) {
-				self.initDateFields( $( data.target ) );
+				if ( data?.target ) {
+					self.initDateFields( $( data.target ) );
+				}
 			} );
-
 
 		},
 
@@ -76,7 +77,7 @@
 
 				$datepicker.on( 'blur', function() {
 					if ( ! $datepicker.val() ) {
-						$this.val( '' );
+						$this.val( '' ).trigger( 'change' );
 					}
 				} );
 
@@ -130,7 +131,7 @@
 
 				$timepicker.on( 'blur', function() {
 					if ( ! $timepicker.val() ) {
-						$this.val( '' );
+						$this.val( '' ).trigger( 'change' );
 					}
 				} );
 
@@ -198,7 +199,7 @@
 
 				$datetimepicker.on( 'blur', function() {
 					if ( ! $datetimepicker.val() ) {
-						$this.val( '' );
+						$this.val( '' ).trigger( 'change' );
 					}
 				} );
 

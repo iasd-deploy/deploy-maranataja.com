@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -537,9 +537,8 @@ class Jet_Elements_Countdown_Timer extends Jet_Elements_Base {
 						),
 					),
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_3,
+						'global' => array(
+							'default' => Global_Colors::COLOR_TEXT,
 						),
 					),
 				),
@@ -627,9 +626,8 @@ class Jet_Elements_Countdown_Timer extends Jet_Elements_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_3,
+				'global' => array(
+					'default' => Global_Colors::COLOR_TEXT,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['label'] => 'color: {{VALUE}}',
@@ -642,8 +640,10 @@ class Jet_Elements_Countdown_Timer extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'label_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['label'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -730,9 +730,8 @@ class Jet_Elements_Countdown_Timer extends Jet_Elements_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['value'] => 'color: {{VALUE}}',
@@ -745,8 +744,10 @@ class Jet_Elements_Countdown_Timer extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'value_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['digit'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);

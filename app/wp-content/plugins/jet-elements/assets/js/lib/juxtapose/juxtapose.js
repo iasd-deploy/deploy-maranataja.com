@@ -568,13 +568,13 @@
 
       this.slider.addEventListener("touchstart", function(e) {
         e = e || window.event;
-        e.preventDefault();
+        //e.preventDefault();
         e.stopPropagation();
         self.updateSlider(e, true);
 
         this.addEventListener("touchmove", function(e) {
           e = e || window.event;
-          e.preventDefault();
+          //e.preventDefault();
           e.stopPropagation();
           self.updateSlider(event, false);
         });

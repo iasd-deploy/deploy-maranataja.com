@@ -57,7 +57,7 @@ class Filters {
 			$jsf_data = explode( ':', $request['jsf'] );
 			$provider = $jsf_data[0];
 			$query_id = isset( $jsf_data[1] ) ? $jsf_data[1] : null;
-			
+
 			return $this->is_current_provider_query( $query, $query_id, $provider );
 			
 		}
@@ -115,9 +115,13 @@ class Filters {
 
 				$query->setup_query();
 
+				do_action( 'jet-engine/query-builder/filters/before-set-props', $query );
+
 				foreach ( $filtered_query as $prop => $value ) {
 					$query->set_filtered_prop( $prop, $value );
 				}
+
+				do_action( 'jet-engine/query-builder/filters/before-after-props', $query );
 
 			}
 
@@ -145,7 +149,12 @@ class Filters {
 				}
 
 				$data['fragments'][ '.jet-engine-query-count.count-type-total.query-' . $query->id ] = $query->get_items_total_count();
-				$data['fragments'][ '.jet-engine-query-count.count-type-visible.query-' . $query->id ] = $query->get_items_page_count();
+				$data['fragments'][ '.jet-engine-query-count.count-type-visible.query-' . $query->id ] = $this->get_visible_items_count( $query );
+				$data['fragments'][ '.jet-engine-query-count.count-type-end-item.query-' . $query->id ] = $query->get_end_item_index_on_page();
+
+				if ( ! $this->is_filter_load_more() ) {
+					$data['fragments'][ '.jet-engine-query-count.count-type-start-item.query-' . $query->id ] = $query->get_start_item_index_on_page();
+				}
 
 				return $data;
 
@@ -210,14 +219,14 @@ class Filters {
 		// Setup props for the pager
 		jet_smart_filters()->query->set_props(
 			$provider,
-			array(
+			apply_filters( 'jet-engine/query-builder/set-props', array(
 				'found_posts'   => $query->get_items_total_count(),
 				'max_num_pages' => $query->get_items_pages_count(),
 				'page'          => $query->get_current_items_page(),
 				'query_type'    => $query->query_type,
 				'query_id'      => $query->id,
 				'query_meta'    => $query->get_query_meta(),
-			),
+			), $provider, $query_id ),
 			$query_id
 		);
 
@@ -250,6 +259,33 @@ class Filters {
 			return $data;
 		}, 999 );
 
+	}
+
+	public function is_filter_load_more() {
+		return ! empty( $_REQUEST['props'] ) && ! empty( $_REQUEST['props']['pages'] );
+	}
+
+	public function get_visible_items_count( $query ) {
+
+		if ( $this->is_filter_load_more() ) {
+			$pages         = $_REQUEST['props']['pages'];
+			$max_pages     = $query->get_items_pages_count();
+			$visible_items = 0;
+
+			foreach ( $pages as $page ) {
+
+				if ( $page == $max_pages ) {
+					$visible_items += $query->get_items_page_count();
+				} else {
+					$visible_items += $query->get_items_per_page();
+				}
+
+			}
+
+			return $visible_items;
+		}
+
+		return $query->get_items_page_count();
 	}
 
 }

@@ -16,44 +16,57 @@ import {
 	getThirdPartyUrlParams,
 	mergeData,
 	applyAliases,
+	debounce
 } from 'includes/utility';
 
 export default class FilterGroup {
 	urlPrefix = 'jsf';
 	activeItemsExceptions = ['sorting', 'pagination'];
 
-	constructor(provider, queryId, filters, queryData = false) {
+	constructor(provider, queryId, filters = []) {
 		this.provider = provider;
 		this.queryId = queryId;
-		this.filters = filters;
+		this.filters = [];
 		this.providerSelector = this.getProviderSelector();
 		this.$provider = $(this.providerSelector);
+		this.currentQuery = Object.assign({}, this.urlParams);
+		this.isAjaxLoading = false;
 
-		this.currentQuery = Object.assign(this.query, this.urlParams, queryData);
-
-		// Init modules
-		this.additionalFilters = new AdditionalFilters(this);
-		this.customProvider = new CustomProvider(this);
-		this.initIndexer();
-		this.initTabIndex();
-
+		// URL data
 		this.urlType = getNesting(JetSmartFilterSettings, 'misc', 'url_type') || 'plain';
 		this.baseUrl = getNesting(JetSmartFilterSettings, 'baseurl');
 		this.baseUrlParams = getThirdPartyUrlParams();
+
+		// modules
+		this.additionalFilters = new AdditionalFilters(this);
+		this.customProvider = new CustomProvider(this);
+
+		// initialization incoming filters
+		filters.forEach(filter => {
+			this.addFilter(filter);
+		});
+
+		preloader.subscribe(this.providerSelector, {
+			provider,
+			queryId
+		});
+
+		this.debounceProcessFilters = debounce(this.processFilters, 100);
 
 		// Event subscriptions
 		eventBus.subscribe('fiter/change', filter => {
 			if (!this.isCurrentProvider(filter))
 				return;
 
+			this.updateSameFilters(filter);
 			this.filterChangeHandler(filter.applyType);
-		});
+		}, true);
 		eventBus.subscribe('fiters/apply', applyFilter => {
 			if (!this.isCurrentProvider(applyFilter))
 				return;
 
 			this.applyFiltersHandler(applyFilter.applyType, applyFilter.redirect && applyFilter.redirectPath ? applyFilter.redirectPath : false, applyFilter.redirectInNewWindow);
-		});
+		}, true);
 		eventBus.subscribe('fiters/remove', removeFilter => {
 			if (!this.isCurrentProvider(removeFilter))
 				return;
@@ -65,19 +78,65 @@ export default class FilterGroup {
 				return;
 
 			this.paginationСhangeHandler(paginationFilter.applyType, paginationFilter.topOffset);
+		}, true);
+		eventBus.subscribe('pagination/load-more', paginationFilter => {
+			if (!this.isCurrentProvider(paginationFilter))
+				return;
+
+			this.paginationLoadMoreHandler();
+		}, true);
+	}
+
+	// Filters initialization
+	addFilter(newFilter) {
+		// remove duplicate
+		this.filters = this.filters.filter(filter => {
+			const isDuplicate = newFilter.path === filter.path;
+
+			if (isDuplicate)
+				newFilter.setData(filter.data);
+
+			return !isDuplicate;
 		});
 
-		preloader.subscribe(this.providerSelector, {
-			provider,
-			queryId
-		});
+		// filter add
+		newFilter.uniqueKey = this.getFilterUniqueKey(newFilter);
 
-		// After initialization
-		setTimeout(() => {
-			// update filters with current data
-			this.setFiltersData();
+		// push new filter to the collection
+		this.filters.push(newFilter);
 
-			this.currentQuery = this.query;
+		// Init filter modules
+		this.initIndexer(newFilter);
+		this.initTabIndex(newFilter);
+
+		this.debounceProcessFilters();
+	}
+
+	processFilters() {
+		if (!this.filters.length)
+			return;
+
+		// update current query
+		this.currentQuery = this.query;
+
+		// update filters with current data
+		this.setFiltersData();
+
+		// update additional filters
+		this.additionalFilters.collectFilters();
+	}
+
+	// Reinit filters
+	reinitFilters(filterNames = null) {
+		if (filterNames && !Array.isArray(filterNames))
+			filterNames = [filterNames];
+
+		this.filters.forEach(filter => {
+			if (filterNames && !filterNames.includes(filter.name))
+				return;
+
+			if (filter.reinit)
+				filter.reinit();
 		});
 	}
 
@@ -110,6 +169,10 @@ export default class FilterGroup {
 		// scroll to provider
 		if (applyType !== 'reload' && (topOffset || topOffset === 0))
 			$('html, body').stop().animate({ scrollTop: this.$provider.offset().top - topOffset }, 500);
+	}
+
+	paginationLoadMoreHandler() {
+		this.doAjax({ loadMore: true });
 	}
 
 	// Actions
@@ -146,16 +209,21 @@ export default class FilterGroup {
 		document.location = newLocation;
 	}
 
-	doAjax() {
+	doAjax(externalProps = {}) {
 		const query = this.query;
 
-		if (isEqual(query, this.currentQuery))
+		this.$provider = $(this.providerSelector);
+
+		if (!this.isProviderExist || isEqual(query, this.currentQuery))
 			return;
 
 		this.currentQuery = query;
 		this.updateUrl();
 		this.ajaxRequest(response => {
-			this.ajaxRequestCompleted(response);
+			this.ajaxRequestCompleted({
+				...response,
+				...externalProps
+			});
 		});
 	}
 
@@ -180,18 +248,16 @@ export default class FilterGroup {
 	}
 
 	startAjaxLoading() {
+		this.isAjaxLoading = true;
 		eventBus.publish('ajaxFilters/start-loading', this.provider, this.queryId);
 	}
 
 	endAjaxLoading() {
+		this.isAjaxLoading = false;
 		eventBus.publish('ajaxFilters/end-loading', this.provider, this.queryId);
 	}
 
 	ajaxRequestCompleted(response) {
-		//update the provider selector if for some reason it is null
-		if (!this.$provider.length)
-			this.$provider = $(this.providerSelector);
-
 		// update pagination props
 		if (response.pagination && getNesting(JetSmartFilterSettings, 'props', this.provider, this.queryId)) {
 			window.JetSmartFilterSettings.props[this.provider][this.queryId] = {
@@ -206,12 +272,12 @@ export default class FilterGroup {
 
 		// update provider content
 		if (response.content) {
-			this.renderResult(response.content);
+			this.renderResult(response.content, response.loadMore || false);
 		}
 
 		// update provider data
 		if (response.is_data) {
-			this.$provider.trigger( 'jet-filter-data-updated', [ response, this ] );
+			this.$provider.trigger('jet-filter-data-updated', [response, this]);
 		}
 
 		// update fragments
@@ -228,26 +294,39 @@ export default class FilterGroup {
 		// backward compatibility for jet-engine-maps
 		if (this.provider) {
 			this.$provider
-				.closest('.elementor-widget-jet-engine-maps-listing,.jet-map-listing-block')
+				.closest('.elementor-widget-jet-engine-maps-listing,.jet-map-listing-block,.brxe-jet-engine-maps-listing')
 				.trigger('jet-filter-custom-content-render', response);
 		}
 
 		eventBus.publish('ajaxFilters/updated', this.provider, this.queryId);
 	}
 
-	renderResult(result) {
+	renderResult(result, append = false) {
 		if (!this.$provider.length)
 			return;
 
-		if ('insert' === this.providerSelectorData.action) {
+		// update the provider selector if for some reason it doesn't actually exist on the page
+		if (!$(document).find(this.$provider).length)
+			this.$provider = $(this.providerSelector);
+
+		if (append) {
+			let $container = this.$provider;
+
+			// .not 
+			if (this.providerSelectorData.list)
+				$container = $container.find(this.providerSelectorData.list)
+					.not(this.providerSelectorData.list + ' ' + this.providerSelectorData.list);
+
+			$container.append(
+				$(result).find(this.providerSelectorData.item)
+					.not(this.providerSelectorData.item + ' ' + this.providerSelectorData.item)
+			);
+		} else if ('insert' === this.providerSelectorData.action) {
+			if ('epro-portfolio' === this.provider)
+				result = $(result).children().children();
+
 			this.$provider.html(result);
 		} else {
-
-			// update the provider selector if for some reason it doesn't actually exist on the page
-			if (!$(document).find(this.$provider).length) {
-				this.$provider = $(this.providerSelector);
-			}
-
 			this.$provider.replaceWith(result);
 			this.$provider = $(this.providerSelector);
 		}
@@ -260,7 +339,19 @@ export default class FilterGroup {
 					break;
 
 				case 'epro-portfolio':
-					window.elementorFrontend.hooks.doAction('frontend/element_ready/portfolio.default', this.$provider, $);
+					window.elementorFrontend.hooks.doAction('frontend/element_ready/portfolio.default', this.$provider.closest('.elementor-widget-portfolio'), $);
+					break;
+
+				case 'epro-loop-builder':
+					const $eproLoopBuilder = this.$provider.closest('.elementor-widget-loop-grid');
+
+					if ($eproLoopBuilder.length)
+						window.elementorFrontend.hooks.doAction(
+							'frontend/element_ready/' + $eproLoopBuilder.data('widget_type'),
+							$eproLoopBuilder,
+							$
+						);
+
 					break;
 			}
 
@@ -278,10 +369,10 @@ export default class FilterGroup {
 			});
 		}
 
-		if ( window.JetPlugins ) {
-			window.JetPlugins.init( this.$provider );
-			if ( this.$provider.closest( '[data-is-block*="/"]' ).length ) {
-				window.JetPlugins.initBlock( this.$provider.closest( '[data-is-block*="/"]' )[0], true );
+		if (window.JetPlugins) {
+			window.JetPlugins.init(this.$provider);
+			if (this.$provider.closest('[data-is-block*="/"]').length) {
+				window.JetPlugins.initBlock(this.$provider.closest('[data-is-block*="/"]')[0], true);
 			}
 		}
 
@@ -293,7 +384,6 @@ export default class FilterGroup {
 
 	setFiltersData(data = this.currentQuery) {
 		this.filters.forEach(filter => {
-			//if (filter.isHierarchy && (filter.singleTax || data['hc']))
 			if (filter.isHierarchy || filter.disabled)
 				return;
 
@@ -303,13 +393,6 @@ export default class FilterGroup {
 			if (value && filter.setData)
 				filter.setData(value);
 
-			/* if (value)
-				if (!filter.isHierarchy) {
-					if (filter.setData)
-						filter.setData(value);
-				} else {
-					filter.dataValue = value;
-				} */
 		});
 
 		this.emitActiveItems();
@@ -327,6 +410,16 @@ export default class FilterGroup {
 		this.filters.forEach(filter => {
 			if (filter.reset)
 				filter.reset();
+		});
+	}
+
+	updateSameFilters(changedFilter) {
+		this.getSameFilters(changedFilter).forEach(filter => {
+			if (changedFilter.data === filter.data)
+				return;
+
+			if (filter.setData)
+				filter.setData(changedFilter.data);
 		});
 	}
 
@@ -365,7 +458,7 @@ export default class FilterGroup {
 	getUrl(allFilters = false) {
 		const urlData = {};
 
-		this.filters.forEach(filter => {
+		this.uniqueFilters.forEach(filter => {
 			if (!(allFilters || filter.isMixed || filter.isReload))
 				return;
 
@@ -552,27 +645,23 @@ export default class FilterGroup {
 	}
 
 	// module initialization
-	initIndexer() {
+	initIndexer(filter) {
 		const indexedClass = 'jet-filter-indexed';
 
-		this.filters.forEach(filter => {
-			if (filter.$container && filter.$container.hasClass(indexedClass)) {
-				// Init Indexer Class
-				filter.indexer = new Indexer(filter);
-			}
-		});
-	}
-
-	initTabIndex() {
-		const use_tabindex = getNesting(JetSmartFilterSettings, 'plugin_settings', 'use_tabindex');
-
-		if (use_tabindex !== 'true')
+		if (filter.indexer || !filter.$container || !filter.$container.hasClass(indexedClass))
 			return;
 
-		this.filters.forEach(filter => {
-			// Init TabIndex Class
-			new TabIndex(filter);
-		});
+		// Init Indexer Class
+		filter.indexer = new Indexer(filter);
+	}
+
+	initTabIndex(filter) {
+		const use_tabindex = getNesting(JetSmartFilterSettings, 'plugin_settings', 'use_tabindex');
+
+		if (filter.tabindex || use_tabindex !== 'true')
+			return;
+
+		filter.tabindex = new TabIndex(filter);
 	}
 
 	// emitters
@@ -599,7 +688,7 @@ export default class FilterGroup {
 	get query() {
 		const query = {};
 
-		this.filters.forEach(filter => {
+		this.uniqueFilters.forEach(filter => {
 			const data = filter.data,
 				key = filter.queryKey;
 
@@ -630,7 +719,7 @@ export default class FilterGroup {
 	get urlParams() {
 		const urlParams = getUrlParams();
 
-		if (urlParams[this.urlPrefix] !== this.providerKey)
+		if (urlParams[this.urlPrefix] !== (this.provider + ':' + this.queryId))
 			return false;
 
 		delete urlParams[this.urlPrefix];
@@ -641,12 +730,8 @@ export default class FilterGroup {
 	get activeItems() {
 		const activeItems = [];
 
-		this.filters.forEach(filter => {
-			if (
-				!filter.data || !filter.reset
-				|| this.activeItemsExceptions.includes(filter.name)
-				|| activeItems.some(activeItem => filter.filterId === activeItem.filterId)
-			)
+		this.uniqueFilters.forEach(filter => {
+			if (!filter.data || !filter.reset || this.activeItemsExceptions.includes(filter.name))
 				return;
 
 			activeItems.push(filter);
@@ -658,8 +743,8 @@ export default class FilterGroup {
 	get hierarchyFilters() {
 		const hierarchyFilters = {};
 
-		this.filters.forEach(filter => {
-			if (filter.isHierarchy) {
+		this.uniqueFilters.forEach(filter => {
+			if (filter.isHierarchy && !filter.isAdditional) {
 				if (!hierarchyFilters[filter.filterId])
 					hierarchyFilters[filter.filterId] = [];
 
@@ -673,7 +758,7 @@ export default class FilterGroup {
 	get indexingFilters() {
 		const indexingFilters = [];
 
-		this.filters.forEach(filter => {
+		this.uniqueFilters.forEach(filter => {
 			if (filter.indexer)
 				indexingFilters.push(filter.filterId);
 		});
@@ -681,6 +766,38 @@ export default class FilterGroup {
 		if (!indexingFilters.length)
 			return false;
 
-		return JSON.stringify([...new Set(indexingFilters)]);
+		return JSON.stringify(indexingFilters);
+	}
+
+	get isProviderExist() {
+		return this.$provider.length
+			? true
+			: false;
+	}
+
+	// methods for filter uniqueness
+	getFilterUniqueKey(filter) {
+		let uniqueKey = filter.name;
+
+		if (filter.filterId)
+			uniqueKey += '-' + filter.filterId;
+
+		if (filter.isHierarchy)
+			uniqueKey += '/hierarchical-depth-' + filter.depth;
+
+		['provider', 'queryId', 'queryKey'].forEach(key => {
+			if (filter[key])
+				uniqueKey += '/' + filter[key];
+		});
+
+		return uniqueKey;
+	}
+
+	get uniqueFilters() {
+		return [...new Map(this.filters.map(filter => [filter.uniqueKey, filter])).values()];
+	}
+
+	getSameFilters(searchFilter) {
+		return this.filters.filter(filter => searchFilter.uniqueKey === filter.uniqueKey);
 	}
 }

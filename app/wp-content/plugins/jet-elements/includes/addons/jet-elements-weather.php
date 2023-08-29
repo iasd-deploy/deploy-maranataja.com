@@ -12,8 +12,6 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -136,6 +134,18 @@ class Jet_Elements_Weather extends Jet_Elements_Base {
 					'24' => esc_html__( '24 hour format', 'jet-elements' ),
 				),
 			)
+		);
+
+		$this->add_control(
+		   'weather_pricing_plan_notice',
+		   array(
+		      'type'  => Controls_Manager::RAW_HTML,
+	      		'raw'  => sprintf(
+					esc_html__( 'If you plan to use the weather widget commercially, please choose the applicable pricing plan: %1$s', 'jet-elements' ),
+					'<a target="_blank" href="https://www.weatherbit.io/terms">' . esc_html__( 'Terms and Conditions of Weatherbit', 'jet-elements' ) . '</a>'
+				),
+		        'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
+		   )
 		);
 
 		$this->end_controls_section();

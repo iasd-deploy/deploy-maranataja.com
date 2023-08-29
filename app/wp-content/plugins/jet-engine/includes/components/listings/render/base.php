@@ -12,10 +12,13 @@ if ( ! class_exists( 'Jet_Engine_Render_Base' ) ) {
 
 	abstract class Jet_Engine_Render_Base {
 
+		use \Jet_Engine\Modules\Performance\Traits\Prevent_Wrap;
+
 		private $settings = null;
 
 		public function __construct( $settings = array() ) {
-			$this->settings = $this->get_parsed_settings( $settings );
+			$parsed_settings = $this->get_parsed_settings( $settings );
+			$this->settings  = apply_filters( 'jet-engine/listing/render/'. $this->get_name() . '/settings', $parsed_settings, $this );
 		}
 
 		public function get_settings( $setting = null ) {
@@ -189,6 +192,23 @@ if ( ! class_exists( 'Jet_Engine_Render_Base' ) ) {
 			}
 
 			jet_engine()->listings->data->set_current_object( $object );
+
+		}
+
+		public function get_wrapper_classes() {
+			
+			$base_class = $this->get_name();
+			$settings   = $this->get_settings();
+			$classes    = array(
+				'jet-listing',
+				$base_class,
+			);
+
+			if ( ! empty( $settings['className'] ) ) {
+				$classes[] = esc_attr( $settings['className'] );
+			}
+
+			return $classes;
 
 		}
 

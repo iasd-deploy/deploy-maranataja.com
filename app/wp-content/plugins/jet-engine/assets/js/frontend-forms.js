@@ -383,7 +383,7 @@
 					continue;
 				}
 
-				let listenTo   = ".jet-form__field[name=" + condition.field + "], .jet-form__field[name=" + condition.field + "\\[\\]]";
+				let listenTo   = ".jet-form__field[name=" + condition.field + "], .jet-form__field [name=" + condition.field + "], .jet-form__field[name=" + condition.field + "\\[\\]]";
 				let listenFor  = condition.value;
 				let operator   = condition.operator;
 				let type       = condition.type;
@@ -1311,14 +1311,21 @@
 
 		addTriggersWysiwyg: function( field, editorId ) {
 			const callable = function( e ) {
+				this.save();
 				field.trigger( 'change.JetEngine', [ this ] );
 			};
+			
+			setTimeout( function() {
+				const editor = tinymce.get( editorId );
 
-			const editor = tinymce.get( editorId );
+				if ( ! editor ) {
+					return;
+				}
 
-			editor
-				.on( 'input', callable )
-				.on( 'change', callable );
+				editor
+					.on( 'input', callable )
+					.on( 'change', callable );
+			} );
 		},
 		wysiwygInit: function( closure, replace = false ) {
 			const self     = $( closure ),
@@ -1334,7 +1341,7 @@
 				field.data( 'editor' ),
 			);
 
-			return { editorID, field };
+			return { editorID, field: self };
 		},
 		wysiwygInitWithTriggers: function( closure, replace = false ) {
 			const { editorID, field } = JetEngineForms.wysiwygInit( closure, replace );
@@ -1346,7 +1353,9 @@
 
 	$( window ).on( 'elementor/frontend/init', JetEngineForms.init );
 
-	$( JetEngineForms.initBlocks );
+	window.addEventListener( 'DOMContentLoaded', function() {
+		JetEngineForms.initBlocks();
+	} );
 
 	window.JetEngineForms = JetEngineForms;
 

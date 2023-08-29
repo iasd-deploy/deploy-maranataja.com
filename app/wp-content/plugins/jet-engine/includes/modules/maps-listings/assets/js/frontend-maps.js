@@ -74,12 +74,13 @@
 				return;
 			}
 
-			$container.attr( 'id', 'map_' + mapID );
+			$container.attr( 'id', 'map_' + mapID + '_' + Math.floor( Math.random() * Math.floor( 999 ) ) );
 
 			var initMarker = function( markerData ) {
 				var marker,
 					infowindow,
 					popup,
+					popupOpenOn = undefined !== general.popupOpenOn ? general.popupOpenOn : 'click',
 					pinData = {
 						position: { lat: markerData.latLang.lat, lng: markerData.latLang.lng },
 						map: map,
@@ -117,7 +118,7 @@
 
 				mapProvider.closePopup( infowindow, function() {
 					activeInfoWindow = false;
-				} );
+				}, map );
 
 				mapProvider.openPopup( marker, function() {
 
@@ -134,6 +135,8 @@
 						infowindow.setMap( map );
 						infowindow.draw();
 						infowindow.open( map, marker );
+
+						JetEngineMaps.initHandlers( $container.find( '.jet-map-box' ) );
 
 						activeInfoWindow = infowindow;
 
@@ -179,6 +182,8 @@
 
 						infowindow.open( map, marker );
 
+						JetEngineMaps.initHandlers( $container.find( '.jet-map-box' ) );
+
 						activeInfoWindow = infowindow;
 
 					}).fail( function( error ) {
@@ -194,7 +199,7 @@
 
 					});
 
-				}, infowindow, map );
+				}, infowindow, map, popupOpenOn );
 
 			};
 
@@ -357,7 +362,8 @@
 				return;
 			}
 
-			var popupID = settings.id;
+			var popupID = settings.id,
+				zoom = settings.zoom ? +settings.zoom : false;
 
 			if ( undefined === JetEngineMaps.markersData[ popupID ] ) {
 				return;
@@ -373,7 +379,14 @@
 					var clustererIndex   = JetEngineMaps.markersData[ popupID ][i].clustererIndex,
 						markersClusterer = JetEngineMaps.clusterersData[ clustererIndex ];
 
-					mapProvider.fitMapToMarker( marker, markersClusterer );
+					mapProvider.fitMapToMarker( marker, markersClusterer, zoom );
+				} else {
+					// Centering the map
+					mapProvider.panTo( {
+						map: map,
+						position: mapProvider.getMarkerPosition( marker ),
+						zoom: zoom,
+					} );
 				}
 
 				mapProvider.triggerOpenPopup( marker );
@@ -393,7 +406,37 @@
 				window.elementorFrontend.hooks.doAction( 'frontend/element_ready/global', $mapElWidget, $ );
 				window.elementorFrontend.hooks.doAction( 'frontend/element_ready/' + $mapElWidget.data( 'widget_type' ), $mapElWidget, $ );
 			}
-		}
+		},
+
+		initHandlers: function( $selector ) {
+
+			// Actual init
+			window.JetPlugins.init( $selector );
+
+			// Legacy Elementor-only init
+			$selector.find( '[data-element_type]' ).each( function() {
+				var $this       = $( this ),
+					elementType = $this.data( 'element_type' );
+
+				if ( !elementType ) {
+					return;
+				}
+
+				if ( 'widget' === elementType ) {
+					elementType = $this.data( 'widget_type' );
+					window.elementorFrontend.hooks.doAction( 'frontend/element_ready/widget', $this, $ );
+				}
+
+				window.elementorFrontend.hooks.doAction( 'frontend/element_ready/global', $this, $ );
+				window.elementorFrontend.hooks.doAction( 'frontend/element_ready/' + elementType, $this, $ );
+
+			} );
+
+			if ( window.JetPopupFrontend && window.JetPopupFrontend.initAttachedPopups ) {
+				window.JetPopupFrontend.initAttachedPopups( $selector );
+			}
+
+		},
 
 	};
 

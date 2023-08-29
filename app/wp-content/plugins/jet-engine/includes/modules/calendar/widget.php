@@ -388,6 +388,23 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Calendar_Widget' ) ) {
 				)
 			);
 
+			$this->add_responsive_control(
+				'caption_gap',
+				array(
+					'label' => esc_html__( 'Gap between caption elements', 'jet-engine' ),
+					'type'  => Controls_Manager::SLIDER,
+					'range' => array(
+						'px' => array(
+							'min' => 0,
+							'max' => 100,
+						),
+					),
+					'selectors' => array(
+						'{{WRAPPER}} .jet-calendar-caption__wrap' => 'gap: {{SIZE}}{{UNIT}};',
+					),
+				)
+			);
+
 			$this->end_controls_section();
 
 			$this->start_controls_section(

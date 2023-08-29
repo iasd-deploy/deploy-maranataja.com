@@ -151,7 +151,22 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 				'jet-smart-filters/providers/jet-engine/selector',
 				'.jet-listing-grid.jet-listing'
 			);
+		}
 
+		/**
+		 * Get provider list selector
+		 */
+		public function get_list_selector() {
+
+			return '.jet-listing-grid__items';
+		}
+
+		/**
+		 * Get provider list item selector
+		 */
+		public function get_item_selector() {
+
+			return '.jet-listing-grid__item';
 		}
 
 		/**
@@ -190,13 +205,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 		public function query_maybe_has_offset( $args ) {
 
 			if ( isset( $args['offset'] ) ){
-
 				add_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 1, 2 );
 
-				if( isset( $args['paged'] ) ){
+				if ( isset( $args['paged'] ) ) {
 					$args['offset'] = $args['offset'] + ( ( $args['paged'] - 1 ) * $args['posts_per_page'] );
 				}
-
 			}
 
 			return $args;
@@ -211,7 +224,6 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 			$offset      = (int) $query->get( 'offset' );
 
 			if ( $query->get( 'jet_smart_filters' ) && ! empty( $offset ) ){
-
 				$paged = $query->get( 'paged' );
 				$posts_per_page = $query->get( 'posts_per_page' );
 
@@ -220,7 +232,6 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 				}
 
 				return $found_posts - $offset;
-
 			}
 
 			return $found_posts;

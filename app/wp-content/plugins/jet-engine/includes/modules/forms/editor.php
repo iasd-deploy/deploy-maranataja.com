@@ -64,6 +64,10 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms_Editor' ) ) {
 				return;
 			}
 
+			if ( empty( $_POST ) || ! isset( $_POST['_wpnonce'] ) ) {
+				return;
+			}
+
 			if ( ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && ! empty( $_POST['_inline_edit'] ) ) {
 				return;
 			}

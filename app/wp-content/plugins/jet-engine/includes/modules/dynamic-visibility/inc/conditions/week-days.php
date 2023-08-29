@@ -41,6 +41,10 @@ class Week_Days extends Base {
 		$week_days   = ! empty( $args['condition_settings']['week_days'] ) ? $args['condition_settings']['week_days'] : array();
 		$current_day = current_time( 'w' );
 
+		if ( ! is_array( $week_days ) ) {
+			$week_days = array( $week_days );
+		}
+
 		if ( 'hide' === $type ) {
 			return ! in_array( $current_day, $week_days );
 		} else {

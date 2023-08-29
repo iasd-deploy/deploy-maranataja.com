@@ -55,6 +55,8 @@ class Posts_Query extends Base_Query {
 			$raw = $args['tax_query'];
 			$args['tax_query'] = array();
 
+			$custom_tax_query = array();
+
 			if ( ! empty( $args['tax_query_relation'] ) ) {
 				$args['tax_query']['relation'] = $args['tax_query_relation'];
 			}
@@ -80,7 +82,23 @@ class Posts_Query extends Base_Query {
 					continue;
 				}
 
+				if ( ! empty( $query_row['custom'] ) ) {
+					unset( $query_row['custom'] );
+					$custom_tax_query[] = $query_row;
+					continue;
+				}
+
 				$args['tax_query'][] = $query_row;
+			}
+
+			if ( ! empty( $custom_tax_query ) ) {
+
+				if ( ! empty( $args['tax_query_relation'] ) && 'or' === $args['tax_query_relation'] ) {
+					$args['tax_query'] = array_merge( array( $args['tax_query'] ), $custom_tax_query );
+				} else {
+					$args['tax_query'] = array_merge( $args['tax_query'], $custom_tax_query );
+				}
+
 			}
 
 		}
@@ -165,7 +183,7 @@ class Posts_Query extends Base_Query {
 
 		}
 
-		return $args;
+		return apply_filters( 'jet-engine/query-builder/types/posts-query/args', $args, $this );
 
 	}
 
@@ -181,6 +199,7 @@ class Posts_Query extends Base_Query {
 		}
 
 		$this->current_wp_query = new \WP_Query( $this->get_query_args() );
+		$this->current_wp_query = apply_filters( 'jet-engine/query-builder/types/posts-query/wp-query', $this->current_wp_query, $this );
 
 		return $this->current_wp_query;
 
@@ -282,6 +301,40 @@ class Posts_Query extends Base_Query {
 
 			case 'tax_query':
 				$this->replace_tax_query_row( $value );
+				break;
+
+			case 'post__in':
+
+				if ( ! empty( $this->final_query['post__in'] ) ) {
+					$this->final_query['post__in'] = array_intersect( $this->final_query['post__in'], $value );
+
+					if ( empty( $this->final_query['post__in'] ) ) {
+						$this->final_query['post__in'] = array( PHP_INT_MAX );
+					}
+
+				} else {
+					$this->final_query['post__in'] = $value;
+				}
+
+				break;
+
+			case 'post__not_in':
+
+				if ( ! empty( $this->final_query['post__not_in'] ) ) {
+					$this->final_query['post__not_in'] = array_intersect( $this->final_query['post__not_in'], $value );
+
+					if ( empty( $this->final_query['post__not_in'] ) ) {
+						$this->final_query['post__not_in'] = array( PHP_INT_MAX );
+					}
+
+				} else {
+					$this->final_query['post__not_in'] = $value;
+				}
+
+				break;
+
+			case 'post_type':
+				$this->final_query['post_type'] = $value;
 				break;
 
 			default:

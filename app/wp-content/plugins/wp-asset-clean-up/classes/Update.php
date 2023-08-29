@@ -83,20 +83,27 @@ HTML;
 
         // After post/page is saved - update your styles/scripts lists
         // This triggers ONLY in the Dashboard after "Update" button is clicked (on Edit mode)
-        add_action('save_post', array($this, 'savePost'));
+        add_action('save_post', array($this, 'savePosts'));
 
-        // This is to update the permalink for the post in "Page Options" if the following option was ever used for the post: "Do not load Asset CleanUp Pro on this page (this will disable any functionality of the plugin)"
-	    add_action('post_updated', array($this, 'afterPostUpdate'), 10, 3);
+        // Are there any plugins such as "WPML Multilingual CMS" that have the same page translated in several languages
+        // each having its own ID in the "posts" table? Make sure to sync all of them whenever a specific page setting is applied
+        add_filter('wpacu_get_all_assoc_post_ids', array($this, 'getAllAssocPostIds'));
 
         // Clear cache (via AJAX) only if the user is logged-in (with the right privileges)
 	    add_action('wp_ajax_' . WPACU_PLUGIN_ID . '_clear_cache', array($this, 'ajaxClearCache'), PHP_INT_MAX);
 
 	    // After an update, preload the page for the guest view; the preload for the admin is done within /assets/script.min.js
-	    add_action('wp_ajax_' . WPACU_PLUGIN_ID . '_preload', array($this, 'ajaxPreloadGuest'), PHP_INT_MAX);
+	    add_action('wp_ajax_' . WPACU_PLUGIN_ID . '_preload',     array($this, 'ajaxPreloadGuest'), PHP_INT_MAX);
+
+        // Clear cache (via AJAX) for other plugins after post/page update
+	    add_action('wp_ajax_' . WPACU_PLUGIN_ID . '_cache_enabler_clear_cache', array($this, 'ajaxCacheEnablerClearCache'), PHP_INT_MAX);
 
 	    // e.g. when "+" or "-" is used within an asset's row (CSS/JS manager), the state is updated in the background to be remembered
-	    add_action( 'wp_ajax_' . WPACU_PLUGIN_ID . '_update_asset_row_state', array($this, 'ajaxUpdateAssetRowState') );
-	    add_action( 'wp_ajax_nopriv_' . WPACU_PLUGIN_ID . '_update_asset_row_state', array($this, 'ajaxUpdateAssetRowState') );
+	    add_action( 'wp_ajax_' . WPACU_PLUGIN_ID . '_update_asset_row_state',              array($this, 'ajaxUpdateAssetRowState') );
+	    add_action( 'wp_ajax_nopriv_' . WPACU_PLUGIN_ID . '_update_asset_row_state',       array($this, 'ajaxUpdateAssetRowState') );
+
+	    add_action( 'wp_ajax_' . WPACU_PLUGIN_ID . '_area_update_assets_row_state',        array($this, 'ajaxAreaUpdateAssetsRowState') );
+	    add_action( 'wp_ajax_nopriv_' . WPACU_PLUGIN_ID . '_area_update_assets_row_state', array($this, 'ajaxAreaUpdateAssetsRowState') );
     }
 
 	/**
@@ -175,8 +182,7 @@ HTML;
         }
 
         if ($postId > 0) {
-            $post = get_post($postId);
-            $this->savePost($post->ID, $post);
+            $this->savePosts($postId);
             return;
         }
 
@@ -253,6 +259,91 @@ HTML;
 	    exit();
     }
 
+	/**
+     * This could save the existent post and its associated posts if a plugin such as "WPML - The WordPress Multilingual Plugin" is used
+     * and there are languages associated with this post
+     *
+	 * @param $postId
+	 *
+	 * @return void
+	 */
+	public function savePosts($postId)
+    {
+	    $postIdsToUpdate = array($postId); // default (it's just this one if there aren't any associated posts)
+
+        $anyAssocPostIds = apply_filters('wpacu_get_all_assoc_post_ids', $postId);
+
+        if ( ! empty($anyAssocPostIds)) {
+            foreach ($anyAssocPostIds as $assocPostId) {
+                $postIdsToUpdate[] = $assocPostId;
+            }
+        }
+
+	    $postIdsToUpdate = array_unique($postIdsToUpdate);
+
+        foreach ($postIdsToUpdate as $postIdToUpdate) {
+		    $postObj = get_post( $postIdToUpdate );
+		    $this->savePost( $postIdToUpdate, $postObj );
+	    }
+    }
+
+	/**
+	 * @param $postId
+	 *
+	 * @return array
+	 */
+	public function getAllAssocPostIds($postId)
+    {
+	    $assocPostIds = array();
+
+        // "WPML Multilingual CMS" compatibility: Syncing post changes on all its associated translated posts
+        // e.g. if a page in Spanish is having a CSS unloaded, then that unload will also apply for the German version of the page
+        // If, for any reason, one wants to stop syncing on translated pages, the following snippet could be used in functions.php (Child Theme)
+        // add_filter('wpacu_manage_assets_update_sync_wpml_translated_posts', '__return_false');
+        if (Misc::isPluginActive('sitepress-multilingual-cms/sitepress.php')
+            && apply_filters('wpacu_manage_assets_update_sync_wpml_translated_posts', true)) {
+            $translations = self::getAnyAssocTranslationsForWpml($postId);
+
+            if ( ! empty($translations) ) {
+	            foreach ( $translations as $translation ) {
+                    if (isset($translation->element_id) && $translation->element_id) {
+	                    $assocPostIds[] = (int) $translation->element_id;
+                    }
+	            }
+            }
+        }
+
+        return array_unique($assocPostIds);
+    }
+
+	/**
+	 * @param $postId
+	 *
+	 * @return mixed|null
+	 */
+	public static function getAnyAssocTranslationsForWpml($postId)
+    {
+        global $wpdb;
+
+        // This may or might not be the main post which has the default language (usually English)
+        // and all other posts were created as an association with this language
+        // We'll need to check that
+        // Source: https://techoverflow.net/2017/03/08/get-the-original-language-post-id-for-wpml-translated-posts/
+        $sqlQuery = <<<SQL
+SELECT trans2.element_id
+FROM `{$wpdb->prefix}icl_translations` AS trans1
+INNER JOIN `{$wpdb->prefix}icl_translations` AS trans2 ON (trans2.trid = trans1.trid)
+WHERE trans1.element_id='%d' AND trans2.source_language_code IS NULL
+SQL;
+	    $sqlQueryPrepared = $wpdb->prepare($sqlQuery, array($postId));
+        $mainLanguagePostId = $wpdb->get_var($sqlQueryPrepared);
+
+	    $type = apply_filters( 'wpml_element_type', get_post_type( $mainLanguagePostId ) );
+	    $trid = apply_filters( 'wpml_element_trid', false, $mainLanguagePostId, $type );
+
+	    return apply_filters( 'wpml_get_element_translations', array(), $trid, $type );
+    }
+
     /**
      * Save post metadata when a post is saved (not for the "Latest Blog Posts" home page type)
      * Only for post type
@@ -273,6 +364,18 @@ HTML;
 		    return;
 	    }
 
+	    // Has to be a public post type
+	    $obj = get_post_type_object($post->post_type);
+
+	    if ( ! isset($obj->public) || $obj->public < 1 ) {
+		    return;
+	    }
+
+	    // only for admins
+	    if (! Menu::userCanManageAssets()) {
+		    return;
+	    }
+
 	    // Any page options set? From the Side Meta Box "Asset CleanUp: Options"
 	    // Could be just these fields available in the form (e.g. unavailable CSS/JS manager due to the page set to not load the plugin at all)
 	    $this->updatePageOptions($post->ID);
@@ -282,18 +385,6 @@ HTML;
     	if (! Misc::getVar('post', 'wpacu_unload_assets_area_loaded')) {
     	    return;
 	    }
-
-        // Has to be a public post type
-        $obj = get_post_type_object($post->post_type);
-
-        if ($obj->public < 1) {
-            return;
-        }
-
-        // only for admins
-        if (! Menu::userCanManageAssets()) {
-            return;
-        }
 
         $wpacuNoLoadAssets = Misc::getVar('post', WPACU_PLUGIN_ID, array());
 
@@ -355,17 +446,19 @@ HTML;
         // Clear them if the caching timing expired as they are not relevant anymore and reduce the disk's space
 	    OptimizeCommon::clearJsonStorageForPost($postId, true);
 
+        self::afterPostUpdate($postId);
+
 	    // Note: Cache is cleared (except the JSON files related to CSS/JS combine option) after the post/page is updated via a separate AJAX call
 	    // To avoid the usage of too much memory (good for shared environments) and avoid any memory related errors showing up to the user which could be confusing
     }
 
 	/**
-     * This takes action when the CSS/JS manager from edit post/page is used
+     * This is to update the permalink for the post in "Page Options" if the following option was ever used for the post: "Do not load Asset CleanUp Pro on this page (this will disable any functionality of the plugin)"
+     * This takes action when the CSS/JS manager is updated for a specific post (e.g. post, page, attachment, custom post type)
      *
 	 * @param $postId
-	 * @param $after
 	 */
-	public function afterPostUpdate($postId, $afterPostObj, $beforePostObj)
+	public static function afterPostUpdate($postId)
     {
         global $wpdb;
 
@@ -380,10 +473,8 @@ HTML;
 	        return;
         }
 
-	    if ($afterPostObj->post_name !== $beforePostObj->post_name) {
-		    $postPageOptions['_page_uri'] = Misc::getPageUri($postId);
-		    update_post_meta($postId, '_' . WPACU_PLUGIN_ID . '_page_options', wp_json_encode(Misc::filterList($postPageOptions)));
-        }
+        $postPageOptions['_page_uri'] = Misc::getPageUri($postId);
+        update_post_meta($postId, '_' . WPACU_PLUGIN_ID . '_page_options', wp_json_encode(Misc::filterList($postPageOptions)));
     }
 
     /**
@@ -491,7 +582,7 @@ HTML;
 	public function changesNotMadeInvalidNonce()
     {
         ?>
-        <div class="error notice wpacu-error is-dismissible">
+        <div class="notice wpacu-error is-dismissible">
             <p><?php echo wp_kses(
                     $this->afterSubmitMsg['invalid_nonce_error'],
 		            array(
@@ -1211,7 +1302,17 @@ HTML;
 
 		Misc::addUpdateOption($optionToUpdate, wp_json_encode(Misc::filterList($existingList)));
 
-        return $existingList[$keyList][$globalKey];
+        $toReturn = array();
+
+        if (isset($existingList['styles'][$globalKey])) {
+	        $toReturn['styles'] = $existingList['styles'][$globalKey];
+        }
+
+		if (isset($existingList['scripts'][$globalKey])) {
+			$toReturn['scripts'] = $existingList['scripts'][$globalKey];
+        }
+
+        return $toReturn;
 	}
 
 	/**
@@ -1298,12 +1399,12 @@ HTML;
 	 */
 	public function ajaxClearCache()
 	{
-		if ( ! isset($_POST['wpacu_nonce']) ) {
+		if ( ! isset($_REQUEST['wpacu_nonce']) ) {
 			echo 'Error: The security nonce was not sent for verification. Location: '.__METHOD__;
 			return;
 		}
 
-		if ( ! wp_verify_nonce($_POST['wpacu_nonce'], 'wpacu_ajax_clear_cache_nonce') ) {
+		if ( ! wp_verify_nonce($_REQUEST['wpacu_nonce'], 'wpacu_ajax_clear_cache_nonce') ) {
 			echo 'Error: The security check has failed. Location: '.__METHOD__;
 			exit();
 		}
@@ -1317,6 +1418,29 @@ HTML;
 
 	    exit();
 	}
+
+	/**
+	 * @return void
+	 */
+	public function ajaxCacheEnablerClearCache()
+    {
+	    if ( ! isset($_REQUEST['wpacu_nonce']) ) {
+		    echo 'Error: The security nonce was not sent for verification. Location: '.__METHOD__;
+		    return;
+	    }
+
+	    if ( ! wp_verify_nonce($_REQUEST['wpacu_nonce'], 'wpacu_ajax_clear_cache_enabler_cache_nonce') ) {
+		    echo 'Error: The security check has failed. Location: '.__METHOD__;
+		    exit();
+	    }
+
+	    if (! Menu::userCanManageAssets()) {
+		    echo 'Error: Not enough privileges to clear the cache.';
+		    exit();
+	    }
+
+        OptimizeCommon::clearCacheEnablerCache('ajax_call');
+    }
 
 	/**
 	 * This is triggered when /admin/admin-ajax.php is called (default WordPress AJAX handler)
@@ -1399,5 +1523,50 @@ HTML;
 	    }
 
 	    exit();
+    }
+
+	/**
+     * Update state for all assets within a plugin
+     *
+	 * @return void
+	 */
+	public function ajaxAreaUpdateAssetsRowState()
+    {
+        if (isset($_POST['wpacu_area_update_assets_row_state'])) {
+	        if ( ! isset( $_POST['action'], $_POST['wpacu_area_assets_row_state'], $_POST['wpacu_area_handles'], $_POST['wpacu_nonce'] )
+	             || ! Menu::userCanManageAssets() ) {
+		        return;
+	        }
+
+	        if ( $_POST['wpacu_area_update_assets_row_state'] !== 'yes' ) {
+		        return;
+	        }
+
+	        if ( ! isset($_POST['wpacu_nonce']) ) {
+		        echo 'Error: The security nonce was not sent for verification. Location: '.__METHOD__;
+		        return;
+	        }
+
+	        if ( ! wp_verify_nonce($_POST['wpacu_nonce'], 'wpacu_area_update_assets_row_state_nonce') ) {
+		        echo 'Error: The security check has failed. Location: '.__METHOD__;
+		        return;
+	        }
+
+	        $areaAllAssetsRowState = $_POST['wpacu_area_assets_row_state'];
+
+            if ( ! empty($_POST['wpacu_area_handles']) && is_array($_POST['wpacu_area_handles']) ) {
+                foreach ($_POST['wpacu_area_handles'] as $areaAssetHandleFormat) {
+	                $areaAssetHandleFor = substr(strrchr($areaAssetHandleFormat, '_'), 1);
+                    $areaAssetHandle    = substr($areaAssetHandleFormat, 0, -(strlen($areaAssetHandleFor) + 1));
+
+	                echo 'New State: '.$areaAllAssetsRowState.' / Handle: '.$areaAssetHandle . ' / For: '.$areaAssetHandleFor."\n";
+
+	                $newContractedList = self::updateHandleRowStatus( $areaAllAssetsRowState, $areaAssetHandle, $areaAssetHandleFor );
+	                echo "<pre>" . print_r( $newContractedList, true );
+                }
+            }
+
+	        exit();
+        }
     }
 }

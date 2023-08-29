@@ -146,6 +146,9 @@ class MinifyCss
 			'#/wp-content/plugins/woocommerce/assets/css/blocks/style.css#',
 			'#/wp-content/plugins/woocommerce/packages/woocommerce-blocks/build/style.css#',
 
+			// Google Site Kit: the files are already optimized
+			'#/wp-content/plugins/google-site-kit/#',
+
 			// Other libraries from the core that end in .min.css
 			'#/wp-includes/css/(.*?).min.css#',
 

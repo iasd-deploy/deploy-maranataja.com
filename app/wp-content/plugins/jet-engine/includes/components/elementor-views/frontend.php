@@ -162,7 +162,13 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 			add_action( 'elementor/frontend/before_get_builder_content', array( $this, 'maybe_reset_excerpt_flag' ), 10, 2 );
 			add_action( 'elementor/frontend/before_get_builder_content', array( $this, 'find_inner_templates' ) );
 
-			$content = Elementor\Plugin::instance()->frontend->get_builder_content_for_display( $listing_id, $is_edit_mode );
+			/**
+			 * @since 3.2.3.1 get_builder_content_for_display() replaced with get_builder_content()
+			 * 
+			 * get_builder_content_for_display() caused errors in the editor after Elementor 3.15.0 update
+			 * It was related clearing controls stack before sending it to editor config.
+			 */
+			$content = Elementor\Plugin::instance()->frontend->get_builder_content( $listing_id, $is_edit_mode );
 
 			if ( $this->reset_excerpt_flag ) {
 				Elementor\Plugin::instance()->frontend->start_excerpt_flag( null );
@@ -288,65 +294,11 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 				return $content;
 			}
 
-			$url = apply_filters(
-				'jet-engine/elementor-views/frontend/custom-listing-url',
-				false,
-				$settings
-			);
-
-			if ( ! $url ) {
-				$source = ! empty( $settings['listing_link_source'] ) ? $settings['listing_link_source'] : '_permalink';
-
-				if ( '_permalink' === $source ) {
-					$url = jet_engine()->listings->data->get_current_object_permalink();
-				} elseif ( 'open_map_listing_popup' === $source ) {
-					$url = jet_engine()->modules->get_module( 'maps-listings' )->instance->get_action_url();
-				} elseif ( 'open_map_listing_popup_hover' === $source ) {
-					$url = jet_engine()->modules->get_module( 'maps-listings' )->instance->get_action_url( null, 'hover' );
-				} elseif ( 'options_page' === $source ) {
-					$option = ! empty( $settings['listing_link_option'] ) ? $settings['listing_link_option'] : false;
-					$url    = jet_engine()->listings->data->get_option( $option );
-				} elseif ( $source ) {
-					$url = jet_engine()->listings->data->get_meta( $source );
-				}
+			if ( ! empty( $settings['__dynamic__'] ) ) {
+				$settings = $document->parse_dynamic_settings( $settings );
 			}
 
-			$prefix = isset( $settings['listing_link_prefix'] ) ? $settings['listing_link_prefix'] : '';
-
-			if ( $prefix ) {
-				$url = $prefix . $url;
-			}
-
-			$overlay_attrs = array(
-				'class'    => 'jet-engine-listing-overlay-wrap',
-				'data-url' => $url,
-			);
-
-			$link_attrs = array(
-				'href'  => $url,
-				'class' => 'jet-engine-listing-overlay-link',
-			);
-
-			$open_in_new = isset( $settings['listing_link_open_in_new'] ) ? $settings['listing_link_open_in_new'] : '';
-			$rel_attr    = isset( $settings['listing_link_rel_attr'] ) ? $settings['listing_link_rel_attr'] : '';
-
-			if ( $open_in_new ) {
-				$overlay_attrs['data-target'] = '_blank';
-				$link_attrs['target']         = '_blank';
-			}
-
-			if ( $rel_attr ) {
-				$link_attrs['rel'] = $rel_attr;
-			}
-
-			$link = sprintf( '<a %s></a>', Jet_Engine_Tools::get_attr_string( $link_attrs ) );
-
-			return sprintf(
-				'<div %3$s>%1$s%2$s</div>',
-				$content,
-				$link,
-				Jet_Engine_Tools::get_attr_string( $overlay_attrs )
-			);
+			return jet_engine()->frontend->add_listing_link_to_content( $content, $settings );
 		}
 
 

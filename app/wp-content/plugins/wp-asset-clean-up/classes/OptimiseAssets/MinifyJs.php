@@ -72,8 +72,9 @@ class MinifyJs
 			// Other libraries from the core that end in .min.js
 			'#/wp-includes/(.*?).min.js#',
 
-			// jQuery library
+			// jQuery & jQuery Migrate
 			'#/wp-includes/js/jquery/jquery.js#',
+			'#/wp-includes/js/jquery/jquery-migrate.js#',
 
 			// Files within /wp-content/uploads/
 			// Files within /wp-content/uploads/ or /wp-content/cache/
@@ -89,6 +90,11 @@ class MinifyJs
 
 			// WooCommerce Assets
 			'#/wp-content/plugins/woocommerce/assets/js/(.*?).min.js#',
+
+			// Google Site Kit
+			// The files are already optimized (they just have comments once in a while)
+			// Minifying them causes some errors, so better to leave them load as they are
+			'#/wp-content/plugins/google-site-kit/#',
 
             // TranslatePress Multilingual
             '#/translatepress-multilingual/assets/js/trp-editor.js#',

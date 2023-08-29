@@ -127,41 +127,38 @@ const bindHandler = {
  * @type {{value: unBindHandler.value}}
  */
 const unBindHandler = {
-  value: function bind(el, binding) {
-    if (typeof binding.value !== 'function') {
-      throw new TypeError( 'Binding value must be a function.' );
-    }
+	value: function unbind(el) {
+		const compareElements = function compareElements(item) {
+			return item.el !== el;
+		};
 
-    const arg = binding.arg || CLICK;
-    const normalisedBinding = {
-      ...binding,
-      ...{
-        arg,
-        modifiers: {
-          ...{
-            capture: false,
-            prevent: false,
-            stop: false,
-          },
-          ...binding.modifiers,
-        },
-      },
-    };
+		const instancesIteratee = function instancesIteratee(instances) {
+			const instanceKeys = Object.keys(instances);
 
-    const useCapture = normalisedBinding.modifiers.capture;
-    const instances = useCapture ? captureInstances : nonCaptureInstances;
+			if (instanceKeys.length) {
+				const useCapture = instances === captureInstances;
 
-    if (!Array.isArray( instances[ arg ] )) {
-      instances[ arg ] = [];
-    }
+				const keysIteratee = function keysIteratee(eventName) {
+					const newInstance = instances[eventName].filter(compareElements);
 
-    if (instances[ arg ].push( {el, binding: normalisedBinding} ) === 1) {
-      /* istanbul ignore next */
-      if (typeof document === 'object' && document) {
-        document.addEventListener( arg, getEventHandler( useCapture, arg ), useCapture );
-      }
-    }
-  },
+					if (newInstance.length) {
+						instances[eventName] = newInstance;
+					} else {
+						/* istanbul ignore next */
+						if (typeof document === 'object' && document) {
+							document.removeEventListener(eventName, getEventHandler(useCapture, eventName), useCapture);
+						}
+
+						delete instances[eventName];
+					}
+				};
+
+				instanceKeys.forEach(keysIteratee);
+			}
+		};
+
+		instancesList.forEach(instancesIteratee);
+	},
 };
 
 /**
@@ -198,9 +195,9 @@ export const clickOutsideDirective = Object.defineProperties(
 			value: nonCaptureEventHandlers,
 		},
 
-        bind: bindHandler,
+		bind: bindHandler,
 
-        unbind: unBindHandler,
+		unbind: unBindHandler,
 
 		beforeMount: bindHandler,
 

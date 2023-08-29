@@ -109,7 +109,7 @@ if ($data['row']['global_unloaded']) {
                         <span><?php esc_html_e('If the user is logged-in', 'wp-asset-clean-up'); ?></span></label>
                 </li>
 		    </ul>
-            <div class="wpacu-clearfix"></div>
+            <div class="wpacu_clearfix"></div>
         </fieldset>
 	</div>
 </div>

@@ -234,6 +234,27 @@ class Jet_Listing_Calendar_Block_Type extends \Jet_Engine_Blocks_Views_Type_Base
 			)
 		);
 
+		$this->controls_manager->add_responsive_control(
+			array(
+				'id'    => 'caption_gap',
+				'label' => esc_html__( 'Gap between caption elements', 'jet-engine' ),
+				'type'  => 'range',
+				'units' => array(
+					array(
+						'value'     => 'px',
+						'intervals' => array(
+							'step' => 1,
+							'min'  => 0,
+							'max'  => 100,
+						),
+					),
+				),
+				'css_selector' => array(
+					'{{WRAPPER}} .jet-calendar-caption__wrap' => 'gap: {{VALUE}}{{UNIT}};',
+				),
+			)
+		);
+
 		$this->controls_manager->end_section();
 
 		$this->controls_manager->start_section(

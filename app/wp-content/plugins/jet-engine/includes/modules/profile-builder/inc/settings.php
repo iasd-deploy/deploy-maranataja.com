@@ -15,6 +15,8 @@ class Settings {
 		'template_mode'        => 'rewrite',
 		'posts_restrictions'   => array(),
 		'user_page_seo_title'  => '%username% %sep% %sitename%',
+		'user_page_seo_desc'   => '',
+		'user_page_seo_image'  => '',
 	);
 
 	private $nonce_action = 'jet-engine-profile-builder';
@@ -107,7 +109,7 @@ class Settings {
 
 		wp_enqueue_script(
 			'jet-engine-profile-builder-settings',
-			jet_engine()->plugin_url( 'assets/js/admin/profile-builder/settings.js' ),
+			Module::instance()->module_url( 'assets/js/admin/settings.js' ),
 			array( 'cx-vue-ui', 'wp-api-fetch' ),
 			jet_engine()->get_version(),
 			true
@@ -164,7 +166,7 @@ class Settings {
 		foreach ( $all_title_macros as $macro => $args ) {
 			$title_macros_list[] = array(
 				'label' => $args['label'],
-				'macro' => '%' . $macro . '%',
+				'macro' => '%' . ( ! empty( $args['variable'] ) ? $args['variable'] : $macro ) . '%',
 			);
 		}
 
@@ -220,12 +222,43 @@ class Settings {
 					),
 				),
 				'user_page_title_macros' => $title_macros_list,
+				'user_page_image_fields' => $this->get_user_image_fields(),
 				'_nonce' => wp_create_nonce( $this->nonce_action ),
 			)
 		);
 
 		add_action( 'admin_footer', array( $this, 'print_templates' ) );
+		add_action( 'admin_footer', array( $this, 'print_inline_css' ) );
 
+	}
+
+	public function get_user_image_fields() {
+
+		$fields = array(
+			array(
+				'value' => '',
+				'label' => esc_html__( 'Select...', 'jet-engine' ),
+			),
+		);
+
+		$meta_fields = array();
+
+		if ( jet_engine()->meta_boxes ) {
+			$meta_fields = jet_engine()->meta_boxes->get_fields_for_select( 'media', 'blocks', 'user' );
+
+			$meta_fields = array_map( function( $option ) {
+
+				if ( ! empty( $option['values'] ) ) {
+					$option['options'] = $option['values'];
+					unset( $option['values'] );
+				}
+
+				return $option;
+
+			}, $meta_fields );
+		}
+
+		return array_merge( $fields, $meta_fields );
 	}
 
 	/**
@@ -241,6 +274,92 @@ class Settings {
 
 		printf( '<script type="text/x-template" id="jet-profile-builder">%s</script>', $content );
 
+		ob_start();
+		include jet_engine()->modules->modules_path( 'profile-builder/inc/templates/admin/macros.php' );
+		$content = ob_get_clean();
+
+		printf( '<script type="text/x-template" id="jet-profile-builder-macros">%s</script>', $content );
+
+	}
+
+	public function print_inline_css() {
+		$css = '
+			.cx-vui-component--has-macros .cx-vui-component__control {
+				display: flex;
+				position: relative;
+				align-items: flex-start;
+			}
+			
+			.jet-profile-macros {
+				width: 32px;
+				height: 32px;
+			}
+
+			.jet-profile-macros__trigger {
+				height: 32px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				align-content: center;
+				justify-content: center
+			}
+			
+			.jet-profile-macros__trigger svg path {
+				fill: #7b7e81
+			}
+			
+			.jet-profile-macros__trigger:hover svg path {
+				fill: #007cba
+			}
+			
+			.jet-profile-macros__trigger-icon {
+				width: 24px;
+				height: auto
+			}
+			
+			.jet-profile-macros__popup {
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: calc(100% + 5px);
+				background: #fff;
+				border: 1px solid #ececec;
+				box-shadow: 0 2px 6px rgba(35,40,45,.07);
+				border-radius: 6px;
+				z-index: 9999;
+				overflow: auto;
+				max-height: 200px;
+			}
+			
+			.jet-profile-macros__item {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gat: 5px;
+				padding: 10px;
+				cursor: pointer;
+			}
+			
+			.jet-profile-macros__item:hover {
+				background: #f8f9fa;
+			}
+			
+			.jet-profile-macros__item strong {
+				font-weight: 500;
+			}
+			
+			.jet-profile-macros__item code {
+				font-size: 12px;
+				border-radius: 3px;
+				white-space: nowrap;
+			}
+			
+			.jet-profile-macros__item + .jet-profile-macros__item {
+				border-top: 1px solid #ececec;
+			}
+		';
+
+		printf( '<style>%s</style>', $css );
 	}
 
 	/**

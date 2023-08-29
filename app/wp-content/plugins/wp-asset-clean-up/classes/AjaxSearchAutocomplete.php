@@ -14,7 +14,50 @@ class AjaxSearchAutocomplete
 	{
 		add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
 		add_action('wp_ajax_' . WPACU_PLUGIN_ID . '_autocomplete_search', array($this, 'wpAjaxSearch'));
+
+		self::maybePreventWpmlPluginFromFiltering();
 	}
+
+	/**
+	 * "WPML Multilingual CMS" prevents the AJAX loader from "Load assets manager for:" from loading the results as they are
+	 * If a specific ID is put there, the post with that ID should be returned and not one of its translated posts with a different ID
+	 *
+	 * @return void
+	 */
+	public static function maybePreventWpmlPluginFromFiltering()
+	{
+		if ( ! (isset($_REQUEST['action'], $_REQUEST['wpacu_term'], $GLOBALS['sitepress']) &&
+		    $_REQUEST['action'] === WPACU_PLUGIN_ID . '_autocomplete_search' &&
+		    $_REQUEST['wpacu_term'] &&
+		    Misc::isPluginActive('sitepress-multilingual-cms/sitepress.php')) ) {
+			return;
+		}
+
+		// This is called before "WPML Multilingual CMS" loads as we need to avoid any filtering of the search results
+		// to avoid confusing the admin when managing the assets within "CSS & JS Manager" -- "Manage CSS/JS"
+
+		// Avoid retrieving the wrong (language related) post ID and title
+		global $sitepress;
+		remove_action( 'parse_query', array( $sitepress, 'parse_query' ) );
+
+		// Avoid retrieving the wrong (language related) permalink
+		global $wp_filter;
+
+		if ( ! isset( $wp_filter['page_link']->callbacks ) ) {
+			return;
+		}
+
+		foreach ( $wp_filter['page_link']->callbacks as $key => $values ) {
+			if ( ! empty( $wp_filter['page_link']->callbacks ) ) {
+				foreach ( $values as $values2 ) {
+					if ( isset( $values2['function'][0] ) && $values2['function'][0] instanceof \WPML_URL_Filters ) {
+						unset( $wp_filter['page_link']->callbacks[ $key ] );
+					}
+				}
+			}
+		}
+
+		}
 
 	/**
 	 * Only valid for "CSS & JS Manager" -- "Manage CSS/JS" -- ("Posts" | "Pages" | "Custom Post Types" | "Media")
@@ -109,10 +152,11 @@ CSS;
 	    if ($post_type !== 'attachment') {
 	    	// 'post', 'page', custom post types
 		    $queryDataByKeyword = array(
-			    'post_type'      => $post_type,
-			    's'              => $search_term,
-			    'post_status'    => array( 'publish', 'private' ),
-			    'posts_per_page' => -1
+			    'post_type'        => $post_type,
+			    's'                => $search_term,
+			    'post_status'      => array( 'publish', 'private' ),
+			    'posts_per_page'   => -1,
+			    'suppress_filters' => true
 		    );
 	    } else {
 	    	// 'attachment'
@@ -123,6 +167,7 @@ CSS;
 			    'orderby' => 'date',
 			    'order' => 'DESC',
 			    'post__in' => $search,
+			    'suppress_filters' => true
 		    );
 	    }
 
@@ -133,9 +178,12 @@ CSS;
 	    if (! $query->have_posts()) {
 	    	// This one works for any post type, including 'attachment'
 		    $queryDataByID = array(
-			    'post_type'      => $post_type,
-			    'p'              => $search_term,
-			    'posts_per_page' => -1
+			    'post_type'        => $post_type,
+			    'p'                => $search_term,
+			    'post_status'      => array( 'publish', 'private' ),
+			    'posts_per_page'   => -1,
+			    'post__in'         => $search_term,
+			    'suppress_filters' => true
 		    );
 
 		    $query = new \WP_Query($queryDataByID);

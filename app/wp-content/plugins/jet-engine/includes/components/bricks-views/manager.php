@@ -41,6 +41,10 @@ class Manager {
 		add_action( 'init', array( $this, 'init_listings' ), 10 );
 		add_action( 'init', array( $this, 'integrate_in_bricks_loop' ), 10 );
 
+		add_filter( 'jet-engine/gallery/grid/args', [ $this, 'add_arguments_to_gallery_grid' ], 10 );
+		add_filter( 'jet-engine/gallery/slider/args', [ $this, 'add_arguments_to_gallery_slider' ], 10 );
+		add_filter( 'jet-engine/gallery/lightbox-attr', [ $this, 'add_attributes_to_gallery' ], 10, 2 );
+
 		add_filter( 'bricks/builder/i18n', function( $i18n ) {
 			$i18n['jetengine'] = esc_html__( 'JetEngine', 'jet-engine' );
 
@@ -109,7 +113,7 @@ class Manager {
 	}
 
 	public function has_bricks() {
-		return defined( 'BRICKS_VERSION' );
+		return ( defined( 'BRICKS_VERSION' ) && \Jet_Engine\Modules\Performance\Module::instance()->is_tweak_active( 'enable_bricks_views' ) );
 	}
 
 	/**
@@ -149,5 +153,49 @@ class Manager {
 			return $options;
 		} );
 
+	}
+
+	public function add_arguments_to_gallery_slider( $args ) {
+		array_push( $args['css_classes'], 'jet-engine-gallery-lightbox' );
+
+		return $args;
+	}
+
+	public function add_arguments_to_gallery_grid( $args ) {
+		array_push( $args['css_classes'], 'bricks-lightbox' );
+
+		return $args;
+	}
+
+	public function add_attributes_to_gallery( $attr, $img_data ) {
+		if ( in_array( 'is-lightbox', $attr['class'] ) ) {
+			$key = array_search( 'is-lightbox', $attr['class'] );
+			unset( $attr['class'][ $key ] );
+		}
+
+		$img_id   = $img_data['id'];
+
+		$full_img_sizes  = self::get_full_img_sizes( $img_id );
+		$full_img_width  = $full_img_sizes['width'];
+		$full_img_height = $full_img_sizes['height'];
+
+		$attr = array_merge( $attr,
+			[
+				'data-pswp-width'  => $full_img_width,
+				'data-pswp-height' => $full_img_height,
+			] );
+
+		return $attr;
+	}
+
+	public static function get_full_img_sizes( $img_id = null ) {
+
+		$result  = array();
+		$img_src = wp_get_attachment_image_src( $img_id, 'full' );
+
+		$result['width'] = $img_src[1];
+		$result['height'] = $img_src[2];
+
+		return $result;
 	}
 }

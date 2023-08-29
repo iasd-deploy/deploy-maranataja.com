@@ -1,17 +1,8 @@
-// Remove checked attribute from filters in popup
-const processedPopups = [];
+// Elementor popup show event
+window.addEventListener('elementor/popup/show', event => {
+	const id = event.detail.id;
+	const instance = event.detail.instance;
 
-jQuery(document).on('elementor/popup/hide', (event, id, instance) => {
-	if (processedPopups.includes(id))
-		return;
-
-	processedPopups.push(id);
-
-	const $checkedItems = instance.$element.find('.jet-filter input[type="checkbox"][checked]');
-
-	if (!$checkedItems.length)
-		return;
-
-	$checkedItems.removeAttr('checked');
-	instance.elementHTML = instance.$element.prop('outerHTML');
+	// removing the "jsf-filter" attributes for filters widgets reinitializing
+	instance.$element.find('[jsf-filter]').removeAttr('jsf-filter');
 });

@@ -6,7 +6,7 @@ if (! isset($data)) {
 	exit;
 }
 ?>
-<div class="wpacu-clearfix"></div>
+<div class="wpacu_clearfix"></div>
 
 <div class="alert">
     <div style="margin: 10px 0 0; background: white; padding: 10px; border: 1px solid #ccc; width: 95%; line-height: 22px; display: inline-block;">
@@ -16,6 +16,6 @@ if (! isset($data)) {
     </div>
 </div>
 
-<div class="wpacu-clearfix"></div>
+<div class="wpacu_clearfix"></div>
 
 <p>This feature is available only in the<img style="opacity: 0.6;" width="20" height="20" src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-lock.svg" valign="top" alt="" /> <a href="<?php echo apply_filters('wpacu_go_pro_affiliate_link', WPACU_PLUGIN_GO_PRO_URL.'?utm_source=plugin_bulk_changes&utm_medium=regex_unloads'); ?>"> Pro version</a>.</p>

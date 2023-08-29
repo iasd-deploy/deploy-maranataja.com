@@ -125,6 +125,13 @@
 		class="cx-vui-subtitle"
 		v-html="'<?php _e( 'Weatherbit.io API (APIXU API deprecated)', 'jet-elements' ); ?>'"></div>
 
+	<div class="cx-vui-component__desc"
+		v-html="'<?php
+		echo sprintf( esc_html__( 'If you plan to use the weather widget commercially, please choose the applicable pricing plan: %1$s', 'jet-elements' ),
+			htmlspecialchars( '<a href="https://www.weatherbit.io/terms" target="_blank">Terms and Conditions of Weatherbit</a>', ENT_QUOTES )
+		); ?>'">
+	</div>
+
 	<cx-vui-input
 		name="weatherstack-api-key"
 		label="<?php _e( 'Weatherbit.io API Key', 'jet-elements' ); ?>"

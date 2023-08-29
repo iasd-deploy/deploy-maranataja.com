@@ -9,7 +9,7 @@ class Geosearch_Controls extends Base {
 		$this->register_orderby_option( 'cct' );
 		
 		add_action( 'jet-engine/custom-content-types/query-builder-controls', array( $this, 'geosearch_controls_list' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'geosearch_controls_inline_css' ) );
+		add_action( 'jet-engine/query-builder/editor/after-enqueue-scripts', array( $this, 'geosearch_controls_inline_css' ) );
 	}
 
 	public function geosearch_controls_inline_css() {

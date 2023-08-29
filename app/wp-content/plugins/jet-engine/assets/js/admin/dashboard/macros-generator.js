@@ -124,6 +124,24 @@ Vue.component( 'jet-engine-macros-generator', {
 						type = 'cx-vui-input';
 						break;
 
+					case 'textarea':
+						type = 'cx-vui-textarea';
+						break;
+
+					case 'number':
+						type = 'cx-vui-input';
+						inputType = 'number';
+						break;
+
+					case 'switcher':
+						type = 'cx-vui-switcher';
+						if ( 'yes' === defaultVal || 'true' === defaultVal ) {
+							defaultVal = true;
+						} else {
+							defaultVal = false;
+						}
+						break;
+
 					case 'select':
 
 						type = 'cx-vui-select';

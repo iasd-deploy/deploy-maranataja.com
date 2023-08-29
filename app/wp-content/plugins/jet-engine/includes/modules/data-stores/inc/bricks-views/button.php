@@ -39,6 +39,14 @@ class Button extends Base {
 		);
 
 		$this->register_jet_control_group(
+			'section_button_style',
+			[
+				'title' => esc_html__( 'Button', 'jet-engine' ),
+				'tab'   => 'style',
+			]
+		);
+
+		$this->register_jet_control_group(
 			'section_icon_style',
 			[
 				'title' => esc_html__( 'Icon', 'jet-engine' ),
@@ -182,21 +190,7 @@ class Button extends Base {
 				'tab'         => 'content',
 				'label'       => esc_html__( 'Add "rel" attr', 'jet-engine' ),
 				'type'        => 'select',
-				'options'     => [
-					'alternate'  => esc_html__( 'Alternate', 'jet-engine' ),
-					'author'     => esc_html__( 'Author', 'jet-engine' ),
-					'bookmark'   => esc_html__( 'Bookmark', 'jet-engine' ),
-					'external'   => esc_html__( 'External', 'jet-engine' ),
-					'help'       => esc_html__( 'Help', 'jet-engine' ),
-					'license'    => esc_html__( 'License', 'jet-engine' ),
-					'next'       => esc_html__( 'Next', 'jet-engine' ),
-					'nofollow'   => esc_html__( 'Nofollow', 'jet-engine' ),
-					'noreferrer' => esc_html__( 'Noreferrer', 'jet-engine' ),
-					'noopener'   => esc_html__( 'Noopener', 'jet-engine' ),
-					'prev'       => esc_html__( 'Prev', 'jet-engine' ),
-					'search'     => esc_html__( 'Search', 'jet-engine' ),
-					'tag'        => esc_html__( 'Tag', 'jet-engine' ),
-				],
+				'options'     => \Jet_Engine_Tools::get_rel_attr_options(),
 				'placeholder' => esc_html__( 'No', 'jet-engine' ),
 				'required'    => [ 'action_after_added', '=', 'switch_status' ],
 			]
@@ -219,6 +213,64 @@ class Button extends Base {
 				'type'    => 'select',
 				'options' => jet_engine()->listings->allowed_context_list(),
 				'default' => 'default_object',
+			]
+		);
+
+		$this->end_jet_control_group();
+
+		$this->start_jet_control_group( 'section_button_style' );
+
+		$this->register_jet_control(
+			'button_in_store',
+			[
+				'tab'   => 'style',
+				'type'  => 'separator',
+				'label' => esc_html__( 'In Store', 'jet-engine' ),
+			]
+		);
+
+		$this->register_jet_control(
+			'button_color_in_store',
+			[
+				'tab'      => 'style',
+				'label'    => esc_html__( 'Color', 'jet-engine' ),
+				'type'     => 'color',
+				'css'      => [
+					[
+						'property' => 'color',
+						'selector' => $this->css_selector( '.in-store' ),
+					],
+				],
+			]
+		);
+
+		$this->register_jet_control(
+			'button_bg_in_store',
+			[
+				'tab'      => 'style',
+				'label'    => esc_html__( 'Background color', 'jet-engine' ),
+				'type'     => 'color',
+				'css'      => [
+					[
+						'property' => 'background-color',
+						'selector' => $this->css_selector( '.in-store' ),
+					],
+				],
+			]
+		);
+
+		$this->register_jet_control(
+			'button_border_color_in_store',
+			[
+				'tab'      => 'style',
+				'label'    => esc_html__( 'Border color', 'jet-engine' ),
+				'type'     => 'color',
+				'css'      => [
+					[
+						'property' => 'color',
+						'selector' => $this->css_selector( '.in-store' ),
+					],
+				],
 			]
 		);
 
@@ -254,7 +306,7 @@ class Button extends Base {
 					],
 					[
 						'property' => 'fill',
-						'selector' => $this->css_selector( '__icon :is(svg, path)' ),
+						'selector' => $this->css_selector( '__icon :is(svg)' ) . ', ' . $this->css_selector( '__icon :is(path)' ),
 					],
 				],
 			]

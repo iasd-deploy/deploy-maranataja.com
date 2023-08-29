@@ -1,4 +1,4 @@
-/*! elementor - v3.11.5 - 14-03-2023 */
+/*! elementor - v3.15.0 - 20-08-2023 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -177,12 +177,11 @@ var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/run
 var _deprecation = _interopRequireDefault(__webpack_require__(/*! ./deprecation */ "../modules/dev-tools/assets/js/deprecation.js"));
 /* global elementorDevToolsConfig */
 var Module = /*#__PURE__*/function () {
-  /**
-   * @type {Deprecation}
-   */
-
   function Module(deprecation) {
     (0, _classCallCheck2.default)(this, Module);
+    /**
+     * @type {Deprecation}
+     */
     (0, _defineProperty2.default)(this, "deprecation", void 0);
     this.deprecation = deprecation;
   }
@@ -225,9 +224,7 @@ exports["default"] = Module;
 
 function _arrayLikeToArray(arr, len) {
   if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) {
-    arr2[i] = arr[i];
-  }
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
   return arr2;
 }
 module.exports = _arrayLikeToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
@@ -377,9 +374,7 @@ function _iterableToArrayLimit(arr, i) {
       if (_x = (_i = _i.call(arr)).next, 0 === i) {
         if (Object(_i) !== _i) return;
         _n = !1;
-      } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) {
-        ;
-      }
+      } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0);
     } catch (err) {
       _d = !0, _e = err;
     } finally {

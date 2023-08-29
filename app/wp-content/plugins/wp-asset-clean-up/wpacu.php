@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Asset CleanUp: Page Speed Booster
  * Plugin URI: https://wordpress.org/plugins/wp-asset-clean-up/
- * Version: 1.3.9.1
+ * Version: 1.3.9.3
  * Requires at least: 4.5
  * Requires PHP: 5.6
  * Description: Unload Chosen Scripts & Styles from Posts/Pages to reduce HTTP Requests, Combine/Minify CSS/JS files
@@ -29,7 +29,7 @@ if ( (defined('WPACU_PRO_NO_LITE_NEEDED') && WPACU_PRO_NO_LITE_NEEDED !== false 
 
 // Is the Pro version triggered before the Lite one and are both plugins active?
 if (! defined('WPACU_PLUGIN_VERSION')) {
-	define('WPACU_PLUGIN_VERSION', '1.3.9.1');
+	define('WPACU_PLUGIN_VERSION', '1.3.9.3');
 }
 
 // Exit if accessed directly
@@ -43,10 +43,6 @@ if (! defined('WPACU_PLUGIN_ID')) {
 
 if (! defined('WPACU_PLUGIN_SLUG')) {
 	define( 'WPACU_PLUGIN_SLUG', 'wp-asset-clean-up' ); // useful to detect which functions to trigger (e.g. JS files)
-}
-
-if ( ! defined('WPACU_PLUGIN_TITLE') ) {
-	define( 'WPACU_PLUGIN_TITLE', 'Asset CleanUp' ); // a short version of the plugin name
 }
 
 require_once __DIR__ . '/early-triggers.php';
@@ -74,7 +70,7 @@ if ($wpacuWrongPhp && is_admin()) { // Dashboard
 	    /**
 	     * Print the message to the user after the plugin was deactivated
 	     */
-	    echo '<div class="error is-dismissible"><p>'.
+	    echo '<div class="wpacu-error is-dismissible"><p>'.
 
 	         sprintf(
 		         esc_html__('%1$s requires %2$s PHP version installed. You have %3$s.', 'wp-asset-clean-up'),

@@ -17,7 +17,10 @@ trait Tax_Query_Trait {
 
 			foreach ( $this->final_query['tax_query'] as $index => $existing_row ) {
 				foreach ( $rows as $row_index => $row ) {
-					if ( isset( $row['taxonomy'] ) && isset( $existing_row['taxonomy'] ) && $existing_row['taxonomy'] === $row['taxonomy'] ) {
+					if ( isset( $row['taxonomy'] ) && isset( $existing_row['taxonomy'] )
+						 && $existing_row['taxonomy'] === $row['taxonomy']
+						 && ! in_array( $row_index, $replaced_rows )
+					) {
 						$this->final_query['tax_query'][ $index ] = $row;
 						$replaced_rows[] = $row_index;
 					}
@@ -29,7 +32,8 @@ trait Tax_Query_Trait {
 		}
 
 		foreach ( $rows as $row_index => $row ) {
-			if ( ! in_array( $row_index, $replaced_rows ) ) {
+			if ( ! in_array( $row_index, $replaced_rows ) && is_array( $row ) ) {
+				$row['custom'] = true;
 				$this->final_query['tax_query'][] = $row;
 			}
 		}

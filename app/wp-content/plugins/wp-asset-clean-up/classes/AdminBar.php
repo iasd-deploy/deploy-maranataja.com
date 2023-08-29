@@ -141,20 +141,37 @@ HTML;
 					$wp_admin_bar->add_menu( array(
 						'parent' => 'assetcleanup-parent',
 						'id'     => 'assetcleanup-homepage',
-						'title'  => esc_html__('Manage Page Assets', 'wp-asset-clean-up'),
-						'href'   => esc_url(admin_url('admin.php?page=' . WPACU_PLUGIN_ID . '_assets_manager&wpacu_for=homepage'))
+						'title'  => esc_html__('Manage Homepage Assets', 'wp-asset-clean-up'),
+						'href'   => esc_url(admin_url('admin.php?page=' . WPACU_PLUGIN_ID . '_assets_manager&wpacu_for=homepage')),
+						'meta'   => array('target' => '_blank')
 					) );
 				}
 			}
 		}
 
-		if (! is_admin() && Main::instance()->frontendShow()) {
-			$wp_admin_bar->add_menu(array(
-				'parent' => 'assetcleanup-parent',
-				'id'     => 'assetcleanup-jump-to-assets-list',
-				'title'  => esc_html__('Manage Page Assets', 'wp-asset-clean-up'),
-				'href'   => '#wpacu_wrap_assets'
-			));
+		if (! is_admin()) {
+			if (Main::instance()->frontendShow()) {
+				$wp_admin_bar->add_menu( array(
+					'parent' => 'assetcleanup-parent',
+					'id'     => 'assetcleanup-jump-to-assets-list',
+					 // language: alias of 'Manage Page Assets'
+					'title'  => esc_html__( 'Manage Current Page Assets', 'wp-asset-clean-up' ) . '&nbsp;<span style="vertical-align: sub;" class="dashicons dashicons-arrow-down-alt"></span>',
+					'href'   => '#wpacu_wrap_assets'
+				) );
+			} elseif (is_singular()) {
+				global $post;
+
+				if (isset($post->ID)) {
+					$wp_admin_bar->add_menu( array(
+						'parent' => 'assetcleanup-parent',
+						'id'     => 'assetcleanup-manage-page-assets-dashboard',
+						 // language: alias of 'Manage Page Assets'
+						'title'  => esc_html__('Manage Current Page Assets', 'wp-asset-clean-up'),
+						'href'   => esc_url(admin_url('admin.php?page=' . WPACU_PLUGIN_ID . '_assets_manager&wpacu_post_id='.$post->ID)),
+						'meta'   => array('target' => '_blank')
+					) );
+				}
+			}
 		}
 
 		$wp_admin_bar->add_menu(array(

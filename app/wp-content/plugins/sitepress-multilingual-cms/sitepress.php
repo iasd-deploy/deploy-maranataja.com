@@ -2,10 +2,10 @@
 /**
  * Plugin Name: WPML Multilingual CMS
  * Plugin URI: https://wpml.org/
- * Description: WPML Multilingual CMS | <a href="https://wpml.org">Documentation</a> | <a href="https://wpml.org/version/wpml-4-6-1/">WPML 4.6.1 release notes</a>
+ * Description: WPML Multilingual CMS | <a href="https://wpml.org">Documentation</a> | <a href="https://wpml.org/version/wpml-4-6-5/">WPML 4.6.5 release notes</a>
  * Author: OnTheGoSystems
  * Author URI: http://www.onthegosystems.com/
- * Version: 4.6.1
+ * Version: 4.6.5
  * Plugin Slug: sitepress-multilingual-cms
  *
  * @package WPML\Core
@@ -29,7 +29,7 @@ if ( ! \WPML\Requirements\WordPress::checkMinimumRequiredVersion() ) {
 	return;
 }
 
-define( 'ICL_SITEPRESS_VERSION', '4.6.1' );
+define( 'ICL_SITEPRESS_VERSION', '4.6.5' );
 
 // Do not uncomment the following line!
 // If you need to use this constant, use it in the wp-config.php file
@@ -56,8 +56,16 @@ require_once __DIR__ . '/vendor/autoload.php';
 add_action( 'plugins_loaded', 'wpml_disable_outdated_plugins', -PHP_INT_MAX );
 
 function wpml_disable_outdated_plugins() {
+	$dependencies = file_get_contents(
+		dirname( __FILE__ ) . '/wpml-dependencies.json'
+	);
+
+	if ( ! $dependencies ) {
+		return;
+	}
+
 	WPML_Plugins_Check::disable_outdated(
-		file_get_contents( dirname( __FILE__ ) . '/wpml-dependencies.json' ),
+		$dependencies,
 		defined( 'WPML_TM_VERSION' ) ? WPML_TM_VERSION : '1.0',
 		defined( 'WPML_ST_VERSION' ) ? WPML_ST_VERSION : '1.0',
 		defined( 'WCML_VERSION' ) ? WCML_VERSION : '1.0'
@@ -227,6 +235,7 @@ if ( $sitepress->is_setup_complete() ) {
 		\WPML\BlockEditor\Loader::class,
 		\WPML\TM\ATE\Hooks\LanguageMappingCache::class,
 		\WPML\BackgroundTask\BackgroundTaskLoader::class,
+		\WPML\Core\PostTranslation\SyncTranslationDocumentStatus::class,
 	];
 	$action_filter_loader->load( $actions );
 
@@ -239,7 +248,6 @@ if ( $sitepress->is_setup_complete() ) {
 			'WPML_Display_As_Translated_Attachments_Query_Factory',
 			'WPML_Media_Settings_Factory',
 			\WPML\Media\Loader::class,
-			\WPML\Media\Translate\LanguagesUpdated::class,
 			\WPML\Media\FrontendHooks::class,
 		];
 
@@ -451,3 +459,4 @@ if ( defined( 'WCML_VERSION') ) {
 add_action( 'plugins_loaded', function() {
 	require_once WPML_PLUGIN_PATH . '/addons/wpml-page-builders/loader.php';
 }, PHP_INT_MAX );
+

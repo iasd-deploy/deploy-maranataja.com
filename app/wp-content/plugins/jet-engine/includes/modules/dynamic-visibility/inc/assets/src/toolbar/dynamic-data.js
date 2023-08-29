@@ -52,6 +52,9 @@ class DynamicData extends Component {
 					contentClassName="jet-engine-dynamic-source--inner-content"
 					position="bottom center"
 					key={ 'dynamic_control_' + this.props.control }
+					popoverProps={ {
+						__unstableSlotName: "jedv_popover_slot"
+					} }
 					renderToggle={ ( { isOpen, onToggle } ) => {
 						return <Button
 							isSmall={ true }

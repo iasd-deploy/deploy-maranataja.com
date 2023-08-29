@@ -142,7 +142,15 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Portfolio' ) ) {
 		 */
 		public function get_wrapper_selector() {
 
-			return '.elementor-widget-portfolio';
+			return '.elementor-portfolio';
+		}
+
+		/**
+		 * Get provider list item selector
+		 */
+		public function get_item_selector() {
+
+			return '.elementor-portfolio-item';
 		}
 
 		/**
@@ -150,7 +158,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Portfolio' ) ) {
 		 */
 		public function in_depth() {
 
-			return false;
+			return true;
 		}
 
 		/**

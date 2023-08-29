@@ -65,6 +65,27 @@ if ( ! class_exists( 'Jet_Smart_Filters_Data' ) ) {
 		}
 
 		/**
+		 * Get sitepath.
+		 */
+		public function get_sitepath() {
+
+			$parsed_home_url = wp_parse_url( home_url() );
+
+			return array_key_exists( 'path', $parsed_home_url ) ? $parsed_home_url['path'] : '';
+		}
+
+		/**
+		 * Get baseurl.
+		 */
+		public function get_baseurl() {
+
+			$baseurl        = preg_replace( '/\bjsf[\/|=].*/', '', $_SERVER['REQUEST_URI'], 1 );
+			$parsed_baseurl = wp_parse_url( $baseurl );
+
+			return rtrim( array_key_exists( 'path', $parsed_baseurl ) ? $parsed_baseurl['path'] : $baseurl, '/' ) . '/';
+		}
+
+		/**
 		 * Return information about compare data by label
 		 */
 		public function parse_comapre_label( $label ) {
@@ -130,6 +151,16 @@ if ( ! class_exists( 'Jet_Smart_Filters_Data' ) ) {
 						'inDepth'  => $provider->in_depth(),
 						'idPrefix' => $provider->id_prefix(),
 					);
+
+					$list = $provider->get_list_selector();
+					if ( $list ) {
+						$result[ $provider_id ]['list'] = $list;
+					}
+
+					$item = $provider->get_item_selector();
+					if ( $item ) {
+						$result[ $provider_id ]['item'] = $item;
+					}
 				}
 			}
 
@@ -189,7 +220,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Data' ) ) {
 					}
 
 					foreach ( $found_field['options'] as $option ) {
-						$result[ $option['key'] ] = $option['value'];
+						$label                  = apply_filters( 'jet-engine/compatibility/translate-string', $option['value'] );
+						$result[$option['key']] = $label;
 					}
 
 					return $result;

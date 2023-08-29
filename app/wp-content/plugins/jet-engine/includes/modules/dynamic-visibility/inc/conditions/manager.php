@@ -62,6 +62,7 @@ class Manager {
 		require_once $path . 'value-checked.php';
 		require_once $path . 'value-not-checked.php';
 		require_once $path . 'post-has-terms.php';
+		require_once $path . 'post-has-not-terms.php';
 		require_once $path . 'is-parent.php';
 		require_once $path . 'is-not-parent.php';
 		require_once $path . 'is-child-of.php';

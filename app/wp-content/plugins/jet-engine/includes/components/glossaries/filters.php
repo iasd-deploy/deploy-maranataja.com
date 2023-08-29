@@ -171,22 +171,7 @@ class Filters {
 	}
 
 	public function insert_after( $source = array(), $after = null, $insert = array() ) {
-
-		$keys   = array_keys( $source );
-		$index  = array_search( $after, $keys );
-
-		if ( ! $source ) {
-			$source = array();
-		}
-
-		if ( false === $index ) {
-			return $source + $insert;
-		}
-
-		$offset = $index + 1;
-
-		return array_slice( $source, 0, $offset, true ) + $insert + array_slice( $source, $offset, null, true );
-
+		return \Jet_Engine_Tools::insert_after( $source, $after, $insert );
 	}
 
 }

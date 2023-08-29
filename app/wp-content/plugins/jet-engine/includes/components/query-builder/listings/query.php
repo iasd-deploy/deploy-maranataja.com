@@ -24,9 +24,17 @@ class Query {
 		add_filter( 'jet-engine/listing/grid/query/' . $this->source, array( $this, 'query_items' ), 10, 3 );
 
 		add_action( 'jet-engine/listings/frontend/reset-data', function( $data ) {
-			if ( $this->source === $data->get_listing_source() ) {
+
+			if ( $this->source !== $data->get_listing_source() ) {
+				return;
+			}
+
+			$current_obj = $data->get_current_object();
+
+			if ( $current_obj && 'WP_Post' === get_class( $current_obj ) ) {
 				wp_reset_postdata();
 			}
+
 		} );
 
 		add_action( 'jet-engine/query-builder/query/after-query-setup', array( $this, 'maybe_setup_load_more_prop' ) );
@@ -42,6 +50,7 @@ class Query {
 		}
 
 		$query_id = Query_Manager::instance()->listings->get_query_id( $listing_id, $settings );
+		$query_id = apply_filters( 'jet-engine/query-builder/listings/query-id', $query_id, $listing_id, $settings );
 
 		if ( ! $query_id ) {
 			return array();
@@ -68,6 +77,10 @@ class Query {
 		// Added for correctly setup and reset global $post in nested listings.
 		if ( 'posts' === $query->query_type ) {
 			$widget->posts_query = $query->get_current_wp_query();
+		}
+
+		if ( 'sql' === $query->query_type && ! empty( $query->query['cast_object_to'] ) && 'WP_Post' === $query->query['cast_object_to'] ) {
+			$widget->posts_query = new \WP_Query();
 		}
 
 		return $query->get_items();
@@ -104,6 +117,27 @@ class Query {
 				$query->set_filtered_prop( $prop, $value );
 			}
 		}
+
+		add_filter( 'jet-engine/ajax/listing_load_more/response', function ( $response ) use ( $query, $query_id ) {
+
+			if ( ! isset( $response['fragments'] ) ) {
+				$response['fragments'] = array();
+			}
+
+			$page  = absint( $_REQUEST['page'] );
+			$pages = absint( $query->get_items_pages_count() );
+
+			if ( $page === $pages ) {
+				$visible_items_count = $query->get_items_total_count();
+			} else {
+				$visible_items_count = $page * $query->get_items_per_page();
+			}
+
+			$response['fragments'][ '.jet-engine-query-count.count-type-visible.query-' . $query_id ] = $visible_items_count;
+			$response['fragments'][ '.jet-engine-query-count.count-type-end-item.query-' . $query->id ] = $query->get_end_item_index_on_page();
+
+			return $response;
+		} );
 	}
 
 	public function maybe_add_load_more_query_args( $request, $query, $settings ) {

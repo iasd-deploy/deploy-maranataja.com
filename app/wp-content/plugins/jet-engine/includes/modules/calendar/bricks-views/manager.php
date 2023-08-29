@@ -25,7 +25,7 @@ class Manager {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'register_elements' ), 11 );
+		add_action( 'jet-engine/bricks-views/register-elements', array( $this, 'register_elements' ), 11 );
 	}
 
 	public function module_path( $relative_path = '' ) {
@@ -35,8 +35,6 @@ class Manager {
 	public function register_elements() {
 
 		\Bricks\Elements::register_element( $this->module_path( 'calendar.php' ) );
-
-		do_action( 'jet-engine/bricks-views/register-elements' );
 
 	}
 

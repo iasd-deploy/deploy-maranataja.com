@@ -6,8 +6,6 @@ if (! isset($data)) {
 	exit;
 }
 ?>
-<hr style="margin: 15px 0;"/>
-
 <!-- [Page Options Area] -->
 <?php
 $hasPostsWithOptions = isset($data['page_options_results']['posts']) && ! empty($data['page_options_results']['posts']);
@@ -43,17 +41,30 @@ $hasAtLeastOneRecord = $hasPostsWithOptions || $hasHomepageWithOptions;
 
 			if ( $hasPostsWithOptions ) {
 				foreach ($data['page_options_results']['posts'] as $results) {
-					$postStatus = $postStatusText = get_post_status($results['post_id']);
-
 					$rowStyle = '';
+					$postExists = true;
 
-					if ( ! in_array($postStatus, array('publish', 'private')) ) {
-						$rowStyle = 'style="opacity: 0.6;"';
-						$postStatusText = '<span style="color: #cc0000;">'.$postStatus.'</span>';
-					}
+                    if (get_post($results['post_id']) === null) {
+                        $postExists = false;
+	                    $postStatus = $postStatusText = '';
+	                    $rowStyle   = 'style="opacity: 0.6;"';
+                    } else {
+	                    $postStatus = $postStatusText = get_post_status( $results['post_id'] );
+
+	                    if ( ! in_array( $postStatus, array( 'publish', 'private' ) ) ) {
+		                    $rowStyle       = 'style="opacity: 0.6;"';
+		                    $postStatusText = '<span style="color: #cc0000;">' . $postStatus . '</span>';
+	                    }
+                    }
 					?>
                     <tr <?php echo wp_kses($rowStyle, array('style' => array())); ?>>
-                        <td><?php echo get_the_title($results['post_id']); ?> / ID: <?php echo (int)$results['post_id']; ?>, Status: <?php echo wp_kses($postStatusText, array('span' => array('style' => array()))); ?><br /><small><a target="_blank" href="<?php echo get_permalink($results['post_id']); ?>"><?php echo get_permalink($results['post_id']); ?></a></small></td>
+                        <td>
+                            <?php if ($postExists) { ?>
+                                <?php echo get_the_title($results['post_id']); ?> / ID: <?php echo (int)$results['post_id']; ?>, Status: <?php echo wp_kses($postStatusText, array('span' => array('style' => array()))); ?><br /><small><a target="_blank" href="<?php echo get_permalink($results['post_id']); ?>"><?php echo get_permalink($results['post_id']); ?></a></small>
+                            <?php } else { ?>
+                                ID: <s style="color: #cc0000;" class="wpacu-tooltip" title="N/A (post deleted)"><?php echo (int)$results['post_id']; ?></s>
+                            <?php } ?>
+                        </td>
                         <td>
 							<?php
 							$optionsForCurrentPage = array();

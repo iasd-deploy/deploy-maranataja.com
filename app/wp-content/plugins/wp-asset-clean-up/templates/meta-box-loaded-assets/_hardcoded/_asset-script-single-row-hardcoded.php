@@ -1,6 +1,6 @@
 <?php
 /*
- * The file is included from _assets-hardcoded-list.php and it's relevant only for the hardcoded scripts (non-enqueued)
+ * The file is included from _assets-hardcoded-list.php, and it's relevant only for the hardcoded scripts (non-enqueued)
 */
 if (! isset($data)) {
 	exit; // no direct access
@@ -128,7 +128,7 @@ if (isset($data['handle_rows_contracted']['scripts'][$data['row']['obj']->handle
 
 	            do_action('wpacu_pro_bulk_unload_output', $data, $data['row']['obj'], 'js');
 	            ?>
-	            <div class="wpacu-clearfix"></div>
+	            <div class="wpacu_clearfix"></div>
 	        </div>
 	        <?php
 	        // Handle Note
@@ -136,7 +136,7 @@ if (isset($data['handle_rows_contracted']['scripts'][$data['row']['obj']->handle
 	        ?>
 	    </div>
         <img style="display: none;"
-             class="wpacu-ajax-loader"
+             class="wpacu_ajax_loader"
              src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-ajax-loading-spinner.svg" alt="<?php echo esc_html_e('Loading'); ?>..." />
 	</td>
 </tr>

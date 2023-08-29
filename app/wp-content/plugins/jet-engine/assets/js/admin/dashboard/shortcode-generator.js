@@ -109,7 +109,7 @@ Vue.component( 'jet-engine-shortcode-generator', {
 			default: '',
 			description: this.labels.dynamic_field_post_meta_custom.description,
 			condition: {
-				'dynamic_field_source!': [ 'object', 'query_var' ],
+				'dynamic_field_source!': [ 'query_var', 'options_page', 'relations_hierarchy' ],
 			},
 		} );
 
@@ -123,7 +123,6 @@ Vue.component( 'jet-engine-shortcode-generator', {
 			label: this.labels.field_fallback.label,
 			type: 'text',
 			default: '',
-			description: this.labels.dynamic_field_post_meta_custom.description,
 			condition: {
 				'hide_if_empty': false,
 			},
@@ -367,11 +366,17 @@ Vue.component( 'jet-engine-shortcode-generator', {
 				let condition   = control.condition || {};
 				let fields      = false;
 				let title       = false;
+				let inputType   = 'text';
 
 				switch ( control.type ) {
 
 					case 'text':
 						type = 'cx-vui-input';
+						break;
+
+					case 'number':
+						type = 'cx-vui-input';
+						inputType = 'number';
 						break;
 
 					case 'textarea':
@@ -463,6 +468,7 @@ Vue.component( 'jet-engine-shortcode-generator', {
 					condition: condition,
 					fields: fields,
 					title: control.title,
+					inputType: inputType,
 				} );
 
 			}

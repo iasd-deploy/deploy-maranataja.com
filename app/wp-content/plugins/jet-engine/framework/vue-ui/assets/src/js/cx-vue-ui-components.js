@@ -25,6 +25,7 @@ import Radio from './components/form/radio';
 import Colorpicker from './components/form/colorpicker';
 import WpMedia from './components/form/wp-media';
 import Dimensions from './components/form/dimensions';
+import { clickOutsideDirective as clickOutside } from './utils/v-click-outside';
 
 import './../scss/cx-vue-ui.scss';
 
@@ -84,4 +85,5 @@ const cxVueUiClass = class{
 }
 
 window.cxVueUi = new cxVueUiClass();
+window.JetVueUIClickOutside = clickOutside;
 

@@ -51,6 +51,25 @@ class Map_Field {
 			'label' => __( 'Map', 'jet-engine' ),
 		);
 
+		// Added the map field for specific condition operators.
+		foreach ( $config['condition_operators'] as &$condition_operator ) {
+
+			if ( empty( $condition_operator['value'] ) ) {
+				continue;
+			}
+
+			if ( in_array( $condition_operator['value'], array( 'equal', 'not_equal' ) ) && isset( $condition_operator['not_fields'] ) ) {
+				$condition_operator['not_fields'][] = $this->field_type;
+			}
+
+			if ( in_array( $condition_operator['value'], array( 'contains', '!contains' ) ) && isset( $condition_operator['fields'] ) ) {
+				$condition_operator['fields'][] = $this->field_type;
+			}
+
+		}
+
+		unset( $condition_operator );
+
 		return $config;
 	}
 
@@ -114,8 +133,8 @@ class Map_Field {
 
 		$result = '<p><b>' . esc_html__( 'Lat and Lng are separately stored in the following fields', 'jet-engine' ) . ':</b></p>';
 		$result .= '<ul>';
-		$result .= sprintf( '<li>%1$s: <code class="je-field-name">%2$s</code></li>', esc_html__( 'Lat', 'jet-engine' ), $prefix . '_lat' );
-		$result .= sprintf( '<li>%1$s: <code class="je-field-name">%2$s</code></li>', esc_html__( 'Lng', 'jet-engine' ), $prefix . '_lng' );
+		$result .= sprintf( '<li>%1$s: <span class="je-field-name">%2$s</span></li>', esc_html__( 'Lat', 'jet-engine' ), $prefix . '_lat' );
+		$result .= sprintf( '<li>%1$s: <span class="je-field-name">%2$s</span></li>', esc_html__( 'Lng', 'jet-engine' ), $prefix . '_lng' );
 		$result .= '</ul>';
 
 		return $result;
@@ -174,7 +193,7 @@ class Map_Field {
 			<div class="jet-engine-map-field__description">
 				<p>
 					<?php _e( 'Lat and Lng are separately stored in the following fields', 'jet-engine' ); ?>:&nbsp;
-					<code class="je-field-name">{{{data.fieldPrefix}}}_lat</code>, <code class="je-field-name">{{{data.fieldPrefix}}}_lng</code>
+					<span class="je-field-name">{{{data.fieldPrefix}}}_lat</span>, <span class="je-field-name">{{{data.fieldPrefix}}}_lng</span>
 				</p>
 			</div>
 			<# } #>
@@ -350,10 +369,10 @@ class Map_Field {
 	public function add_controls() {
 		?>
 		<cx-vui-select
-			:label="'<?php _e( 'Value format', 'jet-engine' ); ?>'"
-			:description="'<?php _e( 'Set the format of the value will be stored in the database', 'jet-engine' ); ?>'"
+			label="<?php _e( 'Value format', 'jet-engine' ); ?>"
+			description="<?php _e( 'Set the format of the value will be stored in the database', 'jet-engine' ); ?>"
 			:wrapper-css="[ 'equalwidth' ]"
-			:size="'fullwidth'"
+			size="fullwidth"
 			:options-list="[
 				{
 					value: 'location_string',
@@ -368,16 +387,16 @@ class Map_Field {
 					label: '<?php _e( 'Location Address', 'jet-engine' ); ?>'
 				}
 			]"
-			:value="fieldsList[ index ].map_value_format"
-			@input="setFieldProp( index, 'map_value_format', $event )"
+			:value="field.map_value_format"
+			@input="setFieldProp( 'map_value_format', $event )"
 			:conditions="[
 				{
-					'input':   fieldsList[ index ].object_type,
+					'input':   field.object_type,
 					'compare': 'equal',
 					'value':   'field',
 				},
 				{
-					'input':   fieldsList[ index ].type,
+					'input':   field.type,
 					'compare': 'equal',
 					'value':   'map',
 				}
@@ -387,20 +406,20 @@ class Map_Field {
 			label="<?php _e( 'Map Height', 'jet-engine' ); ?>"
 			description="<?php _e( 'Set the height of the map. Default is 300px.', 'jet-engine' ); ?>"
 			type="number"
-			:min="100"
-			:step="10"
+			:min="Number(100)"
+			:step="Number(10)"
 			:wrapper-css="[ 'equalwidth' ]"
-			:size="'fullwidth'"
-			:value="fieldsList[ index ].map_height"
-			@input="setFieldProp( index, 'map_height', $event )"
+			size="fullwidth"
+			:value="field.map_height"
+			@input="setFieldProp( 'map_height', $event )"
 			:conditions="[
 				{
-					'input':   fieldsList[ index ].object_type,
+					'input':   field.object_type,
 					'compare': 'equal',
 					'value':   'field',
 				},
 				{
-					'input':   fieldsList[ index ].type,
+					'input':   field.type,
 					'compare': 'equal',
 					'value':   'map',
 				}
@@ -412,10 +431,10 @@ class Map_Field {
 	public function add_repeater_controls() {
 		?>
 		<cx-vui-select
-			:label="'<?php _e( 'Value format', 'jet-engine' ); ?>'"
-			:description="'<?php _e( 'Set the format of the value will be stored in the database', 'jet-engine' ); ?>'"
+			label="<?php _e( 'Value format', 'jet-engine' ); ?>"
+			description="<?php _e( 'Set the format of the value will be stored in the database', 'jet-engine' ); ?>"
 			:wrapper-css="[ 'equalwidth' ]"
-			:size="'fullwidth'"
+			size="fullwidth"
 			:options-list="[
 				{
 					value: 'location_string',
@@ -430,11 +449,11 @@ class Map_Field {
 					label: '<?php _e( 'Location Address', 'jet-engine' ); ?>'
 				}
 			]"
-			:value="fieldsList[ index ]['repeater-fields'][ rFieldIndex ].map_value_format"
-			@input="setRepeaterFieldProp( index, rFieldIndex, 'map_value_format', $event )"
+			:value="field['repeater-fields'][ rFieldIndex ].map_value_format"
+			@input="setRepeaterFieldProp( rFieldIndex, 'map_value_format', $event )"
 			:conditions="[
 				{
-					'input':   fieldsList[ index ]['repeater-fields'][ rFieldIndex ].type,
+					'input':   field['repeater-fields'][ rFieldIndex ].type,
 					'compare': 'equal',
 					'value':   'map',
 				}
@@ -444,15 +463,15 @@ class Map_Field {
 			label="<?php _e( 'Map Height', 'jet-engine' ); ?>"
 			description="<?php _e( 'Set the height of the map. Default is 300px.', 'jet-engine' ); ?>"
 			type="number"
-			:min="100"
-			:step="10"
+			:min="Number(100)"
+			:step="Number(10)"
 			:wrapper-css="[ 'equalwidth' ]"
-			:size="'fullwidth'"
-			:value="fieldsList[ index ]['repeater-fields'][ rFieldIndex ].map_height"
-			@input="setRepeaterFieldProp( index, rFieldIndex, 'map_height', $event )"
+			size="fullwidth"
+			:value="field['repeater-fields'][ rFieldIndex ].map_height"
+			@input="setRepeaterFieldProp( rFieldIndex, 'map_height', $event )"
 			:conditions="[
 				{
-					'input':   fieldsList[ index ]['repeater-fields'][ rFieldIndex ].type,
+					'input':   field['repeater-fields'][ rFieldIndex ].type,
 					'compare': 'equal',
 					'value':   'map',
 				}

@@ -358,7 +358,6 @@ function A2A_SHARE_SAVE_options_page() {
 			$new_options['display_in_pages'] = ( isset( $_POST['A2A_SHARE_SAVE_display_in_pages'] ) && $_POST['A2A_SHARE_SAVE_display_in_pages'] == '1' ) ? '1' : '-1';
 			$new_options['display_in_attachments'] = ( isset( $_POST['A2A_SHARE_SAVE_display_in_attachments'] ) && $_POST['A2A_SHARE_SAVE_display_in_attachments'] == '1' ) ? '1' : '-1';
 			$new_options['display_in_feed'] = ( isset( $_POST['A2A_SHARE_SAVE_display_in_feed'] ) && $_POST['A2A_SHARE_SAVE_display_in_feed'] == '1' ) ? '1' : '-1';
-			$new_options['onclick'] = ( isset( $_POST['A2A_SHARE_SAVE_onclick'] ) && $_POST['A2A_SHARE_SAVE_onclick'] == '1' ) ? '1' : '-1';
 			$new_options['icon_size'] = ( ! empty( $_POST['A2A_SHARE_SAVE_icon_size'] ) && is_numeric( $_POST['A2A_SHARE_SAVE_icon_size'] ) ) ? $_POST['A2A_SHARE_SAVE_icon_size'] : '32';
 			$new_options['icon_bg'] = _a2a_valid_icon_color_selection( 'bg', $_POST['A2A_SHARE_SAVE_icon_bg'], 'original' );
 			$new_options['icon_bg_color'] = _a2a_valid_hex_color( $_POST['A2A_SHARE_SAVE_icon_bg_color'], '#2a2a2a' );
@@ -533,6 +532,8 @@ function A2A_SHARE_SAVE_options_page() {
 				<div id="addtoany_services_tip">
 					<p style="line-height:0">
 						<img src="<?php echo esc_url( $A2A_SHARE_SAVE_plugin_url ); ?>/icons/instagram.svg" width="24" height="24" style="margin-right:8px">
+						<img src="<?php echo esc_url( $A2A_SHARE_SAVE_plugin_url ); ?>/icons/threads.svg" width="24" height="24" style="margin-right:8px">
+						<img src="<?php echo esc_url( $A2A_SHARE_SAVE_plugin_url ); ?>/icons/tiktok.svg" width="24" height="24" style="margin-right:8px">
 						<img src="<?php echo esc_url( $A2A_SHARE_SAVE_plugin_url ); ?>/icons/youtube.svg" width="24" height="24" style="margin-right:8px">
 						<img src="<?php echo esc_url( $A2A_SHARE_SAVE_plugin_url ); ?>/icons/discord.svg" width="24" height="24" style="margin-right:8px">
 						<img src="<?php echo esc_url( $A2A_SHARE_SAVE_plugin_url ); ?>/icons/snapchat.svg" width="24" height="24">
@@ -666,16 +667,6 @@ function A2A_SHARE_SAVE_options_page() {
 				<div class="setting-description">
 					<?php _e("See <a href=\"widgets.php\" title=\"Theme Widgets\">Widgets</a> and <a href=\"options-general.php?page=addtoany&action=floating\" title=\"AddToAny Floating Share Buttons\">Floating</a> for additional placement options. For advanced placement, see <a href=\"https://wordpress.org/plugins/add-to-any/faq/\">the FAQs</a>.", 'add-to-any'); ?>
 				</div>
-			</fieldset></td>
-			</tr>
-
-			<tr valign="top">
-			<th scope="row"><?php _e('Menu Options', 'add-to-any'); ?></th>
-			<td><fieldset id="addtoany_extra_section_menu_options" class="addtoany_extra_section" role="region">
-				<label>
-					<input name="A2A_SHARE_SAVE_onclick" type="checkbox"<?php if ( isset( $options['onclick'] ) && $options['onclick'] == '1' ) echo ' checked="checked"'; ?> value="1"/>
-					<?php _e('Only show the universal share menu when the user <em>clicks</em> the universal share button', 'add-to-any'); ?>
-				</label>
 			</fieldset></td>
 			</tr>
 

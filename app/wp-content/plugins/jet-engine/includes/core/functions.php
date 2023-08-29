@@ -469,7 +469,8 @@ function jet_engine_icon_html( $value = null ) {
 
 	$format = apply_filters(
 		'jet-engine/listings/icon-html-format',
-		'<i class="fa %s"></i>'
+		'<i class="fa %s"></i>',
+		$value
 	);
 
 	return sprintf( $format, $value );
@@ -809,7 +810,18 @@ function jet_engine_custom_cb_render_checkbox( $post_id = 0, $field = '', $delim
 	$value = get_post_meta( $post_id, $field, true );
 
 	if ( $value ) {
-		return jet_engine_render_checkbox_values( $value, $delimiter );
+
+		if ( is_object( $value ) ) {
+			$value = get_object_vars( $value );
+		}
+
+		if ( ! $value || ! is_array( $value ) ) {
+			return $value;
+		}
+
+		$value = jet_engine_get_prepared_check_values( $value );
+
+		return jet_engine_get_field_options_labels( $value, get_post_type( $post_id ), $field, $delimiter );
 	} else {
 		return null;
 	}
@@ -981,23 +993,46 @@ function jet_engine_custom_cb_render_select( $post_id = 0, $field = '', $delimet
 		return null;
 	}
 
-	$post_type   = get_post_type( $post_id );
+	return jet_engine_get_field_options_labels( $value, get_post_type( $post_id ), $field, $delimeter );
+}
+
+/**
+ * Returns rendered field options labels.
+ *
+ * @param mixed  $value
+ * @param string $obj_type
+ * @param string $field
+ * @param string $delimiter
+ *
+ * @return string
+ */
+function jet_engine_get_field_options_labels( $value = null, $obj_type = 'post', $field = '', $delimiter = ', ' ) {
+
 	$all_fields  = jet_engine()->meta_boxes->get_registered_fields();
 	$found_field = null;
 	$result      = array();
 
-	if ( ! isset( $all_fields[ $post_type ] ) ) {
-		return is_array( $value ) ? wp_kses_post( implode( $delimeter, $value ) ) : wp_kses_post( $value );
+	if ( ! isset( $all_fields[ $obj_type ] ) ) {
+		return is_array( $value ) ? wp_kses_post( implode( $delimiter, $value ) ) : wp_kses_post( $value );
 	}
 
-	foreach ( $all_fields[ $post_type ] as $field_data ) {
+	foreach ( $all_fields[ $obj_type ] as $field_data ) {
 		if ( ! empty( $field_data['name'] ) && $field === $field_data['name'] ) {
 			$found_field = $field_data;
 		}
 	}
 
-	if ( ! $found_field || empty( $found_field['options'] ) ) {
-		return is_array( $value ) ? wp_kses_post( implode( $delimeter, $value ) ) : wp_kses_post( $value );
+	if ( ! $found_field || ( empty( $found_field['options'] ) && empty( $found_field['options_from_glossary'] ) ) ) {
+		return is_array( $value ) ? wp_kses_post( implode( $delimiter, $value ) ) : wp_kses_post( $value );
+	}
+
+	if ( ! empty( $found_field['options_from_glossary'] ) ) {
+
+		if ( ! empty( $found_field['glossary_id'] ) ) {
+			return jet_engine_label_by_glossary( $value, $found_field['glossary_id'], $delimiter );
+		}
+
+		return is_array( $value ) ? wp_kses_post( implode( $delimiter, $value ) ) : wp_kses_post( $value );
 	}
 
 	foreach ( $found_field['options'] as $option ) {
@@ -1008,7 +1043,7 @@ function jet_engine_custom_cb_render_select( $post_id = 0, $field = '', $delimet
 		}
 	}
 
-	return wp_kses_post( implode( $delimeter, $result ) );
+	return wp_kses_post( implode( $delimiter, $result ) );
 }
 
 /**

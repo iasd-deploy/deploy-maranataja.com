@@ -116,7 +116,7 @@
 }
 
 .components-popover.jet-engine-dynamic-source--inner-content {
-	margin: -45px 0 0 108px;
+	margin: -45px 0 0 120px;
 	.components-popover__content>div {
 		padding: 0;
 	}
@@ -144,3 +144,7 @@ button.components-button.jet-engine-dynamic-source--reset {
 	}
 }
 
+.components-base-control .je-grouped-select {
+	width: 100%;
+	max-width: 100%;
+}

@@ -202,6 +202,7 @@ class WPML_Package_Helper {
 		$result = $string_value;
 
 		if ( is_string( $string_value ) ) {
+			/** @var array|stdClass $package */
 			$package = is_scalar( $package ) ? [ 'ID' => $package ] : Obj::assoc( 'translate_only', true, $package );
 			$package = $this->package_factory->create( $package );
 
@@ -253,14 +254,14 @@ class WPML_Package_Helper {
 	}
 
 	/**
-	 * @param  WPML_Package             $item
+	 * @param  WPML_Package|null        $item
 	 * @param  int|WP_Post|WPML_Package $package
 	 * @param  string                   $type
 	 *
-	 * @return bool|WPML_Package
+	 * @return null|WPML_Package
 	 */
 	final public function get_translatable_item( $item, $package, $type = 'package' ) {
-		if ( $type === 'package' || explode( '_', $type )[0] === 'package' ) {
+		if ( $type === 'package' || explode( '_', is_null( $type ) ? '' : $type )[0] === 'package' ) {
 			$tm = new WPML_Package_TM( $item );
 
 			return $tm->get_translatable_item( $package );

@@ -135,6 +135,9 @@ class Google extends Base {
 					'description' => __( 'Find a free map styles at <a href="https://snazzymaps.com/explore" target="_blank" rel="nofollow">Snazzy Maps</a>. Use plain code or link to the file with config.', 'jet-engine' ),
 					'has_html'    => true,
 					'label_block' => true,
+					'dynamic'     => array(
+						'active' => true,
+					),
 				),
 				'zoom_control' => array(
 					'separator'   => 'before',

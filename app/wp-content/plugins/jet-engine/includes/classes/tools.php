@@ -78,6 +78,12 @@ class Jet_Engine_Tools {
 		}
 
 		if ( ! empty( $final_query_args ) ) {
+
+			// To prevent errors on PHP 8.1+
+			if ( is_null( $url ) ) {
+				$url = '';
+			}
+
 			$url = add_query_arg( $final_query_args, $url );
 		}
 
@@ -182,10 +188,19 @@ class Jet_Engine_Tools {
 	 *
 	 * @return [type] [description]
 	 */
-	public static function get_taxonomies_for_js( $key = false ) {
-		$taxonomies = get_taxonomies( array(), 'objects' );
+	public static function get_taxonomies_for_js( $key = false, $with_slug = false ) {
+		
+		$taxonomies          = get_taxonomies( array(), 'objects' );
+		$prepared_taxonomies = self::prepare_list_for_js( $taxonomies, 'name', 'label', $key );
 
-		return self::prepare_list_for_js( $taxonomies, 'name', 'label', $key );
+		if ( $with_slug ) {
+			return array_map( function( $item ) {
+				$item['label'] = $item['label'] . ' (' . $item['value'] . ')';
+				return $item;
+			}, $prepared_taxonomies );
+		}
+
+		return $prepared_taxonomies;
 	}
 
 	/**
@@ -527,7 +542,7 @@ class Jet_Engine_Tools {
 	}
 
 	/**
-	 * Returns allowed data tpes list in the given format
+	 * Returns allowed data types list in the given format
 	 *
 	 * @param  [type] $format  ARRAY_N or ARRAY_A
 	 *
@@ -687,10 +702,10 @@ class Jet_Engine_Tools {
 
 				if ( is_numeric( $img_data ) ) {
 					$id = $img_data;
-				} elseif ( filter_var( $img_data, FILTER_VALIDATE_URL ) ) {
-					$id = attachment_url_to_postid( $img_data );
 				} elseif ( is_array( $img_data ) && isset( $img_data['id'] ) && isset( $img_data['url'] ) ) {
 					$id = $img_data['id'];
+				} else {
+					$id = attachment_url_to_postid( $img_data );
 				}
 
 				$result = array(
@@ -704,10 +719,10 @@ class Jet_Engine_Tools {
 
 				if ( is_numeric( $img_data ) ) {
 					$url = wp_get_attachment_url( $img_data );
-				} elseif ( filter_var( $img_data, FILTER_VALIDATE_URL ) ) {
-					$url = $img_data;
 				} elseif ( is_array( $img_data ) && isset( $img_data['id'] ) && isset( $img_data['url'] ) ) {
 					$url = $img_data['url'];
+				} else {
+					$url = $img_data;
 				}
 
 				$result = array(
@@ -723,12 +738,12 @@ class Jet_Engine_Tools {
 				if ( is_numeric( $img_data ) ) {
 					$id  = $img_data;
 					$url = wp_get_attachment_url( $img_data );
-				} elseif ( filter_var( $img_data, FILTER_VALIDATE_URL ) ) {
-					$id  = attachment_url_to_postid( $img_data );
-					$url = $img_data;
 				} elseif ( is_array( $img_data ) && isset( $img_data['id'] ) && isset( $img_data['url'] ) ) {
 					$id  = $img_data['id'];
 					$url = $img_data['url'];
+				} else {
+					$id  = attachment_url_to_postid( $img_data );
+					$url = $img_data;
 				}
 
 				$result = array(
@@ -738,6 +753,31 @@ class Jet_Engine_Tools {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Allows to insert new part pf array ($insert) into source array ($source) after gieven key ($after)
+	 * @param  array  $source [description]
+	 * @param  [type] $after  [description]
+	 * @param  array  $insert [description]
+	 * @return [type]         [description]
+	 */
+	public static function insert_after( $source = array(), $after = null, $insert = array() ) {
+
+		$keys   = array_keys( $source );
+		$index  = array_search( $after, $keys );
+
+		if ( ! $source ) {
+			$source = array();
+		}
+
+		if ( false === $index ) {
+			return $source + $insert;
+		}
+
+		$offset = $index + 1;
+
+		return array_slice( $source, 0, $offset, true ) + $insert + array_slice( $source, $offset, null, true );
 	}
 
 	/**
@@ -788,6 +828,141 @@ class Jet_Engine_Tools {
 		}, $result );
 
 		return $result;
+	}
+
+	/**
+	 * Returns allowed `rel` attribute options in the given format
+	 *
+	 * @param  string $format ARRAY_N or ARRAY_A
+	 * @return array
+	 */
+	public static function get_rel_attr_options( $format = ARRAY_A ) {
+
+		$options = array(
+			''           => esc_html__( 'No', 'jet-engine' ),
+			'alternate'  => esc_html__( 'Alternate', 'jet-engine' ),
+			'author'     => esc_html__( 'Author', 'jet-engine' ),
+			'bookmark'   => esc_html__( 'Bookmark', 'jet-engine' ),
+			'external'   => esc_html__( 'External', 'jet-engine' ),
+			'help'       => esc_html__( 'Help', 'jet-engine' ),
+			'license'    => esc_html__( 'License', 'jet-engine' ),
+			'next'       => esc_html__( 'Next', 'jet-engine' ),
+			'nofollow'   => esc_html__( 'Nofollow', 'jet-engine' ),
+			'noreferrer' => esc_html__( 'Noreferrer', 'jet-engine' ),
+			'noopener'   => esc_html__( 'Noopener', 'jet-engine' ),
+			'prev'       => esc_html__( 'Prev', 'jet-engine' ),
+			'search'     => esc_html__( 'Search', 'jet-engine' ),
+			'tag'        => esc_html__( 'Tag', 'jet-engine' ),
+		);
+
+		if ( ARRAY_N === $format ) {
+
+			$result = array();
+
+			foreach ( $options as $value => $label ) {
+				$result[] = array(
+					'value' => $value,
+					'label' => $label,
+				);
+			}
+
+			return $result;
+		}
+
+		return $options;
+	}
+
+	public static function array_insert_after( $source = array(), $after = null, $insert = array() ) {
+
+		$keys  = array_keys( $source );
+		$index = array_search( $after, $keys );
+
+		if ( ! $source ) {
+			$source = array();
+		}
+
+		if ( false === $index ) {
+			return $source + $insert;
+		}
+
+		$offset = $index + 1;
+
+		return array_slice( $source, 0, $offset, true ) + $insert + array_slice( $source, $offset, null, true );
+	}
+
+	/**
+	 * Returns list of menu positions with index and appropriate labels
+	 * @return [type] [description]
+	 */
+	public static function get_available_menu_positions() {
+		return apply_filters( 'jet-engine/tools/available-menu-positions', array(
+			array(
+				'value' => 3,
+				'label' => __( 'Dashboard', 'jet-engine' ),
+			),
+			array(
+				'value' => 4,
+				'label' => __( 'First Separator', 'jet-engine' ),
+			),
+			array(
+				'value' => 6,
+				'label' => __( 'Posts', 'jet-engine' ),
+			),
+			array(
+				'value' => 11,
+				'label' => __( 'Media', 'jet-engine' ),
+			),
+			array(
+				'value' => 16,
+				'label' => __( 'Links', 'jet-engine' ),
+			),
+			array(
+				'value' => 21,
+				'label' => __( 'Pages', 'jet-engine' ),
+			),
+			array(
+				'value' => 26,
+				'label' => __( 'Comments', 'jet-engine' ),
+			),
+			array(
+				'value' => 59,
+				'label' => __( 'Second Separator', 'jet-engine' ),
+			),
+			array(
+				'value' => 61,
+				'label' => __( 'Appearance', 'jet-engine' ),
+			),
+			array(
+				'value' => 66,
+				'label' => __( 'Plugins', 'jet-engine' ),
+			),
+			array(
+				'value' => 71,
+				'label' => __( 'Users', 'jet-engine' ),
+			),
+			array(
+				'value' => 76,
+				'label' => __( 'Tools', 'jet-engine' ),
+			),
+			array(
+				'value' => 81,
+				'label' => __( 'Settings', 'jet-engine' ),
+			),
+			array(
+				'value' => 100,
+				'label' => __( 'Third Separator', 'jet-engine' ),
+			),
+		) );
+	}
+
+	/**
+	 * Returns default menu poistion for JetEngine user-created instance.
+	 * Main purpose - compatibility with JetDashboard module
+	 * 
+	 * @return [type] [description]
+	 */
+	public static function get_default_menu_position() {
+		return apply_filters( 'jet-engine/tools/default-menu-position', '' );
 	}
 
 }

@@ -25,6 +25,10 @@ class Jet_Engine_Shortcodes {
 	 */
 	public function data_shortcode( $atts = array() ) {
 
+		if ( ! is_array( $atts ) ) {
+			$atts = array();
+		}
+
 		$atts = array_merge( array(
 			'dynamic_field_post_meta' => '',
 		), $atts );
@@ -36,16 +40,29 @@ class Jet_Engine_Shortcodes {
 			}
 		}
 
+		$add_wrap = false;
+
 		// Convert filter callbacks string into array
 		if ( ! empty( $atts['filter_callbacks'] ) ) {
-			
-			$filter_callbacks = rtrim( ltrim( $atts['filter_callbacks'], '{' ), '}' );
+			$filter_callbacks = str_replace( '&amp;', '&', $atts['filter_callbacks'] );
+			$filter_callbacks = rtrim( ltrim( $filter_callbacks, '{' ), '}' );
 			$filter_callbacks = explode( '},{', $filter_callbacks );
 			
 			$atts['filter_callbacks'] = array_map( function( $row ) {
 				parse_str( $row, $parsed_row );
 				return $parsed_row;
 			}, $filter_callbacks );
+
+			foreach ( $atts['filter_callbacks'] as $cb_args ) {
+
+				if ( empty( $cb_args['filter_callback'] ) ) {
+					continue;
+				}
+
+				if ( 'jet_engine_img_gallery_slider' === $cb_args['filter_callback'] ) {
+					$add_wrap = true;
+				}
+			}
 
 		}
 		
@@ -54,6 +71,10 @@ class Jet_Engine_Shortcodes {
 		ob_start();
 		$renderer->render_field_content( $renderer->get_settings() );
 		$content = ob_get_clean();
+
+		if ( $add_wrap ) {
+			$content = sprintf( '<div data-is-block="jet-engine/dynamic-field">%s</div>', $content );
+		}
 
 		return $content;
 
@@ -130,8 +151,8 @@ class Jet_Engine_Shortcodes {
 				'label' => __( 'Variable Name', 'jet-engine' ),
 			),
 			'dynamic_field_post_meta_custom' => array(
-				'label'       => __( 'Custom meta field/repeater key', 'jet-engine' ),
-				'description' => __( 'Note: this field will override Meta Field value', 'jet-engine' ),
+				'label'       => __( 'Custom Object Field / Meta field / Repeater key', 'jet-engine' ),
+				'description' => __( 'Note: this field will override Object Field / Meta Field value', 'jet-engine' ),
 			),
 			'dynamic_field_filter' => array(
 				'label' => esc_html__( 'Filter Field Output', 'jet-engine' ),

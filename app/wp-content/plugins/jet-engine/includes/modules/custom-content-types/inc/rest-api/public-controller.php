@@ -172,6 +172,12 @@ class Public_Controller {
 				$type = 'array';
 			}
 
+			if ( 'select' === $field['type'] && ! empty( $field['is_multiple'] )
+				 && filter_var( $field['is_multiple'], FILTER_VALIDATE_BOOLEAN )
+			) {
+				$type = 'array';
+			}
+
 			$args[ $field['name'] ] = array(
 				'type'        => $type,
 				'description' => $field['title'],

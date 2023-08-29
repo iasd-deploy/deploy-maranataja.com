@@ -4,6 +4,19 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+// Set the permission constants if not already set.
+if ( ! defined('FS_CHMOD_DIR') ) {
+	define('FS_CHMOD_DIR', fileperms(ABSPATH) & 0777 | 0755);
+}
+
+if ( ! defined('FS_CHMOD_FILE') ) {
+	define('FS_CHMOD_FILE', fileperms(ABSPATH . 'index.php') & 0777 | 0644);
+}
+
+if ( ! defined('WPACU_PLUGIN_TITLE') ) {
+	define( 'WPACU_PLUGIN_TITLE', 'Asset CleanUp' ); // a short version of the plugin name
+}
+
 if ( isset($_GET['wpacu_clean_load']) ) {
 	// Autoptimize
 	$_GET['ao_noptimize'] = $_REQUEST['ao_noptimize'] = '1';
@@ -33,6 +46,21 @@ if (! function_exists('assetCleanUpClearAutoptimizeCache')) {
 	function assetCleanUpClearAutoptimizeCache()
 	{
 		return ! ( defined( 'WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE' ) && WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE );
+	}
+}
+
+if (! function_exists('assetCleanUpClearCacheEnablerCache')) {
+	/*
+	 * By default "Cache Enabler" Cache is cleared after certain Asset CleanUp actions
+	 *
+	 * To be set in wp-config.php if necessary to deactivate this behaviour
+	 * define('WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE', true);
+	 *
+	 * @return bool
+	 */
+	function assetCleanUpClearCacheEnablerCache()
+	{
+		return ! ( defined( 'WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE' ) && WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE );
 	}
 }
 
@@ -133,7 +161,6 @@ if (! function_exists('assetCleanUpRequestUriHasAnyPublicVar')) {
 			'pb',
 			'post_type',
 			'posts',
-			'preview',
 			'robots',
 			's',
 			'search',
@@ -174,7 +201,7 @@ if (! function_exists('assetCleanUpHasNoLoadMatches')) {
 	 */
 	function assetCleanUpHasNoLoadMatches($targetUri = '', $forceCheck = false)
 	{
-		if ( ! $forceCheck && isset( $_GET['wpacu_ignore_no_load_option'] ) ) {
+		if ( ! $forceCheck && isset( $_REQUEST['wpacu_ignore_no_load_option'] ) ) {
 			return false;
 		}
 
@@ -551,7 +578,8 @@ if (! function_exists('assetCleanUpNoLoad')) {
 		}
 
 		// Brizy - Page Builder
-		if ( isset( $_GET['brizy-edit'] ) || isset( $_GET['brizy-edit-iframe'] ) ) {
+		if ( (isset($_GET['brizy-edit']) || isset($_GET['brizy-edit-iframe']) || isset($_GET['is-editor-iframe']))
+		     || (isset($_GET['action']) && $_GET['action'] === 'in-front-editor') ) {
 			define( 'WPACU_NO_LOAD_SET', true );
 
 			return true;
@@ -661,7 +689,7 @@ if (! function_exists('assetCleanUpNoLoad')) {
 		}
 
 		// [wpacu_lite]
-		// There's no point in loading the plugin on a REAT API call
+		// There's no point in loading the plugin on a REST API call
 		// This is valid for the Lite version as the Pro version could work differently  / read more: https://www.assetcleanup.com/docs/?p=1469
 		if (assetCleanUpIsRestCall()) {
 			define( 'WPACU_NO_LOAD_SET', true );
@@ -684,9 +712,22 @@ if (! function_exists('assetCleanUpNoLoad')) {
 			return true;
 		}
 
+		// Knowledge Base for Documents and FAQs
+		if ( isset($_GET['action']) && $_GET['action'] === 'epkb_load_editor' ) {
+			define( 'WPACU_NO_LOAD_SET', true );
+
+			return true;
+		}
+
+		if ( isset($_GET['epkb-editor-page-loaded']) && $_GET['epkb-editor-page-loaded'] ) {
+			define( 'WPACU_NO_LOAD_SET', true );
+
+			return true;
+		}
+
 		// AJAX Requests from various plugins/themes
 		if ( isset( $wpacuIsAjaxRequest, $_POST['action'] ) && $wpacuIsAjaxRequest
-		     && ( strpos( $_POST['action'], 'woocommerce' ) === 0
+		     && (    strpos( $_POST['action'], 'woocommerce' ) === 0
 		          || strpos( $_POST['action'], 'wc_' ) === 0
 		          || strpos( $_POST['action'], 'jetpack' ) === 0
 		          || strpos( $_POST['action'], 'wpfc_' ) === 0
@@ -695,7 +736,13 @@ if (! function_exists('assetCleanUpNoLoad')) {
 		          || strpos( $_POST['action'], 'w3tc_' ) === 0
 		          || strpos( $_POST['action'], 'wpforms_' ) === 0
 		          || strpos( $_POST['action'], 'wdi_' ) === 0
-		          || in_array( $_POST['action'], array( 'contactformx' ) )
+	              || strpos( $_POST['action'], 'brizy_update' ) === 0
+	              || strpos( $_POST['action'], 'brizy-update' ) === 0
+	              || in_array( $_POST['action'], array(
+					  'brizy_heartbeat',
+			          'contactformx',
+					  'eckb_apply_editor_changes' // Knowledge Base for Documents and FAQs (save changes mode)
+				  ))
 		     ) ) {
 			define( 'WPACU_NO_LOAD_SET', true );
 

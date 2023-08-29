@@ -36,11 +36,11 @@ class WPML_Canonicals_Hooks {
 		) {
 			add_action( 'template_redirect', array( $this, 'redirect_pages_from_root_to_default_lang_dir' ) );
 		} elseif ( WPML_LANGUAGE_NEGOTIATION_TYPE_PARAMETER === $lang_negotiation ) {
-			add_action( 'redirect_canonical', array( $this, 'prevent_redirection_with_translated_paged_content' ) );
+			add_filter( 'redirect_canonical', array( $this, 'prevent_redirection_with_translated_paged_content' ) );
 		}
 
-		if ( isset( $_SERVER['SERVER_SOFTWARE'] ) && strpos( strtolower( $_SERVER['SERVER_SOFTWARE'] ), 'nginx' ) !== false ) {
-			add_action( 'redirect_canonical', array( $this, 'maybe_fix_nginx_redirection_callback' ) );
+		if ( WPML_LANGUAGE_NEGOTIATION_TYPE_DIRECTORY === $lang_negotiation ) {
+			add_filter( 'redirect_canonical', [ $this, 'prevent_redirection_of_frontpage_on_secondary_language' ], 10, 2 );
 		}
 	}
 
@@ -55,7 +55,7 @@ class WPML_Canonicals_Hooks {
 			$actual_uri     = preg_replace( '#^' . $install_subdir . '#', '', $current_uri );
 			$actual_uri     = '/' . ltrim( $actual_uri, '/' );
 
-			if ( 0 !== strpos( $actual_uri, '/' . $lang ) ) {
+			if ( is_string( $install_subdir ) && 0 !== strpos( $actual_uri, '/' . $lang ) ) {
 				$canonical_uri = trailingslashit( $install_subdir ) . $lang . $actual_uri;
 				$canonical_uri = user_trailingslashit( $canonical_uri );
 				$this->sitepress->get_wp_api()->wp_safe_redirect( $canonical_uri, 301 );
@@ -64,16 +64,43 @@ class WPML_Canonicals_Hooks {
 	}
 
 	/**
-	 * @param string $redirect
+	 * First we have to check if we are on front page and the current language is different than the default one.
+	 * If not, then we don't have to do anything -> return the $redirect_url.
 	 *
-	 * @return bool|string
+	 * Next we check if the $redirect_url is the same as the $requested_url + '/'.
+	 * Then, we have to check if the permalink structure does not have the trailing slash.
+	 *
+	 * If both conditions are true, then we return false, so the redirection will not happen.
+	 *
+	 * @param string $redirect_url
+	 * @param string $requested_url
+	 *
+	 * @return string|false
 	 */
-	public function maybe_fix_nginx_redirection_callback( $redirect ) {
-		if ( is_front_page() ) {
-			$redirect = false;
+	public function prevent_redirection_of_frontpage_on_secondary_language( $redirect_url, $requested_url ) {
+		if ( ! is_front_page() || $this->sitepress->get_current_language() === $this->sitepress->get_default_language() ) {
+			return $redirect_url;
 		}
 
-		return $redirect;
+		if ( substr( get_option( 'permalink_structure' ), - 1 ) !== '/' ) {
+			if ( $redirect_url === $requested_url . '/' ) {
+				return false;
+			}
+
+			/**
+			 * Notice that the permalink structure does not have the trailing slash in this place.
+			 *
+			 * If a user requests site like `http://www.develop.test/fr` while home_url is set to `http://develop.test`,
+			 * then the $redirect_url will be `http://develop.test/fr/` and the $requested_url will be `http://www.develop.test/fr`.
+			 * The trailing slash is added to $redirect_url by WP function `redirect_canonical` and is not desired.
+			 *
+			 * If we did not remove it, WP function `redirect_canonical` would redirect to `http://develop.test/fr` again.
+			 * Its internal safety mechanism does not allow multiple redirects. Therefore, the whole redirect would be skipped.
+			 */
+			$redirect_url = untrailingslashit( $redirect_url );
+		}
+
+		return $redirect_url;
 	}
 
 	/**

@@ -49,6 +49,24 @@ function JetGMInfoBox(opt_opts) {
  */
 JetGMInfoBox.prototype = new google.maps.OverlayView();
 
+JetGMInfoBox.prototype.addEventListener = function ( target, type, handler, useCapture ) {
+
+	useCapture = useCapture || false;
+
+	target.addEventListener( type, handler, useCapture );
+
+	return {
+		target: target,
+		type: type,
+		handler: handler,
+		useCapture: useCapture,
+	}
+}
+
+JetGMInfoBox.prototype.removeEventListener = function ( listener ) {
+	listener.target.removeEventListener( listener.type, listener.handler, listener.useCapture );
+}
+
 /**
  * Creates the DIV representing the JetGMInfoBox.
  * @private
@@ -63,6 +81,12 @@ JetGMInfoBox.prototype.createJetGMInfoBoxDiv_ = function () {
 	// This handler prevents an event in the JetGMInfoBox from being passed on to the map.
 	//
 	var cancelHandler = function (e) {
+		var hasListingOverlay = 'click' === e.type && e.currentTarget.querySelector('.jet-engine-listing-overlay-wrap');
+
+		if ( hasListingOverlay ) {
+			return;
+		}
+
 		e.cancelBubble = true;
 		if (e.stopPropagation) {
 			e.stopPropagation();
@@ -140,17 +164,17 @@ JetGMInfoBox.prototype.createJetGMInfoBoxDiv_ = function () {
 
 			for (i = 0; i < events.length; i++) {
 
-				this.eventListeners_.push(google.maps.event.addDomListener(this.div_, events[i], cancelHandler));
+				this.eventListeners_.push(this.addEventListener(this.div_, events[i], cancelHandler));
 			}
 
 			// Workaround for Google bug that causes the cursor to change to a pointer
 			// when the mouse moves over a marker underneath JetGMInfoBox.
-			this.eventListeners_.push(google.maps.event.addDomListener(this.div_, "mouseover", function (e) {
+			this.eventListeners_.push(this.addEventListener(this.div_, "mouseover", function (e) {
 				this.style.cursor = "default";
 			}));
 		}
 
-		this.contextListener_ = google.maps.event.addDomListener(this.div_, "contextmenu", ignoreHandler);
+		this.contextListener_ = this.addEventListener(this.div_, "contextmenu", ignoreHandler);
 
 		/**
 		 * This event is fired when the DIV containing the JetGMInfoBox's content is attached to the DOM.
@@ -195,7 +219,7 @@ JetGMInfoBox.prototype.addClickHandler_ = function () {
 	if (this.closeBoxURL_ !== "") {
 
 		closeBox = this.div_.firstChild;
-		this.closeListener_ = google.maps.event.addDomListener(closeBox, "click", this.getCloseClickHandler_());
+		this.closeListener_ = this.addEventListener(closeBox, "click", this.getCloseClickHandler_());
 
 	} else {
 
@@ -544,7 +568,7 @@ JetGMInfoBox.prototype.setContent = function (content) {
 
 		if (this.closeListener_) {
 
-			google.maps.event.removeListener(this.closeListener_);
+			this.removeEventListener(this.closeListener_);
 			this.closeListener_ = null;
 		}
 
@@ -756,35 +780,6 @@ JetGMInfoBox.prototype.open = function (map, anchor) {
 	this.setMap(map);
 
 	if ( this.div_ ) {
-		
-		let $infoBoxScope = jQuery( this.div_ );
-
-		$infoBoxScope.find( 'div[data-element_type]' ).each( function() {
-
-			var $this       = jQuery( this ),
-				elementType = $this.data( 'element_type' );
-
-			if( 'widget' === elementType ){
-
-				elementType = $this.data( 'widget_type' );
-
-				window.elementorFrontend.hooks.doAction(
-					'frontend/element_ready/widget',
-					$this,
-					jQuery
-				);
-
-			}
-
-			window.elementorFrontend.hooks.doAction(
-				'frontend/element_ready/' + elementType,
-				$this,
-				jQuery
-			);
-
-		});
-
-		window.JetPlugins.init( $infoBoxScope );
 
 		this.panBox_(this.disableAutoPan_); // BUG FIX 2/17/2018: add missing parameter
 
@@ -800,7 +795,7 @@ JetGMInfoBox.prototype.close = function () {
 
 	if (this.closeListener_) {
 
-		google.maps.event.removeListener(this.closeListener_);
+		this.removeEventListener(this.closeListener_);
 		this.closeListener_ = null;
 	}
 
@@ -808,7 +803,7 @@ JetGMInfoBox.prototype.close = function () {
 
 		for (i = 0; i < this.eventListeners_.length; i++) {
 
-			google.maps.event.removeListener(this.eventListeners_[i]);
+			this.removeEventListener(this.eventListeners_[i]);
 		}
 		this.eventListeners_ = null;
 	}
@@ -821,33 +816,17 @@ JetGMInfoBox.prototype.close = function () {
 
 	if (this.contextListener_) {
 
-		google.maps.event.removeListener(this.contextListener_);
+		this.removeEventListener(this.contextListener_);
 		this.contextListener_ = null;
 	}
 
 	this.setMap(null);
 };
 
-(function(){var b=true,f=false;function g(a){var c=a||{};this.d=this.c=f;if(a.visible==undefined)a.visible=b;if(a.shadow==undefined)a.shadow="7px -3px 5px rgba(88,88,88,0.7)";if(a.anchor==undefined)a.anchor=i.BOTTOM;this.setValues(c)}g.prototype=new google.maps.OverlayView;window.RichMarker=g;g.prototype.getVisible=function(){return this.get("visible")};g.prototype.getVisible=g.prototype.getVisible;g.prototype.setVisible=function(a){this.set("visible",a)};g.prototype.setVisible=g.prototype.setVisible;
-	g.prototype.s=function(){if(this.c){this.a.style.display=this.getVisible()?"":"none";this.draw()}};g.prototype.visible_changed=g.prototype.s;g.prototype.setFlat=function(a){this.set("flat",!!a)};g.prototype.setFlat=g.prototype.setFlat;g.prototype.getFlat=function(){return this.get("flat")};g.prototype.getFlat=g.prototype.getFlat;g.prototype.p=function(){return this.get("width")};g.prototype.getWidth=g.prototype.p;g.prototype.o=function(){return this.get("height")};g.prototype.getHeight=g.prototype.o;
-	g.prototype.setShadow=function(a){this.set("shadow",a);this.g()};g.prototype.setShadow=g.prototype.setShadow;g.prototype.getShadow=function(){return this.get("shadow")};g.prototype.getShadow=g.prototype.getShadow;g.prototype.g=function(){if(this.c)this.a.style.boxShadow=this.a.style.webkitBoxShadow=this.a.style.MozBoxShadow=this.getFlat()?"":this.getShadow()};g.prototype.flat_changed=g.prototype.g;g.prototype.setZIndex=function(a){this.set("zIndex",a)};g.prototype.setZIndex=g.prototype.setZIndex;
-	g.prototype.getZIndex=function(){return this.get("zIndex")};g.prototype.getZIndex=g.prototype.getZIndex;g.prototype.t=function(){if(this.getZIndex()&&this.c)this.a.style.zIndex=this.getZIndex()};g.prototype.zIndex_changed=g.prototype.t;g.prototype.getDraggable=function(){return this.get("draggable")};g.prototype.getDraggable=g.prototype.getDraggable;g.prototype.setDraggable=function(a){this.set("draggable",!!a)};g.prototype.setDraggable=g.prototype.setDraggable;
-	g.prototype.k=function(){if(this.c)this.getDraggable()?j(this,this.a):k(this)};g.prototype.draggable_changed=g.prototype.k;g.prototype.getPosition=function(){return this.get("position")};g.prototype.getPosition=g.prototype.getPosition;g.prototype.setPosition=function(a){this.set("position",a)};g.prototype.setPosition=g.prototype.setPosition;g.prototype.q=function(){this.draw()};g.prototype.position_changed=g.prototype.q;g.prototype.l=function(){return this.get("anchor")};g.prototype.getAnchor=g.prototype.l;
-	g.prototype.r=function(a){this.set("anchor",a)};g.prototype.setAnchor=g.prototype.r;g.prototype.n=function(){this.draw()};g.prototype.anchor_changed=g.prototype.n;function l(a,c){var d=document.createElement("DIV");d.innerHTML=c;if(d.childNodes.length==1)return d.removeChild(d.firstChild);else{for(var e=document.createDocumentFragment();d.firstChild;)e.appendChild(d.firstChild);return e}}function m(a,c){if(c)for(var d;d=c.firstChild;)c.removeChild(d)}
-	g.prototype.setContent=function(a){this.set("content",a)};g.prototype.setContent=g.prototype.setContent;g.prototype.getContent=function(){return this.get("content")};g.prototype.getContent=g.prototype.getContent;
-	g.prototype.j=function(){if(this.b){m(this,this.b);var a=this.getContent();if(a){if(typeof a=="string"){a=a.replace(/^\s*([\S\s]*)\b\s*$/,"$1");a=l(this,a)}this.b.appendChild(a);var c=this;a=this.b.getElementsByTagName("IMG");for(var d=0,e;e=a[d];d++){google.maps.event.addDomListener(e,"mousedown",function(h){if(c.getDraggable()){h.preventDefault&&h.preventDefault();h.returnValue=f}});google.maps.event.addDomListener(e,"load",function(){c.draw()})}google.maps.event.trigger(this,"domready")}this.c&&
-	this.draw()}};g.prototype.content_changed=g.prototype.j;function n(a,c){if(a.c){var d="";if(navigator.userAgent.indexOf("Gecko/")!==-1){if(c=="dragging")d="-moz-grabbing";if(c=="dragready")d="-moz-grab"}else if(c=="dragging"||c=="dragready")d="move";if(c=="draggable")d="pointer";if(a.a.style.cursor!=d)a.a.style.cursor=d}}
-	function o(a,c){if(a.getDraggable())if(!a.d){a.d=b;var d=a.getMap();a.m=d.get("draggable");d.set("draggable",f);a.h=c.clientX;a.i=c.clientY;n(a,"dragready");a.a.style.MozUserSelect="none";a.a.style.KhtmlUserSelect="none";a.a.style.WebkitUserSelect="none";a.a.unselectable="on";a.a.onselectstart=function(){return f};p(a);google.maps.event.trigger(a,"dragstart")}}
-	function q(a){if(a.getDraggable())if(a.d){a.d=f;a.getMap().set("draggable",a.m);a.h=a.i=a.m=null;a.a.style.MozUserSelect="";a.a.style.KhtmlUserSelect="";a.a.style.WebkitUserSelect="";a.a.unselectable="off";a.a.onselectstart=function(){};r(a);n(a,"draggable");google.maps.event.trigger(a,"dragend");a.draw()}}
-	function s(a,c){if(!a.getDraggable()||!a.d)q(a);else{var d=a.h-c.clientX,e=a.i-c.clientY;a.h=c.clientX;a.i=c.clientY;d=parseInt(a.a.style.left,10)-d;e=parseInt(a.a.style.top,10)-e;a.a.style.left=d+"px";a.a.style.top=e+"px";var h=t(a);a.setPosition(a.getProjection().fromDivPixelToLatLng(new google.maps.Point(d-h.width,e-h.height)));n(a,"dragging");google.maps.event.trigger(a,"drag")}}function k(a){if(a.f){google.maps.event.removeListener(a.f);delete a.f}n(a,"")}
-	function j(a,c){if(c){a.f=google.maps.event.addDomListener(c,"mousedown",function(d){o(a,d)});n(a,"draggable")}}function p(a){if(a.a.setCapture){a.a.setCapture(b);a.e=[google.maps.event.addDomListener(a.a,"mousemove",function(c){s(a,c)},b),google.maps.event.addDomListener(a.a,"mouseup",function(){q(a);a.a.releaseCapture()},b)]}else a.e=[google.maps.event.addDomListener(window,"mousemove",function(c){s(a,c)},b),google.maps.event.addDomListener(window,"mouseup",function(){q(a)},b)]}
-	function r(a){if(a.e){for(var c=0,d;d=a.e[c];c++)google.maps.event.removeListener(d);a.e.length=0}}
-	function t(a){var c=a.l();if(typeof c=="object")return c;var d=new google.maps.Size(0,0);if(!a.b)return d;var e=a.b.offsetWidth;a=a.b.offsetHeight;switch(c){case i.TOP:d.width=-e/2;break;case i.TOP_RIGHT:d.width=-e;break;case i.LEFT:d.height=-a/2;break;case i.MIDDLE:d.width=-e/2;d.height=-a/2;break;case i.RIGHT:d.width=-e;d.height=-a/2;break;case i.BOTTOM_LEFT:d.height=-a;break;case i.BOTTOM:d.width=-e/2;d.height=-a;break;case i.BOTTOM_RIGHT:d.width=-e;d.height=-a}return d}
-	g.prototype.onAdd=function(){if(!this.a){this.a=document.createElement("DIV");this.a.style.position="absolute"}if(this.getZIndex())this.a.style.zIndex=this.getZIndex();this.a.style.display=this.getVisible()?"":"none";if(!this.b){this.b=document.createElement("DIV");this.a.appendChild(this.b);var a=this;google.maps.event.addDomListener(this.b,"click",function(){google.maps.event.trigger(a,"click")});google.maps.event.addDomListener(this.b,"mouseover",function(){google.maps.event.trigger(a,"mouseover")});
-		google.maps.event.addDomListener(this.b,"mouseout",function(){google.maps.event.trigger(a,"mouseout")})}this.c=b;this.j();this.g();this.k();var c=this.getPanes();c&&c.overlayImage.appendChild(this.a);google.maps.event.trigger(this,"ready")};g.prototype.onAdd=g.prototype.onAdd;
-	g.prototype.draw=function(){if(!(!this.c||this.d)){var a=this.getProjection();if(a){var c=this.get("position");a=a.fromLatLngToDivPixel(c);c=t(this);this.a.style.top=a.y+c.height+"px";this.a.style.left=a.x+c.width+"px";a=this.b.offsetHeight;c=this.b.offsetWidth;c!=this.get("width")&&this.set("width",c);a!=this.get("height")&&this.set("height",a)}}};g.prototype.draw=g.prototype.draw;g.prototype.onRemove=function(){this.a&&this.a.parentNode&&this.a.parentNode.removeChild(this.a);k(this)};
-	g.prototype.onRemove=g.prototype.onRemove;var i={TOP_LEFT:1,TOP:2,TOP_RIGHT:3,LEFT:4,MIDDLE:5,RIGHT:6,BOTTOM_LEFT:7,BOTTOM:8,BOTTOM_RIGHT:9};window.RichMarkerPosition=i;
-})();
+// richmarker.js
+// initial version - https://github.com/googlearchive/js-rich-marker
+// new version - https://github.com/kaskad88/js-rich-marker // fixed deprecated notices
+(function(){function t(t){var r=t||{};this.ready_=!1,this.dragging_=!1,null==t.visible&&(t.visible=!0),null==t.shadow&&(t.shadow="7px -3px 5px rgba(88,88,88,0.7)"),null==t.anchor&&(t.anchor=e.BOTTOM),this.setValues(r)}t.prototype=new google.maps.OverlayView,window.RichMarker=t,t.prototype.getVisible=function(){return this.get("visible")},t.prototype.getVisible=t.prototype.getVisible,t.prototype.setVisible=function(t){this.set("visible",t)},t.prototype.setVisible=t.prototype.setVisible,t.prototype.visible_changed=function(){this.ready_&&(this.markerWrapper_.style.display=this.getVisible()?"":"none",this.draw())},t.prototype.visible_changed=t.prototype.visible_changed,t.prototype.setFlat=function(t){this.set("flat",!!t)},t.prototype.setFlat=t.prototype.setFlat,t.prototype.getFlat=function(){return this.get("flat")},t.prototype.getFlat=t.prototype.getFlat,t.prototype.getWidth=function(){return this.get("width")},t.prototype.getWidth=t.prototype.getWidth,t.prototype.getHeight=function(){return this.get("height")},t.prototype.getHeight=t.prototype.getHeight,t.prototype.setShadow=function(t){this.set("shadow",t),this.flat_changed()},t.prototype.setShadow=t.prototype.setShadow,t.prototype.getShadow=function(){return this.get("shadow")},t.prototype.getShadow=t.prototype.getShadow,t.prototype.flat_changed=function(){this.ready_&&(this.markerWrapper_.style.boxShadow=this.markerWrapper_.style.webkitBoxShadow=this.markerWrapper_.style.MozBoxShadow=this.getFlat()?"":this.getShadow())},t.prototype.flat_changed=t.prototype.flat_changed,t.prototype.setZIndex=function(t){this.set("zIndex",t)},t.prototype.setZIndex=t.prototype.setZIndex,t.prototype.getZIndex=function(){return this.get("zIndex")},t.prototype.getZIndex=t.prototype.getZIndex,t.prototype.zIndex_changed=function(){this.getZIndex()&&this.ready_&&(this.markerWrapper_.style.zIndex=this.getZIndex())},t.prototype.zIndex_changed=t.prototype.zIndex_changed,t.prototype.getDraggable=function(){return this.get("draggable")},t.prototype.getDraggable=t.prototype.getDraggable,t.prototype.setDraggable=function(t){this.set("draggable",!!t)},t.prototype.setDraggable=t.prototype.setDraggable,t.prototype.draggable_changed=function(){this.ready_&&(this.getDraggable()?this.addDragging_(this.markerWrapper_):this.removeDragListeners_())},t.prototype.draggable_changed=t.prototype.draggable_changed,t.prototype.getPosition=function(){return this.get("position")},t.prototype.getPosition=t.prototype.getPosition,t.prototype.setPosition=function(t){this.set("position",t)},t.prototype.setPosition=t.prototype.setPosition,t.prototype.position_changed=function(){this.draw()},t.prototype.position_changed=t.prototype.position_changed,t.prototype.getAnchor=function(){return this.get("anchor")},t.prototype.getAnchor=t.prototype.getAnchor,t.prototype.setAnchor=function(t){this.set("anchor",t)},t.prototype.setAnchor=t.prototype.setAnchor,t.prototype.anchor_changed=function(){this.draw()},t.prototype.anchor_changed=t.prototype.anchor_changed,t.prototype.htmlToDocumentFragment_=function(t){var e=document.createElement("DIV");if(e.innerHTML=t,1==e.childNodes.length)return e.removeChild(e.firstChild);for(var r=document.createDocumentFragment();e.firstChild;)r.appendChild(e.firstChild);return r},t.prototype.removeChildren_=function(t){if(t)for(var e;e=t.firstChild;)t.removeChild(e)},t.prototype.setContent=function(t){this.set("content",t)},t.prototype.setContent=t.prototype.setContent,t.prototype.getContent=function(){return this.get("content")},t.prototype.getContent=t.prototype.getContent,t.prototype.addEventListener=function(t,e,r,o){return o=o||!1,t.addEventListener(e,r,o),{target:t,type:e,handler:r,useCapture:o}},t.prototype.removeEventListener=function(t){t.target.removeEventListener(t.type,t.handler,t.useCapture)},t.prototype.content_changed=function(){if(this.markerContent_){this.removeChildren_(this.markerContent_);var t=this.getContent();if(t){"string"==typeof t&&(t=t.replace(/^\s*([\S\s]*)\b\s*$/,"$1"),t=this.htmlToDocumentFragment_(t)),this.markerContent_.appendChild(t);for(var e,r=this,o=this.markerContent_.getElementsByTagName("IMG"),i=0;e=o[i];i++)this.addEventListener(e,"mousedown",(function(t){r.getDraggable()&&(t.preventDefault&&t.preventDefault(),t.returnValue=!1,console.log("image mousedown"))})),this.addEventListener(e,"load",(function(){r.draw(),console.log("image load")}));google.maps.event.trigger(this,"domready")}this.ready_&&this.draw()}},t.prototype.content_changed=t.prototype.content_changed,t.prototype.setCursor_=function(t){if(this.ready_){var e="";-1!==navigator.userAgent.indexOf("Gecko/")?("dragging"==t&&(e="-moz-grabbing"),"dragready"==t&&(e="-moz-grab"),"draggable"==t&&(e="pointer")):("dragging"!=t&&"dragready"!=t||(e="move"),"draggable"==t&&(e="pointer")),this.markerWrapper_.style.cursor!=e&&(this.markerWrapper_.style.cursor=e)}},t.prototype.startDrag=function(t){if(this.getDraggable()&&!this.dragging_){this.dragging_=!0;var e=this.getMap();this.mapDraggable_=e.get("draggable"),e.set("draggable",!1),this.mouseX_=t.clientX,this.mouseY_=t.clientY,this.setCursor_("dragready"),this.markerWrapper_.style.MozUserSelect="none",this.markerWrapper_.style.KhtmlUserSelect="none",this.markerWrapper_.style.WebkitUserSelect="none",this.markerWrapper_.unselectable="on",this.markerWrapper_.onselectstart=function(){return!1},this.addDraggingListeners_(),google.maps.event.trigger(this,"dragstart")}},t.prototype.stopDrag=function(){this.getDraggable()&&this.dragging_&&(this.dragging_=!1,this.getMap().set("draggable",this.mapDraggable_),this.mouseX_=this.mouseY_=this.mapDraggable_=null,this.markerWrapper_.style.MozUserSelect="",this.markerWrapper_.style.KhtmlUserSelect="",this.markerWrapper_.style.WebkitUserSelect="",this.markerWrapper_.unselectable="off",this.markerWrapper_.onselectstart=function(){},this.removeDraggingListeners_(),this.setCursor_("draggable"),google.maps.event.trigger(this,"dragend"),this.draw())},t.prototype.drag=function(t){if(this.getDraggable()&&this.dragging_){var e=this.mouseX_-t.clientX,r=this.mouseY_-t.clientY;this.mouseX_=t.clientX,this.mouseY_=t.clientY;var o=parseInt(this.markerWrapper_.style.left,10)-e,i=parseInt(this.markerWrapper_.style.top,10)-r;this.markerWrapper_.style.left=o+"px",this.markerWrapper_.style.top=i+"px";var s=this.getOffset_(),n=new google.maps.Point(o-s.width,i-s.height),a=this.getProjection();this.setPosition(a.fromDivPixelToLatLng(n)),this.setCursor_("dragging"),google.maps.event.trigger(this,"drag")}else this.stopDrag()},t.prototype.removeDragListeners_=function(){this.draggableListener_&&(this.removeEventListener(this.draggableListener_),delete this.draggableListener_),this.setCursor_("")},t.prototype.addDragging_=function(t){if(t){var e=this;this.draggableListener_=this.addEventListener(t,"mousedown",(function(t){e.startDrag(t),console.log("node mousedown")})),this.setCursor_("draggable")}},t.prototype.addDraggingListeners_=function(){var t=this;this.markerWrapper_.setCapture?(this.markerWrapper_.setCapture(!0),this.draggingListeners_=[this.addEventListener(this.markerWrapper_,"mousemove",(function(e){t.drag(e)}),!0),this.addEventListener(this.markerWrapper_,"mouseup",(function(){t.stopDrag(),t.markerWrapper_.releaseCapture()}),!0)]):this.draggingListeners_=[this.addEventListener(window,"mousemove",(function(e){t.drag(e)}),!0),this.addEventListener(window,"mouseup",(function(){t.stopDrag()}),!0)]},t.prototype.removeDraggingListeners_=function(){if(this.draggingListeners_){for(var t,e=0;t=this.draggingListeners_[e];e++)this.removeEventListener(t);this.draggingListeners_.length=0}},t.prototype.getOffset_=function(){var t=this.getAnchor();if("object"==typeof t)return t;var r=new google.maps.Size(0,0);if(!this.markerContent_)return r;var o=this.markerContent_.offsetWidth,i=this.markerContent_.offsetHeight;switch(t){case e.TOP_LEFT:break;case e.TOP:r.width=-o/2;break;case e.TOP_RIGHT:r.width=-o;break;case e.LEFT:r.height=-i/2;break;case e.MIDDLE:r.width=-o/2,r.height=-i/2;break;case e.RIGHT:r.width=-o,r.height=-i/2;break;case e.BOTTOM_LEFT:r.height=-i;break;case e.BOTTOM:r.width=-o/2,r.height=-i;break;case e.BOTTOM_RIGHT:r.width=-o,r.height=-i}return r},t.prototype.onAdd=function(){if(this.markerWrapper_||(this.markerWrapper_=document.createElement("DIV"),this.markerWrapper_.style.position="absolute"),this.getZIndex()&&(this.markerWrapper_.style.zIndex=this.getZIndex()),this.markerWrapper_.style.display=this.getVisible()?"":"none",!this.markerContent_){this.markerContent_=document.createElement("DIV"),this.markerWrapper_.appendChild(this.markerContent_);var t=this;this.addEventListener(this.markerContent_,"click",(function(e){google.maps.event.trigger(t,"click",e)})),this.addEventListener(this.markerContent_,"mouseover",(function(e){google.maps.event.trigger(t,"mouseover",e)})),this.addEventListener(this.markerContent_,"mouseout",(function(e){google.maps.event.trigger(t,"mouseout",e)}))}this.ready_=!0,this.content_changed(),this.flat_changed(),this.draggable_changed();var e=this.getPanes();e&&e.overlayMouseTarget.appendChild(this.markerWrapper_),google.maps.event.trigger(this,"ready")},t.prototype.onAdd=t.prototype.onAdd,t.prototype.draw=function(){if(this.ready_&&!this.dragging_){var t=this.getProjection();if(t){var e=this.get("position"),r=t.fromLatLngToDivPixel(e),o=this.getOffset_();this.markerWrapper_.style.top=r.y+o.height+"px",this.markerWrapper_.style.left=r.x+o.width+"px";var i=this.markerContent_.offsetHeight,s=this.markerContent_.offsetWidth;s!=this.get("width")&&this.set("width",s),i!=this.get("height")&&this.set("height",i)}}},t.prototype.draw=t.prototype.draw,t.prototype.onRemove=function(){this.markerWrapper_&&this.markerWrapper_.parentNode&&this.markerWrapper_.parentNode.removeChild(this.markerWrapper_),this.removeDragListeners_()},t.prototype.onRemove=t.prototype.onRemove;var e={TOP_LEFT:1,TOP:2,TOP_RIGHT:3,LEFT:4,MIDDLE:5,RIGHT:6,BOTTOM_LEFT:7,BOTTOM:8,BOTTOM_RIGHT:9};window.RichMarkerPosition=e;})();
 
 window.JetEngineMapsProvider = function() {
 
@@ -868,7 +847,7 @@ window.JetEngineMapsProvider = function() {
 		return new google.maps.LatLngBounds();
 	}
 
-	this.fitMapBounds = function( data ) {
+	this.fitMapBounds = function( data, callback ) {
 		var self = this;
 
 		data.map.fitBounds( data.bounds );
@@ -876,6 +855,8 @@ window.JetEngineMapsProvider = function() {
 		var listener = google.maps.event.addListener( data.map, 'idle', function() {
 			if ( ! data.marker.getMap() ) {
 				self.fitMapToMarker( data.marker, data.markersClusterer );
+			} else if ( callback ) {
+				callback();
 			}
 			google.maps.event.removeListener( listener );
 		} );
@@ -900,7 +881,7 @@ window.JetEngineMapsProvider = function() {
 			alignBottom: true,
 			infoBoxClearance: new google.maps.Size( 10, 10 ),
 			pane: "floatPane",
-			enableEventPropagation: true,
+			enableEventPropagation: false,
 		} );
 	}
 
@@ -908,7 +889,7 @@ window.JetEngineMapsProvider = function() {
 
 		data = data || {};
 
-		data.map    = map;
+		data.map = map;
 		data.shadow = false;
 
 		google.maps.event.addListener( map, "click", ( event ) => {
@@ -929,8 +910,12 @@ window.JetEngineMapsProvider = function() {
 		google.maps.event.addListener( infoBox, 'closeclick', callback );
 	}
 
-	this.openPopup = function( trigger, callback ) {
+	this.openPopup = function( trigger, callback, infobox, map, openOn ) {
 		google.maps.event.addListener( trigger, 'click', callback );
+
+		if ( 'hover' === openOn ) {
+			google.maps.event.addListener( trigger, 'mouseover', callback );
+		}
 	}
 
 	this.triggerOpenPopup = function( trigger ) {
@@ -991,7 +976,7 @@ window.JetEngineMapsProvider = function() {
 		return marker.getMap();
 	}
 
-	this.fitMapToMarker = function( marker, markersClusterer ) {
+	this.fitMapToMarker = function( marker, markersClusterer, zoom ) {
 		var cluster = this._findClusterByMarker( markersClusterer, marker ),
 			bounds,
 			map;
@@ -1008,10 +993,22 @@ window.JetEngineMapsProvider = function() {
 			bounds: bounds,
 			marker: marker,
 			markersClusterer: markersClusterer,
+		}, () => {
+			this.panTo( {
+				map: map,
+				position: this.getMarkerPosition( marker ),
+				zoom: zoom
+			} );
 		} );
-
-		map.setCenter( this.getMarkerPosition( marker ) );
 	};
+
+	this.panTo = function( data ) {
+		data.map.panTo( data.position );
+
+		if ( data.zoom && data.zoom > data.map.getZoom() ) {
+			data.map.setZoom( data.zoom );
+		}
+	}
 
 	this._findClusterByMarker = function( markersClusterer, marker ) {
 		var clusters = markersClusterer.getClusters(),

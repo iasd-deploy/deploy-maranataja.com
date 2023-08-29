@@ -71,8 +71,26 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 			add_filter( 'jet-engine/listings/allowed-callbacks-args', array( $this, 'add_cb_args' ) );
 			add_action( 'jet-engine/listing/dynamic-field/misc-style-controls', array( $this, 'style_controls' ) );
 			add_action( 'jet-engine/blocks-views/dynamic-field/misc-style-controls', array( $this, 'block_style_controls' ), 10, 2 );
-			add_action( 'jet-engine/bricks-views/dynamic-field/misc-style-controls', array( $this, 'bricks_style_controls' ), 10, 2 );
 			add_filter( 'jet-engine/blocks-views/editor-data', array( $this, 'modify_cb_args' ) );
+			add_action( 'jet-engine/bricks-views/dynamic-field/misc-style-controls', array( $this, 'bricks_style_controls' ), 10, 2 );
+			add_action( 'jet-engine/bricks-views/dynamic-field/assets', array( $this, 'bricks_gallery_assets' ) );
+
+		}
+
+		/**
+		 * Gallery assets
+		 *
+		 * @return [type] [description]
+		 */
+		public function bricks_gallery_assets( $element ) {
+
+			$settings = $element->get_jet_settings();
+
+			if ( ! empty( $settings['dynamic_field_filter'] ) && 'jet_engine_img_gallery_slider' === $settings['filter_callback'] ) {
+				wp_enqueue_style( 'bricks-photoswipe' );
+				wp_enqueue_script( 'bricks-photoswipe' );
+				wp_enqueue_script( 'bricks-photoswipe-lightbox' );
+			}
 
 		}
 
@@ -94,6 +112,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 		 * @return [type]         [description]
 		 */
 		public function style_controls( $widget ) {
+
+			$prefix = $widget->prevent_wrap() ? '__content' : '';
 
 			if ( ! jet_engine()->modules->is_module_active( 'gallery-grid' ) ) {
 
@@ -120,7 +140,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 						'label'     => __( 'Color', 'jet-engine' ),
 						'type'      => Elementor\Controls_Manager::COLOR,
 						'selectors' => array(
-							$widget->css_selector( ' .jet-engine-gallery-item-wrap:after' ) => 'background: {{VALUE}}',
+							$widget->css_selector( $prefix . ' .jet-engine-gallery-item-wrap:after' ) => 'background: {{VALUE}}',
 						),
 					)
 				);
@@ -140,7 +160,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 						'label'     => __( 'Color', 'jet-engine' ),
 						'type'      => Elementor\Controls_Manager::COLOR,
 						'selectors' => array(
-							$widget->css_selector( ' .jet-engine-gallery-item-wrap:hover:after' ) => 'background: {{VALUE}}',
+							$widget->css_selector( $prefix . ' .jet-engine-gallery-item-wrap:hover:after' ) => 'background: {{VALUE}}',
 						),
 					)
 				);
@@ -156,7 +176,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 						'label'     => __( 'Lightbox Icon Color', 'jet-engine' ),
 						'type'      => Elementor\Controls_Manager::COLOR,
 						'selectors' => array(
-							$widget->css_selector( ' .jet-engine-gallery-item-wrap:before' ) => 'color: {{VALUE}}',
+							$widget->css_selector( $prefix . ' .jet-engine-gallery-item-wrap:before' ) => 'color: {{VALUE}}',
 						),
 						'condition' => array(
 							'dynamic_field_filter' => 'yes',
@@ -181,8 +201,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 						),
 					),
 					'selectors'  => array(
-						$widget->css_selector( ' .jet-engine-gallery-slider__item' ) => 'padding: 0 calc( {{SIZE}}{{UNIT}}/2 );',
-						$widget->css_selector( ' .slick-list' ) => 'margin-left: calc( -{{SIZE}}{{UNIT}}/2 ); margin-right: calc( -{{SIZE}}{{UNIT}}/2 );',
+						$widget->css_selector( $prefix . ' .jet-engine-gallery-slider__item' ) => 'padding: 0 calc( {{SIZE}}{{UNIT}}/2 );',
+						$widget->css_selector( $prefix . ' .slick-list' ) => 'margin-left: calc( -{{SIZE}}{{UNIT}}/2 ); margin-right: calc( -{{SIZE}}{{UNIT}}/2 );',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',
@@ -218,7 +238,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 						),
 					),
 					'selectors'  => array(
-						$widget->css_selector( ' .jet-engine-arrow' ) => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}}; line-height: {{SIZE}}{{UNIT}}; margin-top: calc( -{{SIZE}}{{UNIT}}/2 );',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow' ) => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}}; line-height: {{SIZE}}{{UNIT}}; margin-top: calc( -{{SIZE}}{{UNIT}}/2 );',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',
@@ -240,8 +260,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 						),
 					),
 					'selectors'  => array(
-						$widget->css_selector( ' .jet-engine-arrow' ) => 'font-size: {{SIZE}}{{UNIT}};',
-						$widget->css_selector( ' .jet-engine-arrow svg' ) => 'height: {{SIZE}}{{UNIT}};',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow' ) => 'font-size: {{SIZE}}{{UNIT}};',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow svg' ) => 'height: {{SIZE}}{{UNIT}};',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',
@@ -269,7 +289,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 					'label'     => __( 'Color', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-arrow' ) => 'color: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow' ) => 'color: {{VALUE}}',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',
@@ -284,7 +304,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 					'label'     => __( 'Background', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-arrow' ) => 'background: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow' ) => 'background: {{VALUE}}',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',
@@ -312,7 +332,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 					'label'     => __( 'Color', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-arrow:hover' ) => 'color: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow:hover' ) => 'color: {{VALUE}}',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',
@@ -327,7 +347,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Slider' ) ) {
 					'label'     => __( 'Background', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-arrow:hover' ) => 'background: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-arrow:hover' ) => 'background: {{VALUE}}',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',

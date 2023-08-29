@@ -53,13 +53,22 @@ if ($totalFoundHardcodedTags === 0) {
 					$totalTagsForTarget  = count( $hardcodedTags[ $targetKey ] );
 					?>
 					<div>
-						<div class="wpacu-content-title">
+						<div class="wpacu-content-title wpacu-has-toggle-all-assets">
 							<h3>
 								<?php if ($targetKey === 'link_and_style_tags') { ?>Hardcoded LINK (stylesheet) &amp; STYLE tags<?php } ?>
 								<?php if ($targetKey === 'script_src_or_inline_and_noscript_inline_tags') { ?>Hardcoded SCRIPT (with "src" attribute &amp; inline) and NOSCRIPT inline tags<?php } ?>
 							</h3>
+
+                            <div class="wpacu-area-toggle-all-assets wpacu-right">
+                                <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                                   data-wpacu-area="hardcoded_<?php echo $targetKey; ?>" href="#">Contract</a>
+                                |
+                                <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                                   data-wpacu-area="hardcoded_<?php echo $targetKey; ?>" href="#">Expand</a>
+                                All Assets
+                            </div>
 						</div>
-						<table class="wpacu_list_table wpacu_striped">
+						<table class="wpacu_list_table wpacu_striped" data-wpacu-area="hardcoded_<?php echo $targetKey; ?>">
 							<tbody>
 							<?php
 							$hardcodedTagsOutput = '';

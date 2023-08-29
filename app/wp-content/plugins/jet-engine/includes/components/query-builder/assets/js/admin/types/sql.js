@@ -155,6 +155,12 @@
 				} else if ( 'object' !== typeof this.dynamicQuery.where || undefined !== this.dynamicQuery.where.length ) {
 					this.$set( this.dynamicQuery, 'where', {} );
 				}
+
+				for ( var itemID in this.dynamicQuery.where ) {
+					if ( 'object' !== typeof this.dynamicQuery.where[ itemID ] || undefined !== this.dynamicQuery.where[ itemID ].length ) {
+						this.$set( this.dynamicQuery.where, itemID, {} );
+					}
+				}
 			},
 			presetCols: function() {
 				if ( ! this.query.calc_cols ) {

@@ -126,6 +126,7 @@ class MacrosControl extends wp.element.Component {
 					setAttributes={ setAttributes }
 					supports={ supports }
 					control={ control }
+					condition={ control.condition }
 				/>
 
 			} ) }

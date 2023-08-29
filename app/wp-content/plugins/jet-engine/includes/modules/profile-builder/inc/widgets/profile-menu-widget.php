@@ -110,7 +110,7 @@ class Profile_Menu_Widget extends \Elementor\Widget_Base {
 			'add_main_slug',
 			array(
 				'label'        => __( 'Add subpage slug to the first page URL', 'jet-engine' ),
-				'description'  => __( 'By default subpage slug is not added to the URL of the first page of menu. If you enable this options subpage slug will be added to all menu page URLs includes first one', 'jet-engine' ),
+				'description'  => __( 'By default, the subpage slug is not added to the URL of the menu\'s first page. If you enable this option subpage slug will be added to all menu page URLs, including the first one', 'jet-engine' ),
 				'type'         => Controls_Manager::SWITCHER,
 				'label_on'     => __( 'Yes', 'jet-engine' ),
 				'label_off'    => __( 'No', 'jet-engine' ),

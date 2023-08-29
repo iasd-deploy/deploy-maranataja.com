@@ -17,6 +17,8 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 
 		private $macros_context      = null;
 		private $fallback            = null;
+		private $before              = null;
+		private $after               = null;
 		private $macros_list         = null;
 		private $escaped_macros_list = null;
 
@@ -161,6 +163,22 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 			return $this->fallback;
 		}
 
+		public function set_before( $before = null ) {
+			$this->before = $before;
+		}
+
+		public function get_before() {
+			return $this->before;
+		}
+
+		public function set_after( $after = null ) {
+			$this->after = $after;
+		}
+
+		public function get_after() {
+			return $this->after;
+		}
+
 		/**
 		 * Is $str is array - returns 0, in other cases returns $str
 		 *
@@ -275,6 +293,9 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 				case 'WP_User':
 					return get_user_meta( $object->ID, $meta_key, true );
 
+				default:
+					return apply_filters( 'jet-engine/macros/current-meta', false, $object, $meta_key );
+
 			}
 
 		}
@@ -325,10 +346,14 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 		 */
 		public function do_macros( $string = '', $field_value = null ) {
 
+			if ( empty( $string ) ) {
+				return $string;
+			}
+
 			$macros = $this->get_all();
 
 			return preg_replace_callback(
-				'/%([a-z_-]+)(\|[a-zA-Z0-9_\-\,\.\+\:\/\s\(\)|]+)?%(\{.+\})?/',
+				'/%([a-z_-]+)(\|\[.*?\]|[a-zA-Z0-9_\-\,\.\+\:\/\s\(\)|\[\]\'\"=\{\}&]+)?%(\{.*?\})?/',
 				function( $matches ) use ( $macros, $field_value ) {
 
 					$found = $matches[1];
@@ -351,36 +376,71 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 						return $matches[0];
 					}
 
-					$args   = isset( $matches[2] ) ? ltrim( $matches[2], '|' ) : false;					
+					$args   = isset( $matches[2] ) ? ltrim( $matches[2], '|' ) : false;
 					$config = isset( $matches[3] ) ? json_decode( $matches[3], true ) : false;
 
+					// Store the initial configs
+					$initial_fallback = $this->get_fallback();
+					$initial_context  = $this->get_macros_context();
+					$initial_before   = $this->get_before();
+					$initial_after    = $this->get_after();
+
+					// Reset the configs except macros context.
+					$this->set_fallback( null );
+					$this->set_before( null );
+					$this->set_after( null );
+
+					// Set the config of current macro
 					if ( $config ) {
 						
 						if ( ! empty( $config['context'] ) ) {
 							$this->set_macros_context( $config['context'] );
 						}
 
-						if ( ! empty( $config['fallback'] ) ) {
+						if ( ! Jet_Engine_Tools::is_empty( $config, 'fallback' ) ) {
 							$this->set_fallback( $config['fallback'] );
+						}
+
+						if ( ! Jet_Engine_Tools::is_empty( $config, 'before' ) ) {
+							$this->set_before( $config['before'] );
+						}
+
+						if ( ! Jet_Engine_Tools::is_empty( $config, 'after' ) ) {
+							$this->set_after( $config['after'] );
 						}
 
 					}
 					
-					$result = call_user_func( $cb, $field_value, $args );
+					$result   = call_user_func( $cb, $field_value, $args );
 					$fallback = $this->get_fallback();
+					$before   = $this->get_before();
+					$after    = $this->get_after();
 
-					if ( $fallback && empty( $result ) ) {
+					if ( ! empty( $result ) ) {
+
+						if ( is_array( $result ) ) {
+							$result = implode( ',', $result );
+						}
+
+						if ( $before ) {
+							$result = $before . $result;
+						}
+
+						if ( $after ) {
+							$result .= $after;
+						}
+
+					} elseif ( ! Jet_Engine_Tools::is_empty( $fallback ) ) {
 						$result = $fallback;
 					}
 
-					$this->set_fallback( null );
-					$this->set_macros_context( null );
+					// Set the initial configs
+					$this->set_fallback( $initial_fallback );
+					$this->set_macros_context( $initial_context );
+					$this->set_before( $initial_before );
+					$this->set_after( $initial_after );
 
-					if ( is_array( $result ) ) {
-						return implode( ',', $result );
-					} else {
-						return $result;
-					}
+					return $result;
 
 				}, $string
 			);

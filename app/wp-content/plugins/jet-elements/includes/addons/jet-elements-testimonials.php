@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -266,9 +266,6 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'type'      => Controls_Manager::SELECT,
 				'default'   => '1',
 				'options'   => jet_elements_tools()->get_select_range( 10 ),
-				'condition' => array(
-					'slides_to_show!' => '1',
-				),
 				'frontend_available' => true,
 				'render_type'        => 'template',
 			)
@@ -1160,8 +1157,10 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'title_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['title'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1278,8 +1277,10 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'comment_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['comment'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1332,7 +1333,7 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'label'   => esc_html__( 'Color', 'jet-elements' ),
 				'type'    => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} ' . $css_scheme['comment'] . ':after' => 'border-color: {{VALUE}} transparent transparent transparent;',
+					'{{WRAPPER}} ' . $css_scheme['comment'] . ':after' => 'border-top-color: {{VALUE}};',
 				),
 				'condition' => array(
 					'use_comment_corner' => 'yes',
@@ -1452,9 +1453,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'selector' => '{{WRAPPER}} ' . $css_scheme['comment'],
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1653,9 +1653,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_2,
+				'global' => array(
+					'default' => Global_Colors::COLOR_SECONDARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['name'] => 'color: {{VALUE}}',
@@ -1669,9 +1668,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Hover Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_2,
+				'global' => array(
+					'default' => Global_Colors::COLOR_SECONDARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['name'] . ' a:hover' => 'color: {{VALUE}}',
@@ -1684,8 +1682,10 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'name_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['name'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -1835,9 +1835,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['position'] => 'color: {{VALUE}}',
@@ -1850,8 +1849,10 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'position_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['position'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -2001,9 +2002,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_3,
+				'global' => array(
+					'default' => Global_Colors::COLOR_TEXT,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['date'] => 'color: {{VALUE}}',
@@ -2016,8 +2016,10 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'date_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['date'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -2177,9 +2179,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['arrow'],
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2204,9 +2205,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['arrow'] . ':hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_4,
+						'global' => array(
+							'default' => Global_Colors::COLOR_ACCENT,
 						),
 					),
 				),
@@ -2628,9 +2628,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['dots'] .' li span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_3,
+						'global' => array(
+							'default' => Global_Colors::COLOR_TEXT,
 						),
 					),
 				),
@@ -2659,9 +2658,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['dots'] . ' li span:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2690,9 +2688,8 @@ class Jet_Elements_Testimonials extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['dots'] .' li.slick-active span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_4,
+						'global' => array(
+							'default' => Global_Colors::COLOR_ACCENT,
 						),
 					),
 				),

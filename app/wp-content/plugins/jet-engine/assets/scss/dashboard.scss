@@ -13,7 +13,7 @@ a.jet-engine-dash-help-link {
 	svg {
 		margin: -2px 7px 0 0;
 		.rtl & {
-			margin: -2px 0 0 7px;			
+			margin: -2px 0 0 7px;
 		}
 	}
 }
@@ -29,6 +29,11 @@ a.jet-engine-dash-help-link {
 
 .cx-vui-component.jet-import-preset {
 	justify-content: space-between;
+}
+
+.cx-vui-component.cx-vui-component--collpase-sides {
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .jet-shortocde-generator {
@@ -226,7 +231,7 @@ a.jet-engine-dash-help-link {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 999;
+	z-index: 9999;
 	&-overlay {
 		position: absolute;
 		right: 0;

@@ -51,7 +51,7 @@ export default props => {
 					max={`50`}
 					value={attributes.less_items_count}
 					onChange={newValue => {
-						setAttributes({ less_items_count: newValue });
+						setAttributes({ less_items_count: parseInt(newValue) });
 					}}
 				/>
 			)}
@@ -95,6 +95,43 @@ export default props => {
 					}}
 				/>
 			)}
+			{attributes.dropdown_n_selected_enabled !== undefined && attributes.dropdown_enabled === true && [
+				<ToggleControl
+					type="text"
+					label={__('N Selected')}
+					checked={attributes.dropdown_n_selected_enabled}
+					onChange={newValue => {
+						setAttributes({ dropdown_n_selected_enabled: newValue });
+					}}
+				/>,
+				<React.Fragment>
+					{attributes.dropdown_n_selected_enabled === true && (
+						<React.Fragment>
+							{attributes.dropdown_n_selected_number !== undefined && (
+								<TextControl
+									type="number"
+									label={__('Number of Named Items')}
+									min={`0`}
+									value={attributes.dropdown_n_selected_number}
+									onChange={newValue => {
+										setAttributes({ dropdown_n_selected_number: newValue });
+									}}
+								/>
+							)}
+							{attributes.dropdown_n_selected_text !== undefined && (
+								<TextControl
+									type="text"
+									label={__('Generic text')}
+									value={attributes.dropdown_n_selected_text}
+									onChange={newValue => {
+										setAttributes({ dropdown_n_selected_text: newValue });
+									}}
+								/>
+							)}
+						</React.Fragment>
+					)}
+				</React.Fragment>
+			]}
 			<hr />
 			{attributes.scroll_enabled !== undefined && (
 				<ToggleControl
@@ -118,5 +155,5 @@ export default props => {
 				/>
 			)}
 		</PanelBody>
-	)
-}
+	);
+};

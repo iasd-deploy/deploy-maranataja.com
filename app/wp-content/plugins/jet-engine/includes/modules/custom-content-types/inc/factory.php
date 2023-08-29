@@ -784,6 +784,10 @@ class Factory {
 						strtotime( $value ),
 						$value
 					);
+
+					if ( ! $value ) {
+						$value = null;
+					}
 				}
 
 				break;

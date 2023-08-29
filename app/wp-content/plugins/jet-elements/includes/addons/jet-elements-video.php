@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
@@ -2101,9 +2101,12 @@ class Jet_Elements_Video extends Jet_Elements_Base {
 	public function get_thumbnail_url() {
 		$settings  = $this->get_settings_for_display();
 		$thumb_url = '';
-
 		if ( $this->has_custom_thumbnail() ) {
-			$thumb_url = Group_Control_Image_Size::get_attachment_image_src( $settings['thumbnail']['id'], 'thumbnail', $settings );
+			if ( ! empty( $settings['thumbnail']['id'] ) ) {
+				$thumb_url = Group_Control_Image_Size::get_attachment_image_src( $settings['thumbnail']['id'], 'thumbnail', $settings );
+			} else {
+				$thumb_url = $settings['thumbnail']['url'];
+			}
 		} elseif( in_array( $settings['video_type'], array( 'youtube', 'vimeo' ) ) ) {
 			$thumb_url = $this->get_iframe_thumbnail_url( $this->get_video_url() );
 		}

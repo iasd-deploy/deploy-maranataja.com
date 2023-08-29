@@ -4,7 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "lang": "es_ES"
          },
          "Draft — Pending review": [
             "Borrador: pendiente de revisión"
@@ -389,6 +389,10 @@
          ],
          "Synchronization with the Professional Translation service has failed": [
             "La sincronización con el servicio de traducción profesional falló"
+         ],
+         "%d translation has been downloaded": [
+            "Se ha descargado %d traducción",
+            "Se han descargado %d traducciones"
          ],
          "Batch sync finished successfully!": [
             "La sincronización por lote finalizó correctamente."

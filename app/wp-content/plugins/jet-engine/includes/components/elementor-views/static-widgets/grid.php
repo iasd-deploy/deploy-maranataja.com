@@ -80,10 +80,31 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Grid_Widget' ) ) {
 						8  => 8,
 						9  => 9,
 						10 => 10,
+						'auto' => __( 'Auto', 'jet-engine' ),
 					),
 					'frontend_available' => true,
 					'selectors' => array(
 						'{{WRAPPER}} > .elementor-widget-container > .jet-listing-grid > .jet-listing-grid__items' => '--columns: {{VALUE}}',
+					),
+				)
+			);
+
+			$this->add_responsive_control(
+				'column_min_width',
+				array(
+					'label'   => __( 'Column Min Width', 'jet-engine' ),
+					'type'        => Controls_Manager::NUMBER,
+					'default'     => 240,
+					'min'         => 0,
+					'max'         => 1600,
+					'step'        => 1,
+					'condition'   => array(
+						'columns' => 'auto',
+					),
+					'frontend_available' => true,
+					'selectors' => array(
+						'{{WRAPPER}} > .elementor-widget-container > .jet-listing-grid > .jet-listing-grid__items' => 'display: grid; grid-template-columns: repeat( auto-fill, minmax( {{VALUE}}px, 1fr ) );',
+						'{{WRAPPER}} > .elementor-widget-container > .jet-listing-grid > .jet-listing-grid__slider > .jet-listing-grid__items.slick-slider .slick-slide' => 'width: {{VALUE}}px;',
 					),
 				)
 			);
@@ -236,6 +257,9 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Grid_Widget' ) ) {
 					'label_off'    => __( 'No', 'jet-engine' ),
 					'return_value' => 'yes',
 					'default'      => '',
+					'condition'    => array(
+						'columns!' => 'auto',
+					),
 				)
 			);
 
@@ -287,6 +311,7 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Grid_Widget' ) ) {
 				'load_more_id',
 				array(
 					'label'       => __( 'Load more element ID', 'jet-engine' ),
+					'description' => __( 'Please, make sure to add a Button widget that will be used as "Load more" button', 'jet-engine' ),
 					'type'        => Controls_Manager::TEXT,
 					'default'     => '',
 					'label_block' => true,
@@ -2692,9 +2717,9 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Grid_Widget' ) ) {
 			$custom_settings = apply_filters( 'jet-engine/listing/grid/custom-settings', false, $this );
 
 			if ( ! empty( $custom_settings ) ) {
-				return $custom_settings;
+				return array_merge( array( '_id' => $this->get_id() ), $custom_settings );
 			} else {
-				return $this->get_settings_for_display();
+				return array_merge( array( '_id' => $this->get_id() ), $this->get_settings_for_display() );
 			}
 
 		}

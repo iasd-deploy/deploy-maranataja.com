@@ -8,6 +8,13 @@
 		<h3 class="cx-vui-subtitle"><?php _e( 'Custom SQL Query', 'jet-engine' ); ?></h3>
 	</div>
 	<div class="cx-vui-panel">
+		<cx-vui-switcher
+			label="<?php _e( 'Advanced/AI mode', 'jet-engine' ); ?>"
+			description="<?php _e( 'Enable this to reset all settings and write SQL query manually or with help of AI.', 'jet-engine' ); ?>"
+			:wrapper-css="[ 'equalwidth' ]"
+			name="query_advanced_mode"
+			v-model="query.advanced_mode"
+		></cx-vui-switcher>
 		<template v-if="!query.advanced_mode">
 			<cx-vui-select
 				label="<?php _e( 'From table', 'jet-engine' ); ?>"
@@ -162,6 +169,24 @@
 					</cx-vui-repeater>
 				</div>
 			</cx-vui-component-wrapper>
+			<cx-vui-select
+				v-if="1 < query.where.length"
+				label="<?php _e( 'Where Relation', 'jet-engine' ); ?>"
+				description="<?php _e( 'The logical relationship between where clauses', 'jet-engine' ); ?>"
+				:wrapper-css="[ 'equalwidth' ]"
+				:options-list="[
+					{
+						value: 'and',
+						label: '<?php _e( 'And', 'jet-engine' ); ?>',
+					},
+					{
+						value: 'or',
+						label: '<?php _e( 'Or', 'jet-engine' ); ?>',
+					},
+				]"
+				size="fullwidth"
+				v-model="query.where_relation"
+			></cx-vui-select>
 			<cx-vui-switcher
 				label="<?php _e( 'Group Results', 'jet-engine' ); ?>"
 				description="<?php _e( 'Group query result by selected column', 'jet-engine' ); ?>"
@@ -367,13 +392,6 @@
 				</div>
 			</cx-vui-component-wrapper>
 		</template>
-		<cx-vui-switcher
-			label="<?php _e( 'Advanced mode', 'jet-engine' ); ?>"
-			description="<?php _e( 'Enable this to reset all settings and write SQL query manually.', 'jet-engine' ); ?>"
-			:wrapper-css="[ 'equalwidth' ]"
-			name="query_advanced_mode"
-			v-model="query.advanced_mode"
-		></cx-vui-switcher>
 		<cx-vui-component-wrapper
 			:wrapper-css="[ 'fullwidth' ]"
 			v-if="query.advanced_mode"
@@ -384,12 +402,12 @@
 			label="<?php _e( 'SQL Query', 'jet-engine' ); ?>"
 			name="query_manual_query"
 			description="<?php _e( 'Write your SQL query here. You can use JetEngine macros inside you query.', 'jet-engine' ); ?>"
-			:wrapper-css="[ 'equalwidth' ]"
+			:wrapper-css="[ 'equalwidth', 'has-ai-popup' ]"
 			v-if="query.advanced_mode"
 			size="fullwidth"
 			rows="10"
 			v-model="query.manual_query"
-		></cx-vui-textarea>
+		><jet-query-ai-popup v-model="query.manual_query"></jet-query-ai-popup></cx-vui-textarea>
 		<cx-vui-textarea
 			label="<?php _e( 'Count SQL Query', 'jet-engine' ); ?>"
 			name="query_count_query"

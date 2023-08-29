@@ -173,6 +173,10 @@ class Maps_Listing_Blocks_Views_Type extends \Jet_Engine_Blocks_Views_Type_Base 
 				'type'    => 'boolean',
 				'default' => false,
 			),
+			'popup_open_on' => array(
+				'type'    => 'string',
+				'default' => 'click',
+			),
 
 			// Custom Query
 			'custom_query' => array(

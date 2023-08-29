@@ -636,7 +636,7 @@ class ObjectCache {
 		 * @global ObjectCache $wpacu_object_cache
 		 */
 		public static function wpacu_cache_init() {
-			$GLOBALS['wpacu_object_cache'] = new ObjectCache();
+			$GLOBALS['wpacu_object_cache'] = new self();
 		}
 
 		/**

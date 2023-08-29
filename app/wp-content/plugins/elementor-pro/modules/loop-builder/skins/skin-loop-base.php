@@ -1,10 +1,6 @@
 <?php
 namespace ElementorPro\Modules\LoopBuilder\Skins;
 
-use Elementor\Core\Files\CSS\Post;
-use Elementor\Core\Files\CSS\Post as Post_CSS;
-use Elementor\Core\Files\CSS\Post_Preview;
-use Elementor\Icons_Manager;
 use ElementorPro\Modules\LoopBuilder\Documents\Loop;
 use ElementorPro\Modules\LoopBuilder\Documents\Loop as LoopDocument;
 use ElementorPro\Modules\LoopBuilder\Module;
@@ -13,6 +9,7 @@ use ElementorPro\Modules\Posts\Skins\Skin_Base;
 use ElementorPro\Modules\QueryControl\Controls\Group_Control_Related;
 use ElementorPro\Plugin;
 use ElementorPro\Modules\LoopBuilder\Files\Css\Loop_Dynamic_CSS;
+use ElementorPro\Modules\LoopBuilder\Traits\Alternate_Templates_Trait;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -26,6 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 3.8.0
  */
 class Skin_Loop_Base extends Skin_Base {
+
+	use Alternate_Templates_Trait;
 
 	public function get_id() {
 		return MODULE::LOOP_BASE_SKIN_ID;
@@ -69,14 +68,20 @@ class Skin_Loop_Base extends Skin_Base {
 		}
 	}
 
+	public function query_posts() {
+		return $this->query_posts_for_alternate_templates();
+	}
+
 	public function render() {
-		$settings = $this->parent->get_settings_for_display();
+		$template_id = $this->parent->get_settings_for_display( 'template_id' );
 		$is_edit_mode = Plugin::elementor()->editor->is_edit_mode();
 		/** @var Loop_Widget_Base $widget */
 		$widget = $this->parent;
 		$current_document = Plugin::elementor()->documents->get_current();
 
-		if ( ! empty( $settings['template_id'] ) ) {
+		if ( $template_id ) {
+			$this->alternate_template_before_skin_render();
+
 			$this->maybe_add_load_more_wrapper_class();
 
 			$widget->before_skin_render();
@@ -84,7 +89,9 @@ class Skin_Loop_Base extends Skin_Base {
 			parent::render();
 
 			$widget->after_skin_render();
-		} else if ( $is_edit_mode ) {
+
+			$this->alternate_template_after_skin_render();
+		} elseif ( $is_edit_mode ) {
 			$this->render_empty_view();
 		}
 
@@ -116,17 +123,24 @@ class Skin_Loop_Base extends Skin_Base {
 	 * @since 3.8.0
 	 */
 	protected function render_post() {
-		$settings = $this->parent->get_settings_for_display();
-		$loop_item_id = get_the_ID();
+		if ( $this->has_alternate_templates() ) {
+			$this->render_post_if_widget_has_alternate_templates();
+		} else {
+			$this->render_post_content( $this->parent->get_settings_for_display( 'template_id' ) );
+		}
+	}
+
+	private function render_post_content( $template_id ) {
+		$post_id = get_the_ID();
 
 		/** @var LoopDocument $document */
-		$document = Plugin::elementor()->documents->get( $settings['template_id'] );
+		$document = Plugin::elementor()->documents->get( $template_id );
 
 		if ( ! $document ) {
 			return;
 		}
 
-		$this->print_dynamic_css( $loop_item_id, $settings['template_id'] );
+		$this->print_dynamic_css( $post_id, $template_id );
 		$document->print_content();
 	}
 

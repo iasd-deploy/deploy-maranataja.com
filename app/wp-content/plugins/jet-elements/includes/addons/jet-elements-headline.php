@@ -7,14 +7,14 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 
@@ -483,9 +483,8 @@ class Jet_Elements_Headline extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Text Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_2,
+				'global' => array(
+					'default' => Global_Colors::COLOR_SECONDARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['first_part']  . ' .jet-headline__label' => 'color: {{VALUE}}',
@@ -498,8 +497,10 @@ class Jet_Elements_Headline extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'first_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['first_part'] . ' .jet-headline__label',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -967,9 +968,8 @@ class Jet_Elements_Headline extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Text Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['second_part'] . ' .jet-headline__label' => 'color: {{VALUE}}',
@@ -982,8 +982,10 @@ class Jet_Elements_Headline extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'second_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_2,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['second_part'] . ' .jet-headline__label',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_SECONDARY,
+				),
 			),
 			50
 		);

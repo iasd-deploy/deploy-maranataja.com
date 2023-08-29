@@ -30,7 +30,7 @@ if (! isset($data)) {
                 }
                 ?>
 
-                <div class="wpacu-clearfix"></div>
+                <div class="wpacu_clearfix"></div>
 
                 <!-- [Start] Unload Rules -->
                 <?php
@@ -66,6 +66,12 @@ if (! isset($data)) {
     }
     ?>
     <div id="wpacu-update-button-area" style="margin-left: 0;">
-        <p class="submit"><a target="_blank" disabled="disabled" class="go-pro-link-no-style button button-primary" href="https://www.gabelivan.com/items/wp-asset-cleanup-pro/?utm_source=manage_asset&utm_medium=plugins_manager_area_submit_button" style="cursor: pointer; font-style: normal; padding-top: 5px;" id="submit"><span class="wpacu-tooltip" style="width: 200px; margin-left: -108px;">This feature is locked for Pro users<br />Click here to upgrade!</span> <img width="20" height="20" src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-lock.svg" valign="middle" alt="" /> &nbsp;<?php echo esc_attr(__('Apply changes within /wp-admin/', 'wp-asset-clean-up')); ?></a></p>
+        <p class="submit"><a target="_blank" disabled="disabled" class="go-pro-link-no-style button button-primary"
+                             href="https://www.gabelivan.com/items/wp-asset-cleanup-pro/?utm_source=manage_asset&utm_medium=plugins_manager_area_dash_tab_submit_button"
+                             style="cursor: pointer; font-style: normal; padding-top: 5px;" id="submit"><span
+                        class="wpacu-tooltip" style="width: 200px; margin-left: -108px;">This feature is locked for Pro users<br/>Click here to upgrade!</span>
+                <img width="20" height="20" src="<?php echo esc_url( WPACU_PLUGIN_URL ); ?>/assets/icons/icon-lock.svg"
+                     valign="middle" alt=""/> &nbsp;<?php echo esc_attr( __( 'Apply changes within /wp-admin/',
+					'wp-asset-clean-up' ) ); ?></a></p>
     </div>
 </div>

@@ -113,7 +113,7 @@ $form_id     = ! empty( $listing_id ) ? 'templates_type_form_' . $listing_id : '
 								echo '<optgroup label="' . $group['label'] . '">';
 								foreach ( $group['options'] as $opt_key => $opt_name ) {
 									printf( 
-										'<option value="%1$s">%2$s</option>', 
+										'<option value="%1$s" %3$s>%2$s</option>',
 										$opt_key,
 										$opt_name,
 										( ! empty( $data['repeater_option'] ) ? selected( $data['repeater_option'], $opt_key, false ) : '' )

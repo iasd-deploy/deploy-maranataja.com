@@ -57,6 +57,17 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                 </a>
 
                 <div class="wpacu-assets-collapsible-content <?php if ($listAreaStatus !== 'contracted') { ?>wpacu-open<?php } ?>">
+                    <?php if (count($values) > 0) { ?>
+                        <div class="wpacu-area-toggle-all-assets wpacu-right">
+                            <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                               data-wpacu-area="<?php echo esc_html($positionMain); ?>_assets" href="#">Contract</a>
+                            |
+                            <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                               data-wpacu-area="<?php echo esc_html($positionMain); ?>_assets" href="#">Expand</a>
+                            All Assets
+                        </div>
+                    <?php } ?>
+
                     <?php if ($positionMain === 'head') { ?>
                         <p class="wpacu-assets-note">The files below (if any) are loaded within <em>&lt;head&gt;</em> and <em>&lt;/head&gt;</em> tags. The output is done through <em>wp_head()</em> WordPress function which should be located before the closing <em>&lt;/head&gt;</em> tag of your theme.</p>
                     <?php } elseif ($positionMain === 'body') { ?>
@@ -64,7 +75,8 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                     <?php } ?>
 
                     <?php if (count($values) > 0) { ?>
-                        <table class="wpacu_list_table wpacu_list_by_position wpacu_widefat wpacu_striped">
+                        <table class="wpacu_list_table wpacu_list_by_position wpacu_widefat wpacu_striped"
+                               data-wpacu-area="<?php echo esc_html($positionMain); ?>_assets">
                             <tbody>
                             <?php
                             echo \WpAssetCleanUp\Misc::stripIrrelevantHtmlTags($assetRowsOutput);

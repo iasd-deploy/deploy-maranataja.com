@@ -9,12 +9,7 @@ class Elementor_Integration {
 
 		add_action( 'jet-engine/listing/after-posts-query-fields', array( $this, 'register_listing_controls' ) );
 		add_action( 'jet-engine/elementor-views/dynamic-tags/register', array( $this, 'register_dynamic_tags' ), 10, 2 );
-
-		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
-			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ) );
-		} else {
-			add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets' ) );
-		}
+		add_action( 'jet-engine/elementor-views/widgets/register', array( $this, 'register_widgets' ), 10, 2 );
 
 		add_filter( 'jet-engine/modules/dynamic-visibility/condition/args', array( $this, 'strip_tags_from_store_count_condition' ) );
 
@@ -40,14 +35,14 @@ class Elementor_Integration {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function register_widgets( $widgets_manager ) {
-		require_once jet_engine()->modules->modules_path( 'data-stores/inc/widgets/button.php' );
+	public function register_widgets( $widgets_manager, $elementor_views ) {
 
-		if ( method_exists( $widgets_manager, 'register' ) ) {
-			$widgets_manager->register( new Widgets\Button() );
-		} else {
-			$widgets_manager->register_widget_type( new Widgets\Button() );
-		}
+		$elementor_views->register_widget(
+			jet_engine()->modules->modules_path( 'data-stores/inc/widgets/button.php' ),
+			$widgets_manager,
+			__NAMESPACE__ . '\Widgets\Button'
+		);
+
 	}
 
 	/**

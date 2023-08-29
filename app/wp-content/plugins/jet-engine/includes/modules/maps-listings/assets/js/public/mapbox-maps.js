@@ -143,10 +143,12 @@ window.JetEngineMapsProvider = function() {
 	}
 
 	this.closePopup = function( infoBox, callback ) {
-		callback();
+		infoBox.popup.on( 'close', () => {
+			callback();
+		} );
 	}
 
-	this.openPopup = function( trigger, callback, infobox, map ) {
+	this.openPopup = function( trigger, callback, infobox, map, openOn ) {
 
 		infobox.popup.on( 'open', () => {
 			callback();
@@ -155,6 +157,13 @@ window.JetEngineMapsProvider = function() {
 
 		trigger.setPopup( infobox.popup );
 
+		if ( 'hover' === openOn ) {
+			const markerDiv = trigger.getElement();
+
+			markerDiv.addEventListener( 'mouseenter', () => {
+				this.triggerOpenPopup( trigger );
+			} );
+		}
 	}
 
 	this.triggerOpenPopup = function( trigger ) {
@@ -191,6 +200,10 @@ window.JetEngineMapsProvider = function() {
 			center: data.position,
 			zoom:   data.zoom,
 		} );
+	}
+
+	this.getMapZoom = function( map ) {
+		return map.getZoom();
 	}
 
 	this.setAutoCenter = function( data ) {
@@ -242,12 +255,20 @@ window.JetEngineMapsProvider = function() {
 			this._activePopup.remove();
 		}
 
-		map.flyTo( {
-			center: this.getMarkerPosition( marker ),
-			zoom:   zoom,
-		} );
+		this.panTo( {
+			map: map,
+			position: this.getMarkerPosition( marker ),
+			zoom: zoom
+		} )
 
 		map.on( 'idle', idleHandler );
+	}
+
+	this.panTo = function( data ) {
+		data.map.flyTo( {
+			center: data.position,
+			zoom:   ( data.zoom && data.zoom > data.map.getZoom() ) ? data.zoom : data.map.getZoom(),
+		} );
 	}
 
 }

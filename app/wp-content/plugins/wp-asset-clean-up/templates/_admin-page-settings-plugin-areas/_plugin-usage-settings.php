@@ -66,7 +66,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                             </li>
                         </ul>
 
-                        <div class="wpacu-clearfix" style="height: 0;"></div>
+                        <div class="wpacu_clearfix" style="height: 0;"></div>
 
                         <ul id="wpacu-dom-get-type-infos">
                             <li <?php if ($data['dom_get_type'] !== 'direct') { ?>style="display: none;"<?php } ?>
@@ -82,7 +82,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                         </ul>
                     </div>
 
-                    <hr /><div class="wpacu-clearfix" style="height: 0;"></div>
+                    <hr /><div class="wpacu_clearfix" style="height: 0;"></div>
 
                     <input type="hidden" name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[show_assets_meta_box]" value="0" />
                     <fieldset style="margin: 15px 0 0 0; padding: 10px; border: 1px solid #8c8f94; border-radius: 10px;">
@@ -109,7 +109,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                                                value="fetch_on_click" /> <?php _e('Fetch the assets on a button click', 'wp-asset-clean-up'); ?>
                                     </label>
                                 </li>
-                            </ul><div class="wpacu-clearfix" style="height: 0; clear: both;"></div>
+                            </ul><div class="wpacu_clearfix" style="height: 0; clear: both;"></div>
 
                             <hr />
 
@@ -184,7 +184,6 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                 );
 
                 $users = get_users( $args );
-
                 ?>
                 <select style="vertical-align: top;" id="wpacu-allow-manage-assets-to-select" name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[allow_manage_assets_to]">
                     <option <?php if (in_array($data['allow_manage_assets_to'], array('', 'any_admin'))) { ?>selected="selected"<?php } ?> value="any_admin">any administrator</option>
@@ -256,7 +255,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                     <div class="clear"></div>
                 </div>
 
-                <div class="wpacu-clearfix"></div>
+                <div class="wpacu_clearfix"></div>
 
                 <p style="margin-top: 8px;"><?php _e('These are various ways in which the list of assets that you will manage will show up. Depending on your preference, you might want to see the list of styles &amp; scripts first, or all together sorted in alphabetical order etc.', 'wp-asset-clean-up'); ?> <?php _e('Options that are disabled are available in the Pro version.', 'wp-asset-clean-up'); ?></p>
             </td>
@@ -287,7 +286,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                         </label>
                     </li>
                 </ul>
-                <div class="wpacu-clearfix"></div>
+                <div class="wpacu_clearfix"></div>
 
                 <p><?php _e('Sometimes, when you have plenty of elements in the edit page, you might want to contract the list of assets when you\'re viewing the page as it will save space. This can be a good practice, especially when you finished optimising the pages and you don\'t want to keep seeing the long list of files every time you edit a page.', 'wp-asset-clean-up'); ?></p>
                 <p><strong><?php _e('Note', 'wp-asset-clean-up'); ?>:</strong> <?php _e('This does not include the assets rows within the groups which are expanded &amp; contracted individually, depending on your preference.', 'wp-asset-clean-up'); ?></p>
@@ -319,7 +318,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                         </label>
                     </li>
                 </ul>
-                <div class="wpacu-clearfix"></div>
+                <div class="wpacu_clearfix"></div>
 
                 <p><?php echo sprintf(
                         __('Some assets (CSS &amp; JavaScript) have inline code associate with them and often, they are quite large, making the asset row bigger and requiring you to scroll more until you reach a specific area. By setting it to "%s", it will hide all the inline code by default and you can view it by clicking on the toggle link inside the asset row.', 'wp-asset-clean-up'),
@@ -354,7 +353,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
                         </label>
                     </li>
                 </ul>
-                <div class="wpacu-clearfix"></div>
+                <div class="wpacu_clearfix"></div>
 
                 <p><?php _e('In case you prefer standard HTML checkboxes instead of the enhanced CSS3 iPhone style ones (on &amp; off) or you need a simple HTML layout in case you\'re using a screen reader software (e.g. for people with disabilities) which requires standard/clean HTML code, then you can choose "Standard" as an option.', 'wp-asset-clean-up'); ?> <span style="color: #004567;" class="dashicons dashicons-info"></span> <a href="https://assetcleanup.com/docs/?p=95" target="_blank">Read more</a></p>
             </td>
@@ -442,10 +441,10 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
             <td>
                     <input id="wpacu_clear_cached_files_after"
                            type="number"
-                           min="0"
+                           min="1"
                            style="width: 60px; margin-bottom: 10px;"
                            name="<?php echo WPACU_PLUGIN_ID . '_settings'; ?>[clear_cached_files_after]"
-                           value="<?php echo esc_attr($data['clear_cached_files_after']); ?>" /> days <small>(setting the value to 0 will result in all the previously cached CSS/JS files to be deleted).</small>
+                           value="<?php echo esc_attr($data['clear_cached_files_after']); ?>" /> day(s)
                 <br />This is relevant in case there are alterations made to the content of the CSS/JS files via minification, combination or any other settings that would require an update to the content of a file (e.g. apply "font-display" to @font-face in stylesheets). When the caching is cleared, the previously cached CSS/JS files stored in <code><?php echo \WpAssetCleanUp\OptimiseAssets\OptimizeCommon::getRelPathPluginCacheDir(); ?></code> that are older than (X) days will be deleted as they are outdated and likely not referenced anymore in any source code (e.g. old cached pages, Google Search cached version etc.). <span style="color: #004567;" class="dashicons dashicons-info"></span> <a href="https://assetcleanup.com/docs/?p=237" target="_blank">Read more</a>
             </td>
         </tr>
@@ -519,7 +518,7 @@ foreach (\WpAssetCleanUp\MetaBoxes::$noMetaBoxesForPostTypes as $noMetaBoxesForP
 
         <p>Once this information is retrieved, the file's original URL will be updated to match the optimized one for the file's content stored in <code><?php echo \WpAssetCleanUp\OptimiseAssets\OptimizeCommon::getRelPathPluginCacheDir(); ?></code>.</p>
 
-        <p><strong>Note:</strong> If you are using a plugin such as WP Rocket, WP Fastest Cache or the caching system provided by your hosting company, then this fetching process would be significantly reduced as visitors will access static HTML pages read from the caching. Technically, no SQL queries should be made as the WordPress environment would not be loaded as it happens with a non-cached page (e.g. when you are logged-in and access the front-end pages).</p>
+        <p><strong>Note:</strong> If you are using a plugin such as WP-Optimize, WP Fastest Cache or the caching system provided by your hosting company, then this fetching process would be significantly reduced as visitors will access static HTML pages read from the caching. Technically, no SQL queries should be made as the WordPress environment would not be loaded as it happens with a non-cached page (e.g. when you are logged-in and access the front-end pages).</p>
     </div>
 </div>
 

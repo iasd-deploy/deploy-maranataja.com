@@ -60,7 +60,7 @@ include_once '_top-area.php';
                 <li>You choose the one you want to work with.</li>
             </ol>
 
-            <div class="wpacu-clearfix"></div>
+            <div class="wpacu_clearfix"></div>
             <hr /><br />
 
             <div class="wpacu-btns">

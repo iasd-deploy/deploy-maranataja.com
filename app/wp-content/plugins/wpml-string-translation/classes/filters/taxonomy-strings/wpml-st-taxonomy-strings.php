@@ -61,7 +61,7 @@ class WPML_ST_Taxonomy_Strings {
 
 		if ( ! $string_id ) {
 			$context   = $this->get_context( $domain, $gettext_context );
-			$string_id = icl_register_string( $context, $name, $text );
+			$string_id = icl_register_string( $context, (string) $name, $text );
 		}
 
 		return $string_id;

@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 
@@ -564,9 +564,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_2,
+				'global' => array(
+					'default' => Global_Colors::COLOR_SECONDARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['title'] . ' a' => 'color: {{VALUE}}',
@@ -590,9 +589,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_2,
+				'global' => array(
+					'default' => Global_Colors::COLOR_SECONDARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['title'] . ' a:hover' => 'color: {{VALUE}}',
@@ -610,8 +608,10 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'title_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['title'] . ', {{WRAPPER}} ' . $css_scheme['title'] . ' a',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -698,12 +698,11 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			array(
 				'label'  => esc_html__( 'Text Color', 'jet-elements' ),
 				'type'   => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_3,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['meta'] => 'color: {{VALUE}}',
+				),
+				'global' => array(
+					'default' => Global_Colors::COLOR_TEXT,
 				),
 			),
 			25
@@ -737,8 +736,10 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'meta_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['meta'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -868,8 +869,10 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name' => 'excerpt_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['excerpt'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1064,9 +1067,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'label'     => _x( 'Color', 'Background Control', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
 				'default'   => '',
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'title'     => _x( 'Background Color', 'Background Control', 'jet-elements' ),
 				'selectors' => array(
@@ -1220,8 +1222,10 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['button'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1328,9 +1332,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'label'     => _x( 'Color', 'Background Control', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
 				'default'   => '',
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'title'     => _x( 'Background Color', 'Background Control', 'jet-elements' ),
 				'selectors' => array(
@@ -1631,8 +1634,10 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'terms_link_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['terms_link'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -1665,9 +1670,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'label'     => esc_html__( 'Background Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
 				'default'   => '',
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'title'     => esc_html__( 'Background Color', 'jet-elements' ),
 				'selectors' => array(
@@ -1704,9 +1708,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'label'     => esc_html__( 'Background Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
 				'default'   => '',
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'title'     => esc_html__( 'Background Color', 'jet-elements' ),
 				'selectors' => array(
@@ -1880,9 +1883,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-posts .jet-arrow',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1907,9 +1909,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-posts .jet-arrow:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2265,9 +2266,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-slick-dots li span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_3,
+						'global' => array(
+							'default' => Global_Colors::COLOR_TEXT,
 						),
 					),
 				),
@@ -2296,9 +2296,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-slick-dots li span:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2327,9 +2326,8 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-slick-dots li.slick-active span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_4,
+						'global' => array(
+							'default' => Global_Colors::COLOR_ACCENT,
 						),
 					),
 				),
@@ -2617,15 +2615,7 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 				'label'   => esc_html__( 'Prepare meta value with callback', 'jet-elements' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => '',
-				'options' => apply_filters( 'jet-elements/posts/meta_callbacks', array(
-					''                        => esc_html__( 'Clean', 'jet-elements' ),
-					'get_permalink'           => 'get_permalink',
-					'get_the_title'           => 'get_the_title',
-					'wp_get_attachment_url'   => 'wp_get_attachment_url',
-					'wp_get_attachment_image' => 'wp_get_attachment_image',
-					'date'                    => esc_html__( 'Format date', 'jet-elements' ),
-					'date_i18n'               => esc_html__( 'Format date (localized)', 'jet-elements' ),
-				) ),
+				'options' => jet_elements_tools()->allowed_meta_callbacks(),
 			)
 		);
 
@@ -2720,8 +2710,10 @@ class Jet_Elements_Posts extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => $position_slug . '_meta_label_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} .' . $base . '__item-label',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);

@@ -23,7 +23,7 @@ if (! isset($data)) {
             <li><label><input disabled="disabled" type="checkbox" value="on_this_page" /><?php _e('on this page', 'wp-asset-clean-up'); ?></label></li>
             <li><label><input disabled="disabled" type="checkbox" value="everywhere" /><?php _e('everywhere', 'wp-asset-clean-up'); ?></label></li>
         </ul>
-        <div class="wpacu-clearfix"></div>
+        <div class="wpacu_clearfix"></div>
     </div>
 
     <?php
@@ -79,7 +79,7 @@ if (! isset($data)) {
     <?php
 	}
 	?>
-    <div class="wpacu-clearfix"></div>
+    <div class="wpacu_clearfix"></div>
 <!-- [/wpacu_lite] -->
 <?php
 }

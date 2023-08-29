@@ -15,6 +15,8 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 	 */
 	abstract class Jet_Engine_Blocks_Views_Type_Base {
 
+		use \Jet_Engine\Modules\Performance\Traits\Prevent_Wrap;
+
 		protected $namespace = 'jet-engine/';
 
 		public $block_manager    = null;
@@ -27,11 +29,20 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 			$attributes = $this->get_attributes();
 
 			if ( $this->has_style_manager() ) {
+
 				$this->set_style_manager_instance();
 				$this->add_style_manager_options();
 				do_action( 'jet-engine/blocks-views/' . $this->get_name() . '/add-extra-style-options', $this );
 
 				//add_action( 'enqueue_block_editor_assets', array( $this, 'add_style_manager_options' ), -1 );
+				
+				if ( $this->prevent_wrap() ) {
+					add_filter(
+						'jet_style_manager/gutenberg/prevent_block_wrap/' . $this->get_block_name(),
+						'__return_true'
+					);
+				}
+
 			}
 
 			/**
@@ -182,7 +193,7 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 		}
 
 		public function css_selector( $el = '' ) {
-			return sprintf( '{{WRAPPER}}.jet-listing-%1$s%2$s', $this->get_name(), $el );
+			return sprintf( '{{WRAPPER}} %1$s', $el );
 		}
 
 		/**
@@ -217,7 +228,7 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 
 			foreach ( $this->_root as $attr => $value ) {
 				if ( is_array( $value ) ) {
-					$value = implode( ' ', array_filter( $value ) );
+					$value = implode( ' ', array_unique( array_filter( $value ) ) );
 				}
 				$result[] = sprintf( '%1$s="%2$s"', $attr, esc_attr( $value ) );
 			}
@@ -242,7 +253,9 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 				$listing_id = jet_engine()->blocks_views->render->get_current_listing_id();
 			}
 
-			$render->setup_listing( $listing, $object_id, true, $listing_id );
+			if ( $listing_id ) {
+				$render->setup_listing( $listing, $object_id, true, $listing_id );
+			}
 
 			$content = $render->get_content();
 			$el_id = ! empty( $attributes['_element_id'] ) ? : '';
@@ -252,6 +265,10 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 			}
 
 			$this->_root['data-is-block'] = $this->get_block_name();
+
+			if ( ! empty( $attributes['className'] ) ) {
+				$this->_root['class'][] = esc_attr( $attributes['className'] );
+			}
 
 			$content = sprintf(
 				'<div %1$s>%2$s</div>',

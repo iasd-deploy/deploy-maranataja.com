@@ -17,11 +17,7 @@ class Elementor_Integration {
 			return;
 		}
 
-		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
-			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ), 11 );
-		} else {
-			add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets' ), 11 );
-		}
+		add_action( 'jet-engine/elementor-views/widgets/register', array( $this, 'register_widgets' ), 11, 2 );
 
 		add_action( 'jet-engine/elementor-views/dynamic-tags/register', array( $this, 'register_dynamic_tags' ), 10, 2 );
 		add_action( 'jet-engine/profile-builder/template/assets', array( $this, 'enqueue_template_styles' ) );
@@ -176,24 +172,24 @@ class Elementor_Integration {
 	/**
 	 * Register profile builder widgets
 	 *
-	 * @return [type] [description]
+	 * @return void
 	 */
-	public function register_widgets( $widgets_manager ) {
+	public function register_widgets( $widgets_manager, $elementor_views ) {
 
-		if ( method_exists( $widgets_manager, 'register' ) ) {
-			$register_method = 'register';
-		} else {
-			$register_method = 'register_widget_type';
-		}
-
-		require jet_engine()->modules->modules_path( 'profile-builder/inc/widgets/profile-menu-widget.php' );
-		call_user_func( array( $widgets_manager, $register_method ), new Profile_Menu_Widget() );
+		$elementor_views->register_widget(
+			jet_engine()->modules->modules_path( 'profile-builder/inc/widgets/profile-menu-widget.php' ),
+			$widgets_manager,
+			__NAMESPACE__ . '\Profile_Menu_Widget'
+		);
 
 		$template_mode = Module::instance()->settings->get( 'template_mode' );
 
 		if ( 'content' === $template_mode ) {
-			require jet_engine()->modules->modules_path( 'profile-builder/inc/widgets/profile-content-widget.php' );
-			call_user_func( array( $widgets_manager, $register_method ), new Profile_Content_Widget() );
+			$elementor_views->register_widget(
+				jet_engine()->modules->modules_path( 'profile-builder/inc/widgets/profile-content-widget.php' ),
+				$widgets_manager,
+				__NAMESPACE__ . '\Profile_Content_Widget'
+			);
 		}
 
 	}

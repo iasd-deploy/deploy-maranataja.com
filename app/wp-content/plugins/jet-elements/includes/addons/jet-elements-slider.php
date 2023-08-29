@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -806,9 +806,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 				'name'     => 'slider_background',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
+						'global' => array(
+							'default' => Global_Colors::COLOR_SECONDARY,
 						),
 					),
 				),
@@ -1130,9 +1129,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 				'name'     => 'overlay_background',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
+						'global' => array(
+							'default' => Global_Colors::COLOR_SECONDARY,
 						),
 					),
 				),
@@ -1697,7 +1695,6 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'slider_title_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['title'],
 			),
 			50
@@ -1717,7 +1714,7 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 		);
 
 		$this->_add_responsive_control(
-			'slider_title_margin',
+			'slider_title_margin', 
 			array(
 				'label'      => __( 'Margin', 'jet-elements' ),
 				'type'       => Controls_Manager::DIMENSIONS,
@@ -1787,7 +1784,6 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'slider_subtitle_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['subtitle'],
 			),
 			50
@@ -1927,8 +1923,10 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'slider_desc_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['desc'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -2052,9 +2050,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			array(
 				'label' => esc_html__( 'Background Color', 'jet-elements' ),
 				'type' => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['primary_button'] => 'background-color: {{VALUE}}',
@@ -2079,8 +2076,10 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'primary_button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['primary_button'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -2249,9 +2248,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			array(
 				'label' => esc_html__( 'Background Color', 'jet-elements' ),
 				'type' => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_2,
+				'global' => array(
+					'default' => Global_Colors::COLOR_SECONDARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['secondary_button'] => 'background-color: {{VALUE}}',
@@ -2276,8 +2274,10 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'secondary_button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['secondary_button'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -2756,9 +2756,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['pagination'] . ' .sp-button:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2787,9 +2786,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['pagination'] . ' .sp-button.sp-selected-button',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2889,9 +2887,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 						),
 					),
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -2939,9 +2936,8 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 						),
 					),
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
+						'global' => array(
+							'default' => Global_Colors::COLOR_SECONDARY,
 						),
 					),
 				),
@@ -2989,15 +2985,16 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 						),
 					),
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
 			),
 			25
 		);
+
+
 
 		$this->_end_controls_tab();
 
@@ -3187,9 +3184,11 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'fraction_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'separator' => 'before',
 				'selector' => '{{WRAPPER}} .jet-slider__fraction-pagination span',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -3336,7 +3335,11 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 
 		$format = 'true' === $lazyload ? '<img class="sp-image" src="%1$s" alt="%2$s" loading="lazy">' : '<img class="sp-image" src="%1$s" alt="%2$s">';
 
-		if ( empty( $image['id'] ) ) {
+		if ( empty( $image['id'] ) && ! empty( $image['url'] ) ) {
+			return sprintf( $format, $image['url'], '' );
+		} 
+
+		if ( empty( $image['id']) ) {
 			return sprintf( $format, Utils::get_placeholder_image_src(), '' );
 		}
 
@@ -3344,6 +3347,10 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 
 		$src = Group_Control_Image_Size::get_attachment_image_src( $image['id'], 'slider_image', $this->get_settings() );
 		$alt = Control_Media::get_image_alt( $image );
+
+		if ( empty( $src ) ) {
+			return;
+		}
 
 		return sprintf( $format, esc_url( $src ), esc_attr( $alt ) );
 	}
@@ -3358,7 +3365,11 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 
 		$format = '<img class="sp-thumbnail" src="%1$s" alt="%2$s" loading="lazy">';
 
-		if ( empty( $image['id'] ) ) {
+		if ( empty( $image['id'] ) && ! empty( $image['url'] ) ) {
+			return sprintf( $format, $image['url'], '' );
+		} 
+
+		if ( empty( $image['id']) ) {
 			return sprintf( $format, Utils::get_placeholder_image_src(), '' );
 		}
 
@@ -3366,6 +3377,10 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 
 		$src = wp_get_attachment_image_url( $image['id'], 'thumbnail' );
 		$alt = Control_Media::get_image_alt( $image );
+
+		if ( empty( $src ) ) {
+			return;
+		}
 
 		return sprintf( $format, esc_url( $src ), esc_attr( $alt ) );
 	}
@@ -3385,7 +3400,7 @@ class Jet_Elements_Slider extends Jet_Elements_Base {
 
 		// for multi-language plugins
 		$template_id = apply_filters( 'jet-elements/widgets/template_id', $template_id, $this );
-		$content     = jet_elements()->elementor()->frontend->get_builder_content_for_display( $template_id );
+		$content     = jet_elements()->elementor()->frontend->get_builder_content( $template_id );
 
 		if ( jet_elements()->elementor()->editor->is_edit_mode() ) {
 			$edit_url = add_query_arg(

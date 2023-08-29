@@ -24,6 +24,12 @@
 					:href="getEditLink( item.id )"
 					class="jet-engine-title-link"
 				>{{ item.labels.name }}</a>
+				<i
+					v-if="item.args.description"
+					class="jet-engine-description"
+				>
+					{{ item.args.description }}
+				</i>
 			</span>
 			<i slot="type">{{ getQueryType( item.args.query_type ) }}</i>
 			<div slot="actions" style="display: flex;">
@@ -44,5 +50,6 @@
 		v-if="showDeleteDialog"
 		v-model="showDeleteDialog"
 		:item-id="deletedItem.id"
+		:item-name="deletedItem.labels.name"
 	></jet-query-delete-dialog>
 </div>

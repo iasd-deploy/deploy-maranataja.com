@@ -130,7 +130,7 @@
 						},
 						{
 							value: 'update',
-							label: '<?php _e( 'Update and left options saved in the previous storage type without changes', 'jet-engine' ); ?>',
+							label: '<?php _e( 'Update and leave options saved in the previous storage type without changes', 'jet-engine' ); ?>',
 						},
 						{
 							value: 'update_and_delete',
@@ -148,7 +148,7 @@
 				></cx-vui-switcher>
 			</div>
 		</cx-vui-collapse>
-		<jet-meta-fields v-model="fieldsList" :hide-options="[ 'quick_editable' ]"></jet-meta-fields>
+		<jet-meta-fields v-model="fieldsList" :hide-options="[ 'quick_editable', 'revision_support' ]"></jet-meta-fields>
 	</div>
 	<div class="jet-engine-edit-page__actions">
 		<div class="jet-engine-edit-page__actions-panel">

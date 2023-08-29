@@ -20,6 +20,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 
 		private $injected_counter = array();
 		private $injected_indexes = array();
+		private $parent_injected_counter = array();
+		private $parent_injected_indexes = array();
 		private $is_last_static_hooked = false;
 		private $static_items_to_print = array();
 		private $static_injections = array();
@@ -78,6 +80,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 			add_action( 'jet-engine/listing/after-general-settings', array( $this, 'add_settings' ) );
 			add_action( 'jet-engine/listing/bricks/after-general-settings', array( $this, 'add_bricks_settings' ) );
 			add_action( 'jet-engine/listing/grid/before', array( $this, 'reset_injected_counter' ) );
+			add_action( 'jet-engine/listing/grid/after', array( $this, 'set_parent_injected_counter' ) );
 			add_action( 'jet-engine/elementor-views/frontend/after_enqueue_listing_css', array(
 				$this,
 				'maybe_enqueue_injection_css'
@@ -150,8 +153,28 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 		 * @return [type] [description]
 		 */
 		public function reset_injected_counter() {
+
+			if ( ! empty( $this->injected_counter ) ) {
+				$this->parent_injected_counter = $this->injected_counter;
+				$this->parent_injected_indexes = $this->injected_indexes;
+			}
+
 			$this->injected_counter = array();
 			$this->injected_indexes = array();
+			$this->is_last_static_hooked = false;
+		}
+
+		public function set_parent_injected_counter() {
+
+			if ( empty( $this->parent_injected_counter ) ) {
+				return;
+			}
+
+			$this->injected_counter = $this->parent_injected_counter;
+			$this->injected_indexes = $this->parent_injected_indexes;
+
+			$this->parent_injected_counter = array();
+			$this->parent_injected_indexes = array();
 		}
 
 		/**
@@ -190,7 +213,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 		}
 
 		/**
-		 * Maybe add clumns colspan on apropriate indexes
+		 * Maybe add columns colspan on appropriate indexes
 		 *
 		 * @param  [type] $classes [description]
 		 * @param  [type] $post    [description]

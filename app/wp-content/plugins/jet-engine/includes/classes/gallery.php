@@ -37,17 +37,19 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 			}
 
 			wp_enqueue_script( 'jquery-slick' );
-			
+
 			jet_engine()->frontend->ensure_lib( 'imagesloaded' );
 			jet_engine()->frontend->frontend_scripts();
 
-			$args = wp_parse_args( $args, array(
+			$args = apply_filters( 'jet-engine/gallery/slider/args', wp_parse_args( $args, array(
 				'size'             => 'full',
 				'lightbox'         => false,
 				'slides_to_show'   => 1,
 				'slides_to_show_t' => false,
 				'slides_to_show_m' => false,
-			) );
+				'css_classes'      => [ 'jet-engine-gallery-slider' ],
+				'lightbox_classes' => [ 'jet-engine-gallery-slider', 'jet-engine-gallery-lightbox' ],
+			) ) );
 
 			$slider_atts =  array(
 				'slidesToShow'   => $args['slides_to_show'],
@@ -85,7 +87,7 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 			$slider_atts = apply_filters( 'jet-engine/gallery/slider/atts', $slider_atts );
 			$slider_atts = htmlspecialchars( json_encode( $slider_atts ) );
 
-			echo '<div class="jet-engine-gallery-slider" data-atts="' . $slider_atts . '">';
+			echo '<div class="' . implode( ' ', $args['css_classes'] ) . '" data-atts="' . $slider_atts . '">';
 
 			$gallery_id = self::get_gallery_id();
 
@@ -99,7 +101,15 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 				echo '<div class="jet-engine-gallery-slider__item">';
 
 				if ( $args['lightbox'] ) {
-					echo '<a href="' . $img_full . '" class="jet-engine-gallery-slider__item-wrap jet-engine-gallery-item-wrap is-lightbox" data-elementor-open-lightbox="yes" data-elementor-lightbox-slideshow="' . $gallery_id . '">';
+
+					$lightbox_attr = array(
+						'href'  => $img_full,
+						'class' => array( 'jet-engine-gallery-slider__item-wrap', 'jet-engine-gallery-item-wrap', 'is-lightbox' ),
+					);
+
+					$lightbox_attr = apply_filters( 'jet-engine/gallery/lightbox-attr', $lightbox_attr, $img_data, $gallery_id );
+
+					echo '<a ' . Jet_Engine_Tools::get_attr_string( $lightbox_attr ) . '>';
 				} else {
 					echo '<span class="jet-engine-gallery-slider__item-wrap jet-engine-gallery-item-wrap">';
 				}
@@ -154,24 +164,26 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 				return '';
 			}
 
-			$args = wp_parse_args( $args, array(
+			$args = apply_filters( 'jet-engine/gallery/grid/args', wp_parse_args( $args, array(
 				'size'        => 'full',
 				'lightbox'    => false,
 				'cols_desk'   => 3,
 				'cols_tablet' => 3,
 				'cols_mobile' => 1,
-			) );
+				'css_classes' => [ 'jet-engine-gallery-grid' ],
+			) ) );
 
 			ob_start();
 
-			$classes = array(
+			$classes = array_merge( $args['css_classes'], array(
 				'grid-col-desk-' . $args['cols_desk'],
 				'grid-col-tablet-' . $args['cols_tablet'],
 				'grid-col-mobile-' . $args['cols_mobile'],
-			);
-			$classes = sprintf( ' %s', implode( ' ', $classes ) );
+			) );
 
-			echo '<div class="jet-engine-gallery-grid' . $classes . '">';
+			$classes = implode( ' ', $classes );
+
+			echo '<div class="' . $classes . '">';
 
 			$gallery_id = self::get_gallery_id();
 
@@ -182,14 +194,18 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 				$img_url  = $img_data['url'];
 				$img_full = $img_data['full'];
 
-				$full_img_sizes  = self::get_full_img_sizes( $img_id );
-				$full_img_width  = $full_img_sizes['width'];
-				$full_img_height = $full_img_sizes['height'];
-
 				echo '<div class="jet-engine-gallery-grid__item">';
 
 				if ( $args['lightbox'] ) {
-					echo '<a href="' . $img_full . '" class="jet-engine-gallery-grid__item-wrap jet-engine-gallery-item-wrap is-lightbox" data-elementor-open-lightbox="yes" data-elementor-lightbox-slideshow="' . $gallery_id . '" data-full-img-width="' . $full_img_width . '" data-full-img-height="' . $full_img_height . '">';
+
+					$lightbox_attr = array(
+						'href'  => $img_full,
+						'class' => array( 'jet-engine-gallery-grid__item-wrap', 'jet-engine-gallery-item-wrap' ),
+					);
+
+					$lightbox_attr = apply_filters( 'jet-engine/gallery/lightbox-attr', $lightbox_attr, $img_data, $gallery_id );
+
+					echo '<a ' . Jet_Engine_Tools::get_attr_string( $lightbox_attr ) . '>';
 				} else {
 					echo '<span class="jet-engine-gallery-grid__item-wrap jet-engine-gallery-item-wrap">';
 				}

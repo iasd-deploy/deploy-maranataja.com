@@ -77,22 +77,26 @@ class FileSystem
 	 */
 	public static function filePutContents($localPathToFile, $contents)
 	{
-		if ( (strpos($localPathToFile, WP_CONTENT_DIR . OptimizeCss::getRelPathCssCacheDir()) !== false && ! is_dir(dirname($localPathToFile)))
-			|| (strpos($localPathToFile, WP_CONTENT_DIR . OptimizeJs::getRelPathJsCacheDir()) !== false && ! is_dir(dirname($localPathToFile)))
-			|| (strpos($localPathToFile, '/_storage/_recent_items/') !== false && ! is_dir(dirname($localPathToFile)))
-		) {
-			@mkdir(dirname($localPathToFile), 0755, true );
+		if (  (strpos($localPathToFile, WP_CONTENT_DIR . OptimizeCss::getRelPathCssCacheDir()) !== false && ! is_dir(dirname($localPathToFile)))
+			|| (strpos($localPathToFile, WP_CONTENT_DIR . OptimizeJs::getRelPathJsCacheDir())  !== false && ! is_dir(dirname($localPathToFile)))
+			) {
+			$dirToCreate = dirname( $localPathToFile );
+			try {
+				mkdir( $dirToCreate, FS_CHMOD_DIR, true );
+			} catch (\Exception $e) {
+				error_log( WPACU_PLUGIN_TITLE . ': Could not make directory ' . $dirToCreate . ' / Error: '.$e->getMessage() );
+			}
 		}
 
 		// Fallback
-		if (! self::init()) {
-			$return = @file_put_contents($localPathToFile, $contents);
-		} else {
-			$return = self::init()->put_contents( $localPathToFile, $contents, FS_CHMOD_FILE );
-		}
-
-		if (! $return) {
-			error_log('Asset CleanUp: Could not write to '.$localPathToFile);
+		try {
+			if ( ! self::init() ) {
+				$return = file_put_contents( $localPathToFile, $contents );
+			} else {
+				$return = self::init()->put_contents( $localPathToFile, $contents, FS_CHMOD_FILE );
+			}
+		} catch ( \Exception $e ) {
+			error_log( WPACU_PLUGIN_TITLE . ': Could not write to ' . $localPathToFile . ' / Error: '.$e->getMessage() );
 		}
 
 		return $return;

@@ -264,8 +264,10 @@ class Query {
 
 		if ( ! $user ) {
 
-			if ( 'users' === $listing ) {
-				$user = jet_engine()->listings->data->get_current_object();
+			$current_object = jet_engine()->listings->data->get_current_object();
+
+			if ( 'users' === $listing || ( 'query' === $listing && 'WP_User' === get_class( $current_object ) ) ) {
+				$user = $current_object;
 			} elseif ( $this->is_single_user_page() ) {
 				$user = $this->get_queried_user();
 			} else {
@@ -307,10 +309,11 @@ class Query {
 		$user = apply_filters( 'jet-engine/profile-builder/query/pre-get-queried-user', null );
 
 		if ( ! $user ) {
-			$listing = jet_engine()->listings->data->get_listing_source();
+			$listing        = jet_engine()->listings->data->get_listing_source();
+			$current_object = jet_engine()->listings->data->get_current_object();
 
-			if ( 'users' === $listing ) {
-				$user = jet_engine()->listings->data->get_current_object();
+			if ( 'users' === $listing || ( 'query' === $listing && 'WP_User' === get_class( $current_object ) ) ) {
+				$user = $current_object;
 			}
 		}
 

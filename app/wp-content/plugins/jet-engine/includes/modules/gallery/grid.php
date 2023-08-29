@@ -94,6 +94,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 			if ( ! empty( $settings['dynamic_field_filter'] ) && 'jet_engine_img_gallery_grid' === $settings['filter_callback'] ) {
 				wp_enqueue_style( 'bricks-photoswipe' );
 				wp_enqueue_script( 'bricks-photoswipe' );
+				wp_enqueue_script( 'bricks-photoswipe-lightbox' );
 			}
 
 		}
@@ -120,6 +121,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 		 */
 		public function style_controls( $widget ) {
 
+			$prefix = $widget->prevent_wrap() ? '__content' : '';
+
 			$widget->add_responsive_control(
 				'img_gallery_gap',
 				array(
@@ -133,8 +136,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 						),
 					),
 					'selectors'  => array(
-						$widget->css_selector( ' .jet-engine-gallery-grid__item' ) => 'padding: calc( {{SIZE}}{{UNIT}}/2 );',
-						$widget->css_selector( ' .jet-engine-gallery-grid' )       => 'margin: calc( -{{SIZE}}{{UNIT}}/2 );',
+						$widget->css_selector( $prefix . ' .jet-engine-gallery-grid__item' ) => 'padding: calc( {{SIZE}}{{UNIT}}/2 );',
+						$widget->css_selector( $prefix . ' .jet-engine-gallery-grid' )       => 'margin: calc( -{{SIZE}}{{UNIT}}/2 );',
 					),
 					'condition'  => array(
 						'dynamic_field_filter' => 'yes',
@@ -169,7 +172,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 					'label'     => __( 'Color', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-gallery-item-wrap:after' ) => 'background: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-gallery-item-wrap:after' ) => 'background: {{VALUE}}',
 					),
 				)
 			);
@@ -189,7 +192,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 					'label'     => __( 'Color', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-gallery-item-wrap:hover:after' ) => 'background: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-gallery-item-wrap:hover:after' ) => 'background: {{VALUE}}',
 					),
 				)
 			);
@@ -205,7 +208,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 					'label'     => __( 'Lightbox Icon Color', 'jet-engine' ),
 					'type'      => Elementor\Controls_Manager::COLOR,
 					'selectors' => array(
-						$widget->css_selector( ' .jet-engine-gallery-item-wrap:before' ) => 'color: {{VALUE}}',
+						$widget->css_selector( $prefix . ' .jet-engine-gallery-item-wrap:before' ) => 'color: {{VALUE}}',
 					),
 					'condition' => array(
 						'dynamic_field_filter' => 'yes',

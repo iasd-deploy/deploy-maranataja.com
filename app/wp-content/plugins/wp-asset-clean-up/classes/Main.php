@@ -1035,13 +1035,11 @@ SQL;
 	 */
 	public function printAnySpecialCss()
     {
-        if (isset($this->allUnloadedAssets['styles']) && ! empty($this->allUnloadedAssets['styles'])) {
-	        if (in_array('photoswipe', $this->allUnloadedAssets['styles'])) {
-	            ?>
-                <!-- Asset CleanUp: "photoswipe" unloaded (avoid printing useless HTML) -->
-                <style <?php echo Misc::getStyleTypeAttribute(); ?>>.pswp { display: none; }</style>
-                <?php
-            }
+        if (isset($this->allUnloadedAssets['styles']) && ! empty($this->allUnloadedAssets['styles']) && in_array('photoswipe', $this->allUnloadedAssets['styles'])) {
+            ?>
+            <?php if (current_user_can('administrator')) { ?><!-- Asset CleanUp: "photoswipe" unloaded (avoid printing useless HTML) --><?php } ?>
+            <style <?php echo Misc::getStyleTypeAttribute(); ?>>.pswp { display: none; }</style>
+            <?php
         }
     }
 	/* [END] Styles Dequeue */
@@ -3276,13 +3274,15 @@ SQL;
 			$finalList[$taxonomyObj->label][] = (array)$obj;
 		}
 
-		foreach (array_keys($finalList) as $taxonomyLabel) {
-			usort( $finalList[$taxonomyLabel], static function( $a, $b ) {
-				return strcasecmp( $a['name'], $b['name'] );
-			} );
-		}
+        if ( ! empty($finalList) ) {
+	        foreach ( array_keys( $finalList ) as $taxonomyLabel ) {
+		        usort( $finalList[ $taxonomyLabel ], static function( $a, $b ) {
+			        return strcasecmp( $a['name'], $b['name'] );
+		        } );
+	        }
 
-		ksort($finalList);
+	        ksort($finalList);
+        }
 
 		return $finalList;
 	}

@@ -4,6 +4,26 @@ Brand new addon for Elementor Page builder. It provides the set of modules to cr
 
 # ChangeLog
 
+## [2.6.12.1](https://github.com/ZemezLab/jet-elements/archive/2.6.12.1.zip) - 10.08.2023
+* Fixed: Change template render method for Elementor to avoid errors in the editor 
+
+## [2.6.12](https://github.com/ZemezLab/jet-elements/archive/2.6.12.zip) - 03.08.2023
+* Fixed: Сompatibility global styles for Elementor 3.15.0
+
+## [2.6.11](https://github.com/ZemezLab/jet-elements/archive/2.6.11.zip) - 05.07.2023
+* Fixed: Better sanitize custom callbacks before execute
+* Fixed: minor issues
+
+## [2.6.10](https://github.com/ZemezLab/jet-elements/archive/2.6.10.zip) - 29.05.2023
+* Fixed: [Crocoblock/suggestions#6325](https://github.com/Crocoblock/suggestions/issues/6325)
+* Fixed: [Crocoblock/suggestions#6326](https://github.com/Crocoblock/suggestions/issues/6326)
+* Fixed: [Crocoblock/suggestions#6516](https://github.com/Crocoblock/suggestions/issues/6516)
+* Fixed: [Crocoblock/suggestions#6578](https://github.com/Crocoblock/suggestions/issues/6578)
+* Added: Advanced Carousel, Posts, Testimonials, Slider, Portfolio, Horizontal Timeline, Image Comparison compatibility with Elementor Dropdown Menu
+* Fixed: Insert url for external thumbnail for Team Member, Slider widgets
+* Fixed: Blocking scroll on mobile in Image Comparison widget
+* Fixed: minor issues
+
 ## [2.6.9](https://github.com/ZemezLab/jet-elements/archive/2.6.9.zip) - 14.02.2023
 * Added: [Crocoblock/suggestions#6345](https://github.com/Crocoblock/suggestions/issues/6345)
 * Fixed: Widgets Accessibility

@@ -9,6 +9,8 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Base extends \Bricks\Element {
+
+	use \Jet_Engine\Modules\Performance\Traits\Prevent_Wrap;
 	
 	// Element properties
 	public $category     = 'general'; // Use predefined element category 'general'
@@ -165,13 +167,14 @@ class Base extends \Bricks\Element {
 		return $result;
 	}
 
-	public function get_jet_render_instance() {
+	public function get_jet_render_instance( $add_settings = [] ) {
 
 		if ( ! $this->jet_element_render_instance ) {
 
 			$settings = $this->get_jet_settings();
 			$settings['_element_id'] = $this->get_jet_el_id();
-			
+			$settings = array_merge( $settings, $add_settings );
+
 			$this->jet_element_render_instance = jet_engine()->listings->get_render_instance( 
 				$this->jet_element_render, 
 				$this->parse_jet_render_attributes( $settings )

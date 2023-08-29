@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { isUndefined } from 'lodash'
+
+/**
  * WordPress dependencies
  */
 import { useBlockProps } from '@wordpress/block-editor'
@@ -10,7 +15,7 @@ import { linearToNestedHeadingList } from './utils'
 import List from './list'
 
 export default function save( { attributes } ) {
-	if ( attributes.headings.length === 0 ) {
+	if ( isUndefined( attributes.headings ) || attributes.headings.length === 0 ) {
 		return null
 	}
 
@@ -19,7 +24,7 @@ export default function save( { attributes } ) {
 	const ListStyle = attributes.listStyle
 
 	return (
-		<div { ...useBlockProps.save() }>
+		<div { ...useBlockProps.save() } id="rank-math-toc">
 			{ attributes.title && <TitleWrapper dangerouslySetInnerHTML={ { __html: attributes.title } }></TitleWrapper> }
 			<nav>
 				<ListStyle>

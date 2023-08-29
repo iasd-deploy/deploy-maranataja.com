@@ -178,9 +178,7 @@ if ( ! class_exists( 'Jet_Engine_Listings_Post_Type' ) ) {
 		}
 
 		public function get_listing_views() {
-			return apply_filters( 'jet-engine/templates/listing-views', array(
-				'blocks' => __( 'Blocks (Gutenberg)', 'jet-engine' ),
-			) );
+			return apply_filters( 'jet-engine/templates/listing-views', array() );
 		}
 
 		/**
@@ -260,6 +258,12 @@ if ( ! class_exists( 'Jet_Engine_Listings_Post_Type' ) ) {
 		 * Menu page
 		 */
 		public function add_templates_page() {
+
+			$views = $this->get_listing_views();
+
+			if ( empty( $views ) ) {
+				return;
+			}
 
 			add_submenu_page(
 				jet_engine()->admin_page,

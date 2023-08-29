@@ -38,6 +38,12 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 		 */
 		private $printed_wp_css = array();
 
+		/**
+		 * Selectors mappings
+		 * @var array
+		 */
+		private $selectors_map = array();
+
 		public function __construct() {
 			add_action( 'enqueue_block_assets', array( jet_engine()->frontend, 'frontend_styles' ) );
 
@@ -47,6 +53,10 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 			add_action( 'jet-engine/blocks-views/print-template-styles', array( $this, 'print_template_css' ) );
 
 			add_filter( 'jet-engine/listing/content/blocks', array( $this, 'get_listing_content_cb' ), 10, 2 );
+
+			if ( $this->wp_is_supports_style_engine() ) {
+				add_filter( 'render_block', array( $this, 'modify_listing_content' ), 20 );
+			}
 		}
 
 		/**
@@ -80,8 +90,34 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 			$content = $this->get_raw_content( $listing_id );
 			$this->enqueue_listing_css( $listing_id );
 			$content = do_shortcode( $this->parse_content( $content, $listing_id ) );
+			$content = $this->add_link_to_content( $content, $listing_id );
 
 			return apply_filters( 'jet-engine/blocks-views/render/listing-content', $content, $listing_id );
+		}
+
+		public function add_link_to_content( $content, $listing_id ) {
+
+			$settings = get_post_meta( $listing_id, '_elementor_page_settings', true );
+
+			if ( empty( $settings ) || empty( $settings['listing_link'] ) ) {
+				return $content;
+			}
+
+			$dynamic_settings = array(
+				'listing_link_aria_label',
+			);
+
+			foreach ( $dynamic_settings as $dynamic_setting ) {
+
+				if ( empty( $settings[ $dynamic_setting ] ) ) {
+					continue;
+				}
+
+				$settings[ $dynamic_setting ] = jet_engine()->listings->macros->do_macros( $settings[ $dynamic_setting ] );
+				$settings[ $dynamic_setting ] = do_shortcode( $settings[ $dynamic_setting ] );
+			}
+
+			return jet_engine()->frontend->add_listing_link_to_content( $content, $settings );
 		}
 
 		public function fix_context( $context ) {
@@ -117,19 +153,28 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 			add_filter( 'render_block_context', array( $this, 'fix_context' ) );
 
 			// Removed `wp_render_layout_support_flag` filter and added modified filter.
-			remove_filter( 'render_block', 'wp_render_layout_support_flag' );
-			add_filter( 'render_block', array( $this, 'wp_render_layout_support_flag' ), 10, 2 );
+			if ( ! $this->wp_is_supports_style_engine() ) {
+				remove_filter( 'render_block', 'wp_render_layout_support_flag' );
+				add_filter( 'render_block', array( $this, 'wp_render_layout_support_flag' ), 10, 2 );
+			}
+
+			$initial_listing = $this->current_listing;
+			$initial_counter = $this->counter;
 
 			$this->current_listing = $listing_id;
+
 			$parsed = do_blocks( $content );
-			$this->current_listing = false;
+
+			$this->current_listing = $initial_listing;
+			$this->counter         = $initial_counter;
 
 			remove_filter( 'render_block_context', array( $this, 'fix_context' ) );
 
 			// Restore `wp_render_layout_support_flag` filter.
-			$this->counter = 0;
-			add_filter( 'render_block', 'wp_render_layout_support_flag', 10, 2 );
-			remove_filter( 'render_block', array( $this, 'wp_render_layout_support_flag' ) );
+			if ( ! $this->wp_is_supports_style_engine() && null === $this->current_listing ) {
+				add_filter( 'render_block', 'wp_render_layout_support_flag', 10, 2 );
+				remove_filter( 'render_block', array( $this, 'wp_render_layout_support_flag' ) );
+			}
 
 			// Enqueue wp listing css.
 			$inline_wp_css = $this->enqueue_wp_listing_css( $listing_id );
@@ -358,6 +403,85 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 			$this->wp_listing_css = null;
 
 			return $inline_css;
+		}
+
+		public function wp_is_supports_style_engine() {
+			return version_compare( $GLOBALS['wp_version'], '6.1', '>=' );
+		}
+
+		/**
+		 * Replace the `wp-container-{$id}` and `wp-container-content-{$id}` classes
+		 * to `wp-container-{$listing_id}-{$counter}` and wp-container-content-{$listing_id}-{$counter}`
+		 * in content and styles to prevent css conflict on ajax.
+		 *
+		 * @param  string $block_content
+		 * @return string|null
+		 */
+		public function modify_listing_content( $block_content ) {
+
+			if ( ! $this->current_listing ) {
+				return $block_content;
+			}
+
+			$this->selectors_map = array();
+
+			$block_content = preg_replace_callback( '/wp-container(?:|-content)-\d++(?!-)/', function( $matches ) {
+
+				$selector = $matches[0];
+
+				if ( isset( $this->selectors_map[ $selector ] ) ) {
+					return $this->selectors_map[ $selector ];
+				}
+
+				$prefix = ( false !== strpos( $selector, '-content' ) ) ? 'wp-container-content' : 'wp-container';
+
+				$new_selector = sprintf( '%s-%s-%s', $prefix, $this->current_listing, ++ $this->counter );
+
+				$this->selectors_map[ $selector ] = $new_selector;
+
+				return $new_selector;
+
+			}, $block_content );
+
+			if ( ! empty( $this->selectors_map ) ) {
+
+				$store     = WP_Style_Engine::get_store( 'block-supports' );
+				$css_rules = $store->get_all_rules();
+
+				if ( empty( $css_rules ) ) {
+					return $block_content;
+				}
+
+				$check_keys = array_map( function( $old_selector ) {
+					return $old_selector . '(?![\d-])';
+				}, array_keys( $this->selectors_map ) );
+
+				$check_regex = '/' . join( '|', $check_keys ) . '/';
+
+				foreach ( $css_rules as $selector => $css_rule ) {
+
+					if ( ! preg_match( $check_regex, $selector ) && ! empty( $css_rule ) ) {
+						continue;
+					}
+
+					$store->remove_rule( $selector );
+
+					$new_selector = str_replace( array_keys( $this->selectors_map ), array_values( $this->selectors_map ), $selector );
+
+					if ( isset( $css_rules[ $new_selector ] ) ) {
+						continue;
+					}
+
+					$store->add_rule( $new_selector )->add_declarations( $css_rule->get_declarations()->get_declarations() );
+
+					if ( wp_doing_ajax() ) {
+						$css_rule->set_selector( $new_selector );
+						$this->wp_listing_css .= $css_rule->get_css();
+					}
+				}
+			}
+
+			return $block_content;
 		}
 
 	}

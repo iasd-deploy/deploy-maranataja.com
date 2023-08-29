@@ -213,9 +213,7 @@ class OptimizeCss
 			? $fileAlreadyChecked['is_minify_css_enabled']
 			: MinifyCss::isMinifyCssEnabled() && in_array(Main::instance()->settings['minify_loaded_css_for'], array('href', 'all', ''));
 
-		if (! $isMinifyCssFilesEnabled) {
-			$doFileMinify = false;
-		} elseif (MinifyCss::skipMinify($src, $value->handle)) {
+		if ( ! $isMinifyCssFilesEnabled || MinifyCss::skipMinify($src, $value->handle) ) {
 			$doFileMinify = false;
 		}
 
@@ -240,9 +238,15 @@ class OptimizeCss
 			$isCssFile = true;
 		}
 
-		$handleDbStr = md5($value->handle);
+		if ($isCssFile) {
+			// This is the safest one as handle names for specific static can change on very page load
+			// as some developers have a habit of adding the UNIX time or other random string to a handle (e.g. for debugging)
+			$uniqueAssetStr = md5 ( str_replace(Misc::getWpRootDirPath(), '', $localAssetPath) );
+		} else {
+			$uniqueAssetStr = md5( $value->handle );
+		}
 
-		$transientName = 'wpacu_css_optimize_'.$handleDbStr;
+		$transientName = 'wpacu_css_optimize_'.$uniqueAssetStr;
 
 		$skipCache = false;
 
@@ -251,16 +255,7 @@ class OptimizeCss
 		}
 
 	    if (! $skipCache) {
-		    if (Main::instance()->settings['fetch_cached_files_details_from'] === 'db_disk') {
-				    if ( ! isset( $GLOBALS['wpacu_from_location_inc'] ) ) {
-					    $GLOBALS['wpacu_from_location_inc'] = 1;
-				    }
-				    $fromLocation = ( $GLOBALS['wpacu_from_location_inc'] % 2 ) ? 'db' : 'disk';
-			    } else {
-				    $fromLocation = Main::instance()->settings['fetch_cached_files_details_from'];
-			    }
-
-			$savedValues = OptimizeCommon::getTransient($transientName, $fromLocation);
+			$savedValues = OptimizeCommon::getTransient($transientName);
 
 			if ( $savedValues ) {
 				$savedValuesArray = json_decode( $savedValues, ARRAY_A );
@@ -412,7 +407,9 @@ class OptimizeCss
 		*/
 		$fileVer = sha1($cssContent);
 
-		$newFilePathUri  = self::getRelPathCssCacheDir() . OptimizeCommon::$optimizedSingleFilesDir . '/' . sanitize_title($value->handle) . '-v' . $fileVer;
+		$uniqueCachedAssetName = OptimizeCommon::generateUniqueNameForCachedAsset($isCssFile, $localAssetPath, $value->handle, $fileVer);
+
+		$newFilePathUri  = self::getRelPathCssCacheDir() . OptimizeCommon::$optimizedSingleFilesDir . '/' . $uniqueCachedAssetName;
 		$newFilePathUri .= '.css';
 
 		if ($cssContent === '') {
@@ -1493,19 +1490,17 @@ class OptimizeCss
 	{
 		global $wp_styles;
 
-		$typeAttr = Misc::getStyleTypeAttribute();
-
-		$output = '';
-
-		if ( $inlineStyleContent === '' ) {
+		if ( ! $inlineStyleContent ) {
 			$inlineStyleContent = $wp_styles->print_inline_style( $handle, false );
 		}
+
+		$output = '';
 
 		if ( $inlineStyleContent ) {
 			$output = sprintf(
 				"<style id='%s-inline-css'%s>\n%s\n</style>",
 				esc_attr( $handle ),
-				$typeAttr,
+				Misc::getStyleTypeAttribute(),
 				$inlineStyleContent
 			);
 		}

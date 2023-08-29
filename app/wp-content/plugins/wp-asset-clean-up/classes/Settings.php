@@ -474,18 +474,6 @@ class Settings
 	                    if (in_array($settingsKey, $applyDefaultToNeverSaved)) {
 	                        $settings[ $settingsKey ] = isset( $this->defaultSettings[ $settingsKey ] ) ? $this->defaultSettings[ $settingsKey ] : '';
                         }
-
-	                    // Renamed "hide_assets_meta_box" to "show_assets_meta_box" (legacy)
-	                    if ( $settingsKey === 'show_assets_meta_box' && isset($settings['hide_assets_meta_box']) && $settings['hide_assets_meta_box'] == 1 ) { // legacy
-	                        $settings['show_assets_meta_box'] = '0';
-	                    }
-
-	                    // "show_assets_meta_box" is either 0 or 1
-                        // if it doesn't exist, it was never saved (the user didn't update the settings after updating to 1.2.0.1)
-                        // Thus it will be activated by default: 1
-	                    if ( ! isset($settings['show_assets_meta_box']) || $settings['show_assets_meta_box'] === '' ) {
-	                        $settings['show_assets_meta_box'] = 1;
-	                    }
                     }
                 }
 
@@ -557,15 +545,17 @@ class Settings
 	 */
 	public function filterSettings($settings)
 	{
-		// /?wpacu_test_mode (will load the page with "Test Mode" enabled disregarding the value from the plugin's "Settings")
-		// For debugging purposes (e.g. to make sure the HTML source is the same when a guest user accesses it as the one that is generated when the plugin is deactivated)
-		if ( isset($_GET['wpacu_test_mode']) ) {
-			$settings['test_mode'] = true;
+		// Renamed "hide_assets_meta_box" to "show_assets_meta_box" (legacy)
+		if ( isset($settings['show_assets_meta_box'], $settings['hide_assets_meta_box']) && $settings['hide_assets_meta_box'] == 1 ) { // legacy
+			$settings['show_assets_meta_box'] = '0';
 		}
 
-		if ( isset($_GET['wpacu_skip_test_mode']) ) {
-		    $settings['test_mode'] = false;
-        }
+		// "show_assets_meta_box" is either 0 or 1
+		// if it doesn't exist, it was never saved (the user didn't update the settings after updating to 1.2.0.1)
+		// Thus it will be activated by default: 1
+		if ( ! isset($settings['show_assets_meta_box']) || $settings['show_assets_meta_box'] === '' ) {
+			$settings['show_assets_meta_box'] = 1;
+		}
 
 		// Oxygen Builder is triggered and some users might want to trigger unload rules there to make the editor faster, especially plugin unload rules
         // We will prevent minify/combine and other functions that will require caching any files to avoid any errors
@@ -589,29 +579,7 @@ class Settings
 		    $settings['minify_loaded_js_for'] = 'all';
 		}
 
-		// /?wpacu_skip_inline_css
-        if (isset($_GET['wpacu_skip_inline_css_files'])) {
-	        $settings['inline_css_files'] = false;
-        }
-
-		// /?wpacu_skip_inline_js
-		if (isset($_GET['wpacu_skip_inline_js_files'])) {
-			$settings['inline_js_files'] = false;
-		}
-
-		// /?wpacu_manage_front -> "Manage in the Front-end" via query string request
-        // Useful when working for a client, and you prefer him to view the pages (while logged-in) without the CSS/JS list at the bottom
-		if (isset($_GET['wpacu_manage_front'])) {
-			$settings['frontend_show'] = true;
-		}
-
-		// /?wpacu_manage_dash -> "Manage in the Dashboard" via query string request
-		// For debugging purposes
-		if (is_admin() && (isset($_REQUEST['wpacu_manage_dash']) || isset($_REQUEST['force_manage_dash']))) {
-			$settings['dashboard_show'] = true;
-		}
-
-		// Google Fonts Removal is enabled; make sure other related settings are nulled
+		// Google Fonts Removal is enabled; make sure other related settings are nullified
 		if ($settings['google_fonts_remove']) {
             $settings['google_fonts_combine']
                 = $settings['google_fonts_combine_type']
@@ -621,6 +589,21 @@ class Settings
                 = '';
 		}
 
+        if ((int)$settings['clear_cached_files_after'] === 0) {
+	        $settings['clear_cached_files_after'] = 1; // Starting from v1.2.3.6 (Pro)
+        }
+
+        if ( function_exists('get_rocket_option') && Misc::isPluginActive('wp-rocket/wp-rocket.php') ) {
+	        if ( ! defined( 'WPACU_WP_ROCKET_DELAY_JS_ENABLED' ) && get_rocket_option('delay_js') ) {
+		        // When "File Optimization" -- "Delay JavaScript execution" is enabled in WP Rocket
+                // Set "Settings" -- "Optimize JavaScript" -- "Combine loaded JS (JavaScript) into fewer files" to false
+                $settings['combine_loaded_js'] = '';
+                define( 'WPACU_WP_ROCKET_DELAY_JS_ENABLED', true );
+	        }
+        }
+
+		// [START] Overwrite specific settings via query string
+        // Ideally, either use /?wpacu_settings[...] OR /?wpacu_skip_test_mode (never both because they could interfere)
 		if (isset($_GET['wpacu_settings']) && is_array($_GET['wpacu_settings']) && ! empty($_GET['wpacu_settings'])) {
             foreach ($_GET['wpacu_settings'] as $settingKey => $settingValue) {
                 if ($settingValue === 'true') {
@@ -632,6 +615,39 @@ class Settings
                 $settings[$settingKey] = $settingValue;
             }
 		}
+
+		// /?wpacu_test_mode (will load the page with "Test Mode" enabled disregarding the value from the plugin's "Settings")
+		// For debugging purposes (e.g. to make sure the HTML source is the same when a guest user accesses it as the one that is generated when the plugin is deactivated)
+		if ( isset($_GET['wpacu_test_mode']) ) {
+			$settings['test_mode'] = true;
+		}
+
+		if ( isset($_GET['wpacu_skip_test_mode']) ) {
+			$settings['test_mode'] = false;
+		}
+
+		// /?wpacu_skip_inline_css
+		if (isset($_GET['wpacu_skip_inline_css_files'])) {
+			$settings['inline_css_files'] = false;
+		}
+
+		// /?wpacu_skip_inline_js
+		if (isset($_GET['wpacu_skip_inline_js_files'])) {
+			$settings['inline_js_files'] = false;
+		}
+
+		// /?wpacu_manage_front -> "Manage in the Front-end" via query string request
+		// Useful when working for a client, and you prefer him to view the pages (while logged-in) without the CSS/JS list at the bottom
+		if (isset($_GET['wpacu_manage_front'])) {
+			$settings['frontend_show'] = true;
+		}
+
+		// /?wpacu_manage_dash -> "Manage in the Dashboard" via query string request
+		// For debugging purposes
+		if (is_admin() && (isset($_REQUEST['wpacu_manage_dash']) || isset($_REQUEST['force_manage_dash']))) {
+			$settings['dashboard_show'] = true;
+		}
+		// [END] Overwrite specific settings via query string
 
 		return $settings;
 	}

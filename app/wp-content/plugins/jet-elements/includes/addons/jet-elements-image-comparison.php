@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
@@ -532,8 +532,10 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'before_label_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['before_label'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -544,11 +546,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'name'     => 'before_label_background',
 				'selector' => '{{WRAPPER}} ' . $css_scheme['before_label'],
 				'fields_options' => array(
-					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
-						),
+					'global' => array(
+						'default' => Global_Colors::COLOR_SECONDARY,
 					),
 				),
 			),
@@ -660,8 +659,10 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'after_label_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['after_label'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -673,9 +674,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector' => '{{WRAPPER}} ' . $css_scheme['after_label'],
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
+						'global' => array(
+							'default' => Global_Colors::COLOR_SECONDARY,
 						),
 					),
 				),
@@ -838,9 +838,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector' => '{{WRAPPER}} ' . $css_scheme['jx_instance'] . ' .jx-controller',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -886,9 +885,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector' => '{{WRAPPER}} ' . $css_scheme['jx_instance'] . ':hover .jx-controller',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
+						'global' => array(
+							'default' => Global_Colors::COLOR_SECONDARY,
 						),
 					),
 				),
@@ -1039,9 +1037,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['arrow'],
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1067,9 +1064,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['arrow'] . ':hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_4,
+						'global' => array(
+							'default' => Global_Colors::COLOR_ACCENT,
 						),
 					),
 				),
@@ -1428,9 +1424,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['dots'] .' li span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_3,
+						'global' => array(
+							'default' => Global_Colors::COLOR_TEXT,
 						),
 					),
 				),
@@ -1459,9 +1454,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['dots'] . ' li span:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1490,9 +1484,8 @@ class Jet_Elements_Image_Comparison extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} ' . $css_scheme['dots'] .' li.slick-active span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_4,
+						'global' => array(
+							'default' => Global_Colors::COLOR_ACCENT,
 						),
 					),
 				),

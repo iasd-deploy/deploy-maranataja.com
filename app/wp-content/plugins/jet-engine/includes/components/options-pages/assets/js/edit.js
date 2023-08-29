@@ -14,6 +14,7 @@
 			allParents: JetEnginePageConfig.parents,
 			availableCaps: JetEnginePageConfig.capabilities,
 			availablePositions: JetEnginePageConfig.positions,
+			defaultMenuPosition: JetEnginePageConfig.default_position,
 			helpLinks: JetEnginePageConfig.help_links,
 			initialStorageType: null,
 			updateOptions: '',
@@ -60,6 +61,8 @@
 					console.log( e );
 				} );
 
+			} else {
+				self.$set( self.generalSettings, 'position', parseInt( self.defaultMenuPosition, 10 ) );
 			}
 		},
 		computed: {

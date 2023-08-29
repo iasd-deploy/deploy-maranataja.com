@@ -13,12 +13,12 @@
   array (
     'matthiasmullie/minify' => 
     array (
-      'pretty_version' => '1.3.67',
-      'version' => '1.3.67.0',
+      'pretty_version' => '1.3.71',
+      'version' => '1.3.71.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'acaee1b7ca3cd67a39d7f98673cacd7e4739a8d9',
+      'reference' => 'ae42a47d7fecc1fbb7277b2f2d84c37a33edc3b1',
     ),
     'matthiasmullie/path-converter' => 
     array (

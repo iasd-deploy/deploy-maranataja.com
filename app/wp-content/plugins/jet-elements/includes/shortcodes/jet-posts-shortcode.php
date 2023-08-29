@@ -823,7 +823,13 @@ class Jet_Posts_Shortcode extends Jet_Elements_Shortcode_Base {
 				}
 			}
 
-			if ( ! empty( $callback ) && is_callable( $callback ) ) {
+			$meta_callbacks = jet_elements_tools()->allowed_meta_callbacks();
+
+			unset( $meta_callbacks[''] );
+
+			$allowed_functions = array_keys( $meta_callbacks );
+
+			if ( in_array( $callback, $allowed_functions ) && ! empty( $callback ) && is_callable( $callback ) ) {
 				$meta_val = call_user_func_array( $callback, $callback_args );
 			} else {
 				$meta_val = $value[0];

@@ -57,6 +57,17 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
                 </a>
 
                 <div class="wpacu-assets-collapsible-content <?php if ($listAreaStatus !== 'contracted') { ?>wpacu-open<?php } ?>">
+			        <?php if (count($values) > 0) { ?>
+                        <div class="wpacu-area-toggle-all-assets wpacu-right">
+                            <a class="wpacu-area-contract-all-assets wpacu_area_handles_row_expand_contract"
+                               data-wpacu-area="<?php echo esc_html($handleStatus); ?>_assets" href="#">Contract</a>
+                            |
+                            <a class="wpacu-area-expand-all-assets wpacu_area_handles_row_expand_contract"
+                               data-wpacu-area="<?php echo esc_html($handleStatus); ?>_assets" href="#">Expand</a>
+                            All Assets
+                        </div>
+                    <?php } ?>
+
 					<?php if ($handleStatus === 'loaded') {
                         if (count($values) > 0) {
                             $loadedFilesNote = esc_html__('The following files were not selected for unload in any way (e.g. per page, site-wide) on this page. The list also includes any load exceptions (e.g. a file can be unloaded site-wide, but loaded on this page).', 'wp-asset-clean-up');
@@ -76,7 +87,8 @@ if (! empty($data['all']['styles']) || ! empty($data['all']['scripts'])) {
 					<?php } ?>
 
                     <?php if (count($values) > 0) { ?>
-                        <table class="wpacu_list_table wpacu_list_by_parents wpacu_widefat wpacu_striped">
+                        <table class="wpacu_list_table wpacu_list_by_parents wpacu_widefat wpacu_striped"
+                               data-wpacu-area="<?php echo esc_html($handleStatus); ?>_assets">
                             <tbody>
                             <?php
                             echo \WpAssetCleanUp\Misc::stripIrrelevantHtmlTags($assetRowsOutput);

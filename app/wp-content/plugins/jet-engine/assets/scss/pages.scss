@@ -111,6 +111,11 @@ $color__border-off-panel: #DCDCDD;
 	}
 }
 
+.jet-engine-description {
+	display: block;
+	margin-top: 5px;
+}
+
 .indent-top {
 	padding-top: 15px;
 }
@@ -338,6 +343,27 @@ $color__border-off-panel: #DCDCDD;
 	}
 }
 
+.jet-engine-accent-text,
 .jet-engine-condition-field-name {
 	color: $color__accent;
+}
+
+.jet-engine-condition-field-value {
+	font-weight: 500;
+	font-style: normal;
+	color: $color__accent;
+	margin: 0 0 0 10px;
+
+	.rtl & {
+		margin: 0 10px 0 0;
+	}
+}
+
+.jet-engine-condition-popup {
+	.cx-vui-popup__content {
+		> .cx-vui-component {
+			padding-left: 0;
+			padding-right: 0;
+		}
+	}
 }

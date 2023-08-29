@@ -394,6 +394,8 @@ class WPML_String_Translation {
 		if ( empty( $file ) && ! empty( $_GET['file'] ) ) {
 			$file = WPML_PLUGINS_DIR . '/' . filter_var( $_GET['file'], FILTER_SANITIZE_STRING );
 		}
+
+		/** @phpstan-ignore-next-line */
 		if ( empty( $file ) && ! wpml_st_file_path_is_valid( $file ) ) {
 			return;
 		}
@@ -477,13 +479,16 @@ class WPML_String_Translation {
 		/** @var wpdb $wpdb */
 		global $wpdb;
 
-		$translation_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"	SELECT string_translation_id
+		/** @var string $sql */
+		$sql = $wpdb->prepare(
+			"	SELECT string_translation_id
 															FROM {$wpdb->prefix}icl_string_status
 															WHERE rid = %d",
-				$rid
-			)
+			$rid
+		);
+
+		$translation_ids = $wpdb->get_col(
+			$sql
 		);
 		$cancel_count    = 0;
 		foreach ( $translation_ids as $translation_id ) {
@@ -887,7 +892,7 @@ class WPML_String_Translation {
 	/**
 	 * Returns the language the current string is to be translated into.
 	 *
-	 * @param string $name
+	 * @param string|bool|null $name
 	 *
 	 * @return string
 	 */
@@ -909,7 +914,7 @@ class WPML_String_Translation {
 		}
 
 		if ( $this->should_use_admin_language()
-			 && ! WPML_ST_Blog_Name_And_Description_Hooks::is_string( $name ) ) {
+			 && ! WPML_ST_Blog_Name_And_Description_Hooks::is_string( (string) $name ) ) {
 			$admin_display_lang = $this->get_admin_language();
 			$current_language   = $admin_display_lang ? $admin_display_lang : $current_language;
 		}
@@ -979,7 +984,7 @@ class WPML_String_Translation {
 
 		$string_ids = array_map( 'intval', $_POST['strings'] );
 		$lang       = filter_var( isset( $_POST['language'] ) ? $_POST['language'] : '', FILTER_SANITIZE_SPECIAL_CHARS );
-		$response   = $change_string_language_dialog->change_language_of_strings( $string_ids, $lang );
+		$response   = $change_string_language_dialog->change_language_of_strings( $string_ids, (string) $lang );
 
 		wp_send_json( $response );
 	}

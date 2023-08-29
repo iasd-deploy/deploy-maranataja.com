@@ -32,12 +32,22 @@ class Package {
 		require_once $this->package_path( 'query-builder/manager.php' );
 		Query_Builder\Manager::instance();
 
+		require_once $this->package_path( 'meta-boxes/manager.php' );
+		Meta_Boxes\Manager::instance();
+
 		add_filter( 'jet-engine/modules/dynamic-visibility/conditions/groups', [ $this, 'register_conditions_group' ] );
 		add_action( 'jet-engine/modules/dynamic-visibility/conditions/register', [ $this, 'register_conditions' ] );
 
 		add_action( 'jet-engine/elementor-views/dynamic-tags/register', [ $this, 'register_dynamic_tags' ], 10, 2 );
 		add_action( 'jet-engine/register-macros', [ $this, 'register_macros' ] );
 
+		add_filter( 'jet-engine/query-builder/types/sql-query/cast-objects', [ $this, 'add_product_to_cast' ] );
+
+	}
+
+	public function add_product_to_cast( $objects ) {
+		$objects['wc_get_product'] = __( 'WC Product', 'jet-engine' );
+		return $objects;
 	}
 
 	public function register_macros() {

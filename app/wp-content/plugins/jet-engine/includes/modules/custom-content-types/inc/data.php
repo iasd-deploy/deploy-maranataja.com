@@ -426,6 +426,7 @@ class Data extends \Jet_Engine_Base_Data {
 
 				case 'wysiwyg':
 				case 'textarea':
+				case 'repeater':
 					$result[ $field['name'] ] = 'LONGTEXT';
 					break;
 

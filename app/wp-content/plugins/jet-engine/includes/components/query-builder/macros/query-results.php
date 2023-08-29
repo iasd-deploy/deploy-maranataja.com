@@ -117,7 +117,9 @@ class Query_Results_Macro extends \Jet_Engine_Base_Macros {
 
 		}
 
-		return $items;
+		$items = array_filter( $items );
+
+		return ! empty( $items ) ? $items : false;
 
 	}
 

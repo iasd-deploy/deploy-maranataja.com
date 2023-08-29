@@ -64,6 +64,7 @@ class Module {
 		require jet_engine()->modules->modules_path( 'maps-listings/inc/sources.php' );
 		require jet_engine()->modules->modules_path( 'maps-listings/inc/geosearch/manager.php' );
 		require jet_engine()->modules->modules_path( 'maps-listings/inc/map-field.php' );
+		require jet_engine()->modules->modules_path( 'maps-listings/inc/listing-link-actions.php' );
 
 		// Bricks Integration
 		require jet_engine()->modules->modules_path( 'maps-listings/inc/bricks-views/manager.php' );
@@ -78,6 +79,7 @@ class Module {
 		new Blocks_Integration();
 		new Bricks_Views\Manager();
 		new Map_Field();
+		new Listing_Link_Actions();
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
 
@@ -167,11 +169,12 @@ class Module {
 	/**
 	 * Get action url for open map popup
 	 *
-	 * @param  null $specific_post_id
-	 * @param  null $event
+	 * @param  null  $specific_post_id
+	 * @param  null  $event
+	 * @param  array $params Additional arguments
 	 * @return string
 	 */
-	public function get_action_url( $specific_post_id = null, $event = null ) {
+	public function get_action_url( $specific_post_id = null, $event = null, $params = array() ) {
 		$object = jet_engine()->listings->data->get_current_object();
 		$class  = get_class( $object );
 		$event  = ! empty( $event ) ? $event : 'click';
@@ -196,6 +199,10 @@ class Module {
 			'id'    => $post_id,
 			'event' => $event,
 		);
+
+		if ( ! empty( $params ) ) {
+			$args = array_merge( $args, $params );
+		}
 
 		return jet_engine()->frontend->get_custom_action_url( 'open_map_listing_popup', $args );
 	}

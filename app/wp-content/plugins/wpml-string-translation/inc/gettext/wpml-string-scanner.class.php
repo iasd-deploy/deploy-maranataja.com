@@ -121,8 +121,9 @@ class WPML_String_Scanner {
 	/**
 	 * Get list of files under directory.
 	 *
-	 * @param  string $path       Directory to parse.
-	 * @param  object $filesystem WP_Filesystem object
+	 * @param  string             $path       Directory to parse.
+	 * @param  WP_Filesystem_Base $filesystem WP_Filesystem object
+	 *
 	 * @return array
 	 */
 	private function extract_files( $path, $filesystem ) {
@@ -272,6 +273,7 @@ class WPML_String_Scanner {
 		$string = str_replace( '\n', "\n", $string );
 		$string = str_replace( array( '\"', "\\'" ), array( '"', "'" ), $string );
 		// replace extra backslashes added by _potx_process_file
+		/** @var string $string */
 		$string = str_replace( array( '\\\\' ), array( '\\' ), $string );
 		$string = stripcslashes( $string );
 
@@ -477,6 +479,7 @@ class WPML_String_Scanner {
 		// This way the update message will no longer show.
 
 		$obsolete_context = str_replace( 'plugin ', '', $old_context );
+		/** @var string $obsolete_context */
 		$obsolete_context = str_replace( 'theme ', '', $obsolete_context );
 		$obsolete_context = $obsolete_context . ' (obsolete)';
 

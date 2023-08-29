@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
@@ -680,8 +680,10 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'first_name_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['name'] . ' .jet-team-member__name-first',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -711,8 +713,10 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'last_name_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['name'] . ' .jet-team-member__name-last',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -806,8 +810,10 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'position_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['position'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -923,8 +929,10 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'desc_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['desc'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
 			),
 			50
 		);
@@ -1426,9 +1434,8 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 			array(
 				'label' => esc_html__( 'Background Color', 'jet-elements' ),
 				'type' => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['button'] => 'background-color: {{VALUE}}',
@@ -1453,8 +1460,10 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['button'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -1812,12 +1821,20 @@ class Jet_Elements_Team_Member extends Jet_Elements_Base {
 		$format = apply_filters( 'jet-elements/team-member/image-format', '<figure class="jet-team-member__figure">%s</figure>' );
 		$alt    = esc_attr( Control_Media::get_image_alt( $image ) );
 
-		$image_html = wp_get_attachment_image( $image['id'], 'full', false,
-			array(
-				'class' => 'jet-team-member__img-tag',
-				'alt'   => $alt,
-			)
-		);
+		if ( ! empty( $image['id'] ) ) {
+			$image_html = wp_get_attachment_image( $image['id'], 'full', false,
+				array(
+					'class' => 'jet-team-member__img-tag',
+					'alt'   => $alt,
+				)
+			);
+		} else {
+			$image_html = '<img src="' . esc_url($image['url']) . '" class="jet-team-member__img-tag" width="100%" alt="' . $alt . '">';
+		}
+
+		if ( empty( $image_html ) ) {
+			return;
+		}
 
 		return sprintf( $format, $image_html );
 	}

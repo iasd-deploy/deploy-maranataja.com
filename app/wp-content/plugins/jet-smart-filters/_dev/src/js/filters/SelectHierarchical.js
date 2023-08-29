@@ -13,9 +13,11 @@ export default class SelectHierarchical {
 			return;
 
 		$filters.each(index => {
-			const $filter = $filters.eq(index),
-				filter = new SelectControl($container, $filter);
+			const $filter = $filters.eq(index);
+			const filter = new SelectControl($container, $filter);
 
+			filter.hierarchicalInstance = this;
+			filter.name = 'select';
 			filter.$container = $container;
 			filter.isHierarchy = true;
 			filter.depth = index;
@@ -82,6 +84,9 @@ export default class SelectHierarchical {
 	hierarchicalFilterProcessData(filter) {
 		filter.dataValue = filter.$selected.val();
 
+		if (filter.additionalFilterSettings)
+			filter.additionalFilterSettings.dataUpdated();
+
 		// get hierarchical chain if same taxonomies
 		if (filter.depth) {
 			const hierarchicalСhain = this.getHierarchicalСhain(filter);
@@ -136,11 +141,11 @@ export default class SelectHierarchical {
 		});
 
 		this.ajaxRequest({ values, args }, () => {
-			filters.forEach(filter => {
+			this.filters.forEach(filter => {
 				filter.setData(filter.data);
 			});
 
-			const firstFilter = filters[0];
+			const firstFilter = this.filters[0];
 			if (firstFilter)
 				eventBus.publish('activeItems/rebuild', firstFilter.provider, firstFilter.queryId);
 		});

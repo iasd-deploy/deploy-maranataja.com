@@ -12,8 +12,6 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
@@ -754,6 +752,45 @@ class Jet_Elements_Pie_Chart extends Jet_Elements_Base {
 		$this->_close_wrap();
 	}
 
+		/**
+	 * Set global colors.
+	 *
+	 * @return array
+	 */
+	public function get_global_colors($globals) {
+
+		$kit = Plugin::$instance->kits_manager->get_active_kit_for_frontend();
+		$kit_system = $kit->get_settings_for_display( 'system_colors' );
+		$kit_custom = $kit->get_settings_for_display( 'custom_colors' );
+
+		if (isset($globals['__globals__'])){
+
+			$kit_settings = $kit_system;
+
+			if (isset($kit_custom)){
+
+				$kit_settings = array_merge( $kit_system, $kit_custom );
+			}
+
+			foreach($globals['__globals__'] as $key => $value){
+
+				$value = str_replace('globals/colors?id=', '', $value);
+
+				foreach($kit_settings as $kit_setting){
+
+					if( $kit_setting['_id'] === $value ){
+
+						$globals[$key] = $kit_setting['color'];
+
+					}
+				}
+			}
+		}
+
+		return $globals;
+
+	}
+
 	/**
 	 * Get prepare chart data.
 	 *
@@ -761,6 +798,8 @@ class Jet_Elements_Pie_Chart extends Jet_Elements_Base {
 	 */
 	public function get_chart_data() {
 		$settings = $this->get_settings_for_display();
+
+		$settings = $this->get_global_colors($settings);
 
 		$data = array(
 			'datasets' => array(
@@ -775,6 +814,9 @@ class Jet_Elements_Pie_Chart extends Jet_Elements_Base {
 		$chart_data = $settings['chart_data'];
 
 		foreach ( $chart_data as $item_data ) {
+
+			$item_data = $this->get_global_colors($item_data);
+
 			$data['datasets'][0]['data'][]            = ! empty( $item_data['value'] ) ? $item_data['value'] : '';
 			$data['datasets'][0]['backgroundColor'][] = ! empty( $item_data['color'] ) ? $item_data['color'] : '';
 			$data['labels'][]                         = ! empty( $item_data['label'] ) ? $item_data['label'] : '';
@@ -794,6 +836,8 @@ class Jet_Elements_Pie_Chart extends Jet_Elements_Base {
 	 */
 	public function get_chart_options() {
 		$settings = $this->get_settings_for_display();
+
+		$settings = $this->get_global_colors($settings);
 
 		$legend_display   = filter_var( $settings['chart_legend_display'], FILTER_VALIDATE_BOOLEAN );
 		$tooltips_enabled = filter_var( $settings['chart_tooltip_enabled'], FILTER_VALIDATE_BOOLEAN );

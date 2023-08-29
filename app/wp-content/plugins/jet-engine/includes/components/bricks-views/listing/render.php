@@ -45,7 +45,7 @@ class Render {
 	}
 
 	public function set_query_on_listing_ajax( $ajax_handler, $request ) {
-		$settings = isset( $request['widget_settings'] ) ? $request['widget_settings'] : [];
+		$settings = isset( $request['settings'] ) ? $request['settings'] : [];
 		$this->set_bricks_query( 0, $settings );
 	}
 

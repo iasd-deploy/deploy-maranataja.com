@@ -61,11 +61,6 @@ tr.quick-edit-row td .cx-section__content .cx-ui-kit__description {
 	opacity: .7;
 }
 
-tr.quick-edit-row td .cx-section__content .je-field-name {
-	font-size: 1em;
-	padding: 1px 3px;
-}
-
 tr.quick-edit-row td .cx-section__content .cx-ui-kit__content {
 	flex: 0 0 calc( 100% - 115px );
 }

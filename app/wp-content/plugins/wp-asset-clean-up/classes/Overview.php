@@ -551,9 +551,14 @@ SQL;
 
 		        foreach ($handleData['script_attrs']['post'] as $postId => $attrList) {
 			        $postData   = get_post($postId);
-			        $postTitle  = $postData->post_title;
-			        $postType   = $postData->post_type;
-			        $postsList .= '<a title="Post Title: '.esc_attr($postTitle).', Post Type: '.esc_attr($postType).'" class="wpacu-tooltip" target="_blank" href="'.esc_url(admin_url('post.php?post='.$postId.'&action=edit')).'">'.$postId.'</a> - <strong>'.esc_html(implode(', ', $attrList)).'</strong> / ';
+
+                    if (isset($postData->post_title, $postData->post_type)) {
+	                    $postTitle = $postData->post_title;
+	                    $postType  = $postData->post_type;
+	                    $postsList .= '<a title="Post Title: ' . esc_attr( $postTitle ) . ', Post Type: ' . esc_attr( $postType ) . '" class="wpacu-tooltip" target="_blank" href="' . esc_url( admin_url( 'post.php?post=' . $postId . '&action=edit' ) ) . '">' . $postId . '</a> - <strong>' . esc_html( implode( ', ', $attrList ) ) . '</strong> / ';
+                    } else {
+	                    $postsList .= '<s class="wpacu-tooltip" title="N/A (post deleted)" style="color: #cc0000;">'.$postId.'</s> / ';
+                    }
 		        }
 
 	            $handleExtras[3] .= rtrim($postsList, ' / ');
@@ -651,10 +656,15 @@ SQL;
 							        }
 
 							        $postData   = get_post($postId);
-							        $postTitle  = $postData->post_title;
-							        $postType   = $postData->post_type;
 
-							        $postPagesList .= '<a title="Post Title: '.esc_attr($postTitle).', Post Type: '.esc_attr($postType).'" class="wpacu-tooltip" target="_blank" href="'.esc_url(admin_url('post.php?post='.$postId.'&action=edit')).'">'.$postId.'</a> | ';
+                                    if (isset($postData->post_title, $postData->post_type)) {
+	                                    $postTitle = $postData->post_title;
+	                                    $postType  = $postData->post_type;
+
+	                                    $postPagesList .= '<a title="Post Title: ' . esc_attr( $postTitle ) . ', Post Type: ' . esc_attr( $postType ) . '" class="wpacu-tooltip" target="_blank" href="' . esc_url( admin_url( 'post.php?post=' . $postId . '&action=edit' ) ) . '">' . $postId . '</a> | ';
+                                    } else {
+	                                    $postPagesList .= '<s style="color: #cc0000;">'.$postId.'</s> <em>N/A (post deleted)</em> | ';
+                                    }
 						        }
 
 						        if ($postPagesList) {
@@ -810,7 +820,11 @@ SQL;
 
 			if (isset($handleData['unload_bulk']['post_type'])) {
 				foreach ($handleData['unload_bulk']['post_type'] as $postType) {
-					$handleChangesOutput['bulk'] .= ' <span style="color: #cc0000;">Unloaded on all pages of <strong>' . $postType . '</strong> post type</span>, ';
+                    $textToShow = 'Unloaded on all pages of <strong>' . $postType . '</strong> post type';
+
+                    $handleChangesOutput['bulk'] .= ' <span style="color: #cc0000;">'.$textToShow.'</span>'.
+                                                    self::anyNoPostTypeEntriesMsg($postType).', ';
+
 					$anyUnloadRule = true;
 				}
 			}
@@ -849,9 +863,22 @@ SQL;
 
 			foreach ($handleData['unload_on_this_page']['post'] as $postId) {
 				$postData   = get_post($postId);
-				$postTitle  = $postData->post_title;
-				$postType   = $postData->post_type;
-				$postsList .= '<a title="Post Title: '.esc_attr($postTitle).', Post Type: '.esc_attr($postType).'" class="wpacu-tooltip" target="_blank" href="'.esc_url(admin_url('post.php?post='.$postId.'&action=edit')).'">'.$postId.'</a>, ';
+
+                if (isset($postData->post_title, $postData->post_type)) {
+	                $postTitle  = $postData->post_title;
+	                $postType   = $postData->post_type;
+                    $postStatus = $postData->post_status;
+
+	                $postsList .= '<a title="Post Title: ' . esc_attr( $postTitle ) . ', Post Type: ' . esc_attr( $postType ) . '" class="wpacu-tooltip" target="_blank" href="' . esc_url( admin_url( 'post.php?post=' . $postId . '&action=edit' ) ) . '">' . $postId . '</a>';
+
+                    if ($postStatus === 'trash') {
+                        $postsList .= '&nbsp;<span style="color: #cc0000;" title="The post is in the \'Trash\'. This rule is not relevant if the post URL is not accessible." class="wpacu-tooltip dashicons dashicons-warning"></span>';
+                    }
+
+                    $postsList .= ', ';
+                } else {
+	                $postsList .= '<s class="wpacu-tooltip" title="N/A (post deleted)" style="color: #cc0000;">'.$postId.'</s>, ';
+                }
 			}
 
 			$handleChangesOutput['on_this_post'] .= rtrim($postsList, ', ');
@@ -898,9 +925,14 @@ HTML;
 
 			foreach ($handleData['load_exception_on_this_page']['post'] as $postId) {
 				$postData   = get_post($postId);
-				$postTitle  = $postData->post_title;
-				$postType   = $postData->post_type;
-				$postsList .= '<a title="Post Title: '.esc_attr($postTitle).', Post Type: '.esc_attr($postType).'" class="wpacu-tooltip" target="_blank" href="'.esc_url(admin_url('post.php?post='.$postId.'&action=edit')).'">'.$postId.'</a>, ';
+
+                if (isset($postData->post_title, $postData->post_type)) {
+				    $postTitle  = $postData->post_title;
+				    $postType   = $postData->post_type;
+				    $postsList .= '<a title="Post Title: '.esc_attr($postTitle).', Post Type: '.esc_attr($postType).'" class="wpacu-tooltip" target="_blank" href="'.esc_url(admin_url('post.php?post='.$postId.'&action=edit')).'">'.$postId.'</a>, ';
+                } else {
+	                $postsList .= '<s class="wpacu-tooltip" title="N/A (post deleted)" style="color: #cc0000;">'.$postId.'</s>, ';
+                }
 			}
 
 			$handleChangesOutput['load_exception_on_this_post'] .= rtrim($postsList, ', ');
@@ -916,7 +948,7 @@ HTML;
 			sort($handleData['load_exception_post_type']);
 
 			foreach ($handleData['load_exception_post_type'] as $postType) {
-				$postTypesList .= '<strong>'.$postType.'</strong>, ';
+				$postTypesList .= '<strong>'.$postType.'</strong>'.self::anyNoPostTypeEntriesMsg($postType).', ';
 			}
 
 			$handleChangesOutput['load_exception_post_type'] .= rtrim($postTypesList, ', ');
@@ -964,4 +996,21 @@ HTML;
 
 		return $handleChangesOutput;
 	}
+
+	/**
+	 * @param $postType
+	 *
+	 * @return string
+	 */
+	public static function anyNoPostTypeEntriesMsg($postType)
+    {
+	    $appendAfter = '';
+	    $postTypeStatus = Misc::isValidPostType($postType);
+
+	    if ( ! $postTypeStatus['has_records'] ) {
+		    $appendAfter = ' <span style="color: #cc0000;" title="There are no posts in the database having the following post type: ' . $postType . '" class="wpacu-tooltip dashicons dashicons-warning"></span>';
+	    }
+
+        return $appendAfter;
+    }
 }

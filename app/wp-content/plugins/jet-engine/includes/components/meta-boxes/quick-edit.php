@@ -319,10 +319,6 @@ if ( ! class_exists( 'Jet_Engine_CPT_Quick_Edit' ) ) {
 						margin: -5px 0 0 0;
 						opacity: .7;
 					}
-					.inline-edit-row .je-field-name {
-						font-size: 1em;
-						padding: 1px 3px;
-					}
 					.inline-edit-row .cx-ui-kit__content {
 						flex: 0 0 calc( 100% - 115px );
 					}

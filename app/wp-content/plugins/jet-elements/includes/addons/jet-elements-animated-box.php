@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 
@@ -585,9 +585,8 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_front'],
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 						'opacity' => 0.4,
 					),
@@ -742,9 +741,8 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_back'],
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_2,
+						'global' => array(
+							'default' => Global_Colors::COLOR_SECONDARY,
 						),
 					),
 				),
@@ -1329,8 +1327,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'front_title_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_title_front'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1441,8 +1441,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'back_title_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_title_back'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1571,8 +1573,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'front_subtitle_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_subtitle_front'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1683,8 +1687,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'back_subtitle_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_subtitle_back'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1786,8 +1792,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'front_description_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_desc_front'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1871,8 +1879,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'back_description_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['animated_box_desc_back'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -2097,12 +2107,11 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			array(
 				'label' => esc_html__( 'Background Color', 'jet-elements' ),
 				'type' => Controls_Manager::COLOR,
-				'scheme' => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_1,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['animated_box_button'] => 'background-color: {{VALUE}}',
+				),
+				'global' => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 			),
 			25
@@ -2112,8 +2121,10 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['animated_box_button'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -2283,7 +2294,7 @@ class Jet_Elements_Animated_Box extends Jet_Elements_Base {
 
 		// for multi-language plugins
 		$template_id = apply_filters( 'jet-elements/widgets/template_id', $template_id, $this );
-		$content     = jet_elements()->elementor()->frontend->get_builder_content_for_display( $template_id );
+		$content     = jet_elements()->elementor()->frontend->get_builder_content( $template_id );
 
 		if ( jet_elements()->elementor()->editor->is_edit_mode() ) {
 			$edit_url = add_query_arg(

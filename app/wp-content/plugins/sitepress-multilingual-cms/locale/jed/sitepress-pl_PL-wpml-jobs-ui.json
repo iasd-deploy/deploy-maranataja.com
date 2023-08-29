@@ -4,7 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "lang": "pl"
          },
          "Draft — Pending review": [
             "Szkic — oczekuje na sprawdzenie"
@@ -389,6 +389,10 @@
          ],
          "Synchronization with the Professional Translation service has failed": [
             "Synchronizacja z usługą Tłumaczeń Profesjonalnych nie powiodła się"
+         ],
+         "%d translation has been downloaded": [
+            "%d tłumaczenie zostało pobrane.",
+            "Pobrano tłumaczenia: %d"
          ],
          "Batch sync finished successfully!": [
             "Pomyślnie zakończono synchronizację partii!"

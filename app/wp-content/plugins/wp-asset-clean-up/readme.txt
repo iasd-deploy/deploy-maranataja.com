@@ -3,8 +3,8 @@ Contributors: gabelivan
 Tags: minify css, minify javascript, defer css javascript, page speed, dequeue, performance
 Donate link: https://www.gabelivan.com/items/wp-asset-cleanup-pro/?utm_source=wp_org_lite&utm_medium=donate
 Requires at least: 4.6
-Tested up to: 6.1.1
-Stable tag: 1.3.9.1
+Tested up to: 6.3
+Stable tag: 1.3.9.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 
@@ -191,6 +191,30 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 4. Homepage CSS & JS Management (List sorted by location)
 
 == Changelog ==
+= 1.3.9.3 =
+* WordPress 6.3 compatibility: Updated the code to avoid the following notice: "Function WP_Scripts::print_inline_script is deprecated since version 6.3.0"
+* "WPML Multilingual CMS" plugin compatibility: Syncing post changes on all its associated translated posts / e.g. if you unload an asset on a page level in /contact/ (English) page, it will also be unloaded (synced) in /contacto/ (Spanish) and /kontakt/ (German) pages
+* "WP Rocket" plugin compatibility: "Settings" -- "Optimize JavaScript" -- "Combine loaded JS (JavaScript) into fewer files" is automatically disabled when the following option is turned on in "WP Rocket": "File Optimization" -- "JavaScript Files" -- "Delay JavaScript execution"
+* "Hide My WP Ghost – Security Plugin" plugin compatibility: Asset CleanUp's HTML alteration is done before the one of the security plugin so minify/combine CSS/JS will work fine
+* "Site Kit by Google" plugin compatibility: JavaScript files from this plugin are added to the ignore list to avoid minifying as they are already minified (with just a few extra comments) and minifying them again, due to their particular structure, resulted in JS errors in the browser's console
+* Improvement: Changed the name of the cached files to make them more unique as sometimes, handles that had UNIX timestamps and random strings (developers use them for various reason, including debugging), were causing lots of redundant files to be generated in the assets' caching directory
+* Added jQuery Migrate script to the ignore list to avoid minifying it (along with jQuery leave it as it is, if the developer decided to load the large versions of the files, for debugging purposes)
+* Front-end view: In the "Asset CleanUp" top admin bar menu, a new link is added that goes directly to the manage CSS/JS area for the current visited page for convenience
+* Remove the usage of "/wp-content/cache/storage/_recent_items" directory from the CSS/JS caching directory as it was redundant to the caching functionality
+* Option to skip "Cache Enabler" cache clearing via using the "WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE" constant (e.g. set to 'true' in wp-config.php) - read more: https://www.assetcleanup.com/docs/?p=1502#wpacu-cache-enabler
+* "Knowledge Base for Documents and FAQs" plugin: Do not show the CSS/JS manager at the bottom of the page when "Edit KB Article Page" is ON
+* New "Brizy - Page Builder" setup: Prevent Asset CleanUp from triggering when the editor is ON
+* Fix: "Do not load Asset CleanUp on this page (this will disable any functionality of the plugin)" - if turned ON, make sure the hardcoded list loads fine in the front-end view (Manage CSS/JS)
+* Fix: Use the same "chmod" values from FS_CHMOD_DIR and FS_CHMOD_FILE (WordPress constants) for all the files and directories from the assets' caching directory when attempting to create a file/directory to avoid permission errors on specific environments
+
+= 1.3.9.2 =
+* New Option: Contract / Expand All Assets within an area (e.g. from a plugin)
+* "Overview" area: Added notifications about deleted posts, post types, taxonomies and users, making the admin aware that some rules might not be relevant anymore (e.g. the admin uninstalled WooCommerce, but unload rules about "product" post types or a specific product page remained in the database)
+* Stopped using the "error" class (e.g. on HTML DIV elements) and renamed it to "wpacu-error" as some plugins/themes sometimes interfere with it (e.g. not showing the error at all, thus confusing the admin)
+* Keep the same strict standard for the values within the following HTML attributes: "id", "for" to prevent any errors by avoiding any interferences with other plugins
+* Improvement: Only print the notice (as an HTML comment) about the "photoswipe" unload to the administrator (it's a special case where the HTML has to be hidden in case the CSS file gets unloaded)
+* WPML Fix: Prevent Asset CleanUp from triggering whenever /?wpml-app=ate-widget is loaded (in some environments, the content returned was empty and the automatic translation area was not loading)
+
 = 1.3.9.1 =
 * Improvement: Avoid deprecated errors related to PHP 8+ (although harmless, they are annoying to notice on the error_log files)
 * WPML Fix: Prevent Asset CleanUp triggering its front-end optimisation code whenever /?wpml-app=ate-widget is triggered OR JavaScript code is detected in the content of the source
@@ -235,20 +259,20 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * Show any special settings in "Overview" -- read more: https://www.assetcleanup.com/docs/?p=1495
 * PHP 8 compatibility: Make sure no deprecated notices are shown when WP_DEBUG is ON due to older PHP code that is still compatible with PHP 5.6
 * Notify the admin when the tracking notice is shown that he/she can manage this option in the "Settings" area (e.g. in case closing the notice box doesn't work because of some JavaScript errors on that page, coming from a different plugin or the theme)
-* Make sure the list of unloaded assets/plugins from the top admin bar is not broken due to the theme used that might have CSS interfering with Asset CleanUp Pro's one
+* Make sure the list of unloaded assets/plugins from the top admin bar is not broken due to the theme used that might have CSS interfering with Asset CleanUp's one
 * Make sure the user is redirected only once to the "Getting Started" page after the plugin is activated the first time (not after every re-activation as many developers are doing debugging)
-* "Transliterator - WordPress Transliteration" compatibility: Avoid breaking the HTML content in Asset CleanUp Pro's admin pages
+* "Transliterator - WordPress Transliteration" compatibility: Avoid breaking the HTML content in Asset CleanUp's admin pages
 * Added "wpacu_print_info_comments_in_cached_assets" filter hook for the option to avoid printing by default of plugin's comments in the CSS/JS files (e.g. the relative path to the file)
 * Reduced the total number of template files (e.g. some were redundant)
 * Reduce the total plugin's size by compressing some of its images
-* Higher accuracy in detecting Zion Page Builder to prevent Asset CleanUp Pro from triggering when the page builder is used
-* "Bricks – Visual Site Builder for WordPress": Do not trigger Asset CleanUp Pro whenever the page builder is used
+* Higher accuracy in detecting Zion Page Builder to prevent Asset CleanUp from triggering when the page builder is used
+* "Bricks – Visual Site Builder for WordPress": Do not trigger Asset CleanUp whenever the page builder is used
 * Bricks builder edit mode: Allow Asset CleanUp to trigger plugin & CSS/JS unload rules when the page editor is in use to make the editor load faster via define('WPACU_LOAD_ON_BRICKS_BUILDER', true); that can be set in wp-config.php / read more: https://www.assetcleanup.com/docs/?p=1450
 * Improvement: On pages without any unloading rules, do not make any DB calls or trigger extra PHP code to retrieve any load exceptions as they are irrelevant in this situation since the assets are loaded anyway
 * Improvement: Optimised the code to avoid triggering DB calls to the "options" table to check specific transient values
 * Improvement: Do extra checks to avoid calling get_transient() when it's not needed on specific pages (to reduce the number of DB calls)
 * Improvement: Remove extra DB queries related to "post_format" as this taxonomy is irrelevant for managing in Asset CleanUp
-* Improvement: When Asset CleanUp is prevented from loading via the rules from "Settings" -- "Plugin Usage Preferences" -- "Do not load the plugin on certain pages" OR from "Do not load Asset CleanUp Pro on this page (this will disable any functionality of the plugin)" within "Page Options" area (when managing assets for a specific page), make sure the checking is done earlier to avoid an extra DB query that would become irrelevant if the plugin would not be loaded on that page
+* Improvement: When Asset CleanUp is prevented from loading via the rules from "Settings" -- "Plugin Usage Preferences" -- "Do not load the plugin on certain pages" OR from "Do not load Asset CleanUp on this page (this will disable any functionality of the plugin)" within "Page Options" area (when managing assets for a specific page), make sure the checking is done earlier to avoid an extra DB query that would become irrelevant if the plugin would not be loaded on that page
 * Improvement: Add more uniqueness to the plugin's JS code deferring the CSS to avoid any conflicts with other similar codes
 * Improvement: Escape as late as possible all variables when echoed
 * Improvement: Load jQuery UI files locally, thus removing any unnecessary dependency on another site (e.g. not from "ajax.googleapis.com")
@@ -284,7 +308,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * If the security nonce is expired or not sent when certain forms are submitted, show an error message about the potential problems and how to fix them without showing the standard "Link has expired" error
 * Added the plugin version under the "Lite" text next to the logo
 * WPML Fix: Load the combined CSS/JS files from the right domain to avoid any CORS policy issues (in case there are multiple domains for each language)
-* Fix: The CSS/JS manager form wasn't submitting when "Do not load Asset CleanUp Pro on this page (this will disable any functionality of the plugin)" was enabled
+* Fix: The CSS/JS manager form wasn't submitting when "Do not load Asset CleanUp on this page (this will disable any functionality of the plugin)" was enabled
 * Fix: Make sure the loading exception rule if the user is logged-in is saving correctly
 * Fix: Do not show the "loading based on screen size" area if there is no SRC attached to the handle (e.g. "woocommerce-inline" handle)
 * Fix: Do not print anything whenever a cron job is triggered (this is only for debugging)
@@ -305,7 +329,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * Fix: More accuracy in detecting all the loaded assets when they have to be filtered for alternative loading of different content / read more: https://www.assetcleanup.com/docs/?p=988
 
 = 1.3.8.0 =
-* The meta box "Asset CleanUp Pro: Page Options" has had its contents moved to the "Page Options" area from the CSS/JS manager in any location the assets are managed
+* The meta box "Asset CleanUp: Page Options" has had its contents moved to the "Page Options" area from the CSS/JS manager in any location the assets are managed
 * Added "Page Options" for the homepage as well (e.g. latest posts) besides posts, pages, and any public custom post types (e.g. WooCommerce product pages)
 * Prevent the plugin from triggering when WooCommerce API calls are made
 * Make sure the following option works well when non-Latin characters are in the URI: "Do not load the plugin on certain page"
@@ -323,7 +347,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * New Option: Manage assets loading for posts, pages, and custom post types within "CSS & JS MANAGER" -> "MANAGE CSS/JS" without the need to go to edit post/page area which is often bulky and could have too many fields from the theme & other plugins leading to a higher number than the one set in php.ini for "max_input_vars"
 * Higher accuracy in preventing the plugin from triggering when there are REST requests
 * Improvement: Make sure "&display=" is added (if enabled) to Google Fonts links if their URL is changed to fit in JSON formats or JavaScript variables
-* Divi builder edit mode: Allow Asset CleanUp Pro to trigger plugin & CSS/JS unload rules when the page editor is on to make the editor load faster via define('WPACU_LOAD_ON_DIVI_BUILDER_EDIT', true); that can be set in wp-config.php / read more: https://www.assetcleanup.com/docs/?p=1260
+* Divi builder edit mode: Allow Asset CleanUp to trigger plugin & CSS/JS unload rules when the page editor is on to make the editor load faster via define('WPACU_LOAD_ON_DIVI_BUILDER_EDIT', true); that can be set in wp-config.php / read more: https://www.assetcleanup.com/docs/?p=1260
 * Cache Enabler (compatibility with older versions): Make sure the deprecated "cache_enabler_before_store" hook is in use
 * Unload "photoswipe" fix: If WooCommerce's PhotoSwipe was unloaded, empty dots were printed at the bottom of the page from unused/unneeded HTML (hide it by marking the DIV with the "pswp" class as hidden)
 * Improvement: Only use 'type="text/css"' when it's needed (e.g. an older theme is used that doesn't support HTML5)
@@ -339,8 +363,8 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 
 = 1.3.7.7 =
 * The layout of a CSS/JS area is changed on the make exception area & a new option was added to make an exception from any unload rule on pages belonging to a specific post type (e.g. unload site-wide, but keep the asset loaded on all WooCommerce 'product' pages)
-* Oxygen plugin edit mode: Allow Asset CleanUp Pro to trigger plugin & CSS/JS unload rules when the page editor is on to make the editor load faster via define('WPACU_LOAD_ON_OXYGEN_BUILDER_EDIT', true); that can be set in wp-config.php / read more: https://www.assetcleanup.com/docs/?p=1200
-* In specific DIVI powered websites, the "PageSpeed" parameter is appended to the URL from the client-side, thus make sure to only check for "et_fb" when detecting if the DIVI builder is on to avoid loading Asset CleanUp Pro there
+* Oxygen plugin edit mode: Allow Asset CleanUp to trigger plugin & CSS/JS unload rules when the page editor is on to make the editor load faster via define('WPACU_LOAD_ON_OXYGEN_BUILDER_EDIT', true); that can be set in wp-config.php / read more: https://www.assetcleanup.com/docs/?p=1200
+* In specific DIVI powered websites, the "PageSpeed" parameter is appended to the URL from the client-side, thus make sure to only check for "et_fb" when detecting if the DIVI builder is on to avoid loading Asset CleanUp there
 * Fix: Make sure that for languages such as Arabic where the Dashboard's menu is shown on the right side, the plugin's icon is not misaligned
 * Fix: When "Update" button is clicked on edit post/page (Gutenberg mode), while there's no CSS/JS list fetched ("Fetch the assets on a button click" is on), make sure the list is not fetched after the page is saved (it's only refreshed if it was loaded in the first place)
 
@@ -408,16 +432,16 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * Older caching files are by default set to be cleared after 4 days (the new default value) instead of 7
 * Updated "Help" page
 * Show more information about the caching directory in "Tools" -> "Storage Info" (each directory with CSS/JS files is shown along with the total size of the assets within it)
-* WP Rocket 3.7+ compatibility fix: "Minify HTML" is removed (read more: https://github.com/wp-media/wp-rocket/issues/2682), thus, make sure this gets verified (for compatibility reasons) as well in Asset CleanUp Pro
+* WP Rocket 3.7+ compatibility fix: "Minify HTML" is removed (read more: https://github.com/wp-media/wp-rocket/issues/2682), thus, make sure this gets verified (for compatibility reasons) as well in Asset CleanUp
 * Shorten the file name of the combined CSS/JS to avoid possible duplicates
-* Fix possible errors (400 Bad Request) when AJAX calls are made by Asset CleanUp Pro
+* Fix possible errors (400 Bad Request) when AJAX calls are made by Asset CleanUp
 * Check if Cloudflare is used and notify the user about whether it's needed to enable "CDN: Rewrite assets URLs" (read more: https://assetcleanup.com/docs/?p=957)
 
 = 1.3.6.9 =
 * Improvement: Save resources and do not check anything for optimization when the feed URL (e.g. /feed/) is loaded (the plugin should be inactive for these kinds of requests)
 * Improvement: Do not trigger the plugin when WooCommerce makes AJAX calls (no point in using extra resources from Asset CleanUp)
 * Improvement: When Google Fonts are marked for removal, nullify other related settings, leading to the usage of fewer resources
-* The strings "/cart/" and "/checkout/" are added to the exclusion list where Asset CleanUp Pro is not triggered if the pattern is matched (read more: https://assetcleanup.com/docs/?p=488); These kinds of pages usually do not need optimization and if the admin decides to do some, he/she can remove the exclusion
+* The strings "/cart/" and "/checkout/" are added to the exclusion list where Asset CleanUp is not triggered if the pattern is matched (read more: https://assetcleanup.com/docs/?p=488); These kinds of pages usually do not need optimization and if the admin decides to do some, he/she can remove the exclusion
 * Fix (writing files to cache directory): If the handle name contained forward-slash (/), make sure that the final file name gets sanitized (including slash removal) to avoid errors related to file_put_contents() such as trying to write to directories that are non-existent
 * Fix (unnecessary cached files): The plugin was caching CSS/JS files that did not need to be cached (e.g. already minified JS), leading to unnecessary extra disk space
 * "WP-Optimize" minify is not triggering anymore when /?wpacu_clean_load is used for debugging purposes (viewing all files loading from their original location)
@@ -472,10 +496,10 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 
 = 1.3.6.3 =
 * New Feature in the CSS/JS Manager: The handle rows can be contracted/expanded (their status is saved when the form is submitted); This is useful to make the whole area smaller (less scrolling) as there will likely be CSS/JS files that you know you will never edit for a long time (if ever) and it's better to have them contracted
-* New Option in "Settings" - "Plugin Usage Preferences": Hide Dashboard's "Asset CleanUp Pro" menu from the left sidebar in case you don't use the plugin too often or wish to have a cleaner sidebar (read more: https://assetcleanup.com/docs/?p=584)
+* New Option in "Settings" - "Plugin Usage Preferences": Hide Dashboard's "Asset CleanUp" menu from the left sidebar in case you don't use the plugin too often or wish to have a cleaner sidebar (read more: https://assetcleanup.com/docs/?p=584)
 * Compatibility with Ronneby Theme: Alter the style/script tag later (e.g. by appending plugin markers) after plugins such as "Ronneby Core" alter it (in this case it prevents the URLs from the LINK tags to be stripped)
 * When listing dependencies in the CSS JS managing list (e.g. the "children" of a "parent"), show the unloaded ones in the red font; Dependency handles are linked as anchors for easier navigation between them
-* "WP Rocket" compatibility: Make sure HTML changes made by Asset CleanUp Pro are always applied (via "rocket_buffer" filter hook) before WP Rocket saves the HTML content to the cached file
+* "WP Rocket" compatibility: Make sure HTML changes made by Asset CleanUp are always applied (via "rocket_buffer" filter hook) before WP Rocket saves the HTML content to the cached file
 * Fix: After updating the the CSS/JS manager on any page, the page preloads for the guest visitors; Make sure the response from wp_remote_get() is always checked to avoid PHP errors logged to error_log (even though the errors are harmless for the front-end view, the error log files can get too big)
 * Fix (unstyled CSS/JS management area in front-end view): Make sure the plugin's own style is properly loaded asynchronously in Firefox in any situation
 
@@ -563,11 +587,11 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * Removed Freemius SDK
 
 = 1.3.5.4 =
-* New Feature: Stop triggering Asset CleanUp Pro (early stop) on specific front-end pages
+* New Feature: Stop triggering Asset CleanUp (early stop) on specific front-end pages
 * New Feature: Easier way to deactivate options for debugging purposes on page load via /?wpacu_debug (printing an options area at the bottom of any front-end page for the logged-in admin)
 * Improvement: Removed plugin's meta boxes when a block is edited in Oxygen (as the meta boxes are not relevant there)
 * Improvement: Compressed images for a lighter plugin
-* Improvement: Do not trigger Asset CleanUp Pro if TranslatePress Multilingual plugin is in edit mode (front-end view)
+* Improvement: Do not trigger Asset CleanUp if TranslatePress Multilingual plugin is in edit mode (front-end view)
 * Improvement: Storage info for cache directory shows the total size/number of all files (not just CSS/JS ones)
 * Improvement: On page request (within the Dashboard), /wp-admin/?wpacu_get_cache_dir_size will retrieve information about the caching directory (e.g. all its files and their sizes get listed)
 * Bug Fix: Avoid any PHP errors or very high CPU usage with some hosting packages in case a "circular reference" error is detected (e.g. an @import from a CSS file that is having the URL path to the same CSS file)
@@ -610,7 +634,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * WordPress 4.3 CSS Fix: In the new WP version, some buttons and drop-downs (selects) were unaligned and showing incomplete text
 
 = 1.3.4.8 =
-* Compatibility with "AMP (Official AMP Plugin for WordPress)" and "AMP for WP – Accelerated Mobile Pages" plugins: If the page is of AMP type, no Asset CleanUp settings/rules will be triggered to avoid validation errors; Moreover, NOSCRIPT tags added by Asset CleanUp are moved to the BODY tag (they are no longer stored in the HEAD tag) to avoid further validation errors in case other AMP plugins/scripts are used and Asset CleanUp Pro doesn't detect them
+* Compatibility with "AMP (Official AMP Plugin for WordPress)" and "AMP for WP – Accelerated Mobile Pages" plugins: If the page is of AMP type, no Asset CleanUp settings/rules will be triggered to avoid validation errors; Moreover, NOSCRIPT tags added by Asset CleanUp are moved to the BODY tag (they are no longer stored in the HEAD tag) to avoid further validation errors in case other AMP plugins/scripts are used and Asset CleanUp doesn't detect them
 * New Feature: Skip "Test Mode" on page request for debugging purposes via /?wpacu_skip_test_mode - e.g. useful when you have to check a website and you don't have admin access and "Test Mode" is enabled (you can check if anything is broken there while the page loads fine for other visitors)
 * Improvement: Changed the way the assets list is showing up for management by reducing the size of each row (with CSS/JS file details) so it's easier for scrolling (e.g. load exceptions are showing up only if you chosen a bulk unload option, reduced the height of some of the areas, such as "Handle:", "Source:" and notes area).
 * Improvement: The number of total submitted fields is smaller now as the assets list area is not as cluttered since irrelevant fields are not submitted anymore with an empty value (this is not only useful for aesthetic reasons, but it's limiting the risk of submitting over 1000 fields where max_input_vars from php.ini is limited to only 1000 inputs)
@@ -639,7 +663,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * Inline automatically CSS smaller then (specific size) KB (if option is enabled)
 * Inline CSS Improvement: Inline dynamic loaded CSS (if option is enabled)
 * Improvement for "Google Font Remove": Added more patterns to detect Web Font Loader CDN requests
-* WP Rocket Compatibility Fix: If the CSS/JS files' path get changed by "WP Rocket" (path contains "/wp-content/cache/busting/"), make sure they are getting unloaded by Asset CleanUp Pro if 'Ignore dependency rule and keep the "children" loaded' option is checked along with the unload rule
+* WP Rocket Compatibility Fix: If the CSS/JS files' path get changed by "WP Rocket" (path contains "/wp-content/cache/busting/"), make sure they are getting unloaded by Asset CleanUp if 'Ignore dependency rule and keep the "children" loaded' option is checked along with the unload rule
 * New Feature: Rewrite cached static assets URLs with the CDN ones if necessary (located in "Settings" -> "CDN: Rewrite assets URLs")
 * Strip Google Fonts references from JavaScript (.js) files (if the removal option is active)
 * Append "display" parameter to Google Font URLs within JavaScript files (if any option for "font-display:" is chosen)
@@ -652,7 +676,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * Combine JS files improvement: If there are multiple files that have "defer" or "async" attribute set (or both) and they are not preloaded, then they will be grouped into fewer files; Before, only SCRIPT tags without these attributes were combined
 * Improvement to reduce disk space: Make sure already minified (100%) static .js files aren't cached
 * Google Fonts Optimization: Requests that are for icons (e.g. https://fonts.googleapis.com/icon?family=Material+Icons) are also combined to reduce HTTP requests
-* "Optimize CSS Delivery" from WP Rocket works together with "Inline Chosen CSS Files" from Asset CleanUp Pro
+* "Optimize CSS Delivery" from WP Rocket works together with "Inline Chosen CSS Files" from Asset CleanUp
 * Prevent plugin from loading when Themify Builder (iFrame) is used
 * Bug Fix: Sometimes, the position of an asset (HEAD or BODY) is reported incorrectly if it was enqueued in specific action hooks; Extra checks are made to fix that as sometimes developers do not use wp_enqueue_scripts() which is the proper hook to use when enqueuing items that are meant to appear on the front end
 * Bug Fix: If CSS files get inlined, make sure @import without "url" is updated correctly in all situations
@@ -750,7 +774,7 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 * New Feature: Enable Minify CSS/JS on the fly when admin is logged in (for debugging purposes) - via /?wpacu_css_minify
 * Updated "Tools" -> "System Info": Has database information related to the Asset CleanUp's entries
 * Option to override "administrator" (default) role, in order to acesss plugin's pages
-* Do not trigger Asset CleanUp Pro on REST Requests, WPBakery Page Builder Edit Mode, Brizy Page Builder Edit Mode
+* Do not trigger Asset CleanUp on REST Requests, WPBakery Page Builder Edit Mode, Brizy Page Builder Edit Mode
 * Avoid notice errors if some "SG Optimizer" features are enabled
 * Minify CSS: Compatibility with "Simple Custom CSS" plugin
 * Match sidebar and top bar menus; Allow unloading of CSS/JS on the fly (via URI request) for debugging purposes; Added coloured left border for assets that had their position changed to easily distinguish them
@@ -966,7 +990,6 @@ With the recently released "Test Mode" feature, you can safely unload assets on 
 
 = 1.2.6.6 =
 * Bug Fix: Assets were not retrieved within in the Dashboard for the home page
-* Compatible with WP Asset CleanUp Pro
 
 = 1.2.6.5 =
 * Bug Fix: Fatal error "Can't use method return value in write context" (for PHP versions < 5.5)

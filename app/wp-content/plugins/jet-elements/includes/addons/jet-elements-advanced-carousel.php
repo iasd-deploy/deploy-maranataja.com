@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -546,6 +546,7 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 				'label'     => esc_html__( 'Side padding', 'jet-elements' ),
 				'type'      => Controls_Manager::NUMBER,
 				'default'   => 50,
+				'min'       => 0,
 				'condition' => array(
 					'centered' => 'true',
 				),
@@ -1009,8 +1010,10 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'      => 'items_title_typography',
-				'scheme'    => Scheme_Typography::TYPOGRAPHY_3,
 				'selector'  => '{{WRAPPER}}  ' . $css_scheme['items_title'] . ', {{WRAPPER}}  ' . $css_scheme['items_title'] . ' a, {{WRAPPER}} ' . $css_scheme['banner_title'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1109,8 +1112,10 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'items_text_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['items_text'] . ', {{WRAPPER}} ' . $css_scheme['banner_text'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -1129,9 +1134,8 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 			array(
 				'label'     => esc_html__( 'Content Color', 'jet-elements' ),
 				'type'      => Controls_Manager::COLOR,
-				'scheme'    => array(
-					'type'  => Scheme_Color::get_type(),
-					'value' => Scheme_Color::COLOR_3,
+				'global' => array(
+					'default' => Global_Colors::COLOR_TEXT,
 				),
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['items_text'] => 'color: {{VALUE}}',
@@ -1203,8 +1207,10 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}}  ' . $css_scheme['items_button'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -1389,9 +1395,8 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-arrow',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1416,9 +1421,8 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-arrow:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1774,9 +1778,8 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-slick-dots li span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_3,
+						'global' => array(
+							'default' => Global_Colors::COLOR_TEXT,
 						),
 					),
 				),
@@ -1805,9 +1808,8 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-slick-dots li span:hover',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_1,
+						'global' => array(
+							'default' => Global_Colors::COLOR_PRIMARY,
 						),
 					),
 				),
@@ -1836,9 +1838,8 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 				'selector'       => '{{WRAPPER}} .jet-carousel .jet-slick-dots li.slick-active span',
 				'fields_options' => array(
 					'color' => array(
-						'scheme' => array(
-							'type'  => Scheme_Color::get_type(),
-							'value' => Scheme_Color::COLOR_4,
+						'global' => array(
+							'default' => Global_Colors::COLOR_ACCENT,
 						),
 					),
 				),
@@ -2100,8 +2101,10 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'fraction_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} .jet-carousel__fraction-navigation span',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -2185,7 +2188,7 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 			'autoplay'       => filter_var( $settings['autoplay'], FILTER_VALIDATE_BOOLEAN ),
 			'infinite'       => filter_var( $settings['infinite'], FILTER_VALIDATE_BOOLEAN ),
 			'centerMode'     => filter_var( $settings['centered'], FILTER_VALIDATE_BOOLEAN ),
-			'centerPadding'  => ! empty( $settings['centered_padding'] ) ? $settings['centered_padding'] . 'px' : '50px',
+			'centerPadding'  => ! empty( $settings['centered_padding'] ) || 0 <= $settings['centered_padding'] ? $settings['centered_padding'] . 'px' : '50px',
 			'pauseOnHover'   => filter_var( $settings['pause_on_hover'], FILTER_VALIDATE_BOOLEAN ),
 			'speed'          => absint( $settings['speed'] ),
 			'arrows'         => filter_var( $settings['arrows'], FILTER_VALIDATE_BOOLEAN ),
@@ -2271,7 +2274,7 @@ class Jet_Elements_Advanced_Carousel extends Jet_Elements_Base {
 
 		// for multi-language plugins
 		$template_id = apply_filters( 'jet-elements/widgets/template_id', $template_id, $this );
-		$content     = jet_elements()->elementor()->frontend->get_builder_content_for_display( $template_id );
+		$content     = jet_elements()->elementor()->frontend->get_builder_content( $template_id );
 
 		if ( jet_elements()->elementor()->editor->is_edit_mode() ) {
 			$edit_url = add_query_arg(

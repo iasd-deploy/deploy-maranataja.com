@@ -51,6 +51,9 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Tags_Manager' ) ) {
 			// Prevent enqueue default dynamic CSS for listings templates
 			add_action( 'elementor/css-file/post/enqueue', array( $this, 'remove_enqueue_default_dynamic_css' ), 9 );
 			add_action( 'elementor/css-file/post/enqueue', array( $this, 'add_enqueue_default_dynamic_css' ), 11 );
+
+			// Fixed dynamic CSS if the dynamic tag returns a non-array of attachments in a media control.
+			add_filter( 'elementor/files/css/property', array( $this, 'fix_dynamic_css_in_media_control' ), 10, 4 );
 		}
 
 		/**
@@ -332,6 +335,27 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Tags_Manager' ) ) {
 			$dynamic_tags = Elementor\Plugin::instance()->dynamic_tags;
 
 			add_action( 'elementor/css-file/post/enqueue', array( $dynamic_tags, 'after_enqueue_post_css' ) );
+		}
+
+		/**
+		 * Fixed dynamic CSS if the dynamic tag returns a non-array of attachments in a media control.
+		 *
+		 * @param $value
+		 * @param $css_property
+		 * @param $matches
+		 * @param $control
+		 *
+		 * @return mixed
+		 */
+		public function fix_dynamic_css_in_media_control( $value, $css_property, $matches, $control ) {
+
+			if ( Elementor\Controls_Manager::MEDIA === $control['type'] && ! is_array( $value )
+				 && 0 === strpos( $css_property, 'background-image' ) && '{{URL}}' === $matches[0]
+			) {
+				$value = Jet_Engine_Tools::get_attachment_image_data_array( $value );
+			}
+
+			return $value;
 		}
 
 	}

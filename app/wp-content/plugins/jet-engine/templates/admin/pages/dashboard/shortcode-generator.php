@@ -27,6 +27,7 @@
 							<component
 								v-for="field in getPreparedControls( control.fields )"
 								:is="field.type"
+								:type="field.inputType"
 								:options-list="field.optionsList"
 								:groups-list="field.groupsList"
 								:label="field.label"

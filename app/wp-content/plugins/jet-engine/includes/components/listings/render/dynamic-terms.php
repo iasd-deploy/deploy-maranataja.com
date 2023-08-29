@@ -44,6 +44,10 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Terms' ) ) {
 				$object = jet_engine()->listings->data->get_current_object();
 			}
 
+			if ( ! $object || ! is_object( $object ) ) {
+				return;
+			}
+
 			switch ( get_class( $object ) ) {
 				case 'WP_Post':
 

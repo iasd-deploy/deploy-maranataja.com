@@ -10,11 +10,11 @@ class Elementor_Integration {
 	 */
 	public function __construct() {
 
-		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
-			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ), 99 );
-		} else {
-			add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets' ), 99 );
+		if ( ! jet_engine()->has_elementor() ) {
+			return;
 		}
+
+		add_action( 'jet-engine/elementor-views/widgets/register', array( $this, 'register_widgets' ), 99, 2 );
 
 		add_action( 'jet-engine/listings/preview-scripts', array( $this, 'preview_scripts' ) );
 
@@ -24,15 +24,13 @@ class Elementor_Integration {
 	/**
 	 * Register widgets
 	 */
-	public function register_widgets( $widgets_manager ) {
+	public function register_widgets( $widgets_manager, $elementor_views ) {
 
-		require jet_engine()->modules->modules_path( 'maps-listings/inc/widgets/maps-listings-widget.php' );
-
-		if ( method_exists( $widgets_manager, 'register' ) ) {
-			$widgets_manager->register( new Maps_Listings_Widget() );
-		} else {
-			$widgets_manager->register_widget_type( new Maps_Listings_Widget() );
-		}
+		$elementor_views->register_widget(
+			jet_engine()->modules->modules_path( 'maps-listings/inc/widgets/maps-listings-widget.php' ),
+			$widgets_manager,
+			__NAMESPACE__ . '\Maps_Listings_Widget'
+		);
 
 	}
 

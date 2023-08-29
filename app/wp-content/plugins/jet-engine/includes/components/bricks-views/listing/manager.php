@@ -2,6 +2,7 @@
 /**
  * Bricks views manager
  */
+
 namespace Jet_Engine\Bricks_Views\Listing;
 
 use Bricks\Conditions;
@@ -23,7 +24,10 @@ class Manager {
 		add_filter( 'jet-engine/templates/listing-views', [ $this, 'add_view' ] );
 
 		add_filter( 'jet-engine/templates/edit-url/' . $this->get_slug(), [ $this, 'edit_url' ], 10, 2 );
-		add_filter( 'jet-engine/listings/ajax/settings-by-id/' . $this->get_slug(), [ $this, 'get_ajax_settings' ], 10, 3 );
+		add_filter( 'jet-engine/listings/ajax/settings-by-id/' . $this->get_slug(), [
+			$this,
+			'get_ajax_settings'
+		], 10, 3 );
 		add_action( 'jet-engine/templates/created/' . $this->get_slug(), [ $this, 'set_template_meta' ] );
 
 		add_action( 'save_post_' . jet_engine()->post_type->slug(), [ $this, 'reset_assets_cache' ] );
@@ -33,11 +37,14 @@ class Manager {
 		add_action( 'jet-smart-filters/render/ajax/before', [ $this, 'register_bricks_dynamic_data_on_ajax' ] );
 		add_action( 'jet-engine/ajax-handlers/before-do-ajax', [ $this, 'register_bricks_dynamic_data_on_ajax' ] );
 
+		add_action( 'jet-smart-filters/render/ajax/before', [ $this, 'set_page_data' ] );
+
 		add_action( 'jet-engine/listing/grid/before-render', [ $this, 'set_global_post_for_listing' ] );
 
 		add_filter( 'bricks/link_css_selectors', [ $this, 'link_css_selectors' ], 10, 1 );
 		add_filter( 'bricks/element/render', [ $this, 'set_post_id' ], 10, 2 );
 		add_action( 'jet-engine/listing-element/before-render', [ $this, 'set_current_object_in_bricks_loop' ] );
+		add_action( 'bricks/query/after_loop', [ $this, 'reset_current_object_in_bricks_loop' ] );
 
 		require_once jet_engine()->bricks_views->component_path( 'listing/render.php' );
 		$this->render = new Render();
@@ -51,7 +58,7 @@ class Manager {
 		$post_id = ! empty( $_REQUEST['postId'] ) ? $_REQUEST['postId'] : false;
 
 		if ( ! $post_id ) {
-			$post_id = Database::$page_data['post_id'];
+			$post_id = isset( Database::$page_data['original_post_id'] ) ? Database::$page_data['original_post_id'] : Database::$page_data['preview_or_post_id'];
 		}
 
 		if ( ! $post_id ) {
@@ -209,6 +216,18 @@ class Manager {
 		if ( in_array( \Bricks\Query::get_query_object_type(), [ 'user', 'term' ] ) ) {
 			jet_engine()->listings->data->set_current_object( \Bricks\Query::get_loop_object() );
 		}
+	}
+
+	// Reset current User or Term object for dynamic widgets in a bricks loop
+	public function reset_current_object_in_bricks_loop() {
+		if ( in_array( \Bricks\Query::get_query_object_type(), [ 'user', 'term' ] ) ) {
+			jet_engine()->listings->data->reset_current_object();
+		}
+	}
+
+	// Set page data for list grid during ajax filter
+	public function set_page_data() {
+		Database::set_page_data();
 	}
 
 }

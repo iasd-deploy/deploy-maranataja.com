@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -528,8 +528,10 @@ class Jet_Elements_Dropbar extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'button_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['button_text'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			),
 			50
 		);
@@ -833,8 +835,10 @@ class Jet_Elements_Dropbar extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'content_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_3,
 				'selector' => '{{WRAPPER}} ' . $css_scheme['content'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_TEXT,
+				),
 			),
 			50
 		);
@@ -983,7 +987,7 @@ class Jet_Elements_Dropbar extends Jet_Elements_Base {
 
 					// for multi-language plugins
 					$template_id = apply_filters( 'jet-elements/widgets/template_id', $template_id, $this );
-					$content     = jet_elements()->elementor()->frontend->get_builder_content_for_display( $template_id );
+					$content     = jet_elements()->elementor()->frontend->get_builder_content( $template_id );
 
 					if ( jet_elements()->elementor()->editor->is_edit_mode() ) {
 						$edit_url = add_query_arg(

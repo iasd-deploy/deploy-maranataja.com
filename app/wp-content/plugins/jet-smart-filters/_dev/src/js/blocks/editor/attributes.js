@@ -140,6 +140,18 @@ export default {
 		default: 'full',
 	},
 	// Pagination Controls
+	enable_items: {
+		type: 'boolean',
+		default: true,
+	},
+	pages_center_offset: {
+		type: 'number',
+		default: 0,
+	},
+	pages_end_offset: {
+		type: 'number',
+		default: 0,
+	},
 	enable_prev_next: {
 		type: 'boolean',
 		default: true,
@@ -152,13 +164,13 @@ export default {
 		type: 'string',
 		default: __('Next Text'),
 	},
-	pages_center_offset: {
-		type: 'number',
-		default: 0,
+	enable_load_more: {
+		type: 'boolean',
+		default: false,
 	},
-	pages_end_offset: {
-		type: 'number',
-		default: 0,
+	load_more_text: {
+		type: 'string',
+		default: __('Load More'),
 	},
 	autoscroll: {
 		type: 'boolean',
@@ -200,6 +212,18 @@ export default {
 	dropdown_placeholder: {
 		type: 'string',
 		default: __('Select some options'),
+	},
+	dropdown_n_selected_enabled: {
+		type: 'boolean',
+		default: false,
+	},
+	dropdown_n_selected_number: {
+		type: 'number',
+		default: 3,
+	},
+	dropdown_n_selected_text: {
+		type: 'string',
+		default: __('and {number} others', 'jet-smart-filters'),
 	},
 	scroll_enabled: {
 		type: 'boolean',

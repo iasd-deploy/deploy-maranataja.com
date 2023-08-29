@@ -1,6 +1,6 @@
 <?php
 /**
- * Meta oxes mamager
+ * Meta boxes manager
  */
 
 // If this file is called directly, abort.
@@ -157,14 +157,18 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 		}
 
 		/**
-		 * Returns builder for meta
+		 * Returns builder for meta.
 		 *
-		 * @return [type] [description]
+		 * @since  3.2.0 Added `$args` parameter.
+		 * @access public
+		 *
+		 * @param array $args List of custom arguments.
+		 *
+		 * @return CX_Interface_Builder
 		 */
-		public function get_builder_for_meta() {
+		public function get_builder_for_meta( $args = [] ) {
 
 			if ( ! self::$wrappers_hooked ) {
-
 				$this->add_wrappers_hooks();
 
 				self::$wrappers_hooked = true;
@@ -172,12 +176,12 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 
 			$builder_data = jet_engine()->framework->get_included_module_data( 'cherry-x-interface-builder.php' );
 
-			return new CX_Interface_Builder(
-				array(
-					'path' => $builder_data['path'],
-					'url'  => $builder_data['url'],
-				)
-			);
+			$default_args = [
+				'path' => $builder_data['path'],
+				'url'  => $builder_data['url'],
+			];
+
+			return new CX_Interface_Builder( wp_parse_args( $args, $default_args ) );
 
 		}
 
@@ -298,6 +302,14 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 						'title'  => apply_filters( 'jet-engine/compatibility/translate-string', $title ),
 					);
 
+					if ( ! empty( $field['conditional_logic'] ) && filter_var( $field['conditional_logic'], FILTER_VALIDATE_BOOLEAN ) ) {
+						$conditions = $this->prepare_field_conditions( $field, $meta_box );
+
+						if ( ! empty( $conditions ) ) {
+							$result[ $this->current_panel ]['conditions'] = $conditions;
+						}
+					}
+
 					continue;
 
 				}
@@ -339,7 +351,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 					}
 
 					$description .= sprintf(
-						'<span>%1$s<code class="je-field-name">%2$s</code></span>',
+						'<span>%1$s<span class="je-field-name">%2$s</span></span>',
 						__( 'Name: ', 'jet-engine' ),
 						$field['name']
 					);
@@ -358,7 +370,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 				}
 
 				if ( ! empty( $field['conditional_logic'] ) && filter_var( $field['conditional_logic'], FILTER_VALIDATE_BOOLEAN ) ) {
-					$conditions = $this->prepare_field_conditions( $field );
+					$conditions = $this->prepare_field_conditions( $field, $meta_box );
 
 					if ( ! empty( $conditions ) ) {
 						$result[ $field['name'] ]['conditions'] = $conditions;
@@ -615,6 +627,13 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 
 						break;
 
+					case 'colorpicker':
+
+						$alpha_mode = isset( $field['alpha_mode'] ) ? filter_var( $field['alpha_mode'], FILTER_VALIDATE_BOOLEAN ) : false;
+						$result[ $field['name'] ]['alpha'] = $alpha_mode;
+
+						break;
+
 					case 'html':
 
 						$result[ $field['name'] ]['element'] = 'html';
@@ -656,6 +675,15 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 						) );
 					}
 
+				}
+
+				if ( $this->post_type && ! empty( $field['revision_support'] ) ) {
+
+					if ( ! class_exists( 'Jet_Engine_CPT_Revisions' ) ) {
+						require jet_engine()->meta_boxes->component_path( 'revisions.php' );
+					}
+
+					new Jet_Engine_CPT_Revisions( $this->post_type, $result[ $field['name'] ] );
 				}
 
 			}
@@ -743,10 +771,18 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 					if ( undefined !== navigator.clipboard && undefined !== navigator.clipboard.writeText ) {
 	
 						$( document ).on( 'click', '.je-field-name', function( event ) {
-							var fieldName = $( event.target ).text();
+							var field = $( event.target ),
+								fieldName = field.text();
 	
 							navigator.clipboard.writeText( fieldName ).then( function() {
 								// clipboard successfully set
+								
+								field.addClass( 'je-copied' );
+								
+								setTimeout( function() {
+									field.removeClass( 'je-copied' );
+								}, 1500 );
+							
 							}, function() {
 								// clipboard write failed
 							} );
@@ -884,7 +920,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 
 				if ( ! $this->hide_field_names ) {
 					$label .= sprintf(
-						' <span>(%1$s<code class="je-field-name">%2$s</code>)</span>',
+						' <span>(%1$s<span class="je-field-name">%2$s</span>)</span>',
 						__( 'name: ', 'jet-engine' ),
 						$field['name']
 					);
@@ -897,6 +933,14 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 					'class' => $this->get_field_css_class( $field ),
 					'label' => $label,
 				);
+
+				if ( ! empty( $field['conditional_logic'] ) && filter_var( $field['conditional_logic'], FILTER_VALIDATE_BOOLEAN ) ) {
+					$conditions = $this->prepare_field_conditions( $field, $repeater_fields );
+
+					if ( ! empty( $conditions ) ) {
+						$result[ $field['name'] ]['conditions'] = $conditions;
+					}
+				}
 
 				switch ( $field['type'] ) {
 
@@ -1100,6 +1144,13 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 
 						break;
 
+					case 'colorpicker':
+
+						$alpha_mode = isset( $field['alpha_mode'] ) ? filter_var( $field['alpha_mode'], FILTER_VALIDATE_BOOLEAN ) : false;
+						$result[ $field['name'] ]['alpha'] = $alpha_mode;
+
+						break;
+
 					case 'html':
 
 						$result[ $field['name'] ]['element'] = 'html';
@@ -1270,26 +1321,31 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 		 * Prepare field conditions.
 		 *
 		 * @param  array $field
+		 * @param  array $all_fields
 		 * @return array
 		 */
-		public function prepare_field_conditions( $field = array() ) {
+		public function prepare_field_conditions( $field = array(), $all_fields = array() ) {
 			$result = array();
 
 			if ( empty( $field['conditions'] ) ) {
 				return $result;
 			}
 
+			$result['__relation__'] = ! empty( $field['conditional_relation'] ) ? $field['conditional_relation'] : 'AND';
+			$result['__terms__']    = array();
+
 			foreach ( $field['conditions'] as $condition ) {
+
 				if ( empty( $condition['field'] ) || empty( $condition['operator'] ) ) {
 					continue;
 				}
 
-				$field_type = $this->get_field_type_by_name( $condition['field'] );
+				$condition_field = $this->get_field_args_by_name( $condition['field'], $all_fields );
 
-				switch( $field_type ) {
+				switch( $condition_field['type'] ) {
 					case 'switcher':
-
-						$value = filter_var( $condition['value'], FILTER_VALIDATE_BOOLEAN );
+						$value = ! empty( $condition['value'] ) ? $condition['value'] : false;
+						$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 						break;
 
 					case 'checkbox':
@@ -1298,32 +1354,98 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 					case 'select':
 
 						if ( in_array( $condition['operator'], array( 'in', 'not_in' ) ) ) {
-							$value = $condition['values'];
+							$value = ! empty( $condition['values'] ) ? $condition['values'] : array();
 						} else {
-							$value = $condition['value'];
+							$value = ! empty( $condition['value'] ) ? $condition['value'] : '';
 						}
+
 						break;
 
 					default:
+
+						$value = ! empty( $condition['value'] ) ? $condition['value'] : '';
+
 						if ( in_array( $condition['operator'], array( 'in', 'not_in' ) ) ) {
-							$value = explode( ',', $condition['value'] );
+							$value = explode( ',', $value );
 							$value = array_map( 'trim', $value );
-						} else {
-							$value = $condition['value'];
+						}
+
+						if ( in_array( $condition['operator'], array( 'empty', '!empty' ) ) ) {
+							$value = '';
 						}
 				}
+
+				$is_checkbox     = ( 'checkbox' === $condition_field['type'] );
+				$is_multi_select = ( 'select' === $condition_field['type'] )
+									&& ! empty( $condition_field['is_multiple'] )
+									&& filter_var( $condition_field['is_multiple'], FILTER_VALIDATE_BOOLEAN );
 
 				switch( $condition['operator'] ) {
+					case 'equal':
+						$operator = '==';
+
+						if ( $is_checkbox || $is_multi_select ) {
+							$operator = 'contains';
+						}
+
+						break;
+
 					case 'not_equal':
+						$operator = '!=';
+
+						if ( $is_checkbox || $is_multi_select ) {
+							$operator = '!contains';
+						}
+
+						break;
+
+					case 'in':
+						$operator = 'in';
+
+						if ( $is_checkbox || $is_multi_select ) {
+							$operator = 'intersect';
+						}
+
+						break;
+
 					case 'not_in':
-						$field_name = $condition['field'] . '!';
+						$operator = '!in';
+
+						if ( $is_checkbox || $is_multi_select ) {
+							$operator = '!intersect';
+						}
+
+						break;
+
+					case 'greater_than':
+						$operator = '>';
+
+						break;
+
+					case 'less_than':
+						$operator = '<';
+
+						break;
+
+					case 'chars_greater_than':
+						$operator = 'length_greater';
+
+						break;
+
+					case 'chars_less_than':
+						$operator = 'length_less';
+
 						break;
 
 					default:
-						$field_name = $condition['field'];
+						$operator = $condition['operator'];
 				}
 
-				$result[ $field_name ] = $value;
+				$result['__terms__'][] = array(
+					'name'     => $condition['field'],
+					'operator' => $operator,
+					'value'    => $value
+				);
 			}
 
 			return $result;
@@ -1349,6 +1471,21 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 		public function get_field_type_by_name( $name ) {
 
 			$list = wp_list_pluck( $this->meta_box, 'type', 'name' );
+
+			return isset( $list[ $name ] ) ? $list[ $name ] : null;
+		}
+
+		/**
+		 * Get field args by name.
+		 *
+		 * @param  string $name
+		 * @param  array  $fields
+		 * @return string|null
+		 */
+		public function get_field_args_by_name( $name = null, $fields = array() ) {
+
+			$names = wp_list_pluck( $fields, 'name' );
+			$list  = array_combine( $names, $fields );
 
 			return isset( $list[ $name ] ) ? $list[ $name ] : null;
 		}

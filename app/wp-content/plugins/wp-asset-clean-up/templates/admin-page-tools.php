@@ -18,10 +18,8 @@ do_action('wpacu_admin_notices');
         <a href="<?php echo esc_url(admin_url('admin.php?page=wpassetcleanup_tools&wpacu_for=system_info')); ?>" class="nav-tab <?php if ($data['for'] === 'system_info') { ?>nav-tab-active<?php } ?>"><?php _e('System Info', 'wp-asset-clean-up'); ?></a>
         <a href="<?php echo esc_url(admin_url('admin.php?page=wpassetcleanup_tools&wpacu_for=storage')); ?>" class="nav-tab <?php if ($data['for'] === 'storage') { ?>nav-tab-active<?php } ?>"><?php _e('Storage Info', 'wp-asset-clean-up'); ?></a>
         <a href="<?php echo esc_url(admin_url('admin.php?page=wpassetcleanup_tools&wpacu_for=debug')); ?>" class="nav-tab <?php if ($data['for'] === 'debug') { ?>nav-tab-active<?php } ?>"><?php _e('Debugging', 'wp-asset-clean-up'); ?></a>
-
         <?php
         ?>
-
         <a href="<?php echo esc_url(admin_url('admin.php?page=wpassetcleanup_tools&wpacu_for=import_export')); ?>" class="nav-tab <?php if ($data['for'] === 'import_export') { ?>nav-tab-active<?php } ?>"><?php _e('Import &amp; Export', 'wp-asset-clean-up'); ?></a>
     </nav>
 
@@ -145,7 +143,7 @@ do_action('wpacu_admin_notices');
 	        $cssJsDirMarker = '<span class="dashicons dashicons-yes-alt" style="font-size: 19px; vertical-align: top; color: green;"></span>';
 	        ?>
             <p>The following list prints each directory (local path) and its size. Only the ones marked with <?php echo wp_kses($cssJsDirMarker, array('span' => array('class' => array(), 'style' => array()))); ?> have CSS/JS files there. The other unmarked ones contain .json (for reference purposes), index.php or .htaccess file types.</p>
-            <div class="wpacu-clearfix"></div>
+            <div class="wpacu_clearfix"></div>
             <?php
 	        echo '<ul style="margin-top: 0;margin-left: 25px; list-style: disc;">';
 

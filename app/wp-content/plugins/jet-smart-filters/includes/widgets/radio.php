@@ -86,10 +86,8 @@ class Jet_Smart_Filters_Radio_Widget extends Jet_Smart_Filters_Base_Widget {
 					'unit' => 'px',
 				),
 				'selectors'  => array(
-					'{{WRAPPER}} ' . $css_scheme['child-items'] . ':not(:last-child)'  => 'margin-bottom: calc({{SIZE}}{{UNIT}}/2);',
-					'{{WRAPPER}} ' . $css_scheme['child-items'] . ':not(:first-child)' => 'padding-top: calc({{SIZE}}{{UNIT}}/2);',
-					'{{WRAPPER}} ' . $css_scheme['row'] . ':not(:last-child)'  => 'margin-bottom: calc({{SIZE}}{{UNIT}}/2);',
-					'{{WRAPPER}} ' . $css_scheme['row'] . ':not(:first-child)' => 'padding-top: calc({{SIZE}}{{UNIT}}/2);',
+					'{{WRAPPER}} ' . $css_scheme['child-items'] . ':not(:last-child)' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} ' . $css_scheme['row'] . ':not(:last-child)'         => 'margin-bottom: {{SIZE}}{{UNIT}};'
 				),
 			)
 		);
@@ -177,6 +175,48 @@ class Jet_Smart_Filters_Radio_Widget extends Jet_Smart_Filters_Base_Widget {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
 					'{{WRAPPER}} ' . $css_scheme['button'] => 'background-color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'item_hover_styles',
+			array(
+				'label' => esc_html__( 'Hover', 'jet-smart-filters' ),
+			)
+		);
+
+		$this->add_control(
+			'item_hover_color',
+			array(
+				'label'     => esc_html__( 'Color', 'jet-smart-filters' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} ' . $css_scheme['button'] . ':hover' => 'color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_control(
+			'item_hover_background_color',
+			array(
+				'label'     => esc_html__( 'Background Color', 'jet-smart-filters' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} ' . $css_scheme['button'] . ':hover' => 'background-color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_control(
+			'item_hover_border_color',
+			array(
+				'label'     => esc_html__( 'Border Color', 'jet-smart-filters' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} ' . $css_scheme['button'] . ':hover' => 'border-color: {{VALUE}}',
 				),
 			)
 		);

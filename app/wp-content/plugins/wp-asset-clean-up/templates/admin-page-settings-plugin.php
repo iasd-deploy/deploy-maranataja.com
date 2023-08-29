@@ -86,7 +86,7 @@ if ($showSettingsType === 'tabs') {
 		                    $cssCombineStatus = ($data['combine_loaded_css'] == 1 && empty($data['is_optimize_css_enabled_by_other_party'])) ? $wpacuOptionOn : $wpacuOptionOff;
 		                    $wpacuNavTextSub  = '<div class="wpacu-tab-extra-text"><small><span class="wpacu-status-wrap" data-linked-to="wpacu_minify_css_enable">' . $cssMinifyStatus . ' '.__('Minify', 'wp-asset-clean-up').'</span> &nbsp;&nbsp; <span class="wpacu-status-wrap" data-linked-to="wpacu_combine_loaded_css_enable">' . $cssCombineStatus . ' '.__('Combine', 'wp-asset-clean-up').'</span>&nbsp; <span style="color: gray;">+ Defer, Inline</span></small></small></div>';
 
-		                    if (! empty($data['is_optimize_css_enabled_by_other_party'])) {
+		                    if (! empty($data['is_optimize_css_enabled_by_other_party']) || (defined('WPACU_WP_ROCKET_REMOVE_UNUSED_CSS_ENABLED') && WPACU_WP_ROCKET_REMOVE_UNUSED_CSS_ENABLED)) {
 			                    $wpacuNavTextSub .= '<div style="margin-top: 3px;"><small style="font-weight: lighter; color: gray;"><strong>Status:</strong> Partially locked, already enabled in other plugin(s)</small></div>';
                             }
 	                    }
@@ -96,8 +96,8 @@ if ($showSettingsType === 'tabs') {
 		                    $jsCombineStatus = ($data['combine_loaded_js'] == 1 && empty($data['is_optimize_js_enabled_by_other_party'])) ? $wpacuOptionOn : $wpacuOptionOff;
 		                    $wpacuNavTextSub = '<div class="wpacu-tab-extra-text"><small><span class="wpacu-status-wrap" data-linked-to="wpacu_minify_js_enable">' . $jsMinifyStatus . ' '.__('Minify', 'wp-asset-clean-up').'</span> &nbsp;&nbsp; <span class="wpacu-status-wrap" data-linked-to="wpacu_combine_loaded_js_enable">' . $jsCombineStatus . ' '.__('Combine', 'wp-asset-clean-up').'</span>&nbsp; <span style="color: gray;">+ Defer, Inline</span></small></small></div>';
 
-		                    if (! empty($data['is_optimize_js_enabled_by_other_party'])) {
-			                    $wpacuNavTextSub .= '<div style="margin-top: 3px;"><small style="font-weight: lighter; color: gray;"><strong>Status:</strong> Locked, already enabled in other plugin(s)</small></div>';
+		                    if (! empty($data['is_optimize_js_enabled_by_other_party']) || (defined('WPACU_WP_ROCKET_DELAY_JS_ENABLED') && WPACU_WP_ROCKET_DELAY_JS_ENABLED)) {
+			                    $wpacuNavTextSub .= '<div style="margin-top: 3px;"><small style="font-weight: lighter; color: gray;"><strong>Status:</strong> Partially locked, already enabled in other plugin(s)</small></div>';
 		                    }
 	                    }
 

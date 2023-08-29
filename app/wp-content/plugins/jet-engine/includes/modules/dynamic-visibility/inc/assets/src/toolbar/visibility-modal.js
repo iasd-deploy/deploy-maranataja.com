@@ -3,7 +3,8 @@ import DynamicData from './dynamic-data';
 const {
 	Modal,
 	ToggleControl,
-	SelectControl
+	SelectControl,
+	Popover
 } = wp.components;
 
 const {
@@ -170,6 +171,7 @@ class VisibilityModal extends Component {
 					this.setAttributes( { jedv_relation: newValue } )
 				} }
 			/> }
+			<Popover.Slot name="jedv_popover_slot"/>
 		</Modal> );
 	}
 

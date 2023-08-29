@@ -34,9 +34,12 @@ const {
 	Path,
 	Circle,
 	Rect,
-	SVG,
-	ServerSideRender
+	SVG
 } = wp.components;
+
+const {
+	serverSideRender: ServerSideRender
+} = wp;
 
 const GIcon = <SVG width="46" height="24" viewBox="0 0 64 33" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fillRule="evenodd" clipRule="evenodd" d="M0 4C0 1.79086 1.79086 0 4 0H16C18.2091 0 20 1.79086 20 4V16C20 18.2091 18.2091 20 16 20H4C1.79086 20 0 18.2091 0 16V4ZM4 2H16C17.1046 2 18 2.89543 18 4V16C18 17.1046 17.1046 18 16 18H4C2.89543 18 2 17.1046 2 16V4C2 2.89543 2.89543 2 4 2Z" fill="currentColor"/><Path fillRule="evenodd" clipRule="evenodd" d="M42 4V16C42 18.2091 40.2091 20 38 20H26C23.7909 20 22 18.2091 22 16V4C22 1.79086 23.7909 0 26 0H38C40.2091 0 42 1.79086 42 4ZM24 4C24 2.89543 24.8954 2 26 2H38C39.1046 2 40 2.89543 40 4V16C40 17.1046 39.1046 18 38 18H26C24.8954 18 24 17.1046 24 16V4Z" fill="currentColor"/><Path fillRule="evenodd" clipRule="evenodd" d="M44 16V4C44 1.79086 45.7909 0 48 0H60C62.2091 0 64 1.79086 64 4V16C64 18.2091 62.2091 20 60 20H48C45.7909 20 44 18.2091 44 16ZM46 4C46 2.89543 46.8954 2 48 2H60C61.1046 2 62 2.89543 62 4V16C62 17.1046 61.1046 18 60 18H48C46.8954 18 46 17.1046 46 16V4Z" fill="currentColor"/><Path d="M2 24C2 23.4477 2.44772 23 3 23H17C17.5523 23 18 23.4477 18 24C18 24.5523 17.5523 25 17 25H3C2.44772 25 2 24.5523 2 24Z" fill="currentColor"/><Path d="M2 28C2 27.4477 2.44772 27 3 27H17C17.5523 27 18 27.4477 18 28C18 28.5523 17.5523 29 17 29H3C2.44772 29 2 28.5523 2 28Z" fill="currentColor"/><Path d="M39 23H25C24.4477 23 24 23.4477 24 24C24 24.5523 24.4477 25 25 25H39C39.5523 25 40 24.5523 40 24C40 23.4477 39.5523 23 39 23Z" fill="currentColor"/><Path d="M24 32C24 31.4477 24.4477 31 25 31H31C31.5523 31 32 31.4477 32 32C32 32.5523 31.5523 33 31 33H25C24.4477 33 24 32.5523 24 32Z" fill="currentColor"/><Path d="M61 27H47C46.4477 27 46 27.4477 46 28C46 28.5523 46.4477 29 47 29H61C61.5523 29 62 28.5523 62 28C62 27.4477 61.5523 27 61 27Z" fill="currentColor"/><Path d="M3 31C2.44772 31 2 31.4477 2 32C2 32.5523 2.44772 33 3 33H9C9.55228 33 10 32.5523 10 32C10 31.4477 9.55228 31 9 31H3Z" fill="currentColor"/><Path d="M25 27C24.4477 27 24 27.4477 24 28C24 28.5523 24.4477 29 25 29H39C39.5523 29 40 28.5523 40 28C40 27.4477 39.5523 27 39 27H25Z" fill="currentColor"/><Path d="M47 23C46.4477 23 46 23.4477 46 24C46 24.5523 46.4477 25 47 25H61C61.5523 25 62 24.5523 62 24C62 23.4477 61.5523 23 61 23H47Z" fill="currentColor"/><Path d="M47 31C46.4477 31 46 31.4477 46 32C46 32.5523 46.4477 33 47 33H53C53.5523 33 54 32.5523 54 32C54 31.4477 53.5523 31 53 31H47Z" fill="currentColor"/></SVG>;
 
@@ -143,7 +146,66 @@ registerBlockType( 'jet-engine/listing-grid', {
 				} );
 			};
 
+			const isMasonry = function() {
+				if ( 'auto' === props.attributes.columns
+					|| 'auto' === props.attributes.columns_tablet
+					|| 'auto' === props.attributes.columns_mobile
+				) {
+					return false;
+				}
+
+				return props.attributes.is_masonry;
+
+			};
+
 			const userRoles = window.JetEngineListingData.userRoles;
+
+			const columnsOptions = [
+				{
+					value: 1,
+					label: 1
+				},
+				{
+					value: 2,
+					label: 2
+				},
+				{
+					value: 3,
+					label: 3
+				},
+				{
+					value: 4,
+					label: 4
+				},
+				{
+					value: 5,
+					label: 5
+				},
+				{
+					value: 6,
+					label: 6
+				},
+				{
+					value: 7,
+					label: 7
+				},
+				{
+					value: 8,
+					label: 8
+				},
+				{
+					value: 9,
+					label: 9
+				},
+				{
+					value: 10,
+					label: 10
+				},
+				{
+					value: 'auto',
+					label: 'Auto'
+				}
+			];
 
 			return [
 				props.isSelected && (
@@ -159,36 +221,60 @@ registerBlockType( 'jet-engine/listing-grid', {
 									props.setAttributes( { lisitng_id: newValue } );
 								}}
 							/>
-							<TextControl
-								type="number"
+							<SelectControl
 								label={ __( 'Columns Number' ) }
 								value={ attributes.columns }
-								min={ `0` }
-								max={ `6` }
+								options={ columnsOptions }
 								onChange={ newValue => {
-									props.setAttributes( { columns: Number(newValue) } );
+									props.setAttributes( { columns: newValue } );
 								} }
 							/>
-							<TextControl
+							{ 'auto' === attributes.columns && <TextControl
 								type="number"
+								label={ __( 'Column Min Width' ) }
+								value={ attributes.column_min_width }
+								min="0"
+								max="1200"
+								onChange={ newValue => {
+									props.setAttributes( { column_min_width: Number( newValue ) } );
+								} }
+							/> }
+							<SelectControl
 								label={ __( 'Columns Number(Tablet)' ) }
 								value={ attributes.columns_tablet }
-								min={ `0` }
-								max={ `6` }
+								options={ columnsOptions }
 								onChange={ newValue => {
-									props.setAttributes( { columns_tablet: Number(newValue) } );
+									props.setAttributes( { columns_tablet: newValue } );
 								} }
 							/>
-							<TextControl
+							{ 'auto' === attributes.columns_tablet && <TextControl
 								type="number"
+								label={ __( 'Column Min Width (Tablet)' ) }
+								value={ attributes.column_min_width_tablet }
+								min="0"
+								max="800"
+								onChange={ newValue => {
+									props.setAttributes( { column_min_width_tablet: Number( newValue ) } );
+								} }
+							/> }
+							<SelectControl
 								label={ __( 'Columns Number(Mobile)' ) }
 								value={ attributes.columns_mobile }
-								min={ `0` }
-								max={ `6` }
+								options={ columnsOptions }
 								onChange={ newValue => {
-									props.setAttributes( { columns_mobile: Number(newValue) } );
+									props.setAttributes( { columns_mobile: newValue } );
 								} }
 							/>
+							{ 'auto' === attributes.columns_mobile && <TextControl
+								type="number"
+								label={ __( 'Column Min Width (Mobile)' ) }
+								value={ attributes.column_min_width_mobile }
+								min="0"
+								max="480"
+								onChange={ newValue => {
+									props.setAttributes( { column_min_width_mobile: Number( newValue ) } );
+								} }
+							/> }
 							<ToggleControl
 								label={ __( 'Use as Archive Template' ) }
 								checked={ attributes.is_archive_template }
@@ -279,14 +365,14 @@ registerBlockType( 'jet-engine/listing-grid', {
 									} }
 								/>
 							}
-							<ToggleControl
+							{ 'auto' !== attributes.columns && 'auto' !== attributes.columns_mobile && 'auto' !== attributes.columns_tablet && <ToggleControl
 								label={ __( 'Is masonry grid' ) }
 								checked={ attributes.is_masonry }
 								onChange={ () => {
 									props.setAttributes({ is_masonry: ! attributes.is_masonry });
 								} }
-							/>
-							{ ! attributes.is_masonry && <ToggleControl
+							/> }
+							{ ! isMasonry() && <ToggleControl
 								label={ __( 'Equal columns height' ) }
 								checked={ attributes.equal_columns_height }
 								help={ __( 'Fits only top level sections of grid item' ) }
@@ -324,6 +410,7 @@ registerBlockType( 'jet-engine/listing-grid', {
 								<TextControl
 									type="text"
 									label={ __( 'Load more element ID' ) }
+									help={ __( 'Please, make sure to add a Button block that will be used as "Load more" button' ) }
 									value={ attributes.load_more_id }
 									onChange={ newValue => {
 										props.setAttributes( { load_more_id: newValue } );
@@ -1791,14 +1878,14 @@ registerBlockType( 'jet-engine/listing-grid', {
 							title={ __( 'Slider Settings' ) }
 							initialOpen={ false }
 						>
-							{ ! attributes.is_masonry && ! attributes.scroll_slider_enabled && <ToggleControl
+							{ ! isMasonry() && ! attributes.scroll_slider_enabled && <ToggleControl
 								label={ __( 'Enable Slider' ) }
 								checked={ attributes.carousel_enabled }
 								onChange={ () => {
 									props.setAttributes( { carousel_enabled: ! attributes.carousel_enabled } );
 								} }
 							/> }
-							{ ! attributes.is_masonry && ! attributes.scroll_slider_enabled && attributes.carousel_enabled && <div>
+							{ ! isMasonry() && ! attributes.scroll_slider_enabled && attributes.carousel_enabled && <div>
 									<RangeControl
 										label={ __( 'Slides to Scroll' ) }
 										min="1"
@@ -1881,14 +1968,14 @@ registerBlockType( 'jet-engine/listing-grid', {
 									/>
 								</div>
 							}
-							{ ! attributes.is_masonry && ! attributes.carousel_enabled && <ToggleControl
+							{ ! isMasonry() && ! attributes.carousel_enabled && <ToggleControl
 								label={ __( 'Enable Scroll Slider' ) }
 								checked={ attributes.scroll_slider_enabled }
 								onChange={ () => {
 									props.setAttributes( { scroll_slider_enabled: ! attributes.scroll_slider_enabled } );
 								} }
 							/> }
-							{ ! attributes.is_masonry && ! attributes.carousel_enabled && attributes.scroll_slider_enabled && <div>
+							{ ! isMasonry() && ! attributes.carousel_enabled && attributes.scroll_slider_enabled && <div>
 									<SelectControl
 										label={ __( 'Scroll Slider On' ) }
 										multiple={ true }
@@ -1925,7 +2012,7 @@ registerBlockType( 'jet-engine/listing-grid', {
 						</PanelBody>
 					</InspectorControls>
 				),
-				<Disabled>
+				<Disabled key={ 'block_render' }>
 					<ServerSideRender
 						block="jet-engine/listing-grid"
 						attributes={ attributes }

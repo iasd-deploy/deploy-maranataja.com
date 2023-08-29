@@ -19,10 +19,25 @@ class SQL_Query extends Base_Query {
 
 		$cast_to_class = ! empty( $this->query['cast_object_to'] ) ? $this->query['cast_object_to'] : false;
 
-		if ( $cast_to_class && class_exists( $cast_to_class ) ) {
+		if ( $cast_to_class && ( class_exists( $cast_to_class ) || function_exists( $cast_to_class ) ) ) {
 			$result = array_map( function( $item ) use ( $cast_to_class ) {
-				return new $cast_to_class( $item );
+				
+				if ( class_exists( $cast_to_class ) ) {
+					return new $cast_to_class( $item );
+				} elseif ( function_exists( $cast_to_class ) ) {
+					return call_user_func( $cast_to_class, $item );
+				} else {
+					return $item;
+				}
+				
 			}, $result );
+		} else {
+			$start_index = $this->get_start_item_index_on_page() - 1;
+
+			$result = array_map( function( $item, $index ) use ( $start_index ) {
+				$item->sql_query_item_id = $this->id . '-' . ( $start_index + $index );
+				return $item;
+			}, $result, array_keys( $result ) );
 		}
 
 		return $result;
@@ -146,20 +161,45 @@ class SQL_Query extends Base_Query {
 
 				foreach ( $value as $row ) {
 
-					$prepared_row = array(
-						'column'  => ! empty( $row['key'] ) ? $row['key'] : false,
-						'compare' => ! empty( $row['compare'] ) ? $row['compare'] : '=',
-						'value'   => ! empty( $row['value'] ) ? $row['value'] : '',
-						'type'    => ! empty( $row['type'] ) ? $row['type'] : false,
-					);
-
-					$this->update_where_row( $prepared_row );
+					$this->update_where_row( $this->prepare_where_row( $row ) );
 
 				}
 
 				break;
 		}
 
+	}
+
+	/**
+	 * Prepare where arguments row.
+	 *
+	 * @param  array $row
+	 * @return array
+	 */
+	public function prepare_where_row( $row ) {
+
+		if ( ! empty( $row['relation'] ) ) {
+
+			$prepared_row = array(
+				'relation' => $row['relation'],
+			);
+
+			unset( $row['relation'] );
+
+			foreach ( $row as $inner_row ) {
+				$prepared_row[] = $this->prepare_where_row( $inner_row );
+			}
+
+		} else {
+			$prepared_row = array(
+				'column'  => ! empty( $row['key'] ) ? $row['key'] : false,
+				'compare' => ! empty( $row['compare'] ) ? $row['compare'] : '=',
+				'value'   => ! empty( $row['value'] ) ? $row['value'] : '',
+				'type'    => ! empty( $row['type'] ) ? $row['type'] : false,
+			);
+		}
+
+		return $prepared_row;
 	}
 
 	public function set_filtered_order( $key, $value ) {
@@ -183,7 +223,11 @@ class SQL_Query extends Base_Query {
 		}
 
 		foreach ( $this->final_query['where'] as $index => $existing_row ) {
-			if ( $existing_row['column'] === $row['column'] && $existing_row['compare'] === $row['compare'] ) {
+			if ( isset( $existing_row['column'] )
+				 && isset( $row['column'] )
+				 && $existing_row['column'] === $row['column']
+				 && $existing_row['compare'] === $row['compare']
+			) {
 				$this->final_query['where'][ $index ] = $row;
 				return;
 			}
@@ -439,7 +483,13 @@ class SQL_Query extends Base_Query {
 					$where[] = $row;
 				}
 
-				$current_query .= $this->add_where_args( $where );
+				$where_relation = 'AND';
+
+				if ( ! empty( $this->final_query['where_relation'] ) && count( $where ) > 1 ) {
+					$where_relation = strtoupper( $this->final_query['where_relation'] );
+				}
+
+				$current_query .= $this->add_where_args( $where, $where_relation );
 			}
 
 			if ( ! empty( $this->final_query['group_results'] ) && ! empty( $this->final_query['group_by'] ) ) {
@@ -619,19 +669,33 @@ class SQL_Query extends Base_Query {
 
 			foreach ( $args as $key => $arg ) {
 
-				if ( is_array( $arg ) && isset( $arg['column'] ) ) {
-					$column  = ! empty( $arg['column'] ) ? $arg['column'] : false;
-					$compare = ! empty( $arg['compare'] ) ? $arg['compare'] : '=';
-					$value   = ! empty( $arg['value'] ) ? $arg['value'] : '';
-					$type    = ! empty( $arg['type'] ) ? $arg['type'] : false;
-				} else {
-					$column  = $key;
-					$compare = '=';
-					$value   = $arg;
-					$type    = false;
-				}
+				if ( is_array( $arg ) && isset( $arg['relation'] ) ) {
+					$relation = $arg['relation'];
 
-				$clause = $this->prepare_where_clause( $column, $compare, $value, $type );
+					unset( $arg['relation'] );
+
+					$clause = $this->add_where_args( $arg, $relation, false );
+
+					if ( $clause ) {
+						$clause = '( ' . $clause . ' )';
+					}
+
+				} else {
+
+					if ( is_array( $arg ) && isset( $arg['column'] ) ) {
+						$column  = ! empty( $arg['column'] ) ? $arg['column'] : false;
+						$compare = ! empty( $arg['compare'] ) ? $arg['compare'] : '=';
+						$value   = ! empty( $arg['value'] ) ? $arg['value'] : '';
+						$type    = ! empty( $arg['type'] ) ? $arg['type'] : false;
+					} else {
+						$column  = $key;
+						$compare = '=';
+						$value   = $arg;
+						$type    = false;
+					}
+
+					$clause = $this->prepare_where_clause( $column, $compare, $value, $type );
+				}
 
 				if ( $clause ) {
 					$query .= $glue;
@@ -806,8 +870,10 @@ class SQL_Query extends Base_Query {
 				$value = $this->adjust_value_by_type( $value, $type );
 			}
 
-			if ( in_array( $compare, $array_operators ) ) {
+			if ( in_array( $compare, array( 'IN', 'BETWEEN' ) ) ) {
 				$compare = '=';
+			} elseif ( in_array( $compare, array( 'NOT IN', 'NOT BETWEEN' ) ) ) {
+				$compare = '!=';
 			}
 
 		}

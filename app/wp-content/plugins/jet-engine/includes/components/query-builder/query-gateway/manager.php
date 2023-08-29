@@ -10,13 +10,16 @@ class Manager {
 
 	private $_controls_map = array();
 
+	private $initial_object = null;
+
 	public function __construct() {
 		
 		add_action( 'jet-engine-query-gateway/control', array( $this, 'register_controls' ), 10, 2 );
 		add_action( 'jet-engine-query-gateway/do-item', array( $this, 'set_item_object' ) );
+		add_action( 'jet-engine-query-gateway/reset-item', array( $this, 'reset_item_object' ) );
 		add_filter( 'jet-engine-query-gateway/query', array( $this, 'query_items' ), 10, 3 );
 
-		// Native Jet-plugins comptibility
+		// Native Jet-plugins compatibility
 		foreach ( array( 'jet-tabs', 'jet-elements' ) as $plugin_slug ) {
 			add_filter( $plugin_slug . '/widget/loop-items', array( $this, 'jet_plugins_compatibility' ), 10, 3 );
 		}
@@ -27,6 +30,19 @@ class Manager {
 		if ( ! empty( $item['_jet_engine_queried_object'] ) ) {
 			jet_engine()->listings->data->set_current_object( $item['_jet_engine_queried_object'] );
 		}
+	}
+
+	public function reset_item_object() {
+
+		if ( ! $this->initial_object ) {
+			return;
+		}
+
+		if ( $this->initial_object === jet_engine()->listings->data->get_current_object() ) {
+			return;
+		}
+
+		jet_engine()->listings->data->set_current_object( $this->initial_object );
 	}
 
 	public function query_items( $items, $control_name, $widget ) {
@@ -80,13 +96,18 @@ class Manager {
 
 		$fields_map = $fields_map[0];
 
-		foreach ( $query_items as $item ) {
+		$this->initial_object = jet_engine()->listings->data->get_current_object();
+
+		foreach ( $query_items as $index => $item ) {
 			jet_engine()->listings->data->set_current_object( $item );
 			$control = $widget->get_controls( $control_name );
 			$parsed_item = $widget->parse_dynamic_settings( $fields_map, $control['fields'], $fields_map );
 			$parsed_item['_jet_engine_queried_object'] = $item;
+			$parsed_item['_id'] = ! empty( $parsed_item['_id'] ) ? $parsed_item['_id'] . '-' . $index : $control_name . '-' . $index;
 			$items[] = $parsed_item;
 		}
+
+		$this->reset_item_object();
 
 		return $items;
 	}

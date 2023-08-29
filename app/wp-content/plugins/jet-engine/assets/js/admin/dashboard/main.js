@@ -57,6 +57,9 @@
 			this.$el.className = 'is-mounted';
 		},
 		methods: {
+			addTabLocationHash: function( activeTab ) {
+				window.history.replaceState( null, null, '#' + activeTab );
+			},
 			isActive: function( module ) {
 				return 0 <= this.activeModules.indexOf( module );
 			},

@@ -29,6 +29,22 @@ class Dynamic_Link extends Base {
 
 	// Set builder control groups
 	public function set_control_groups() {
+
+		$this->register_general_group();
+		$this->register_icon_group();
+
+	}
+
+	// Set builder controls
+	public function set_controls() {
+
+		$this->register_general_controls();
+		$this->register_icon_controls();
+
+	}
+
+	public function register_general_group() {
+
 		$this->register_jet_control_group(
 			'content',
 			[
@@ -37,21 +53,9 @@ class Dynamic_Link extends Base {
 			]
 		);
 
-		$this->register_jet_control_group(
-			'section_icon_style',
-			[
-				'title'    => esc_html__( 'Icon', 'jet-engine' ),
-				'tab'      => 'style',
-				'required' => [ 'selected_link_icon', '!=', '' ],
-
-			]
-		);
 	}
 
-	// Set builder controls
-	public function set_controls() {
-
-		$hooks = new Controls_Hook_Bridge( $this, [ 'dynamic_link_trigger_popup' ] );
+	public function register_general_controls() {
 
 		$this->start_jet_control_group( 'content' );
 
@@ -93,6 +97,7 @@ class Dynamic_Link extends Base {
 
 		}
 
+		$hooks = new Controls_Hook_Bridge( $this, [ 'dynamic_link_trigger_popup' ] );
 		$hooks->do_action( 'jet-engine/listings/dynamic-link/source-controls' );
 
 		$this->register_jet_control(
@@ -124,7 +129,7 @@ class Dynamic_Link extends Base {
 				'tab'         => 'content',
 				'label'       => esc_html__( 'Redirect after delete', 'jet-engine' ),
 				'type'        => 'text',
-				'description' => esc_html__( 'If empty will redirect to home page', 'jet-engine' ),
+				'description' => esc_html__( 'If empty will redirect to home page. Use the %current_page_url% macro to redirect to the current page.', 'jet-engine' ),
 				'required'    => [ 'dynamic_link_source', '=', 'delete_post_link' ],
 			]
 		);
@@ -214,25 +219,27 @@ class Dynamic_Link extends Base {
 			]
 		);
 
-		$this->register_jet_control(
-			'link_wrapper_tag',
-			[
-				'tab'     => 'content',
-				'label'   => esc_html__( 'HTML wrapper', 'jet-engine' ),
-				'type'    => 'select',
-				'options' => [
-					'div'  => 'DIV',
-					'h1'   => 'H1',
-					'h2'   => 'H2',
-					'h3'   => 'H3',
-					'h4'   => 'H4',
-					'h5'   => 'H5',
-					'h6'   => 'H6',
-					'span' => 'SPAN',
-				],
-				'default' => 'div',
-			]
-		);
+		if ( ! $this->prevent_wrap() ) {
+			$this->register_jet_control(
+				'link_wrapper_tag',
+				[
+					'tab'     => 'content',
+					'label'   => esc_html__( 'HTML wrapper', 'jet-engine' ),
+					'type'    => 'select',
+					'options' => [
+						'div'  => 'DIV',
+						'h1'   => 'H1',
+						'h2'   => 'H2',
+						'h3'   => 'H3',
+						'h4'   => 'H4',
+						'h5'   => 'H5',
+						'h6'   => 'H6',
+						'span' => 'SPAN',
+					],
+					'default' => 'div',
+				]
+			);
+		}
 
 		$this->register_jet_control(
 			'open_in_new',
@@ -250,21 +257,17 @@ class Dynamic_Link extends Base {
 				'tab'     => 'content',
 				'label'   => esc_html__( 'Add "rel" attr', 'jet-engine' ),
 				'type'    => 'select',
-				'options' => [
-					'alternate'  => esc_html__( 'Alternate', 'jet-engine' ),
-					'author'     => esc_html__( 'Author', 'jet-engine' ),
-					'bookmark'   => esc_html__( 'Bookmark', 'jet-engine' ),
-					'external'   => esc_html__( 'External', 'jet-engine' ),
-					'help'       => esc_html__( 'Help', 'jet-engine' ),
-					'license'    => esc_html__( 'License', 'jet-engine' ),
-					'next'       => esc_html__( 'Next', 'jet-engine' ),
-					'nofollow'   => esc_html__( 'Nofollow', 'jet-engine' ),
-					'noreferrer' => esc_html__( 'Noreferrer', 'jet-engine' ),
-					'noopener'   => esc_html__( 'Noopener', 'jet-engine' ),
-					'prev'       => esc_html__( 'Prev', 'jet-engine' ),
-					'search'     => esc_html__( 'Search', 'jet-engine' ),
-					'tag'        => esc_html__( 'Tag', 'jet-engine' ),
-				],
+				'options' => \Jet_Engine_Tools::get_rel_attr_options(),
+			]
+		);
+
+		$this->register_jet_control(
+			'aria_label_attr',
+			[
+				'tab'     => 'content',
+				'label'   => esc_html__( 'Aria label attr', 'jet-engine' ),
+				'type'    => 'text',
+				'default' => '',
 			]
 		);
 
@@ -291,6 +294,24 @@ class Dynamic_Link extends Base {
 		);
 
 		$this->end_jet_control_group();
+
+	}
+
+	public function register_icon_group() {
+
+		$this->register_jet_control_group(
+			'section_icon_style',
+			[
+				'title'    => esc_html__( 'Icon', 'jet-engine' ),
+				'tab'      => 'style',
+				'required' => [ 'selected_link_icon', '!=', '' ],
+
+			]
+		);
+
+	}
+
+	public function register_icon_controls() {
 
 		$this->start_jet_control_group( 'section_icon_style' );
 
@@ -322,7 +343,7 @@ class Dynamic_Link extends Base {
 					],
 					[
 						'property' => 'fill',
-						'selector' => $this->css_selector( '__icon :is(svg, path)' ),
+						'selector' => $this->css_selector( '__icon :is(svg)' ) . ', ' . $this->css_selector( '__icon :is(path)' ),
 					],
 				],
 			]
@@ -361,6 +382,7 @@ class Dynamic_Link extends Base {
 		);
 
 		$this->end_jet_control_group();
+
 	}
 
 	// Enqueue element styles and scripts

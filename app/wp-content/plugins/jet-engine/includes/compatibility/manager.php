@@ -64,7 +64,7 @@ if ( ! class_exists( 'Jet_Engine_Compatibility' ) ) {
 				),
 				'wpml.php' => array(
 					'cb'   => 'defined',
-					'args' => 'WPML_ST_VERSION',
+					'args' => 'ICL_SITEPRESS_VERSION',
 				),
 				'jet-popup.php' => array(
 					'cb'   => 'class_exists',
@@ -101,6 +101,14 @@ if ( ! class_exists( 'Jet_Engine_Compatibility' ) ) {
 				'kadence-block.php' => array(
 					'cb'   => 'defined',
 					'args' => 'KADENCE_BLOCKS_VERSION',
+				),
+				'relevanssi.php' => array(
+					'cb'   => 'function_exists',
+					'args' => 'relevanssi_do_query',
+				),
+				'generateblocks.php' => array(
+					'cb'   => 'defined',
+					'args' => 'GENERATEBLOCKS_VERSION',
 				),
 			);
 

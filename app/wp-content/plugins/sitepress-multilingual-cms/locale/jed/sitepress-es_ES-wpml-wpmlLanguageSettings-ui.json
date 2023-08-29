@@ -4,13 +4,16 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "lang": "es_ES"
          },
          "Choose the image file type for flags": [
             "Seleccione el tipo de archivo de imagen para los marcadores"
          ],
          "This option affects only the built-in WPML flags, not the custom uploaded ones.": [
             "Esta opción solo afecta a los marcadores integrados de WPML, no a los marcadores personalizados cargados."
+         ],
+         "%s format": [
+            "Formato de %s"
          ],
          "Save": [
             "Guardar"

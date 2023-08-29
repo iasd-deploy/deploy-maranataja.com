@@ -10,7 +10,7 @@ if (! isset($data)) {
 <?php
 if ( ! \WpAssetCleanUp\Main::instance()->currentUserCanViewAssetsList() ) {
 	?>
-    <div class="error" style="padding: 10px;">
+    <div class="wpacu-error" style="padding: 10px;">
 		<?php echo sprintf(__('Only the administrators listed here can manage CSS/JS assets: %s"Settings" &#10141; "Plugin Usage Preferences" &#10141; "Allow managing assets to:"%s. If you believe you should have access to managing CSS/JS assets, you can add yourself to that list.', 'wp-asset-clean-up'), '<a target="_blank" href="'.esc_url(admin_url('admin.php?page=wpassetcleanup_settings&wpacu_selected_tab_area=wpacu-setting-plugin-usage-settings')).'">', '</a>'); ?></div>
 	<?php
 	return;

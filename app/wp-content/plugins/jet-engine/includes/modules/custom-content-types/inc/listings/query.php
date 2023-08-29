@@ -134,6 +134,7 @@ class Query {
 			// setup AJAX query args
 			$query_object->set_filtered_prop( 'meta_query', $query_args['meta_query'] );
 			$query_args['args'] = $query_object->final_query['args'];
+			unset($query_args['meta_query'] );
 		}
 
 		$args  = $content_type->prepare_query_args( $this->format_filter_args( $query_args ) );
@@ -416,7 +417,7 @@ class Query {
 		$item      = $this->get_current_item( $post_id, $post_type );
 
 		if ( ! $item ) {
-			return;
+			return $post;
 		}
 
 		foreach ( $item as $prop => $value ) {
@@ -621,22 +622,7 @@ class Query {
 
 		if ( ! empty( $row['relation'] ) ) {
 
-			$new_row = array(
-				'relation' => $row['relation'],
-			);
-
-			unset( $row['relation'] );
-
-			foreach ( $row as $inner_row ) {
-				$new_row[] = array(
-					'field'    => ! empty( $inner_row['key'] ) ? $inner_row['key'] : false,
-					'operator' => ! empty( $inner_row['compare'] ) ? $inner_row['compare'] : '=',
-					'value'    => ! empty( $inner_row['value'] ) ? $inner_row['value'] : '',
-					'type'     => ! empty( $inner_row['type'] ) ? $inner_row['type'] : false,
-				);
-			}
-
-			$query[] = $new_row;
+			$query[] = $this->prepare_multi_relation_row( $row );
 
 		} else {
 
@@ -671,6 +657,32 @@ class Query {
 
 		return $query;
 
+	}
+
+	public function prepare_multi_relation_row( $row ) {
+
+		if ( ! empty( $row['relation'] ) ) {
+
+			$new_row = array(
+				'relation' => $row['relation'],
+			);
+
+			unset( $row['relation'] );
+
+			foreach ( $row as $inner_row ) {
+				$new_row[] = $this->prepare_multi_relation_row( $inner_row );
+			}
+
+		} else {
+			$new_row = array(
+				'field'    => ! empty( $row['key'] ) ? $row['key'] : false,
+				'operator' => ! empty( $row['compare'] ) ? $row['compare'] : '=',
+				'value'    => ! empty( $row['value'] ) ? $row['value'] : '',
+				'type'     => ! empty( $row['type'] ) ? $row['type'] : false,
+			);
+		}
+
+		return $new_row;
 	}
 
 }

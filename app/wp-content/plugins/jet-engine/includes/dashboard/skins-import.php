@@ -58,6 +58,7 @@ if ( ! class_exists( 'Jet_Engine_Skins_Import' ) ) {
 			}
 
 			$content = file_get_contents( $file['tmp_name'] );
+			$content = ltrim( $content, "\xEF\xBB\xBF" ); // maybe remove the bom string
 			$content = json_decode( $content, true );
 
 			if ( ! $content ) {

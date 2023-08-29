@@ -18,6 +18,8 @@ class Settings {
 
 		add_action( 'elementor/preview/enqueue_styles', array( $this, 'preview_styles' ) );
 
+		add_action( 'elementor/editor/after_enqueue_scripts', array( $this, 'enqueue_editor_scripts' ) );
+
 	}
 
 	/**
@@ -25,7 +27,7 @@ class Settings {
 	 * @return void
 	 */
 	public function preview_styles() {
-		wp_add_inline_style( 'editor-preview', '.jedv-enabled--yes{opacity: .6;}' );
+		wp_add_inline_style( 'editor-preview', '.jedv-enabled--yes:not(.elementor-element-editable){opacity: .6;}' );
 	}
 
 	/**
@@ -130,6 +132,16 @@ class Settings {
 
 		$element->end_controls_section();
 
+	}
+
+	public function enqueue_editor_scripts() {
+		wp_enqueue_script(
+			'jet-engine-dynamic-visibility-editor',
+			jet_engine()->modules->modules_url( 'dynamic-visibility/inc/assets/js/elementor-editor.js' ),
+			array( 'jquery', 'elementor-editor' ),
+			jet_engine()->get_version(),
+			true
+		);
 	}
 
 }

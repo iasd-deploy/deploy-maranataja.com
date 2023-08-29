@@ -345,6 +345,10 @@ if ( ! class_exists( 'Jet_Engine_CPT_Admin_Filters' ) ) {
 									$field['options'] = array();
 								}
 
+								if ( ! empty( $filter['title_as_placeholder'] ) ) {
+									$field['placeholder'] = '';
+								}
+
 								if ( in_array( $field['type'], array( 'checkbox', 'select' ) ) ) {
 									$options = $post_meta->prepare_select_options( $field );
 								} elseif ( 'radio' === $field['type'] ) {

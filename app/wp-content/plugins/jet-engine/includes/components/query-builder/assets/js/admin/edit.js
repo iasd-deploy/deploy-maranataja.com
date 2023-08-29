@@ -88,8 +88,9 @@
 					query = {},
 					dynamic_query = {};
 
-				if ( self.generalSettings.preview_page ) {
+				if ( self.generalSettings.preview_page || self.generalSettings.preview_page_title ) {
 					preview.page = self.generalSettings.preview_page;
+					preview.page_url = self.generalSettings.preview_page_title;
 				}
 
 				if ( self.generalSettings.preview_query_string ) {
@@ -148,8 +149,8 @@
 					path: JetEngineQueryConfig.api_path_search_preview + '?_s=' + value,
 				} ).then( function( response ) {
 					self.suggestions = response.data;
+					self.suggestions.unshift( { id: 0, text: 'Use raw URL string', url: value } );
 				} ).catch( function( response ) {
-
 					//self.errorNotices.push( response.message );
 
 					self.$CXNotice.add( {
@@ -161,8 +162,14 @@
 				} );
 			},
 			applySuggestion: function( suggestion ) {
-				this.$set( this.generalSettings, 'preview_page_title', suggestion.text );
-				this.$set( this.generalSettings, 'preview_page', suggestion.id );
+				if ( 0 !== suggestion.id ) {
+					this.$set( this.generalSettings, 'preview_page_title', suggestion.text );
+					this.$set( this.generalSettings, 'preview_page', suggestion.id );
+				} else {
+					this.$set( this.generalSettings, 'preview_page_title', suggestion.url );
+					this.$set( this.generalSettings, 'preview_page', 0 );
+				}
+				
 				this.suggestions = [];
 				this.updatePreview();
 			},

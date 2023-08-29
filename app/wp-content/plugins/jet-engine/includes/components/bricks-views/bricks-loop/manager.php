@@ -87,6 +87,14 @@ class Manager {
 			return [];
 		}
 
+		// Reset current object for Query type Repeater
+		// This condition is added to make the Bricks loop work properly (when using Query Builder on terms, relationships)
+		if ( $jet_engine_query->query_type === 'repeater' ) {
+			// When using two repeaters per page, the current object for the second repeater is the last element from the first repeater
+			// Because I added this reset
+			jet_engine()->listings->data->reset_current_object();
+		}
+
 		// Setup query args
 		$jet_engine_query->setup_query();
 

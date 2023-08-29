@@ -57,7 +57,7 @@
 			name="object_id"
 			v-model="query.object_id"
 			v-if="'jet_engine_option' !== query.source"
-		><jet-query-dynamic-args v-model="dynamicQuery.custom_field"></jet-query-dynamic-args></cx-vui-input>
+		><jet-query-dynamic-args v-model="dynamicQuery.object_id"></jet-query-dynamic-args></cx-vui-input>
 		<cx-vui-component-wrapper
 			:wrapper-css="[ 'fullwidth-control' ]"
 		>

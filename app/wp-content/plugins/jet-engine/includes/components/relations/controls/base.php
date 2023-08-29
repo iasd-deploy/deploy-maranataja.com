@@ -315,6 +315,16 @@ class Base {
 			'help'   => array(
 				'emptyObject' => $this->get_empty_object_help(),
 			),
+			'i18n' => array(
+				'yes'           => esc_html__( 'Yes', 'jet-engine' ),
+				'no'            => esc_html__( 'No', 'jet-engine' ),
+				'edit'          => esc_html__( 'Edit', 'jet-engine' ),
+				'view'          => esc_html__( 'View', 'jet-engine' ),
+				'disconnect'    => esc_html__( 'Disconnect', 'jet-engine' ),
+				'deleteItem'    => esc_html__( 'Delete Item', 'jet-engine' ),
+				'confirmText'   => esc_html__( 'Are you sure?', 'jet-engine' ),
+				'confirmDelete' => esc_html__( 'Are you sure? This item will be removed from your website.', 'jet-engine' ),
+			),
 		);
 
 		if ( ! self::$common_printed ) {

@@ -82,8 +82,10 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 			);
 
 
-			add_filter( 'jet-engine/listings/dynamic-image/size', array( $this, 'prepare_custom_image_size' ), 10, 3 );
+			add_filter( 'jet-engine/listings/dynamic-image/size',      array( $this, 'prepare_custom_image_size' ), 10, 3 );
 			add_filter( 'jet-engine/listings/dynamic-image/link-attr', array( $this, 'add_lightbox_attr' ), 10, 2 );
+
+			add_filter( 'jet-engine/gallery/lightbox-attr', array( $this, 'add_lightbox_attr_for_gallery' ), 10, 3 );
 
 		}
 
@@ -118,6 +120,9 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 				)
 			) );
 
+			// Removed the click event on `.page-title-action` selector in the Elementor editor to prevent conflicts.
+			$inline_script = "jQuery( document ).off( 'click.JetListings', '.page-title-action', window.JetListings.openPopup );";
+			wp_add_inline_script( 'jet-listings-form', $inline_script );
 		}
 
 		/**
@@ -338,20 +343,19 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 		 */
 		public function register_widgets( $widgets_manager ) {
 
-			$base      = jet_engine()->plugin_path( 'includes/components/elementor-views/' );
-			$post_type = get_post_type();
+			$base = jet_engine()->plugin_path( 'includes/components/elementor-views/' );
 
 			$this->include_base_widget();
 
 			foreach ( glob( $base . 'dynamic-widgets/*.php' ) as $file ) {
-				$slug = basename( $file, '.php' );
 				$this->register_widget( $file, $widgets_manager );
 			}
 
 			foreach ( glob( $base . 'static-widgets/*.php' ) as $file ) {
-				$slug = basename( $file, '.php' );
 				$this->register_widget( $file, $widgets_manager );
 			}
+
+			do_action( 'jet-engine/elementor-views/widgets/register', $widgets_manager, $this );
 
 		}
 
@@ -420,7 +424,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 			if ( version_compare( ELEMENTOR_VERSION, '2.6.0', '<' ) ) {
 				$redirect = Elementor\Utils::get_edit_link( $template_id );
 			} else {
-				$redirect = Elementor\Plugin::$instance->documents->get( $template_id )->get_edit_url();
+				$document = Elementor\Plugin::$instance->documents->get( $template_id );
+				$redirect = $document ? $document->get_edit_url() : false;
 			}
 
 			return $redirect;
@@ -573,6 +578,38 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 			}
 
 			return $units;
+		}
+
+		/**
+		 * Add lightbox attr for Slider and Grid Gallery.
+		 *
+		 * @param array  $attr
+		 * @param array  $img_data
+		 * @param string $gallery_id
+		 *
+		 * @return mixed
+		 */
+		public function add_lightbox_attr_for_gallery( $attr, $img_data, $gallery_id ) {
+
+			$attr['data-elementor-open-lightbox'] = 'yes';
+
+			if ( ! empty( $gallery_id ) ) {
+				$attr['data-elementor-lightbox-slideshow='] = $gallery_id;
+			}
+
+			if ( ! empty( $img_data['id'] ) ) {
+				$lightbox_image_attr = \Elementor\Plugin::instance()->images_manager->get_lightbox_image_attributes( $img_data['id'] );
+
+				if ( isset( $lightbox_image_attr['title'] ) ) {
+					$attr['data-elementor-lightbox-title'] = $lightbox_image_attr['title'];
+				}
+
+				if ( isset( $lightbox_image_attr['description'] ) ) {
+					$attr['data-elementor-lightbox-description'] = $lightbox_image_attr['description'];
+				}
+			}
+
+			return $attr;
 		}
 
 	}

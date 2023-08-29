@@ -26,7 +26,7 @@ if ( ! class_exists( 'Jet_Engine_Components' ) ) {
 		}
 
 		/**
-		 * Register components before run init to allow unregister befor init
+		 * Register components before run init to allow unregister before init
 		 *
 		 * @return void
 		 */

@@ -43,6 +43,51 @@
 
 			elementor.hooks.addAction( 'frontend/element_ready/section', JetElements.elementorSection );
 			elementor.hooks.addAction( 'frontend/element_ready/container', JetElements.elementorSection );
+
+			// Re-init widgets in nested tabs
+			window.elementorFrontend.elements.$window.on(
+				'elementor/nested-tabs/activate',
+				( event, content ) => {
+
+					const $content = $( content );
+					JetElements.reinitSlickSlider( $content );
+					JetElements.initWidgetsHandlers( $content );
+				}
+			);
+		},
+
+		reinitSlickSlider: function( $scope ) {
+
+		  	var $slider = $scope.find('.slick-initialized');
+
+		  	if ( $slider.length ) {
+
+				$slider.each( function() {
+					$( this ).slick('unslick');
+				} );
+			}
+		},
+
+		initWidgetsHandlers: function( $selector ) {
+
+			$selector.find( '.elementor-widget-jet-slider, .elementor-widget-jet-testimonials, .elementor-widget-jet-carousel, .elementor-widget-jet-portfolio, .elementor-widget-jet-horizontal-timeline, .elementor-widget-jet-image-comparison, .elementor-widget-jet-posts' ).each( function() {
+				
+				var $this       = $( this ),
+					elementType = $this.data( 'element_type' );
+
+				if ( !elementType ) {
+					return;
+				}
+
+				if ( 'widget' === elementType ) {
+					elementType = $this.data( 'widget_type' );
+					window.elementorFrontend.hooks.doAction( 'frontend/element_ready/widget', $this, $ );
+				}
+
+				window.elementorFrontend.hooks.doAction( 'frontend/element_ready/global', $this, $ );
+				window.elementorFrontend.hooks.doAction( 'frontend/element_ready/' + elementType, $this, $ );
+
+			} );
 		},
 
 		initElementsHandlers: function( $selector ) {
@@ -315,7 +360,7 @@
 						pinData = {
 							position: pin.position,
 							map: map,
-							title: pin.desc
+							title: pin.address,
 						};
 
 					if ( '' !== pin.image ) {
@@ -741,21 +786,27 @@
 					$target.on( 'mouseenter mouseleave', function( event ) {
 
 						if ( firstMouseEvent && 'mouseleave' === event.type ) {
+
+							if ( ! $( this ).hasClass( 'flipped-stop' ) ) {
+								$( this ).removeClass( 'flipped' );
+							}
 							return;
 						}
 
 						if ( firstMouseEvent && 'mouseenter' === event.type ) {
-							firstMouseEvent = false;
+
+							if ( ! $( this ).hasClass( 'flipped-stop' ) ) {
+								$( this ).addClass( 'flipped' );
+							}
+
+							//firstMouseEvent = false;
 						}
 
-						if ( ! $( this ).hasClass( 'flipped-stop' ) ) {
-							$( this ).toggleClass( 'flipped' );
-						}
 					} );
 
 					backButton.on( 'focus', function() {
 						if ( ! $target.hasClass( 'flipped-stop' ) ) {
-							$target.toggleClass( 'flipped' );
+							$target.addClass( 'flipped' );
 						}
 					} );
 
@@ -814,7 +865,7 @@
 
 					backButton.on( 'focus', function() {
 						if ( ! $target.hasClass( 'flipped-stop' ) ) {
-							$target.toggleClass( 'flipped' );
+							$target.addClass( 'flipped' );
 						}
 					} );
 
@@ -843,7 +894,7 @@
 
 				backButton.on( 'focus', function() {
 					if ( ! $target.hasClass( 'flipped-stop' ) ) {
-						$target.toggleClass( 'flipped' );
+						$target.addClass( 'flipped' );
 					}
 				} );
 
@@ -1863,7 +1914,7 @@
 			} );
 
 			if ( $target.hasClass( 'slick-initialized' ) ) {
-				$target.slick( 'refresh', true );
+				$target.not('.slick-initialized').slick('refresh', true );
 				return;
 			}
 
@@ -2600,7 +2651,7 @@
 				if ( true === settings.options.tooltips.enabled ) {
 					settings.options.tooltips.callbacks = {
 						label: function(tooltipItem, data) {
-							return ' ' + data.labels[tooltipItem.index] + ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+							return ' ' + data.datasets[tooltipItem.datasetIndex].label + ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 						}
 					}
 				}
@@ -2613,7 +2664,7 @@
 				settings.options.tooltips.callbacks = {
 					label: function( tooltipItem, data ) {
 						var value = '' != tooltip_separator ? JetElementsTools.addThousandCommaSeparator( data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index], tooltip_separator) : data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-						return ' ' + data.labels[tooltipItem.index] + ': ' + tooltip_prefix + value + tooltip_suffix;
+						return ' ' + data.datasets[tooltipItem.datasetIndex].label + ': ' + tooltip_prefix + value + tooltip_suffix;
 					}
 				};
 			}
@@ -4797,9 +4848,7 @@
 		};
 
 		self.filterHandler = function( event ) {
-
 			event.preventDefault();
-
 			var $this = $( this ),
 				counter = 1,
 				slug  = $this.data( 'slug' ),

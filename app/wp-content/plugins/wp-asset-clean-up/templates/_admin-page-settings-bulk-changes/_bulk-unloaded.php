@@ -34,7 +34,7 @@ $availableForPro = '<span class="wpacu-tooltip">'
 	<a href="<?php echo apply_filters('wpacu_go_pro_affiliate_link', WPACU_PLUGIN_GO_PRO_URL.'?utm_source=plugin_bulk_unloaded&utm_medium=tab_link'); ?>" target="_blank" class="nav-tab go-pro-link-no-style no-transition"><?php echo wp_kses($availableForPro, array('span' => array('class' => array()), 'br' => array(), 'img' => array('style' => array(), 'width' => array(), 'height' => array(), 'src' => array(), 'valign' => array(), 'alt' => array()))); ?> &nbsp;404 Not Found</a>
 </nav>
 
-<div class="wpacu-clearfix"></div>
+<div class="wpacu_clearfix"></div>
 
 <?php
 do_action('wpacu_admin_notices');
@@ -58,7 +58,7 @@ if ($data['for'] === 'post_types') {
 	<?php
 	if ($data['for'] === 'everywhere') {
 		?>
-        <div class="wpacu-clearfix"></div>
+        <div class="wpacu_clearfix"></div>
 
         <div class="alert">
             <p>This is the list of the assets that are <strong>unloaded everywhere</strong> (site-wide) on all pages (including home page). &nbsp;&nbsp;<a id="wpacu-add-bulk-rules-info-target" href="#wpacu-add-bulk-rules-info" style="text-decoration: none;"><span class="dashicons dashicons-info"></span> How the list below gets filled with site-wide rules?</a></p>
@@ -71,7 +71,7 @@ if ($data['for'] === 'post_types') {
             </div>
         </div>
 
-        <div class="wpacu-clearfix"></div>
+        <div class="wpacu_clearfix"></div>
 
 		<div style="padding: 0 10px 0 0;">
 			<p style="margin-bottom: 10px;"><strong><?php _e('Stylesheets (.css) Unloaded', 'wp-asset-clean-up'); ?></strong></p>
@@ -151,7 +151,7 @@ if ($data['for'] === 'post_types') {
 
 	if ($data['for'] === 'post_types') {
 		?>
-        <div class="wpacu-clearfix"></div>
+        <div class="wpacu_clearfix"></div>
 
         <div class="alert">
             <p>This is the list of the assets that are <strong>unloaded</strong> on all pages belonging to the <strong><u><?php echo esc_html($data['post_type']); ?></u></strong> post type. &nbsp;&nbsp;<a id="wpacu-add-bulk-rules-info-target" href="#wpacu-add-bulk-rules-info" style="text-decoration: none;"><span class="dashicons dashicons-info"></span> How the list below gets filled with site-wide rules?</a></p>
@@ -164,7 +164,7 @@ if ($data['for'] === 'post_types') {
             </div>
         </div>
 
-		<div class="wpacu-clearfix"></div>
+		<div class="wpacu_clearfix"></div>
 
 		<div style="padding: 0 10px 0 0;">
             <p style="margin-bottom: 10px;"><strong><?php _e('Stylesheets (.css) Unloaded', 'wp-asset-clean-up'); ?></strong></p>
@@ -254,7 +254,7 @@ if ($data['for'] === 'post_types') {
 	}
 	?>
 
-    <div class="wpacu-clearfix"></div>
+    <div class="wpacu_clearfix"></div>
 
     <div id="wpacu-update-button-area" class="no-left-margin">
         <p class="submit">

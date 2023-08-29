@@ -315,7 +315,7 @@ if ( ! class_exists( 'Jet_Engine_Options_Page_Factory' ) ) {
 			}
 
 			if ( $this->to_timestamp( $field ) ) {
-				return strtotime( $value );
+				return apply_filters( 'jet-engine/options-pages/strtotime', strtotime( $value ), $value );
 			}
 
 			if ( ! empty( $field['sanitize_callback'] ) && is_callable( $field['sanitize_callback'] ) ) {
@@ -532,7 +532,9 @@ if ( ! class_exists( 'Jet_Engine_Options_Page_Factory' ) ) {
 						$result[ $field_name ]['value']
 					);
 
-					if ( 'separate' === $this->storage_type && ! empty( $this->page['option_prefix'] ) ) {
+					if ( 'separate' === $this->storage_type && ! empty( $this->page['option_prefix'] )
+						 && ! empty( $result[ $field_name ]['description'] )
+					) {
 						$result[ $field_name ]['description'] = str_replace(
 							$field_name,
 							$this->get_separate_option_name( $field_name ),
@@ -606,11 +608,11 @@ if ( ! class_exists( 'Jet_Engine_Options_Page_Factory' ) ) {
 
 						switch ( $field['input_type'] ) {
 							case 'date':
-								$value = date( 'Y-m-d', $value );
+								$value = $this->get_date( 'Y-m-d', $value );
 								break;
 
 							case 'datetime-local':
-								$value = date( 'Y-m-d\TH:i', $value );
+								$value = $this->get_date( 'Y-m-d\TH:i', $value );
 								break;
 						}
 					}
@@ -619,6 +621,10 @@ if ( ! class_exists( 'Jet_Engine_Options_Page_Factory' ) ) {
 			}
 
 			return $value;
+		}
+
+		public function get_date( $format, $time ) {
+			return apply_filters( 'jet-engine/options-pages/date', date( $format, $time ), $time, $format );
 		}
 
 		public function is_allowed_on_current_admin_hook( $hook ) {

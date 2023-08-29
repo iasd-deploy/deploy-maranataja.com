@@ -105,6 +105,32 @@ class Edit extends \Jet_Engine_CPT_Page_Base {
 		);
 
 		wp_enqueue_script(
+			'jet-engine-query-ai-popup',
+			Manager::instance()->component_url( 'assets/js/admin/ai-popup.js' ),
+			array( 'cx-vue-ui' ),
+			jet_engine()->get_version(),
+			true
+		);
+
+		wp_localize_script(
+			'jet-engine-query-ai-popup',
+			'JetEngineQueryAIPopup',
+			array(
+				'nonce'       => jet_engine()->ai->get_nonce(),
+				'action'      => jet_engine()->ai->get_action(),
+				'has_license' => ( false !== jet_engine()->ai->get_matched_license() ? true : false ),
+				'limit'       => jet_engine()->ai->get_ai_limit(),
+				'is_allowed'  => jet_engine()->ai->is_ai_allowed( 'sql' ),
+				'snippets'    => array(
+					__( 'Get users who published posts in last 2 weeks. Only unique users.', 'jet-engine' ),
+					__( 'Get users who have birthday on current month. Birthday is stored in the meta field with meta key \'birth_date\'. Return only future birthdays and all data from the users table.', 'jet-engine' ),
+					__( 'WooCoomerce. Select product categories with products in stock. Product stock status is stored in \'_stock_status\' meta field. Return only unique terms and all data from terms table.', 'jet-engine' ),
+					__( 'Select posts from \'post\' post type published on this week.', 'jet-engine' ),
+				),
+			)
+		);
+
+		wp_enqueue_script(
 			'jet-engine-query-mixins',
 			Manager::instance()->component_url( 'assets/js/admin/mixins.js' ),
 			array(),
@@ -188,6 +214,11 @@ class Edit extends \Jet_Engine_CPT_Page_Base {
 		include Manager::instance()->component_path( 'templates/admin/dynamic-args.php' );
 		$content = ob_get_clean();
 		printf( '<script type="text/x-template" id="jet-query-dynamic-args">%s</script>', $content );
+
+		ob_start();
+		include Manager::instance()->component_path( 'templates/admin/ai-popup.php' );
+		$content = ob_get_clean();
+		printf( '<script type="text/x-template" id="jet-query-ai-popup">%s</script>', $content );
 
 	}
 

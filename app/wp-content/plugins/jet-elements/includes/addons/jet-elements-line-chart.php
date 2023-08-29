@@ -12,8 +12,6 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -1027,6 +1025,46 @@ class Jet_Elements_Line_Chart extends Jet_Elements_Base {
 		<?php
 		$this->_close_wrap();
 	}
+
+
+	/**
+	 * Set global colors.
+	 *
+	 * @return array
+	 */
+	public function get_global_colors($globals) {
+
+		$kit = Plugin::$instance->kits_manager->get_active_kit_for_frontend();
+		$kit_system = $kit->get_settings_for_display( 'system_colors' );
+		$kit_custom = $kit->get_settings_for_display( 'custom_colors' );
+
+		if (isset($globals['__globals__'])){
+
+			$kit_settings = $kit_system;
+
+			if (isset($kit_custom)){
+
+				$kit_settings = array_merge( $kit_system, $kit_custom );
+			}
+
+			foreach($globals['__globals__'] as $key => $value){
+
+				$value = str_replace('globals/colors?id=', '', $value);
+
+				foreach($kit_settings as $kit_setting){
+
+					if( $kit_setting['_id'] === $value ){
+
+						$globals[$key] = $kit_setting['color'];
+
+					}
+				}
+			}
+		}
+
+		return $globals;
+
+	}
 	
 	/**
 	 * Get prepare chart data.
@@ -1041,6 +1079,9 @@ class Jet_Elements_Line_Chart extends Jet_Elements_Base {
 		$chart_data = apply_filters( 'jet-elements/widget/loop-items', $chart_data, 'chart_data', $this );
 
 		foreach ( $chart_data as $item_data ) {
+
+			$item_data = $this->get_global_colors($item_data);
+
 			$item_data['label']                = ! empty( $item_data['label'] ) ? $item_data['label'] : '';
 			$item_data['data']                 = ! empty( $item_data['data'] ) ? array_map( 'floatval', explode( ',', $item_data['data'] ) ) : '';
 			$item_data['backgroundColor']      = ! empty( $item_data['bg_color'] ) ? $item_data['bg_color'] : 'rgba(206,206,206,0.4)';
@@ -1065,6 +1106,8 @@ class Jet_Elements_Line_Chart extends Jet_Elements_Base {
 	public function get_chart_options() {
 		$settings = $this->get_settings_for_display();
 		$comparison_enabled = $settings['chart_comparison_enabled'];
+
+		$settings = $this->get_global_colors($settings);
 
 		$labels_display   = filter_var( $settings['chart_labels_display'], FILTER_VALIDATE_BOOLEAN );
 		$legend_display   = filter_var( $settings['chart_legend_display'], FILTER_VALIDATE_BOOLEAN );

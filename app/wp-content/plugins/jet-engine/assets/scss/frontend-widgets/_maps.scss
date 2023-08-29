@@ -129,8 +129,16 @@
 
 .jet-map-listing {
 	.gm-svpc {
+		max-width: none;
+
 		img {
 			max-width: none;
+		}
+	}
+
+	.gm-style-mtc {
+		button {
+			border-radius: 0;
 		}
 	}
 }

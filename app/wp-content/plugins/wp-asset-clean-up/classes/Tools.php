@@ -95,9 +95,7 @@ class Tools
 
 		if (isset($_GET['page']) && $_GET['page'] === WPACU_PLUGIN_ID. '_tools') {
 			// "Import" Completed
-			if (Misc::getVar('get', 'wpacu_import_done') && $importDoneInfo = get_transient('wpacu_import_done')) {
-				$resetDoneListArray = @json_decode($importDoneInfo, ARRAY_A);
-
+			if (Misc::getVar('get', 'wpacu_import_done') && $resetDoneListArray = get_transient('wpacu_import_done')) {
 				if (! is_array($resetDoneListArray)) {
 					return;
 				}
@@ -239,6 +237,9 @@ class Tools
 	    $return .= 'WP_CONTENT_DIR:            ' . ( defined( 'WP_CONTENT_DIR' ) ? (WP_CONTENT_DIR ? WP_CONTENT_DIR : 'Disabled') : 'Not set' ) . "\n";
 	    $return .= 'WP_CONTENT_URL:            ' . ( defined( 'WP_CONTENT_URL' ) ? (WP_CONTENT_URL ? WP_CONTENT_URL : 'Disabled') : 'Not set' ) . "\n";
 	    $return .= 'UPLOADS:                   ' . ( defined( 'UPLOADS' ) ? (UPLOADS ? UPLOADS : 'Disabled') : 'Not set' ) . "\n";
+
+        $return .= 'FS_CHMOD_DIR:               '  . FS_CHMOD_DIR . "\n";
+	    $return .= 'FS_CHMOD_FILE:              '  . FS_CHMOD_FILE . "\n";
 
 	    $uploads_dir = wp_upload_dir();
 
@@ -603,7 +604,9 @@ SQL;
 
 		if ($wpacuResetValue === 'reset_settings') {
 			delete_option($wpacuPluginId.'_settings');
-		} elseif (in_array($wpacuResetValue, array('reset_everything', 'reset_everything_except_settings'))) {
+		}
+
+        if (in_array($wpacuResetValue, array('reset_everything', 'reset_everything_except_settings'))) {
 			// `usermeta` and `termmeta` might have traces from the Pro version (if ever used)
 			foreach (array('postmeta', 'usermeta', 'termmeta') as $tableBaseName) {
 			    // Get all Asset CleanUp (Pro) meta keys from all WordPress meta tables where it can be possibly used
@@ -616,11 +619,15 @@ SQL;
 				    foreach ($wpacuMetaKeys as $postMetaKey) {
 					    delete_post_meta_by_key($postMetaKey);
 				    }
-                } elseif ($tableBaseName === 'usermeta') { // User Meta: Pro version (if used)
+                }
+
+                if ($tableBaseName === 'usermeta') { // User Meta: Pro version (if used)
 					foreach ($wpacuMetaKeys as $userMetaKey) {
 						delete_metadata('user', 0, $userMetaKey, '', true);
 					}
-                } elseif ($tableBaseName === 'termmeta') { // e.g. Taxonomy: Pro version (if used)
+                }
+
+                if ($tableBaseName === 'termmeta') { // e.g. Taxonomy: Pro version (if used)
 					foreach ($wpacuMetaKeys as $termMetaKey) {
 						delete_metadata('term', 0, $termMetaKey, '', true);
 					}
@@ -755,9 +762,13 @@ SQL;
 
 		if ($this->resetChoice === 'reset_settings') {
 			$msg = __('All the settings were reset to their default values.', 'wp-asset-clean-up');
-		} elseif ($this->resetChoice === 'reset_everything_except_settings') {
+		}
+
+        if ($this->resetChoice === 'reset_everything_except_settings') {
 			$msg = __('Everything except the "Settings" was reset (including page &amp; bulk unloads, load exceptions).', 'wp-asset-clean-up');
-        } elseif ($this->resetChoice === 'reset_everything') {
+        }
+
+        if ($this->resetChoice === 'reset_everything') {
 			$msg = __('Everything was reset (including settings, individual &amp; bulk unloads, load exceptions) to the same point it was when you first activated the plugin.', 'wp-asset-clean-up');
 
 			if ($this->licenseDataRemoved) {
@@ -791,29 +802,29 @@ SQL;
 	    foreach ($this->data['import_done_list'] as $importedKey) {
             if ($importedKey === 'settings') {
 	            $importedMessage .= '<li>"'.esc_html__('Settings', 'wp-asset-clean-up').'"</li>';
-            } elseif ($importedKey === 'homepage_unloads') {
+            }
+
+            if ($importedKey === 'homepage_unloads') {
 	            $importedMessage .= '<li>'.esc_html__('Homepage Unload Rules', 'wp-asset-clean-up').'</li>';
-            } elseif ($importedKey === 'homepage_exceptions') {
+            }
+
+            if ($importedKey === 'homepage_exceptions') {
 	            $importedMessage .= '<li>'.esc_html__('Homepage Load Exceptions (for site-wide and bulk unloads)', 'wp-asset-clean-up').'</li>';
-            } elseif ($importedKey === 'sitewide_unloads') {
+            }
+
+            if ($importedKey === 'sitewide_unloads') {
 	            $importedMessage .= '<li>'.esc_html__('Site-wide unloads', 'wp-asset-clean-up').'</li>';
-            } elseif ($importedKey === 'bulk_unloads') {
+            }
+
+            if ($importedKey === 'bulk_unloads') {
 	            $importedMessage .= '<li>'.esc_html__('Bulk Unloads (e.g. for all pages of `post` post type)', 'wp-asset-clean-up').'</li>';
-            } elseif ($importedKey === 'post_type_exceptions') {
+            }
+
+            if ($importedKey === 'post_type_exceptions') {
 	            $importedMessage .= '<li>'.esc_html__('Load exceptions for all pages belonging to specific post types', 'wp-asset-clean-up').'</li>';
-            } elseif ($importedKey === 'post_type_via_tax_exceptions') {
-	            $importedMessage .= '<li>'.esc_html__('Load exceptions for all pages having specific taxonomies set', 'wp-asset-clean-up').'</li>';
-            } elseif ($importedKey === 'global_data') {
-                // [wpacu_pro]
-	            $importedMessage .= '<li>'.esc_html__('Any CSS/JS updated positions (to &lt;HEAD&gt; or &lt;BODY&gt;)', 'wp-asset-clean-up').'</li>';
-	            $importedMessage .= '<li>'.esc_html__('Any CSS/JS preloading (rel="preload")', 'wp-asset-clean-up').'</li>';
-	            $importedMessage .= '<li>'.esc_html__('Any defer/async attributes added to the JS files', 'wp-asset-clean-up').'</li>';
-	            // [/wpacu_pro]
-            } elseif ($importedKey === 'extras_exceptions') {
-                // [wpacu_pro]
-	            $importedMessage .= '<li>'.esc_html__('Load exceptions for all pages belonging to some or all of the following page types: archive, author, search, 404 pages', 'wp-asset-clean-up').'</li>';
-	            // [/wpacu_pro]
-            } elseif ($importedKey === 'posts_metas') {
+            }
+
+            if ($importedKey === 'posts_metas') {
 	            $importedMessage .= '<li>'.esc_html__('Posts, Pages &amp; Custom Post Types: Rules &amp; Page Options (Side Meta Box)', 'wp-asset-clean-up').'</li>';
             }
         }

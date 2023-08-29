@@ -14,12 +14,17 @@ const {
 	      addAction,
 	      getFormFieldsBlocks,
 	      Tools: { withPlaceholder },
-	      addComputedField = () => {}, // since JFB 3.0
+	      addComputedField       = () => {}, // since JFB 3.0
+	      convertListToFieldsMap = () => [],
       } = JetFBActions;
 const {
 	      ActionFieldsMap,
 	      WrapperRequiredControl,
       } = JetFBComponents;
+
+const {
+	      useFields = () => false,
+      } = window?.JetFBHooks ?? {};
 
 const { addFilter } = wp.hooks;
 
@@ -54,14 +59,12 @@ addAction(
 
 		const [ isLoading, setLoading ] = useState( false );
 
+		let fields = useFields();
+
 		const [ formFieldsList ] = useState( () => {
-			const responseBlocks = {};
-
-			getFormFieldsBlocks().forEach( block => {
-				responseBlocks[ block.value ] = { label: block.label };
-			} );
-
-			return Object.entries( responseBlocks );
+			return false === fields
+			       ? convertListToFieldsMap( getFormFieldsBlocks() )
+			       : convertListToFieldsMap( fields );
 		}, [] );
 
 		const fetchTypeFields = function ( type ) {

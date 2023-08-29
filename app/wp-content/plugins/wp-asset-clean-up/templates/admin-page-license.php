@@ -28,6 +28,6 @@ include_once '_top-area.php';
                 '<a href="'.esc_url(admin_url('admin.php?page=wpassetcleanup_get_help')).'">', '</a>'
             );
         ?></p>
-        <div class="wpacu-clearfix"></div>
+        <div class="wpacu_clearfix"></div>
     </div>
 </div>

@@ -209,13 +209,15 @@ SQL;
                 }
 		    }
 
-		    usort($allDirs, static function($a, $b) {
-			    return strlen($b) - strlen($a);
-		    });
+            if ( ! empty($allDirs) ) {
+	            usort( $allDirs, static function( $a, $b ) {
+		            return strlen( $b ) - strlen( $a );
+	            } );
 
-		    // Then, remove the empty dirs in descending order (up to the root)
-            foreach ($allDirs as $dir) {
-                Misc::rmDir($dir);
+	            // Then, remove the empty dirs in descending order (up to the root)
+	            foreach ($allDirs as $dir) {
+		            Misc::rmDir($dir);
+	            }
             }
 	    }
     }
@@ -246,7 +248,7 @@ Options -Indexes
 HTACCESS;
 
 		    if ( ! is_dir( $cacheDir ) ) {
-			    @mkdir( $cacheDir, 0755, true );
+			    @mkdir( $cacheDir, FS_CHMOD_DIR, true );
 		    }
 
 		    if ( ! is_file( $cacheDir . 'index.php' ) ) {
@@ -256,13 +258,13 @@ HTACCESS;
 
 			if ( ! is_dir( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir ) ) {
 				// /wp-content/cache/asset-cleanup/cache/(css|js)/item/
-				@mkdir( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir, 0755 );
+				@mkdir( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir, FS_CHMOD_DIR );
 			}
 
 			// For large inline STYLE & SCRIPT tags
 			if ( ! is_dir( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir.'/inline' ) ) {
 				// /wp-content/cache/asset-cleanup/cache/(css|js)/item/inline/
-			    @mkdir( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir.'/inline', 0755 );
+			    @mkdir( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir.'/inline', FS_CHMOD_DIR );
 		    }
 
 		    if ( ! is_file( $cacheDir . OptimizeCommon::$optimizedSingleFilesDir.'/inline/index.php' ) ) {
@@ -287,20 +289,13 @@ HTACCESS;
 		$storageDir = WP_CONTENT_DIR . OptimiseAssets\OptimizeCommon::getRelPathPluginCacheDir() . '_storage/';
 
 		if ( ! is_dir($storageDir . OptimizeCommon::$optimizedSingleFilesDir) ) {
-			@mkdir( $storageDir . OptimizeCommon::$optimizedSingleFilesDir, 0755, true );
+			@mkdir( $storageDir . OptimizeCommon::$optimizedSingleFilesDir, FS_CHMOD_DIR, true );
 		}
 
-		// Storage directory for the most recent items (these are never deleted from the cache)
-		$storageDirRecentItems = WP_CONTENT_DIR . OptimiseAssets\OptimizeCommon::getRelPathPluginCacheDir() . '_storage/_recent_items/';
-
-		if ( ! is_dir($storageDirRecentItems) ) {
-			@mkdir( $storageDirRecentItems, 0755, true );
-		}
-
-		$siteStorageCache = $storageDir.'/'.str_replace(array('https://', 'http://', '//'), '', site_url());
+        $siteStorageCache = $storageDir.'/'.str_replace(array('https://', 'http://', '//'), '', site_url());
 
 		if ( ! is_dir($storageDir) ) {
-			@mkdir( $siteStorageCache, 0755, true );
+			@mkdir( $siteStorageCache, FS_CHMOD_DIR, true );
 		}
 	}
 

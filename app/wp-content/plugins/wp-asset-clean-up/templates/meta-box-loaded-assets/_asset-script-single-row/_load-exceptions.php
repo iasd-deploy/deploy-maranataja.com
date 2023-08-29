@@ -98,7 +98,7 @@ if ($anyUnloadRuleSet || $data['row']['is_load_exception_per_page']) {
                     <span>If the user is logged-in</span></label>
             </li>
 		</ul>
-        <div class="wpacu-clearfix"></div>
+        <div class="wpacu_clearfix"></div>
         </fieldset>
 	</div>
 </div>

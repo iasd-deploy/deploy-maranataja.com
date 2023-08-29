@@ -205,7 +205,7 @@ class Maps_Listings extends Listing_Grid {
 				'label'   => esc_html__( 'Marker type', 'jet-engine' ),
 				'type'    => 'select',
 				'options' => Module::instance()->get_marker_types(),
-				'default' => 'image',
+				'default' => 'icon',
 			]
 		);
 
@@ -226,6 +226,10 @@ class Maps_Listings extends Listing_Grid {
 				'label'    => esc_html__( 'Icon', 'jet-engine' ),
 				'type'     => 'icon',
 				'required' => [ 'marker_type', '=', 'icon' ],
+				'default'  => [
+					'library' => 'fontawesomeSolid',
+					'icon'    => 'fas fa-location-dot',
+				],
 			]
 		);
 
@@ -556,6 +560,20 @@ class Maps_Listings extends Listing_Grid {
 		);
 
 		$this->add_provider_controls( 'section_popup_settings' );
+
+		$this->register_jet_control(
+			'popup_open_on',
+			[
+				'tab'     => 'content',
+				'label'   => esc_html__( 'Open On', 'jet-engine' ),
+				'type'    => 'select',
+				'options' => array(
+					'click' => esc_html__( 'Click', 'jet-engine' ),
+					'hover' => esc_html__( 'Hover', 'jet-engine' ),
+				),
+				'default' => 'click',
+			]
+		);
 
 		$this->end_jet_control_group();
 

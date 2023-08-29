@@ -147,7 +147,11 @@ class Type extends \Jet_Engine\Relations\Types\Base {
 		$item = $content_type->db->get_item( $item_id );
 
 		if ( $item && $title_field && isset( $item[ $title_field ] ) ) {
-			$title = $item[ $title_field ] . ' (' . $title . ')';
+
+			$title_format = '%1$s (%2$s)';
+			$title_format = apply_filters( 'jet-engine/custom-content-types/relations/item-title/format', $title_format );
+
+			$title = sprintf( $title_format, $item[ $title_field ], $title );
 		}
 
 		return $title;

@@ -45,6 +45,11 @@ class Jet_Engine_Datetime {
 	 */
 	public function to_time( $timestring ) {
 		if ( $this->use_wp_date() ) {
+
+			if ( empty( $timestring ) ) {
+				return $timestring;
+			}
+
 			$date = new DateTime( $timestring, wp_timezone() );
 			return $date->format( 'U' );
 		} else {
@@ -91,6 +96,9 @@ class Jet_Engine_Datetime {
 
 		add_filter( 'jet-engine/custom-content-types/strtotime', array( $this, 'meta_to_time' ), 10, 2 );
 		add_filter( 'jet-engine/custom-content-types/date', array( $this, 'meta_to_date' ), 10, 3 );
+
+		add_filter( 'jet-engine/options-pages/strtotime', array( $this, 'meta_to_time' ), 10, 2 );
+		add_filter( 'jet-engine/options-pages/date', array( $this, 'meta_to_date' ), 10, 3 );
 
 	}
 

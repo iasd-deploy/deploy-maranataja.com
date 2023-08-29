@@ -92,6 +92,20 @@ class Update_Preview extends \Jet_Engine_Base_API_Endpoint {
 
 		}
 
+		if ( ! empty( $preview['page_url'] ) ) {
+			$_SERVER['REQUEST_URI'] = preg_replace(
+				'/wp-json\/.*/',
+				ltrim( $preview['page_url'], '/' ),
+				$_SERVER['REQUEST_URI']
+			);
+
+			global $wp;
+
+			$wp->parse_request();
+			$wp->query_posts();
+
+		}
+
 		if ( ! empty( $preview['query_string'] ) ) {
 
 			parse_str( $preview['query_string'], $query_array );

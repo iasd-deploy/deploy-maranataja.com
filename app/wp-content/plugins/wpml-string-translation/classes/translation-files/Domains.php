@@ -82,7 +82,9 @@ class Domains {
 			return $mo_domains;
 		};
 
-		return Cache::get( self::MO_DOMAINS_CACHE_GROUP, self::MO_DOMAINS_CACHE_KEY )->getOrElse( $getMODomainsFromDB );
+		/** @var Just|Nothing $cacheItem */
+		$cacheItem = Cache::get( self::MO_DOMAINS_CACHE_GROUP, self::MO_DOMAINS_CACHE_KEY );
+		return $cacheItem->getOrElse( $getMODomainsFromDB );
 	}
 
 	public static function invalidateMODomainCache() {

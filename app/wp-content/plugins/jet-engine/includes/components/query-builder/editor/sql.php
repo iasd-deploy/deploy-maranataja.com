@@ -18,7 +18,7 @@ class SQL_Query extends Base_Query {
 	 * Qery type name
 	 */
 	public function get_name() {
-		return __( 'SQL Query', 'jet-engine' );
+		return __( 'SQL/AI Query', 'jet-engine' );
 	}
 
 	/**

@@ -53,7 +53,7 @@ if ( ! $linkHasDistinctiveMediaAttr ) {
     <?php
     }
     ?>
-    <div class="wpacu-clearfix"></div>
+    <div class="wpacu_clearfix"></div>
     <!-- [/wpacu_lite] -->
 <?php
 }

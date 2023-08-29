@@ -383,6 +383,22 @@ class Calendar extends Listing_Grid {
 			]
 		);
 
+		$this->register_jet_control(
+			'caption_gap',
+			[
+				'tab'   => 'style',
+				'label' => esc_html__( 'Gap between caption elements', 'jet-engine' ),
+				'type'  => 'number',
+				'units' => true,
+				'css'   => [
+					[
+						'property' => 'gap',
+						'selector' => '.jet-calendar-caption__wrap',
+					]
+				],
+			]
+		);
+
 		$this->end_jet_control_group();
 
 		$this->start_jet_control_group( 'section_nav_style' );

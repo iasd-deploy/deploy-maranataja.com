@@ -27,12 +27,6 @@ class Elementor {
 			10, 2
 		);
 
-		add_filter(
-			'jet-engine/elementor-views/frontend/custom-listing-url',
-			array( $this, 'custom_listing_url' ),
-			10, 2
-		);
-
 	}
 
 	public function update_settings_on_document_save( $document, $data ) {
@@ -143,21 +137,6 @@ class Elementor {
 			)
 		);
 
-	}
-
-	public function custom_listing_url( $result, $settings ) {
-
-		$url = $this->manager->get_custom_value_by_setting( 'listing_link_source', $settings );
-
-		if ( is_numeric( $url ) ) {
-			$url = get_permalink( $url );
-		}
-
-		if ( ! $url ) {
-			return $result;
-		} else {
-			return $url;
-		}
 	}
 
 }

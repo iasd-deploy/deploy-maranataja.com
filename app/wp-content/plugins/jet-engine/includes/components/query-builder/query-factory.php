@@ -74,14 +74,16 @@ class Query_Factory {
 			require_once Manager::instance()->component_path( 'queries/users.php' );
 			require_once Manager::instance()->component_path( 'queries/comments.php' );
 			require_once Manager::instance()->component_path( 'queries/repeater.php' );
+			require_once Manager::instance()->component_path( 'queries/current-wp-query.php' );
 
 			$defaults = array(
-				'sql'      => __NAMESPACE__ . '\Queries\SQL_Query',
-				'posts'    => __NAMESPACE__ . '\Queries\Posts_Query',
-				'terms'    => __NAMESPACE__ . '\Queries\Terms_Query',
-				'users'    => __NAMESPACE__ . '\Queries\Users_Query',
-				'comments' => __NAMESPACE__ . '\Queries\Comments_Query',
-				'repeater' => __NAMESPACE__ . '\Queries\Repeater_Query',
+				'sql'              => __NAMESPACE__ . '\Queries\SQL_Query',
+				'posts'            => __NAMESPACE__ . '\Queries\Posts_Query',
+				'terms'            => __NAMESPACE__ . '\Queries\Terms_Query',
+				'users'            => __NAMESPACE__ . '\Queries\Users_Query',
+				'comments'         => __NAMESPACE__ . '\Queries\Comments_Query',
+				'repeater'         => __NAMESPACE__ . '\Queries\Repeater_Query',
+				'current-wp-query' => __NAMESPACE__ . '\Queries\Current_WP_Query',
 			);
 
 			foreach ( $defaults as $type => $class ) {

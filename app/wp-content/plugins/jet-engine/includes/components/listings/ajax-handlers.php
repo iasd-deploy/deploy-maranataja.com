@@ -33,11 +33,18 @@ if ( ! class_exists( 'Jet_Engine_Listings_Ajax_Handlers' ) ) {
 		 * Check if is AJAX listing request
 		 * Need to duplicate it there because to avoid conflicts with class calling stack
 		 */
-		public function is_listing_ajax() {
-			return (
+		public function is_listing_ajax( $handler = false ) {
+
+			$is_listing_ajax = (
 				( ! empty( $_REQUEST['action'] ) && 'jet_engine_ajax' === $_REQUEST['action'] && ! empty( $_REQUEST['handler'] ) )
 				|| ! empty( $_REQUEST['jet_engine_action'] )
 			);
+
+			if ( $is_listing_ajax && ! empty( $handler ) ) {
+				return ( ! empty( $_REQUEST['handler'] ) && $handler === $_REQUEST['handler'] );
+			}
+
+			return $is_listing_ajax;
 		}
 
 		/**
@@ -291,6 +298,8 @@ if ( ! class_exists( 'Jet_Engine_Listings_Ajax_Handlers' ) ) {
 
 			self::maybe_add_enqueue_assets_data( $response );
 
+			$response = apply_filters( 'jet-engine/ajax/listing_load_more/response', $response, $widget_settings );
+
 			wp_send_json_success( $response );
 
 		}
@@ -407,7 +416,14 @@ if ( ! class_exists( 'Jet_Engine_Listings_Ajax_Handlers' ) ) {
 				return;
 			}
 
+			// Ensure registered `jet-plugins` script.
+			if ( ! wp_script_is( 'jet-plugins', 'registered' )  ) {
+				jet_engine()->frontend->register_jet_plugins_js();
+			}
+
 			wp_scripts()->done[] = 'jquery';
+			wp_scripts()->done[] = 'jet-plugins';
+			wp_scripts()->done[] = 'jet-engine-frontend';
 
 			$scripts = wp_scripts()->queue;
 			$styles  = wp_styles()->queue;

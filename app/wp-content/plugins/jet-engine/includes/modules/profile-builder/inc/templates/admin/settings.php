@@ -27,7 +27,7 @@
 					<cx-vui-select
 						name="account_page"
 						label="<?php _e( 'Account Page', 'jet-engine' ); ?>"
-						description="<?php _e( 'Select page to use as current user account page', 'jet-engine' ); ?>"
+						description="<?php _e( 'Select a page to use as the current user account page', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						size="fullwidth"
 						placeholder="<?php _e( 'Select page...', 'jet-engine' ); ?>"
@@ -36,14 +36,14 @@
 					></cx-vui-select>
 					<cx-vui-switcher
 						label="<?php _e( 'Users page', 'jet-engine' ); ?>"
-						description="<?php _e( 'Add public page for all user list', 'jet-engine' ); ?>"
+						description="<?php _e( 'Add a public page for the All Users list', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						v-model="settings.enable_users_page"
 					></cx-vui-switcher>
 					<cx-vui-select
 						name="users_page"
 						label="<?php _e( 'Users Page', 'jet-engine' ); ?>"
-						description="<?php _e( 'Select page to use as public users page', 'jet-engine' ); ?>"
+						description="<?php _e( 'Select a page to use as the public users page', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						size="fullwidth"
 						placeholder="<?php _e( 'Select page...', 'jet-engine' ); ?>"
@@ -53,14 +53,14 @@
 					></cx-vui-select>
 					<cx-vui-switcher
 						label="<?php _e( 'Single user page', 'jet-engine' ); ?>"
-						description="<?php _e( 'Add public page for single user', 'jet-engine' ); ?>"
+						description="<?php _e( 'Add a public page for a single user', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						v-model="settings.enable_single_user_page"
 					></cx-vui-switcher>
 					<cx-vui-select
 						name="user_page"
 						label="<?php _e( 'Single User Page', 'jet-engine' ); ?>"
-						description="<?php _e( 'Select page to use as public single user page', 'jet-engine' ); ?>"
+						description="<?php _e( 'Select a page to use as the public single user page', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						size="fullwidth"
 						placeholder="<?php _e( 'Select page...', 'jet-engine' ); ?>"
@@ -71,7 +71,7 @@
 					<cx-vui-select
 						name="user_page_rewrite"
 						label="<?php _e( 'User Page Rewrite', 'jet-engine' ); ?>"
-						description="<?php _e( 'Select rewrite base for single user page', 'jet-engine' ); ?>"
+						description="<?php _e( 'Select the rewrite base for the single user page', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						size="fullwidth"
 						:options-list="rewriteOptions"
@@ -80,7 +80,7 @@
 					></cx-vui-select>
 					<cx-vui-select
 						label="<?php _e( 'Template mode', 'jet-engine' ); ?>"
-						description="<?php _e( 'How subpage templates will be processing. If rewrite selected - account page content will be totally rewritten, if content - subpages content rendered with separate widget inside page content.', 'jet-engine' ); ?>"
+						description="<?php _e( 'Set how the subpage templates will be processed. If <b>Rewrite</b> is selected, the account page content will be totally rewritten; if <b>Content</b> – the subpages content will be rendered by a separate widget inside the page content.', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						size="fullwidth"
 						:options-list="[
@@ -104,13 +104,13 @@
 								_e( 'Note:', 'jet-engine' );
 							?></label>
 							<div class="cx-vui-component__desc"><?php
-								_e( 'Content mode is selected. This means you need to add <b>Profile Content</b> widget to your Account or User page content!', 'jet-engine' );
+								_e( 'Content mode is selected. That means you need to add the <b>Profile Content</b> widget to your Account or User Page content!', 'jet-engine' );
 							?></div>
 						</div>
 					</div>
 					<cx-vui-switcher
 						label="<?php _e( 'Use page content', 'jet-engine' ); ?>"
-						description="<?php _e( 'If subpage template is not set, use default page content', 'jet-engine' ); ?>"
+						description="<?php _e( 'If the subpage template is not set, use the default page content', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						:conditions="[
 							{
@@ -123,13 +123,13 @@
 					></cx-vui-switcher>
 					<cx-vui-switcher
 						label="<?php _e( 'Hide admin bar', 'jet-engine' ); ?>"
-						description="<?php _e( 'Disable admin bar for non-admins', 'jet-engine' ); ?>"
+						description="<?php _e( 'Disable the admin bar for non-admins', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						v-model="settings.disable_admin_bar"
 					></cx-vui-switcher>
 					<cx-vui-switcher
 						label="<?php _e( 'Restrict admin area access', 'jet-engine' ); ?>"
-						description="<?php _e( 'Make default WordPress admin area accessible only for selected user roles', 'jet-engine' ); ?>"
+						description="<?php _e( 'Make the default WordPress admin area accessible only to selected user roles', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						v-model="settings.restrict_admin_access"
 					></cx-vui-switcher>
@@ -310,20 +310,32 @@
 					key="user_page"
 					v-if="settings.enable_single_user_page"
 				>
-					<cx-vui-input
+					<cx-vui-textarea
 						label="<?php _e( 'User Page Title', 'jet-engine' ); ?>"
 						description="<?php _e( 'Set seo title for user page', 'jet-engine' ); ?>"
-						:wrapper-css="[ 'equalwidth' ]"
+						:wrapper-css="[ 'equalwidth', 'has-macros' ]"
 						size="fullwidth"
 						v-model="settings.user_page_seo_title"
 					>
-						<div :style="{ marginTop: '10px', fontWeight: 700 }"><?php _e( 'Available macros list:', 'jet-engine' ); ?></div>
-						<ul :style="{ marginBottom: 0 }">
-							<li v-for="macroArgs in userPageTitleMacros" :style="{ display: 'inline-block' }">
-								<code :style="{ cursor: 'pointer' }" @click="addTitleMacro( macroArgs.macro )">{{ macroArgs.macro }}</code> - {{ macroArgs.label }}.&nbsp
-							</li>
-						</ul>
-					</cx-vui-input>
+						<jet-profile-macros @add-macro="addMacroToField( $event, 'user_page_seo_title' )"></jet-profile-macros>
+					</cx-vui-textarea>
+					<cx-vui-textarea
+						label="<?php _e( 'User Page Description', 'jet-engine' ); ?>"
+						description="<?php _e( 'Set seo description for user page', 'jet-engine' ); ?>"
+						:wrapper-css="[ 'equalwidth', 'has-macros' ]"
+						size="fullwidth"
+						v-model="settings.user_page_seo_desc"
+					>
+						<jet-profile-macros @add-macro="addMacroToField( $event, 'user_page_seo_desc' )"></jet-profile-macros>
+					</cx-vui-textarea>
+					<cx-vui-select
+						label="<?php _e( 'User Page Image Field', 'jet-engine' ); ?>"
+						description="<?php _e( 'Set seo image for user page from user meta field', 'jet-engine' ); ?>"
+						:wrapper-css="[ 'equalwidth' ]"
+						size="fullwidth"
+						:options-list="userPageImageFields"
+						v-model="settings.user_page_seo_image"
+					></cx-vui-select>
 					<div class="cx-vui-inner-panel">
 						<cx-vui-repeater
 							button-label="<?php _e( '+ Add New Subpage', 'jet-engine' ); ?>"

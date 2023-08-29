@@ -2,6 +2,51 @@
 
 # ChangeLog
 
+## 3.2.0
+* ADD: Elementor Pro Loop Grid provider
+* ADD: admin multilingual support
+* ADD: additional settings dropdown N selected
+* ADD: date period filter Min/Max Dates operations
+* ADD: 'Comparison type' option for 'Comparison operator'
+* ADD: process shortcodes in 'URL with filtered value' dynamic tag
+* UPD: checkbox filter with dropdown update selected items on input change, not on filter change
+* UPD: not include children for 'Intersection' relational operator
+* UPD: filter each query type key after indexing
+* UPD: JetDashboard module
+* FIX: admin dropdown outside click
+* FIX: custom fields JetEngine WPML string translation
+* FIX: current WP Query & Indexer compatibility
+* FIX: hierarchical filter with additional providers
+* FIX: ePro Posts returns "0.66" value instead blank list for 0 results
+* FIX: elementor popup with filters
+* FIX: elementor popup with "Improved Asset Loading" option
+* FIX: click Back button after applying filters with a redirect
+* FIX: visual filter when dragging item changes image
+* FIX: fatal error in dynamic tag when filter is deleted
+* FIX: ePro Portfolio masonry
+
+## 3.1.2
+* ADD: process shortcodes in 'URL with filtered value' dynamic tag
+* FIX: apply filter 'jet-smart-filters/render_filter_template/filter_id' for all filters
+* FIX: current WP Query & Indexer compatibility
+* FIX: date period filter period type "DAY"
+* FIX: prevent php notices on php 8.2
+* FIX: add filter Id to filter uniqueKey
+* FIX: update duplicated hierarchical filter on reload
+* FIX: fixed radio filter direction control in Bricks
+* UPD: prevent from registering DOING_AJAX constant on non-admin-ajax referrers
+
+## 3.1.1
+* UPD: redesigned initialization of filters on the frontend
+* ADD: pagination load more
+* ADD: fieldset legends & aria-labels
+* ADD: don't send ajax request if page hasn't provider
+* ADD: filter 'jet-smart-filters/service/filter/serialized-keys'
+* ADD: reinitFilters global method
+* FIX: sitepath for url aliases
+* FIX: URL aliases settings RTL
+* FIX: fatal when Bricks query loop ("Is filterable" checked) in listing grid item
+
 ## 3.1.0
 * ADD: Allow to replace selected parts of the filtered URLs with any alias words you want;
 * ADD: Bricks Query Loop provider;

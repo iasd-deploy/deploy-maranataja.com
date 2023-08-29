@@ -7,13 +7,13 @@
 
 namespace Elementor;
 
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
-use Elementor\Core\Schemes\Color as Scheme_Color;
-use Elementor\Core\Schemes\Typography as Scheme_Typography;
 use Elementor\Widget_Base;
 use Elementor\Utils;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -577,8 +577,10 @@ class Jet_Elements_Advanced_Map extends Jet_Elements_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'pin_link_typography',
-				'scheme'   => Scheme_Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}} .jet-map-pin__link',
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
 			)
 		);
 
@@ -1059,10 +1061,12 @@ class Jet_Elements_Advanced_Map extends Jet_Elements_Base {
 				}
 
 				$current = array(
+					'address'  => $pin['pin_address'],
 					'position' => $position,
 					'desc'     => $pin['pin_desc'],
 					'state'    => $pin['pin_state'],
 				);
+
 
 				if ( ! empty( $pin['pin_image']['url'] ) ) {
 					$current['image'] = esc_url( $pin['pin_image']['url'] );

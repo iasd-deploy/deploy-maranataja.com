@@ -1,4 +1,4 @@
-/*! elementor - v3.11.5 - 14-03-2023 */
+/*! elementor - v3.15.0 - 20-08-2023 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -566,12 +566,6 @@ var Migrator = /*#__PURE__*/function () {
     key: "migrate",
     value:
     /**
-     * Migrations configuration by `elType`.
-     *
-     * @type {Object}
-     */
-
-    /**
      * Migrate element settings into new settings object, using a map object.
      *
      * @param {Object} settings - Settings to migrate.
@@ -662,6 +656,11 @@ var Migrator = /*#__PURE__*/function () {
   return Migrator;
 }();
 exports["default"] = Migrator;
+/**
+ * Migrations configuration by `elType`.
+ *
+ * @type {Object}
+ */
 (0, _defineProperty2.default)(Migrator, "config", {
   section: {
     legacyControlsMapping: _section.default,
@@ -712,9 +711,7 @@ module.exports = wp.i18n;
 
 function _arrayLikeToArray(arr, len) {
   if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) {
-    arr2[i] = arr[i];
-  }
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
   return arr2;
 }
 module.exports = _arrayLikeToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
@@ -923,9 +920,7 @@ function _iterableToArrayLimit(arr, i) {
       if (_x = (_i = _i.call(arr)).next, 0 === i) {
         if (Object(_i) !== _i) return;
         _n = !1;
-      } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) {
-        ;
-      }
+      } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0);
     } catch (err) {
       _d = !0, _e = err;
     } finally {

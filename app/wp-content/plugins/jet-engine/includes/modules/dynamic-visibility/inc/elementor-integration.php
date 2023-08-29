@@ -15,6 +15,8 @@ class Elementor_Integration extends Condition_Checker {
 	 */
 	private $need_unregistered_inline_css_widget = false;
 
+	private $resize_columns_ids = array();
+
 	public function __construct() {
 
 		if ( ! jet_engine()->has_elementor() ) {
@@ -62,7 +64,6 @@ class Elementor_Integration extends Condition_Checker {
 		}
 
 		$is_visible = $this->check_cond( $element->get_settings(), $element->get_settings_for_display() );
-		$element->jedv_check_status = $is_visible;
 
 		if ( ! $is_visible ) {
 			add_filter( 'elementor/element/get_child_type', '__return_false' ); // for prevent getting content of inner elements.
@@ -118,11 +119,11 @@ class Elementor_Integration extends Condition_Checker {
 	 */
 	public function add_resize_columns_prop( $column ) {
 
-		if ( ! isset( $column->jedv_check_status ) ) {
+		if ( empty( $this->hidden_elements_ids ) ) {
 			return;
 		}
 
-		if ( false !== $column->jedv_check_status ) {
+		if ( ! in_array( $column->get_id(), $this->hidden_elements_ids ) ) {
 			return;
 		}
 
@@ -136,7 +137,7 @@ class Elementor_Integration extends Condition_Checker {
 			return;
 		}
 
-		$column->jedv_resize_columns = true;
+		$this->resize_columns_ids[] = $column->get_id();
 	}
 
 	/**
@@ -153,7 +154,7 @@ class Elementor_Integration extends Condition_Checker {
 		$has_resize_columns = false;
 
 		foreach ( $section->get_children() as $column ) {
-			if ( isset( $column->jedv_resize_columns ) && $column->jedv_resize_columns ) {
+			if ( in_array( $column->get_id(), $this->resize_columns_ids ) ) {
 				$has_resize_columns = true;
 				break;
 			}

@@ -49,7 +49,9 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 
 			// Listing item link.
 			add_action( 'jet-engine/listings/document/custom-link-source-controls', array( $this, 'listing_link_controls' ) );
-			add_filter( 'jet-engine/elementor-views/frontend/custom-listing-url',   array( $this, 'listing_link_render' ), 10, 2 );
+			add_filter( 'jet-engine/listings/frontend/custom-listing-url',          array( $this, 'listing_link_render' ), 10, 2 );
+			add_filter( 'jet-engine/blocks/editor/controls/link-settings',          array( $this, 'blocks_listing_link_controls' ), 10, 2 );
+			add_action( 'jet-engine/blocks/editor/save-settings',                   array( $this, 'save_blocks_editor_settings' ) );
 
 			// Blocks compatibility
 			add_filter( 'jet-engine/blocks-views/editor-data', array( $this, 'localize_fields' ) );
@@ -63,7 +65,12 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 			new Jet_Engine_ACF_Repeater_Query( $this );
 
 			// For compatibility with ACF Dynamic Tags (Elementor Pro v3.8)
-			add_filter( 'acf/pre_load_post_id', array( $this, 'set_post_id_in_listing' ), 10, 2 );
+			if ( defined( 'ELEMENTOR_PRO_VERSION' )
+				 && version_compare( ELEMENTOR_PRO_VERSION, '3.8.0', '>=' )
+				 && version_compare( ELEMENTOR_PRO_VERSION, '3.9.0', '<' )
+			) {
+				add_filter( 'acf/pre_load_post_id', array( $this, 'set_post_id_in_listing' ), 10, 2 );
+			}
 
 		}
 
@@ -142,12 +149,7 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 				return $result;
 			}
 
-			$key = isset( $settings['acf_field_key'] ) ? $settings['acf_field_key'] : false;
-			
-			if ( ! $key && ! empty( $settings['dynamic_field_post_meta_custom'] ) ) {
-				$key = $settings['dynamic_field_post_meta_custom'];
-			}
-
+			$key     = isset( $settings['acf_field_key'] ) ? $settings['acf_field_key'] : false;
 			$keyinfo = $this->parse_key( $key, true );
 
 			if ( empty( $key ) ) {
@@ -209,9 +211,13 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 		 */
 		public function field_render( $result = null, $settings = array() ) {
 
+			if ( 'acf_field_groups' !== $settings['dynamic_field_source'] ) {
+				return $result;
+			}
+
 			$key = isset( $settings['acf_field_key'] ) ? $settings['acf_field_key'] : false;
 
-			if ( ! $key && ! empty( $settings['dynamic_field_post_meta_custom'] ) ) {
+			if ( ! empty( $settings['dynamic_field_post_meta_custom'] ) ) {
 				$key = $settings['dynamic_field_post_meta_custom'];
 			}
 
@@ -256,8 +262,8 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 
 			$key = isset( $settings['acf_field_key'] ) ? $settings['acf_field_key'] : false;
 
-			if ( ! $key && ! empty( $settings['dynamic_field_post_meta_custom'] ) ) {
-				$key = $settings['dynamic_field_post_meta_custom'];
+			if ( ! empty( $settings['dynamic_image_source_custom'] ) ) {
+				$key = $settings['dynamic_image_source_custom'];
 			}
 
 			$key = $this->parse_key( $key, true );
@@ -323,12 +329,11 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 				return $url;
 			}
 
-			$key = isset( $settings['acf_link_field_key'] ) ? $settings['acf_link_field_key'] : false;
-
-			if ( ! $key && ! empty( $settings['dynamic_field_post_meta_custom'] ) ) {
-				$key = $settings['dynamic_field_post_meta_custom'];
+			if ( 'acf_field_groups' !== $settings['image_link_source'] ) {
+				return $url;
 			}
 
+			$key = isset( $settings['acf_link_field_key'] ) ? $settings['acf_link_field_key'] : false;
 			$key = $this->parse_key( $key, true );
 
 			if ( ! $key ) {
@@ -370,11 +375,6 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 			}
 
 			$key = isset( $settings['acf_field_key'] ) ? $settings['acf_field_key'] : false;
-
-			if ( ! $key && ! empty( $settings['dynamic_field_post_meta_custom'] ) ) {
-				$key = $settings['dynamic_field_post_meta_custom'];
-			}
-
 			$key = $this->parse_key( $key, true );
 
 			if ( empty( $key ) ) {
@@ -812,6 +812,38 @@ if ( ! class_exists( 'Jet_Engine_ACF_Package' ) ) {
 				),
 			) );
 
+		}
+
+		public function blocks_listing_link_controls( $link_controls, $settings ) {
+
+			$acf_link_controls = array(
+				'jet_engine_listing_link_acf_field_key' => array(
+					'label'     => __( 'ACF Field', 'jet-engine' ),
+					'groups'    => $this->get_fields_goups( 'links' ),
+					'value'     => ! empty( $settings['acf_field_key'] ) ? $settings['acf_field_key'] : '',
+					'condition' => array(
+						'jet_engine_listing_link'        => 'yes',
+						'jet_engine_listing_link_source' => 'acf_field_groups',
+					),
+				)
+			);
+
+			$link_controls = \Jet_Engine_Tools::array_insert_after( $link_controls, 'jet_engine_listing_link_source', $acf_link_controls );
+
+			return $link_controls;
+		}
+
+		public function save_blocks_editor_settings( $post_id ) {
+
+			if ( ! isset( $_POST['jet_engine_listing_link_acf_field_key'] ) ) {
+				return;
+			}
+
+			$elementor_page_settings = get_post_meta( $post_id, '_elementor_page_settings', true );
+
+			$elementor_page_settings['acf_field_key'] = esc_attr( $_POST[ 'jet_engine_listing_link_acf_field_key' ] );
+
+			update_post_meta( $post_id, '_elementor_page_settings', $elementor_page_settings );
 		}
 
 		public function listing_link_render( $url, $settings ) {

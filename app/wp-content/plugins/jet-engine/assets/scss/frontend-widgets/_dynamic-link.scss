@@ -48,6 +48,14 @@
 	}
 }
 
+.jet-engine-optimized-dom {
+	.elementor-widget-jet-listing-dynamic-link > .elementor-widget-container,
+	.jet-listing-dynamic-link-block {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
 .jet-remove-from-store.is-hidden {
 	display: none !important;
 }
@@ -59,12 +67,23 @@
 
 // Context Bricks
 .brxe-jet-engine-listing-dynamic-link {
+	display: inline-flex;
+
 	.jet-listing-dynamic-link {
-		flex-direction: row;
+		display: block;
+		flex-direction: initial;
 	}
 
-	.jet-listing-dynamic-link__icon :is(svg, path) {
-		fill: currentColor;
+	.jet-listing-dynamic-link__link {
+		display: flex;
 	}
 
+	.jet-listing-dynamic-link__icon {
+		display: inline-flex;
+		order: initial;
+
+		& :is(svg, path) {
+			fill: currentColor;
+		}
+	}
 }

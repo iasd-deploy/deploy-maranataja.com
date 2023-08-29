@@ -10,11 +10,7 @@ class Manager {
 		add_action( 'jet-smart-filters/providers/register', array( $this, 'register_filters_provider' ) );
 		add_action( 'jet-smart-filters/filter-types/register', array( $this, 'register_filter_types' ) );
 
-		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
-			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ), 20 );
-		} else {
-			add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets' ), 20 );
-		}
+		add_action( 'jet-engine/elementor-views/widgets/register', array( $this, 'register_widgets' ), 20, 2 );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'register_blocks_assets' ), 9 );
 		add_action( 'init', array( $this, 'register_blocks_types' ), 999 );
@@ -75,14 +71,14 @@ class Manager {
 		) );
 	}
 
-	public function register_widgets( $widgets_manager ) {
-		require jet_engine()->modules->modules_path( 'maps-listings/inc/filters/elementor-widgets/user-geolocation.php' );
+	public function register_widgets( $widgets_manager, $elementor_views ) {
 
-		if ( method_exists( $widgets_manager, 'register' ) ) {
-			$widgets_manager->register( new Elementor_Widgets\User_Geolocation() );
-		} else {
-			$widgets_manager->register_widget_type( new Elementor_Widgets\User_Geolocation() );
-		}
+		$elementor_views->register_widget(
+			jet_engine()->modules->modules_path( 'maps-listings/inc/filters/elementor-widgets/user-geolocation.php' ),
+			$widgets_manager,
+			__NAMESPACE__ . '\Elementor_Widgets\User_Geolocation'
+		);
+
 	}
 
 	public function register_filter_types( $types_manager ) {

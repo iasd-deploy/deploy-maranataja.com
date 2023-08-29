@@ -85,7 +85,18 @@ class Assets extends \Bricks\Assets {
 			return $cached;
 		}
 
+		// Clear the list of elements already styled (@since 1.5)
+		self::$css_looping_elements = [];
+
+		// STEP: Content
 		self::generate_css_from_elements( $elements, 'content' );
+
+		// STEP: Global Classes
+		if ( is_callable( [ '\Jet_Engine\Bricks_Views\Listing\Assets', 'generate_global_classes' ] ) ) {
+			self::generate_global_classes();
+		} elseif ( is_callable( [ '\Jet_Engine\Bricks_Views\Listing\Assets', 'generate_inline_css_global_classes' ] ) ) {
+			self::generate_inline_css_global_classes();
+		}
 
 		// STEP: Concatinate styles (respecting precedences)
 
@@ -132,7 +143,7 @@ class Assets extends \Bricks\Assets {
 		}
 
 		// Make CSS selector to nested listing elements builder agnostic
-		$inline_css = str_replace( '.brxe-jet-listing-el', '.jet-listing-grid', $inline_css );
+		$inline_css = str_replace( '.brxe-jet-listing-el', '.jet-listing-base', $inline_css );
 
 		/**
 		 * Build Google fonts array by scanning inline CSS for Google fonts
@@ -207,9 +218,18 @@ class Assets extends \Bricks\Assets {
 		$active_google_font_families = get_post_meta( $post_id, self::$font_families_cache_key, true );
 
 		if ( ! $active_google_font_urls || ! $active_google_font_families ) {
-			$google_fonts_families_string = \Bricks\Helpers::get_file_contents( BRICKS_URL_ASSETS . 'fonts/google-fonts.min.json' );
+
+			$google_fonts_families_string = '';
+			$assets_path_gf = BRICKS_URL_ASSETS . 'fonts/google-fonts.min.json';
+
+			if ( is_callable( [ '\Bricks\Helpers', 'file_get_contents' ] ) ) {
+				$google_fonts_families_string = \Bricks\Helpers::file_get_contents( $assets_path_gf );
+			} elseif ( is_callable( [ '\Bricks\Helpers', 'get_file_contents' ] ) ) {
+				$google_fonts_families_string = \Bricks\Helpers::get_file_contents( $assets_path_gf );
+			}
+
 			$google_fonts_families        = json_decode( $google_fonts_families_string, true );
-			$google_fonts_families        = is_array( $google_fonts_families ) ? $google_fonts_families['items'] : [];
+			$google_fonts_families        = is_array( $google_fonts_families ) ? $google_fonts_families : [];
 			$active_google_font_families  = [];
 			$active_google_font_urls      = [];
 

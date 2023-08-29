@@ -36,16 +36,28 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Grid' ) ) {
 					'default' => '',
 				),
 				'columns' => array(
-					'type' => 'number',
 					'default' => 3,
+					'type'    => array( 'string', 'number' ),
 				),
 				'columns_tablet' => array(
-					'type' => 'number',
 					'default' => 3,
+					'type'    => array( 'string', 'number' ),
 				),
 				'columns_mobile' => array(
-					'type' => 'number',
 					'default' => 1,
+					'type'    => array( 'string', 'number' ),
+				),
+				'column_min_width' => array(
+					'type' => 'number',
+					'default' => 240,
+				),
+				'column_min_width_tablet' => array(
+					'type' => 'number',
+					'default' => 240,
+				),
+				'column_min_width_mobile' => array(
+					'type' => 'number',
+					'default' => 240,
 				),
 				'is_archive_template' => array(
 					'type' => 'boolean',
@@ -685,12 +697,12 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Grid' ) ) {
 
 				echo '<ul class="jet-slick-dots" style="" role="tablist">';
 
-					$number = $widget->get_posts_num( $settings );
+				$number = $widget->get_posts_num( $settings );
 
-					for ( $i = 1;  $i <= $number;  $i++ ) {
-						$active_class = ( 1 === $i ) ? 'slick-active' : '';
-						echo '<li class="' . $active_class . '" role="presentation"><span>' . $i . '</span></li>';
-					}
+				for ( $i = 1;  $i <= $number;  $i++ ) {
+					$active_class = ( 1 === $i ) ? 'slick-active' : '';
+					echo '<li class="' . $active_class . '" role="presentation"><span>' . $i . '</span></li>';
+				}
 
 				echo '</ul>';
 
@@ -710,6 +722,8 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Grid' ) ) {
 			if ( empty( $attributes['columns_mobile'] ) ) {
 				$attributes['columns_mobile'] = 1;
 			}
+
+			$attributes['inline_columns_css'] = true;
 
 			$render     = jet_engine()->listings->get_render_instance( $item, $attributes );
 			$listing_id = $attributes['lisitng_id'];

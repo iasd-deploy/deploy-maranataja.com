@@ -3,7 +3,7 @@
  * Plugin Name: JetEngine
  * Plugin URI:  https://crocoblock.com/plugins/jetengine/
  * Description: The ultimate solution for managing custom post types, taxonomies and meta boxes.
- * Version:     3.1.2
+ * Version:     3.2.4
  * Author:      Crocoblock
  * Author URI:  https://crocoblock.com/
  * Text Domain: jet-engine
@@ -60,7 +60,7 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		 *
 		 * @var string
 		 */
-		private $version = '3.1.2';
+		private $version = '3.2.4';
 
 		/**
 		 * Holder for base plugin path
@@ -104,6 +104,9 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		 * @var Jet_Engine_CPT_Tax
 		 */
 		public $taxonomies;
+		/**
+		 * @var Jet_Engine_Meta_Boxes
+		 */
 		public $meta_boxes;
 		public $relations;
 		/**
@@ -131,6 +134,9 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		public $admin_bar;
 
 		public $shortcodes;
+		public $ai;
+
+		public $instances = array();
 
 		/**
 		 * Sets up needed actions/filters for the plugin to initialize.
@@ -159,6 +165,32 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 			register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
 
 
+		}
+
+		/**
+		 * Get information about user-registered JetEngine intances
+		 * @return [type] [description]
+		 */
+		public function get_instances( $category = '' ) {
+			if ( ! $category ) {
+				return $this->instances;
+			} else {
+				return isset( $this->instances[ $category ] ) ? $this->instances[ $category ] : array();
+			}
+		}
+
+		/**
+		 * Store information about user-registered instance by category
+		 * @param [type] $category [description]
+		 * @param [type] $instance [description]
+		 */
+		public function add_instance( $category = '', $instance = array() ) {
+
+			if ( ! isset( $this->instances[ $category ] ) ) {
+				$this->instances[ $category ] = array();
+			}
+
+			$this->instances[ $category ][] = $instance;
 		}
 
 		/**
@@ -228,8 +260,12 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 
 			if ( ! $page ) {
 				$page = isset( $_GET['post_type'] ) ? $_GET['post_type'] : false;
+
+				if ( is_array( $page ) ) {
+					$page = $page[0];
+				}
 			}
-			
+
 			if ( $page && false !== strpos( $page, 'jet-engine' ) ) {
 				$search->enable();
 			}
@@ -279,6 +315,10 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 			}
 
 			$this->admin_bar = Jet_Admin_Bar::get_instance();
+
+			// Register AI handler
+			require $this->plugin_path( 'includes/core/ai-handler.php' );
+			$this->ai = new Jet_Engine_AI_Handler();
 
 			do_action( 'jet-engine/init', $this );
 
@@ -369,7 +409,7 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		 * @return boolean
 		 */
 		public function has_elementor() {
-			return defined( 'ELEMENTOR_VERSION' );
+			return defined( 'ELEMENTOR_VERSION' ) && \Jet_Engine\Modules\Performance\Module::instance()->is_tweak_active( 'enable_elementor_views' );
 		}
 
 		/**
@@ -428,6 +468,21 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		 */
 		public function template_path() {
 			return apply_filters( 'jet-engine/template-path', 'jet-engine/' );
+		}
+
+		/**
+		 * Register JetPlugins JS library
+		 * 
+		 * @return [type] [description]
+		 */
+		public function register_jet_plugins_js() {
+			wp_register_script(
+				'jet-plugins',
+				jet_engine()->plugin_url( 'assets/lib/jet-plugins/jet-plugins.js' ),
+				array( 'jquery' ),
+				'1.1.0',
+				true
+			);
 		}
 
 		/**

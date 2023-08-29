@@ -88,7 +88,7 @@ class List_Table extends \WP_List_Table {
 				break;
 
 			default:
-				$value = call_user_func( $data['_cb'], $value );
+				$value = call_user_func( $data['_cb'], $value, $item, $data, $column_name );
 
 				break;
 

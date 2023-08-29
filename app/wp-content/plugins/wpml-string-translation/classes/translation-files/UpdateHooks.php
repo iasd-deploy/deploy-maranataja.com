@@ -63,9 +63,13 @@ class UpdateHooks implements \IWPML_Action {
 	}
 
 	private function add_shutdown_action() {
-		if ( ! has_action( 'shutdown', array( $this, 'process_update_queue' ) ) ) {
-			add_action( 'shutdown', array( $this, 'process_update_queue' ) );
+		if ( ! has_action( 'shutdown', array( $this, 'process_update_queue_action' ) ) ) {
+			add_action( 'shutdown', array( $this, 'process_update_queue_action' ) );
 		}
+	}
+
+	public function process_update_queue_action() {
+		$this->process_update_queue();
 	}
 
 	/**

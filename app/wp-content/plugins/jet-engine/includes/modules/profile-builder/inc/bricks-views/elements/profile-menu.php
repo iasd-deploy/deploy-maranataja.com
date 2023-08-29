@@ -97,7 +97,7 @@ class Profile_Menu extends Base {
 				'label'       => esc_html__( 'Add subpage slug to the first page URL', 'jet-engine' ),
 				'type'        => 'checkbox',
 				'default'     => false,
-				'description' => esc_html__( 'By default subpage slug is not added to the URL of the first page of menu. If you enable this options subpage slug will be added to all menu page URLs includes first one', 'jet-engine' ),
+				'description' => esc_html__( 'By default, the subpage slug is not added to the URL of the menu\'s first page. If you enable this option subpage slug will be added to all menu page URLs, including the first one', 'jet-engine' ),
 			]
 		);
 

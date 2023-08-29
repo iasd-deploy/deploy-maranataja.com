@@ -67,7 +67,9 @@ class ImportExport
 				'__comment' => $exportComment,
 				'settings'  => json_decode($settingsJson, ARRAY_A)
 			);
-		} elseif ($wpacuExportFor === 'everything') {
+		}
+
+		if ($wpacuExportFor === 'everything') {
 			$exportComment = str_replace('[exported_text]', 'Everything', $exportComment);
 
 			// "Settings"
@@ -107,18 +109,20 @@ class ImportExport
 
 			global $wpdb;
 
-			// Pages, Posts, Custom Post Types: All Metas
-			$wpacuPostMetaKeys = array(
-				'_' . WPACU_PLUGIN_ID . '_no_load', // All Unload Rules (CSS/JS Manager Meta Box)
-				'_' . WPACU_PLUGIN_ID . '_page_options', // All Options (Side Meta Box)
-				'_' . WPACU_PLUGIN_ID . '_load_exceptions' // Load Exceptions (if bulk rules are used)
-			);
-			$wpacuPostMetaKeysList = implode("','", $wpacuPostMetaKeys);
+			$allMetaResults = array();
 
-			$sqlFetchAllMetas = <<<SQL
-SELECT post_id, meta_key, meta_value FROM `{$wpdb->prefix}postmeta` WHERE meta_key IN ('{$wpacuPostMetaKeysList}')
+			$metaKeyLike = '_' . WPACU_PLUGIN_ID . '_%';
+
+			$tableList = array($wpdb->postmeta);
+
+			foreach ($tableList as $tableName) {
+				if ( $tableName === $wpdb->postmeta ) {
+					$sqlFetchPostsMetas         = <<<SQL
+SELECT post_id, meta_key, meta_value FROM `{$wpdb->postmeta}` WHERE meta_key LIKE '{$metaKeyLike}'
 SQL;
-			$allMetasResults = $wpdb->get_results($sqlFetchAllMetas, ARRAY_A);
+					$allMetaResults['postmeta'] = $wpdb->get_results( $sqlFetchPostsMetas, ARRAY_A );
+				}
+			}
 
 			// Export Field Names should be kept as they are and in case
 			// they are changed later on, a fallback should be in place
@@ -132,19 +136,21 @@ SQL;
 				),
 
 				'global_unload' => $globalUnloadArray,
-
 				'bulk_unload'   => $bulkUnloadArray,
+
 				'post_type_exceptions'         => $postTypeLoadExceptionsArray,
+
 				// [wpacu_pro]
 				'post_type_via_tax_exceptions' => $postTypeViaTaxLoadExceptionsArray,
 			    // [/wpacu_pro]
 
 				'global_data'   => $globalDataListArray,
+
 				// [wpacu_pro]
 				'extras_exceptions' => $extrasLoadExceptionsArray,
 				// [/wpacu_pro]
 
-				'posts_metas'   => $allMetasResults,
+				'posts_metas'   => $allMetaResults['postmeta'],
 			);
 		} else {
 			return; // has to be "Settings" or "Everything"
@@ -282,18 +288,20 @@ SQL;
 			$importedList[] = 'global_data';
 		}
 
-		// All Posts Metas (per page unloads, page options from side meta box)
-		if (isset($valuesArray['posts_metas']) && ! empty($valuesArray['posts_metas'])) {
-			foreach ($valuesArray['posts_metas'] as $postValues) {
+		// [START] All Posts Metas (per page unloads, load exceptions, page options from side meta box)
+		$targetKey = 'posts_metas';
+
+		if (isset($valuesArray[$targetKey]) && ! empty($valuesArray[$targetKey])) {
+			foreach ($valuesArray[$targetKey] as $metaValues) {
 				// It needs to have a post ID and meta key starting with _' . WPACU_PLUGIN_ID . '
-				if ( ! (isset($postValues['post_id'], $postValues['meta_key'])
-					&& strpos($postValues['meta_key'], '_' . WPACU_PLUGIN_ID) === 0) ) {
+				if ( ! (isset($metaValues['post_id'], $metaValues['meta_key'])
+					&& strpos($metaValues['meta_key'], '_' . WPACU_PLUGIN_ID) === 0) ) {
 					continue;
 				}
 
-				$postId    = $postValues['post_id'];
-				$metaKey   = $postValues['meta_key'];
-				$metaValue = $postValues['meta_value']; // already JSON encoded
+				$postId    = $metaValues['post_id'];
+				$metaKey   = $metaValues['meta_key'];
+				$metaValue = $metaValues['meta_value']; // already JSON encoded
 
 				if (! add_post_meta($postId, $metaKey, $metaValue, true)) {
 					update_post_meta($postId, $metaKey, $metaValue);
@@ -302,12 +310,13 @@ SQL;
 
 			$importedList[] = 'posts_metas';
 		}
+		// [END] All Posts Metas (per page unloads, load exceptions, page options from side meta box)
 
 		if (! empty($importedList)) {
 			// After import was completed, clear all CSS/JS cache
 			OptimizeCommon::clearCache();
 
-			set_transient('wpacu_import_done', wp_json_encode($importedList), 30);
+			set_transient('wpacu_import_done', $importedList, 30);
 
 			wp_redirect(admin_url('admin.php?page=wpassetcleanup_tools&wpacu_for=import_export&wpacu_import_done=1&wpacu_time=' . time()));
 			exit();

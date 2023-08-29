@@ -179,12 +179,12 @@ class WPML_ST_String {
 	}
 
 	/**
-	 * @param string          $language
-	 * @param string|null     $value
-	 * @param int|bool|false  $status
-	 * @param int|null        $translator_id
-	 * @param string|int|null $translation_service
-	 * @param int|null        $batch_id
+	 * @param string           $language
+	 * @param string|null|bool $value
+	 * @param int|bool|false   $status
+	 * @param int|null         $translator_id
+	 * @param string|int|null  $translation_service
+	 * @param int|null         $batch_id
 	 *
 	 * @return bool|int id of the translation
 	 */

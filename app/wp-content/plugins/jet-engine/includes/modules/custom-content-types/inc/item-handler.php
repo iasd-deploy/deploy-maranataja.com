@@ -530,6 +530,11 @@ class Item_Handler {
 
 				break;
 
+			case 'wysiwyg':
+				$value = jet_engine_sanitize_wysiwyg( $value );
+
+				break;
+
 			default:
 				$value = $this->factory->maybe_to_timestamp( $value, $field );
 		}

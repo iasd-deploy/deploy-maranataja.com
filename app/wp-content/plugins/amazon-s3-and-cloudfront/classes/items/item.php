@@ -494,7 +494,7 @@ abstract class Item {
 	 *
 	 * @return string
 	 */
-	protected static function items_table() {
+	public static function items_table(): string {
 		global $wpdb;
 
 		/* @var Amazon_S3_And_CloudFront $as3cf */
@@ -1766,7 +1766,7 @@ abstract class Item {
 			$sql .= ' ORDER BY items.source_id LIMIT 1';
 		}
 
-		return array_map( 'static::create', $wpdb->get_results( $sql ) );
+		return array_map( static::class . '::create', $wpdb->get_results( $sql ) );
 	}
 
 	/**

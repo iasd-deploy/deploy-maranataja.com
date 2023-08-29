@@ -30,7 +30,7 @@ class WPML_Package {
 	private $translate_only = false;
 
 	/**
-	 * @param stdClass|WPML_Package|array|int $data_item
+	 * @param stdClass|WPML_Package|array|int|WP_Post $data_item
 	 */
 	function __construct( $data_item ) {
 		$this->element_type_prefix = 'package';
@@ -310,7 +310,7 @@ class WPML_Package {
 		$string_id = apply_filters( 'wpml_string_id', null, $string_data );
 
 		if ( ! $string_id ) {
-			$string_id = icl_register_string( $string_context, $string_name, $string_value, null, $this->get_package_language() );
+			$string_id = icl_register_string( $string_context, $string_name, $string_value, false, $this->get_package_language() );
 		}
 
 		return $string_id;

@@ -52,7 +52,7 @@ if (! $isBulkUnloadedExceptSiteWide) {
         <em><?php esc_html_e('Some unload rules are not showing up due to other bulk unload rules that are taking effect', 'wp-asset-clean-up'); ?>.</em>
         <a style="text-decoration: none; color: inherit; vertical-align: middle;" target="_blank" href="https://www.assetcleanup.com/docs/?p=1421"><span class="dashicons dashicons-editor-help"></span></a>
     </p>
-    <div class="wpacu-clearfix" style="margin-top: -5px; height: 0;"></div>
+    <div class="wpacu_clearfix" style="margin-top: -5px; height: 0;"></div>
 </div>
 <?php
 }

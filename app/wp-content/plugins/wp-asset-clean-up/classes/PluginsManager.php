@@ -21,6 +21,9 @@ class PluginsManager
 	    $this->data['active_plugins'] = self::getActivePlugins();
 	    $this->data['plugins_icons']  = Misc::getAllActivePluginsIcons();
 
+	    $wpacuSubPage = (isset($_GET['wpacu_sub_page']) && $_GET['wpacu_sub_page']) ? $_GET['wpacu_sub_page'] : 'manage_plugins_front';
+	    $this->data['wpacu_sub_page'] = $wpacuSubPage;
+
 	    Main::instance()->parseTemplate('admin-page-plugins-manager', $this->data, true);
     }
 
@@ -66,10 +69,11 @@ class PluginsManager
 			);
 		}
 
-		usort($activePluginsFinal, static function($a, $b)
-		{
-			return strcmp($a['title'], $b['title']);
-		});
+        if ( ! empty($activePluginsFinal) ) {
+	        usort( $activePluginsFinal, static function( $a, $b ) {
+		        return strcmp( $a['title'], $b['title'] );
+	        } );
+        }
 
 		return $activePluginsFinal;
 	}

@@ -113,7 +113,7 @@ if (isset($data['handle_rows_contracted']['styles'][$data['row']['obj']->handle]
                 // If any bulk unload rule is set, show the load exceptions
                 include '_common/_asset-single-row-load-exceptions.php';
                 ?>
-                <div class="wpacu-clearfix"></div>
+                <div class="wpacu_clearfix"></div>
 	        </div>
 
 	        <?php
@@ -127,6 +127,6 @@ if (isset($data['handle_rows_contracted']['styles'][$data['row']['obj']->handle]
 	        include '_common/_asset-single-row-notes.php';
 	        ?>
 	    </div>
-        <img style="display: none;" class="wpacu-ajax-loader" src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-ajax-loading-spinner.svg" alt="<?php esc_html_e('Loading', 'wp-asset-clean-up'); ?>..." />
+        <img style="display: none;" class="wpacu_ajax_loader" src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-ajax-loading-spinner.svg" alt="<?php esc_html_e('Loading', 'wp-asset-clean-up'); ?>..." />
 	</td>
 </tr>

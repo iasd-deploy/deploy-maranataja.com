@@ -4,7 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "lang": "es_ES"
          },
          "Accepted": [
             "Aceptada"
@@ -16,7 +16,7 @@
             "Cargando la siguiente traducción para revisión..."
          ],
          "Back": [
-            "Atrás"
+            "Volver"
          ],
          "Turn off to not automatically load the next translation after finishing this review.": [
             "Desactive esta opción para no cargar la siguiente traducción automáticamente después de finalizar esta revisión."

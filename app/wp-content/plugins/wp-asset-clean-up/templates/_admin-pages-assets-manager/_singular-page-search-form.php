@@ -13,8 +13,8 @@ if (! isset($data)) {
     $searchPlaceholderText = sprintf(__('You can type a keyword or the ID to search the %s for which you want to manage its CSS/JS (e.g. unloading)', 'wp-asset-clean-up'), $data['post_type']);
 
 	// Anything that is not within the array, is a custom post type
-	if (isset($_GET['wpacu_for'])) {
-        if ($_GET['wpacu_for'] === 'custom-post-types') {
+	if (isset($data['for'])) {
+        if ($data['for'] === 'custom-post-types') {
             $postTypes = get_post_types( array( 'public' => true ) );
 
             if ( ! empty($postTypes) ) {
@@ -34,7 +34,7 @@ if (! isset($data)) {
 
             <div style="margin: 0 0 15px;"></div>
 		<?php
-        } elseif ($_GET['wpacu_for'] === 'posts') {
+        } elseif ($data['for'] === 'posts') {
            $posts = get_posts(array('post_type' => 'post', 'post_status' => 'publish,private'));
 	        if (empty($posts)) {
 	           $loadSearchFormForPages = false; // no posts added
@@ -44,7 +44,7 @@ if (! isset($data)) {
                </div>
                <?php
            }
-        } elseif ($_GET['wpacu_for'] === 'pages') {
+        } elseif ($data['for'] === 'pages') {
 	        $pages = get_pages(array('post_type' => 'page', 'post_status' => array('publish', 'private')));
 	        if (empty($pages)) {
 		        $loadSearchFormForPages = false; // no pages added

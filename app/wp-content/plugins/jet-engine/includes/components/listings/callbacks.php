@@ -15,14 +15,14 @@ class Jet_Engine_Listings_Callbacks {
 
 	/**
 	 * Holds all user-registered callbacks
-	 * But only callbacks registered with new register_cllback() method
+	 * But only callbacks registered with new register_callback() method
 	 * @var array
 	 */
 	private $_callbacks = array();
 
 	public function __construct() {
 
-		// Regsiter core callbacks in a new way
+		// Register core callbacks in a new way
 		$this->register_callback( 'jet_engine_get_user_data_by_id', __( 'Get user data by ID', 'jet-engine' ), [
 			'user_data_to_get' => [
 				'label'     => __( 'User Data to get', 'jet-engine' ),
@@ -471,6 +471,20 @@ class Jet_Engine_Listings_Callbacks {
 	}
 
 	/**
+	 * Check if current callback is registered and allowed to execute
+	 * 
+	 * @param  [type]  $callback [description]
+	 * @return boolean           [description]
+	 */
+	public function is_allowed_callback( $callback ) {
+
+		$callbacks = $this->get_cllbacks_for_options();
+		$callbacks = array_keys( $callbacks );
+
+		return in_array( $callback, $callbacks );
+	}
+
+	/**
 	 * Apply selected callback for given data
 	 * 
 	 * @param  [type] $input    [description]
@@ -485,7 +499,7 @@ class Jet_Engine_Listings_Callbacks {
 			return;
 		}
 
-		if ( ! is_callable( $callback ) ) {
+		if ( ! is_callable( $callback ) || ! $this->is_allowed_callback( $callback) ) {
 			return;
 		}
 
@@ -517,7 +531,7 @@ class Jet_Engine_Listings_Callbacks {
 				$result        = floatval( $result );
 				$dec_point     = isset( $settings['num_dec_point'] ) ? $settings['num_dec_point'] : '.';
 				$thousands_sep = isset( $settings['num_thousands_sep'] ) ? $settings['num_thousands_sep'] : ',';
-				$decimals      = isset( $settings['num_decimals'] ) ? $settings['num_decimals'] : 2;
+				$decimals      = isset( $settings['num_decimals'] ) ? absint( $settings['num_decimals'] ) : 2;
 				$args          = array( $result, $decimals, $dec_point, $thousands_sep );
 
 				break;
@@ -557,7 +571,13 @@ class Jet_Engine_Listings_Callbacks {
 				$args      = array( $result, $tag, $is_single, $is_linked, $delimiter );
 
 				if ( 'jet_related_items_list' === $callback ) {
-					$args[] = $settings['dynamic_field_post_object'];
+
+					if ( ! empty( $settings['dynamic_field_post_object'] ) ) {
+						$args[] = $settings['dynamic_field_post_object'];
+					} elseif ( ! empty( $settings['object_field'] ) ) {
+						$args[] = $settings['object_field'];
+					}
+
 				}
 
 				break;

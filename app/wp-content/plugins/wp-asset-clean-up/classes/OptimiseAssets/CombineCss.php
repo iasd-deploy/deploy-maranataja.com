@@ -358,8 +358,7 @@ HTML;
 							if ($htmlSource !== $htmlSourceBeforeLinkTagReplacement) {
 								$linkTagsStrippedNo++;
 							}
-							continue;
-						}
+							}
 					}
 				}
 			}

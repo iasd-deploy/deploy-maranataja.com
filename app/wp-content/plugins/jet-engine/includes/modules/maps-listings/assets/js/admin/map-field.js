@@ -15,8 +15,10 @@
 
 			self.initFields( $( '.cx-control' ) );
 
-			$( document ).on( 'cx-control-init', function( event, data ) {
-				self.initFields( $( data.target ) );
+			$( document ).on( 'cx-control-init', function ( event, data ) {
+				if ( data?.target ) {
+					self.initFields( $( data.target ) );
+				}
 			} );
 		}
 
@@ -263,6 +265,7 @@
 
 		events() {
 			this.$container.on( 'click', '.jet-engine-map-field__reset', this.resetLocation.bind( this ) );
+			this.$input.on( 'change', this.changeInputHandler.bind( this ) );
 
 			this.$searchInput.on( 'input',    this.inputSearchHandler.bind( this ) );
 			this.$searchInput.on( 'focus',    this.focusSearchHandler.bind( this ) );
@@ -290,6 +293,16 @@
 			}
 
 			this.$searchInput.val( null );
+		}
+
+		changeInputHandler( event ) {
+			const $this = $( event.target );
+
+			$( window ).trigger( {
+				type: 'cx-control-change',
+				controlName: $this.attr( 'name' ),
+				controlStatus: $this.val(),
+			} );
 		}
 
 		updateHashFieldPromise( location ) {

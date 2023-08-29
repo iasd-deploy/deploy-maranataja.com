@@ -1,7 +1,8 @@
-.jet-listing {
+.jet-listing,
+.jet-listing-dynamic-field__content {
 	.slick-slider {
 		position: relative;
-		display: block;
+		display: block !important;
 		box-sizing: border-box;
 		user-select: none;
 		-webkit-touch-callout: none;

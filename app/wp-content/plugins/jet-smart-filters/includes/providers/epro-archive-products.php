@@ -72,9 +72,6 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 
 			jet_smart_filters()->query->store_provider_default_query( $this->get_id(), $default_query );
 
-			add_action( 'woocommerce_shortcode_before_products_loop', array( $this, 'store_props' ) );
-			add_action( 'woocommerce_shortcode_before_current_query_loop', array( $this, 'store_props' ) );
-
 			$query->set( 'jet_smart_filters', $this->get_id() );
 		}
 
@@ -104,6 +101,9 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 			$default_settings['_el_widget_id'] = $widget->get_id();
 
 			jet_smart_filters()->providers->store_provider_settings( $this->get_id(), $default_settings, $query_id );
+
+			add_action( 'woocommerce_shortcode_before_products_loop', array( $this, 'store_props' ) );
+			add_action( 'woocommerce_shortcode_before_current_query_loop', array( $this, 'store_props' ) );
 		}
 
 		/**
@@ -228,6 +228,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 		 */
 		public function store_props() {
 
+			remove_action( 'woocommerce_shortcode_before_products_loop', array( $this, 'store_props' ) );
+
 			global $woocommerce_loop;
 
 			jet_smart_filters()->query->set_props(
@@ -246,6 +248,22 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 		public function get_wrapper_selector() {
 
 			return '.elementor-widget-wc-archive-products .elementor-widget-container';
+		}
+
+		/**
+		 * Get provider wrapper selector
+		 */
+		public function get_list_selector() {
+
+			return '.products';
+		}
+
+		/**
+		 * Get provider list item selector
+		 */
+		public function get_item_selector() {
+
+			return '.product';
 		}
 
 		/**

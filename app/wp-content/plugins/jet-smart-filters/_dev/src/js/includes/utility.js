@@ -25,10 +25,13 @@ export default {
 	dateAddDay,
 	dateAddMonth,
 	dateAddYear,
+	parseDateExpressionWithToday,
+	parseDateExpressionWithCurrent,
 	debounce,
 	stringToBoolean,
 	applyAliases,
-	removeAliases
+	removeAliases,
+	getElementPath
 };
 
 export function isObject(x) {
@@ -281,7 +284,7 @@ export function isEqual(value, other) {
 };
 
 export function getProviderFilters(provider, queryId = 'default') {
-	return getNesting(JetSmartFilters, 'filterGroups', provider + '/' + queryId, 'filters') || [];
+	return getNesting(JetSmartFilters, 'filterGroups', provider + '/' + queryId, 'uniqueFilters') || [];
 }
 
 export function getUrlParams() {
@@ -388,6 +391,59 @@ export function dateAddYear(date, years = 1) {
 	return date;
 }
 
+export function parseDateExpressionWithToday(dateExpression) {
+	let result = new Date();
+
+	const regex = /([-+]\s*\d+(\.\d+)?\s*\w+)(?=\s*[-+]|$)/g;
+	const matches = dateExpression.match(regex);
+
+	if (matches)
+		matches.forEach(operationExpression => {
+			const operator = operationExpression.substring(0, 1);
+			const value = operator === '-'
+				? -parseInt(operationExpression.substring(1))
+				: parseInt(operationExpression.substring(1));
+
+			if (operationExpression.includes('day'))
+				dateAddDay(result, value);
+
+			if (operationExpression.includes('week'))
+				dateAddDay(result, value * 7);
+
+			if (operationExpression.includes('month'))
+				dateAddMonth(result, value);
+
+			if (operationExpression.includes('year'))
+				dateAddYear(result, value);
+		});
+
+	return result;
+}
+
+export function parseDateExpressionWithCurrent(dateExpression) {
+	const currentDate = new Date();
+	const dateData = dateExpression.split('-', 3).map((item, index) => {
+		if (item.includes('current'))
+			switch (index) {
+				case 0:
+					item = currentDate.getFullYear();
+					break;
+
+				case 1:
+					item = currentDate.getMonth() + 1;
+					break;
+
+				case 2:
+					item = currentDate.getDate();
+					break;
+			}
+
+		return item;
+	});
+
+	return new Date(dateData.join('-'));
+}
+
 export function debounce(callback, wait, immediate = false) {
 	let timeout = null;
 
@@ -465,4 +521,25 @@ export function applyAliases(url, aliases = null) {
 
 export function removeAliases(url, aliases = null) {
 	return urlAliasesTransform(url, aliases, true);
+}
+
+export function getElementPath(node) {
+	let selector = '';
+
+	try {
+		while (node.parentElement) {
+			const siblings = Array.from(node.parentElement.children).filter(
+				e => e.tagName === node.tagName
+			);
+
+			selector = (siblings.indexOf(node)
+				? `${node.tagName}:nth-of-type(${siblings.indexOf(node) + 1})`
+				: `${node.tagName}`) + `${selector ? '>' : ''}${selector}`;
+			node = node.parentElement;
+		}
+
+		return `html > ${selector.toLowerCase()}`;
+	} catch (error) {
+		return false;
+	}
 }

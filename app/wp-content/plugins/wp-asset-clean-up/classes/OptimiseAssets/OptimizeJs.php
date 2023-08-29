@@ -123,9 +123,7 @@ class OptimizeJs
 			? $fileAlreadyChecked['is_minify_js_enabled']
 			: MinifyJs::isMinifyJsEnabled() && in_array(Main::instance()->settings['minify_loaded_js_for'], array('src', 'all', ''));
 
-		if (! $isMinifyJsFilesEnabled) {
-			$doFileMinify = false;
-		} elseif (MinifyJs::skipMinify($src, $value->handle)) {
+		if ( ! $isMinifyJsFilesEnabled || MinifyJs::skipMinify($src, $value->handle) ) {
 			$doFileMinify = false;
 		}
 
@@ -150,9 +148,15 @@ class OptimizeJs
 			$isJsFile = true;
 		}
 
-		$handleDbStr = md5($value->handle);
+		if ($isJsFile) {
+			// This is the safest one as handle names for specific static can change on very page load
+			// as some developers have a habit of adding the UNIX time or other random string to a handle (e.g. for debugging)
+			$uniqueAssetStr = md5 ( str_replace(Misc::getWpRootDirPath(), '', $localAssetPath) );
+		} else {
+			$uniqueAssetStr = md5( $value->handle );
+		}
 
-		$transientName = 'wpacu_js_optimize_'.$handleDbStr;
+		$transientName = 'wpacu_js_optimize_'.$uniqueAssetStr;
 
 		$skipCache = false;
 
@@ -161,16 +165,7 @@ class OptimizeJs
 		}
 
 		if (! $skipCache) {
-			if (Main::instance()->settings['fetch_cached_files_details_from'] === 'db_disk') {
-				if ( ! isset( $GLOBALS['wpacu_from_location_inc'] ) ) {
-					$GLOBALS['wpacu_from_location_inc'] = 1;
-				}
-				$fromLocation = ( $GLOBALS['wpacu_from_location_inc'] % 2 ) ? 'db' : 'disk';
-			} else {
-				$fromLocation = Main::instance()->settings['fetch_cached_files_details_from'];
-			}
-
-			$savedValues = OptimizeCommon::getTransient($transientName, $fromLocation);
+			$savedValues = OptimizeCommon::getTransient($transientName);
 
 			if ( $savedValues ) {
 				$savedValuesArray = json_decode($savedValues, ARRAY_A);
@@ -237,7 +232,7 @@ class OptimizeJs
 			$pathToAssetDir = OptimizeCommon::getPathToAssetDir($value->src);
 			$sourceBeforeOptimization = str_replace(Misc::getWpRootDirPath(), '/', $localAssetPath);
 
-			$jsContent = $jsContentBefore = FileSystem::fileGetContents($localAssetPath);
+			$jsContent = FileSystem::fileGetContents($localAssetPath);
 		}
 
 		$hadToBeMinified = false;
@@ -301,7 +296,9 @@ class OptimizeJs
 		// Save it to /wp-content/cache/js/{OptimizeCommon::$optimizedSingleFilesDir}/
 		$fileVer = sha1($jsContent);
 
-		$newFilePathUri  = self::getRelPathJsCacheDir() . OptimizeCommon::$optimizedSingleFilesDir . '/' . sanitize_title($value->handle) . '-v' . $fileVer;
+		$uniqueCachedAssetName = OptimizeCommon::generateUniqueNameForCachedAsset($isJsFile, $localAssetPath, $value->handle, $fileVer);
+
+		$newFilePathUri  = self::getRelPathJsCacheDir() . OptimizeCommon::$optimizedSingleFilesDir . '/' . $uniqueCachedAssetName;
 		$newFilePathUri .= '.js';
 
 		if ($jsContent === '') {
@@ -1255,9 +1252,9 @@ class OptimizeJs
 	}
 
 	/**
-	 * @param $handle
-	 * @param $position
-	 * @param $inlineScriptContent
+	 * @param string $handle
+	 * @param string $position
+	 * @param string $inlineScriptContent
 	 *
 	 * @return string
 	 */
@@ -1280,10 +1277,10 @@ class OptimizeJs
 		}
 
 		if ( $position === 'data' ) {
-			if ( $inlineScriptContent === '' ) {
+			if ( ! $inlineScriptContent ) {
 				$inlineScriptContent = $wp_scripts->get_data( $handle, 'data' );
 
-				if (! $inlineScriptContent) {
+				if ( ! $inlineScriptContent ) {
 					return '';
 				}
 			}
@@ -1305,16 +1302,29 @@ class OptimizeJs
 		}
 
 		if ( $position === 'before' || $position === 'after' ) {
-			if ( $inlineScriptContent === '' ) {
-				$inlineScriptContent = $wp_scripts->print_inline_script( $handle, $position, false );
+			if ( ! $inlineScriptContent ) {
+				if (method_exists($wp_scripts, 'get_inline_script_data')) {
+					// WordPress >= 6.3
+					$inlineScriptContent = $wp_scripts->get_inline_script_data( $handle, $position );
+				} else {
+					// WordPress < 6.3
+					$inlineScriptContent = $wp_scripts->print_inline_script( $handle, $position, false );
+				}
 
-				if (! $inlineScriptContent) {
-					return '';
+				if ( ! $inlineScriptContent ) {
+					$output = '';
 				}
 			}
 
 			if ( $inlineScriptContent ) {
-				$output = sprintf( "<script%s id='%s-js-%s'>\n%s\n</script>\n", Misc::getScriptTypeAttribute(), $handle, $position, $inlineScriptContent );
+				if (function_exists('wp_get_inline_script_tag')) {
+					// WordPress >= 5.7.0
+					$id = "{$handle}-js-{$position}";
+					$output = wp_get_inline_script_tag( $inlineScriptContent, compact( 'id' ) );
+				} else {
+					// WordPress < 5.7.0
+					$output = sprintf( "<script%s id='%s-js-%s'>\n%s\n</script>\n", Misc::getScriptTypeAttribute(), $handle, $position, $inlineScriptContent );
+				}
 			}
 		}
 

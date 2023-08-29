@@ -573,7 +573,7 @@ class Jet_Engine_Base_DB {
 				break;
 			case 'date':
 				$value = strtotime( $value );
-				$value = sprintf( "'%s'", date( $value, 'Y-m-d H:i:s' ) );
+				$value = sprintf( "'%s'", date( 'Y-m-d H:i:s', $value ) );
 				break;
 			default:
 				$value = sprintf( "'%s'", esc_sql( $value ) );
@@ -750,8 +750,10 @@ class Jet_Engine_Base_DB {
 				$value = $this->adjust_value_by_type( $value, $type );
 			}
 
-			if ( in_array( $operator, $array_operators ) ) {
+			if ( in_array( $operator, array( 'IN', 'BETWEEN' ) ) ) {
 				$operator = '=';
+			} elseif ( in_array( $operator, array( 'NOT IN', 'NOT BETWEEN' ) ) ) {
+				$operator = '!=';
 			}
 
 		}

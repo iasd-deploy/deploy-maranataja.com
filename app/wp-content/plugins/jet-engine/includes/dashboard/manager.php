@@ -21,6 +21,9 @@ if ( ! class_exists( 'Jet_Engine_Dashboard' ) ) {
 
 		public $builder       = null;
 		public $skins_manager = null;
+		public $import        = null;
+		public $export        = null;
+		public $presets       = null;
 		private $nonce_action = 'jet-engine-dashboard';
 
 		/**

@@ -127,7 +127,7 @@ $isSettingsCurrentPage = ($wpacuCurrentPage !== WPACU_PLUGIN_ID . '_settings');
         ?>
     </div>
 
-    <div class="wpacu-clearfix"></div>
+    <div class="wpacu_clearfix"></div>
 </div>
 
 <div class="wpacu-tabs wpacu-tabs-style-topline">

@@ -175,10 +175,10 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 					case 'meta_date':
 
 						$meta_key     = esc_attr( $settings['group_by_key'] );
-						$key          = jet_engine()->listings->data->get_meta( $meta_key, $post );
+						$key          = $meta_key ? jet_engine()->listings->data->get_meta( $meta_key, $post ) : false;
 						$multiday     = isset( $settings['allow_multiday'] ) ? $settings['allow_multiday'] : '';
 						$end_date_key = isset( $settings['end_date_key'] ) ? $settings['end_date_key'] : false;
-						$end_date     = jet_engine()->listings->data->get_meta( $end_date_key, $post );
+						$end_date     = $end_date_key ? jet_engine()->listings->data->get_meta( $end_date_key, $post ) : false;
 
 						// Try to get data from object if returned empty val
 						if ( null === $key ) {
@@ -189,7 +189,10 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 							$end_date = jet_engine()->listings->data->get_prop( $end_date_key, $post );
 						}
 
-						if ( $multiday && $end_date ) {
+						if ( $key && $multiday && $end_date
+							 && Jet_Engine_Tools::is_valid_timestamp( $key )
+							 && Jet_Engine_Tools::is_valid_timestamp( $end_date )
+						) {
 
 							/*
 							 * $days = absint( $end_date ) - absint( $key );
@@ -396,7 +399,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 
 			echo '<table class="jet-calendar-grid" >';
 
-			include jet_engine()->modules->modules_path( 'calendar/templates/header.php' );
+			include jet_engine()->modules->get_module( 'calendar' )->get_template( 'header.php' );
 
 			echo '<tbody>';
 
@@ -407,14 +410,16 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 			$current_year      = (int) date( 'Y', $current_month );
 			$current_month_num = (int) date( 'n', $current_month );
 			$prev_month_num    = $current_month_num - 1;
+			$prev_month_num    = ( 0 >= $prev_month_num ) ? $prev_month_num + 12 : $prev_month_num;;
 			$next_month_num    = $current_month_num + 1;
+			$next_month_num    = ( 12 < $next_month_num ) ? $next_month_num - 12 : $next_month_num;
 
 			// Add last days of previous month
 			if ( 0 < $pad ) {
 
 				for ( $i = 0; $i < $pad; $i++ ) {
 
-					include jet_engine()->modules->modules_path( 'calendar/templates/week-start.php' );
+					include jet_engine()->modules->get_module( 'calendar' )->get_template( 'week-start.php' );
 
 					$num                     = $prev_month - $pad + $i + 1;
 					$key                     = $num . '-' . $prev_month_num;
@@ -422,8 +427,8 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 					$padclass                = ' day-pad';
 					$current_multiday_events = ! empty( $this->prev_month_posts[ $num ] ) ? $this->prev_month_posts[ $num ] : array();
 
-					include jet_engine()->modules->modules_path( 'calendar/templates/date.php' );
-					include jet_engine()->modules->modules_path( 'calendar/templates/week-end.php' );
+					include jet_engine()->modules->get_module( 'calendar' )->get_template( 'date.php' );
+					include jet_engine()->modules->get_module( 'calendar' )->get_template( 'week-end.php' );
 
 					$inc++;
 				}
@@ -433,7 +438,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 			// Current month
 			for ( $i = 1; $i <= $days_num; $i++ ) {
 
-				include jet_engine()->modules->modules_path( 'calendar/templates/week-start.php' );
+				include jet_engine()->modules->get_module( 'calendar' )->get_template( 'week-start.php' );
 
 				$num      = $i;
 				$key      = $num . '-' . $current_month_num;
@@ -457,8 +462,8 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 					$padclass .= ' current-day';
 				}
 
-				include jet_engine()->modules->modules_path( 'calendar/templates/date.php' );
-				include jet_engine()->modules->modules_path( 'calendar/templates/week-end.php' );
+				include jet_engine()->modules->get_module( 'calendar' )->get_template( 'date.php' );
+				include jet_engine()->modules->get_module( 'calendar' )->get_template( 'week-end.php' );
 
 				$inc++;
 
@@ -473,7 +478,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 
 				for ( $i = 1; $i <= $days_left; $i++ ) {
 
-					include jet_engine()->modules->modules_path( 'calendar/templates/week-start.php' );
+					include jet_engine()->modules->get_module( 'calendar' )->get_template( 'week-start.php' );
 
 					$num                     = $i;
 					$key                     = $num . '-' . $next_month_num;
@@ -481,8 +486,8 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 					$padclass                = ' day-pad';
 					$current_multiday_events = ! empty( $this->next_month_posts[ $num ] ) ? $this->next_month_posts[ $num ] : array();
 
-					include jet_engine()->modules->modules_path( 'calendar/templates/date.php' );
-					include jet_engine()->modules->modules_path( 'calendar/templates/week-end.php' );
+					include jet_engine()->modules->get_module( 'calendar' )->get_template( 'date.php' );
+					include jet_engine()->modules->get_module( 'calendar' )->get_template( 'week-end.php' );
 
 					$inc++;
 

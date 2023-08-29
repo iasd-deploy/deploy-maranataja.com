@@ -15,7 +15,7 @@ class Dynamic_Image extends Base {
 	public $category = 'jetengine'; // Use predefined element category 'general'
 	public $name = 'jet-engine-listing-dynamic-image'; // Make sure to prefix your elements
 	public $icon = 'jet-engine-icon-dynamic-image'; // Themify icon font class
-	public $css_selector = '.jet-listing-dynamic-image img'; // Default CSS selector
+	public $css_selector = '.jet-listing-dynamic-image > *'; // Default CSS selector
 	public $scripts = [ 'jetEngineBricks' ]; // Script(s) run when element is rendered on frontend or updated in builder
 
 	public $jet_element_render = 'dynamic-image';
@@ -223,21 +223,7 @@ class Dynamic_Image extends Base {
 				'tab'      => 'content',
 				'label'    => esc_html__( 'Add "rel" attr', 'jet-engine' ),
 				'type'     => 'select',
-				'options'  => array(
-					'alternate'  => esc_html__( 'Alternate', 'jet-engine' ),
-					'author'     => esc_html__( 'Author', 'jet-engine' ),
-					'bookmark'   => esc_html__( 'Bookmark', 'jet-engine' ),
-					'external'   => esc_html__( 'External', 'jet-engine' ),
-					'help'       => esc_html__( 'Help', 'jet-engine' ),
-					'license'    => esc_html__( 'License', 'jet-engine' ),
-					'next'       => esc_html__( 'Next', 'jet-engine' ),
-					'nofollow'   => esc_html__( 'Nofollow', 'jet-engine' ),
-					'noreferrer' => esc_html__( 'Noreferrer', 'jet-engine' ),
-					'noopener'   => esc_html__( 'Noopener', 'jet-engine' ),
-					'prev'       => esc_html__( 'Prev', 'jet-engine' ),
-					'search'     => esc_html__( 'Search', 'jet-engine' ),
-					'tag'        => esc_html__( 'Tag', 'jet-engine' ),
-				),
+				'options'  => \Jet_Engine_Tools::get_rel_attr_options(),
 				'required' => [ 'linked_image', '=', true ],
 			]
 		);
@@ -282,22 +268,6 @@ class Dynamic_Image extends Base {
 		$this->start_jet_control_group( 'section_image_style' );
 
 		$this->register_jet_control(
-			'image_width',
-			[
-				'tab'   => 'style',
-				'label' => esc_html__( 'Width', 'jet-engine' ),
-				'type'  => 'number',
-				'units' => true,
-				'css'   => [
-					[
-						'property' => 'width',
-						'selector' => $this->css_selector( '__link' ) . ', ' . $this->css_selector( ' img' ),
-					],
-				],
-			]
-		);
-
-		$this->register_jet_control(
 			'image_object_fit',
 			[
 				'tab'      => 'style',
@@ -311,6 +281,7 @@ class Dynamic_Image extends Base {
 				'css'      => [
 					[
 						'property' => 'object-fit',
+						'selector' => $this->css_selector('__img'),
 					],
 				],
 			]

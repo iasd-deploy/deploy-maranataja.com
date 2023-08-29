@@ -267,7 +267,10 @@ class Jet_Engine_Listing_Admin_Screen {
 				break;
 
 			default:
-				$result = apply_filters( 'jet-engine/templates/admin-columns/type/' . $source, $result, $settings );
+				$result = apply_filters(
+					'jet-engine/templates/admin-columns/type/' . $source, 
+					$result, $settings, $post_id
+				);
 				break;
 		}
 

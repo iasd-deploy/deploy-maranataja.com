@@ -1,5 +1,4 @@
 <?php
-
 namespace Jet_Engine\Bricks_Views\Elements;
 
 use Jet_Engine\Bricks_Views\Helpers\Options_Converter;
@@ -160,6 +159,19 @@ class Listing_Grid extends Base {
 	// Set builder controls
 	public function set_controls() {
 
+		$css_scheme = [
+			'items'       => '> .jet-listing-grid > .jet-listing-grid__items',
+			'item'        => '> .jet-listing-grid > .jet-listing-grid__items > .jet-listing-grid__item',
+			'loader'      => '.jet-listing-grid__loader',
+			'loader-text' => '.jet-listing-grid__loader-text',
+			'slider-icon' => '.jet-listing-grid__slider-icon',
+			'prev-arrow'  => '.jet-listing-grid__slider-icon.prev-arrow',
+			'next-arrow'  => '.jet-listing-grid__slider-icon.next-arrow',
+			'dots'        => '.jet-listing-grid__slider .jet-slick-dots',
+			'dot'         => '.jet-listing-grid__slider .jet-slick-dots li',
+			'dot-active'  => '.jet-listing-grid__slider .jet-slick-dots > li.slick-active',
+		];
+
 		$this->start_jet_control_group( 'general' );
 
 		$this->register_jet_control(
@@ -181,18 +193,42 @@ class Listing_Grid extends Base {
 			[
 				'tab'     => 'content',
 				'label'   => esc_html__( 'Columns', 'jet-engine' ),
-				'type'    => 'number',
+				'type'    => 'select',
 				'inline'  => true,
 				'default' => 3,
-				'min'     => 1,
-				'max'     => 10,
+				'options' => array(
+					1  => 1,
+					2  => 2,
+					3  => 3,
+					4  => 4,
+					5  => 5,
+					6  => 6,
+					7  => 7,
+					8  => 8,
+					9  => 9,
+					10 => 10,
+					'auto' => __( 'Auto', 'jet-engine' ),
+				),
 				'css'     => [
 					[
 						'property' => '--columns',
-						'selector' => $this->css_selector( '__items' ),
+						'selector' => $css_scheme['items'],
 					],
 				],
 			],
+		);
+
+		$this->register_jet_control(
+			'column_min_width',
+			array(
+				'label'    => __( 'Column Min Width', 'jet-engine' ),
+				'type'     => 'number',
+				'default'  => 240,
+				'min'      => 0,
+				'max'      => 1600,
+				'step'     => 1,
+				'required' => [ 'columns', '=', 'auto' ],
+			)
 		);
 
 		$this->register_jet_control(
@@ -278,6 +314,16 @@ class Listing_Grid extends Base {
 			]
 		);
 
+		$this->register_jet_control(
+			'not_found_message',
+			[
+				'tab'            => 'content',
+				'label'          => esc_html__( 'Not found message', 'jet-engine' ),
+				'type'           => 'text',
+				'default'        => esc_html__( 'No data was found', 'jet-engine' ),
+				'hasDynamicData' => false,
+			]
+		);
 
 		$this->register_jet_control(
 			'lazy_load',
@@ -304,10 +350,11 @@ class Listing_Grid extends Base {
 		$this->register_jet_control(
 			'is_masonry',
 			[
-				'tab'     => 'content',
-				'label'   => esc_html__( 'Is masonry grid', 'jet-engine' ),
-				'type'    => 'checkbox',
-				'default' => false,
+				'tab'      => 'content',
+				'label'    => esc_html__( 'Is masonry grid', 'jet-engine' ),
+				'type'     => 'checkbox',
+				'default'  => false,
+				'required' => [ 'columns', '!=', 'auto' ],
 			]
 		);
 
@@ -351,10 +398,11 @@ class Listing_Grid extends Base {
 		$this->register_jet_control(
 			'load_more_id',
 			[
-				'tab'      => 'content',
-				'label'    => esc_html__( 'Load more element ID', 'jet-engine' ),
-				'type'     => 'text',
-				'required' => [
+				'tab'         => 'content',
+				'label'       => esc_html__( 'Load more element ID', 'jet-engine' ),
+				'description' => esc_html__( 'Please, make sure to add a Button element that will be used as "Load more" button', 'jet-engine' ),
+				'type'        => 'text',
+				'required'    => [
 					[ 'use_load_more', '=', true ],
 					[ 'load_more_type', '=', 'click' ],
 				],
@@ -605,11 +653,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'max-width',
-						'selector' => $this->css_selector( '__items' ) . ' > ' . $this->css_selector( '__item' ),
+						'selector' => $css_scheme['item'],
 					],
 					[
 						'property' => 'flex-basis',
-						'selector' => $this->css_selector( '__items' ) . ' > ' . $this->css_selector( '__item' ),
+						'selector' => $css_scheme['item'],
 					],
 				],
 				'required' => [ 'scroll_slider_enabled', '=', true ],
@@ -631,11 +679,11 @@ class Listing_Grid extends Base {
 				'css'     => [
 					[
 						'property' => '--column-gap',
-						'selector' => $this->css_selector( '__items' ),
+						'selector' => $css_scheme['items'],
 					],
 					[
 						'property' => 'column-gap',
-						'selector' => $this->css_selector( '__items' ),
+						'selector' => $css_scheme['items'],
 					],
 				],
 			]
@@ -652,11 +700,11 @@ class Listing_Grid extends Base {
 				'css'     => [
 					[
 						'property' => '--row-gap',
-						'selector' => $this->css_selector( '__items' ),
+						'selector' => $css_scheme['items'],
 					],
 					[
 						'property' => 'row-gap',
-						'selector' => $this->css_selector( '__items' ),
+						'selector' => $css_scheme['items'],
 					],
 				]
 			]
@@ -675,7 +723,7 @@ class Listing_Grid extends Base {
 				'css'   => [
 					[
 						'property' => '--spinner-color',
-						'selector' => $this->css_selector( '__loader' ),
+						'selector' => $css_scheme['loader'],
 					]
 				],
 			]
@@ -691,7 +739,7 @@ class Listing_Grid extends Base {
 				'css'   => [
 					[
 						'property' => '--spinner-size',
-						'selector' => $this->css_selector( '__loader' ),
+						'selector' => $css_scheme['loader'],
 					]
 				],
 			]
@@ -706,7 +754,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'typography',
-						'selector' => $this->css_selector( '__loader-text' ),
+						'selector' => $css_scheme['loader-text'],
 					],
 				],
 				'required' => [
@@ -730,19 +778,19 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'width',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 					[
 						'property' => 'height',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 					[
 						'property' => 'line-height',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 					[
 						'property' => 'margin-top',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 						'value'    => 'calc( %s / -2 )',
 					],
 				],
@@ -760,7 +808,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'font-size',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 				],
 				'required' => [ 'arrows', '=', true ],
@@ -776,7 +824,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'border',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 				],
 				'required' => [ 'arrows', '=', true ],
@@ -792,7 +840,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'color',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 				],
 				'required' => [ 'arrows', '=', true ],
@@ -808,7 +856,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'background-color',
-						'selector' => $this->css_selector( '__slider-icon' ),
+						'selector' => $css_scheme['slider-icon'],
 					],
 				],
 				'required' => [ 'arrows', '=', true ],
@@ -849,11 +897,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'top',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 					],
 					[
 						'property' => 'bottom',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -874,11 +922,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'bottom',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 					],
 					[
 						'property' => 'top',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -914,11 +962,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'left',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 					],
 					[
 						'property' => 'right',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -939,11 +987,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'right',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 					],
 					[
 						'property' => 'left',
-						'selector' => $this->css_selector( '__slider-icon.prev-arrow' ),
+						'selector' => $css_scheme['prev-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -988,11 +1036,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'top',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 					],
 					[
 						'property' => 'bottom',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -1013,11 +1061,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'bottom',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 					],
 					[
 						'property' => 'top',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -1053,11 +1101,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'left',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 					],
 					[
 						'property' => 'right',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -1078,11 +1126,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'right',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 					],
 					[
 						'property' => 'left',
-						'selector' => $this->css_selector( '__slider-icon.next-arrow' ),
+						'selector' => $css_scheme['next-arrow'],
 						'value'    => 'auto',
 					],
 				],
@@ -1115,11 +1163,11 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'width',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots li' ),
+						'selector' => $css_scheme['dot'],
 					],
 					[
 						'property' => 'height',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots li' ),
+						'selector' => $css_scheme['dot'],
 					],
 				],
 				'required' => [ 'dots', '=', true ],
@@ -1136,7 +1184,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'gap',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots' ),
+						'selector' => $css_scheme['dots'],
 					],
 				],
 				'required' => [ 'dots', '=', true ],
@@ -1152,7 +1200,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'border',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots li' ),
+						'selector' => $css_scheme['dot'],
 					],
 				],
 				'required' => [ 'dots', '=', true ],
@@ -1168,7 +1216,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'background-color',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots li' ),
+						'selector' => $css_scheme['dot'],
 					],
 				],
 				'required' => [ 'dots', '=', true ],
@@ -1184,7 +1232,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'background-color',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots > li.slick-active' ),
+						'selector' => $css_scheme['dot-active'],
 					],
 				],
 				'required' => [ 'dots', '=', true ],
@@ -1201,7 +1249,7 @@ class Listing_Grid extends Base {
 				'css'      => [
 					[
 						'property' => 'border-color',
-						'selector' => $this->css_selector( '__slider .jet-slick-dots > li.slick-active' ),
+						'selector' => $css_scheme['dot-active'],
 					],
 				],
 				'required' => [ 'dots', '=', true ],
@@ -1280,7 +1328,7 @@ class Listing_Grid extends Base {
 
 	// Enqueue element styles and scripts
 	public function enqueue_scripts() {
-		$this->get_jet_render_instance()->enqueue_assets( $this->get_jet_settings() );
+		$this->get_jet_render_instance( [ 'inline_columns_css' => true ] )->enqueue_assets( $this->get_jet_settings() );
 		wp_enqueue_style( 'jet-engine-frontend' );
 	}
 
@@ -1289,13 +1337,16 @@ class Listing_Grid extends Base {
 
 		parent::render();
 
+		$settings = $this->parse_jet_render_attributes( $this->get_jet_settings() );
+
 		$this->set_attribute( '_root', 'class', 'brxe-' . $this->id );
 		$this->set_attribute( '_root', 'class', 'brxe-jet-listing-el' );
+		$this->set_attribute( '_root', 'class', 'jet-listing-base' );
 		$this->set_attribute( '_root', 'data-element-id', $this->id );
 		$this->set_attribute( '_root', 'data-listing-type', 'bricks' );
 
 		// STEP: Listing field is empty: Show placeholder text
-		if ( ! $this->get_jet_settings( 'lisitng_id' ) ) {
+		if ( empty( $settings['lisitng_id'] ) ) {
 			return $this->render_element_placeholder(
 				[
 					'title' => esc_html__( 'Please select listing to show.', 'jet-engine' )
@@ -1305,7 +1356,7 @@ class Listing_Grid extends Base {
 
 		$this->enqueue_scripts();
 
-		$render = $this->get_jet_render_instance();
+		$render = $this->get_jet_render_instance( [ 'inline_columns_css' => true ] );
 
 		// STEP: Listing renderer class not found: Show placeholder text
 		if ( ! $render ) {
@@ -1329,9 +1380,10 @@ class Listing_Grid extends Base {
 
 	public function parse_jet_render_attributes( $attrs = [] ) {
 
-		$attrs['arrows']   = $attrs['arrows'] ?? false;
-		$attrs['autoplay'] = $attrs['autoplay'] ?? false;
-		$attrs['infinite'] = $attrs['infinite'] ?? false;
+		$attrs['arrows']            = $attrs['arrows'] ?? false;
+		$attrs['autoplay']          = $attrs['autoplay'] ?? false;
+		$attrs['infinite']          = $attrs['infinite'] ?? false;
+		$attrs['not_found_message'] = $attrs['not_found_message'] ?? '';
 
 		return $attrs;
 	}

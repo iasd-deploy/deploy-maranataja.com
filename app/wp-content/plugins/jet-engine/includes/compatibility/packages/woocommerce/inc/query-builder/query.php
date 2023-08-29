@@ -8,6 +8,7 @@ class WC_Product_Query extends \Jet_Engine\Query_Builder\Queries\Base_Query {
 	use \Jet_Engine\Query_Builder\Queries\Traits\Tax_Query_Trait;
 
 	public $current_wc_query = null;
+	public $current_wp_query = null;
 
 	/**
 	 * Returns queries items
@@ -36,21 +37,14 @@ class WC_Product_Query extends \Jet_Engine\Query_Builder\Queries\Base_Query {
 	}
 
 	/**
-	 * Returns `WC_Product_Query`
+	 * Returns current query arguments
 	 *
-	 * @since 3.0.8 Added search query handling. Hook `jet-engine/query-builder/wc-product-query/args` for further query
-	 *        arguments transformation.
-	 *
-	 * @return \WC_Product_Query|null
+	 * @return array
 	 */
-	public function get_current_wc_query() {
+	public function get_query_args() {
 
 		if ( null === $this->final_query ) {
 			$this->setup_query();
-		}
-
-		if ( null !== $this->current_wc_query ) {
-			return $this->current_wc_query;
 		}
 
 		$args = $this->final_query;
@@ -149,12 +143,44 @@ class WC_Product_Query extends \Jet_Engine\Query_Builder\Queries\Base_Query {
 			$args['s'] = get_search_query();
 		}
 
-		$args = apply_filters( 'jet-engine/query-builder/wc-product-query/args', $args, $this );
+		return apply_filters( 'jet-engine/query-builder/wc-product-query/args', $args, $this );
+	}
 
-		$this->current_wc_query = new \WC_Product_Query( $args );
+	/**
+	 * Returns `WC_Product_Query`
+	 *
+	 * @since 3.0.8 Added search query handling. Hook `jet-engine/query-builder/wc-product-query/args` for further query
+	 *        arguments transformation.
+	 *
+	 * @return \WC_Product_Query|null
+	 */
+	public function get_current_wc_query() {
+
+		if ( null !== $this->current_wc_query ) {
+			return $this->current_wc_query;
+		}
+
+		$this->current_wc_query = new \WC_Product_Query( $this->get_query_args() );
 
 		return $this->current_wc_query;
+	}
 
+	/**
+	 * Returns WP Query object for current query
+	 *
+	 * @return \WP_Query
+	 */
+	public function get_current_wp_query() {
+
+		if ( null !== $this->current_wp_query ) {
+			return $this->current_wp_query;
+		}
+
+		$wp_query_args = \WC_Data_Store::load( 'product' )->get_wp_query_args( $this->get_query_args() );
+
+		$this->current_wp_query = new \WP_Query( $wp_query_args );
+
+		return $this->current_wp_query;
 	}
 
 	/**
@@ -395,6 +421,7 @@ class WC_Product_Query extends \Jet_Engine\Query_Builder\Queries\Base_Query {
 	 */
 	public function reset_query() {
 		$this->current_wc_query = null;
+		$this->current_wp_query = null;
 	}
 
 }

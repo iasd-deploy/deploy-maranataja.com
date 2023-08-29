@@ -28,7 +28,7 @@ if (isset($data['page_options_with_assets_manager_no_load']) && $data['page_opti
 			include_once __DIR__.'/_page-options-inner.php';
 			?>
             <img style="display: none;"
-                 class="wpacu-ajax-loader"
+                 class="wpacu_ajax_loader"
                  src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-ajax-loading-spinner.svg" alt="<?php _e('Loading'); ?>..." />
         </div>
     </div>
@@ -45,7 +45,7 @@ if (isset($data['page_options_with_assets_manager_no_load']) && $data['page_opti
         include_once __DIR__.'/_page-options-inner.php';
         ?>
         <img style="display: none;"
-             class="wpacu-ajax-loader"
+             class="wpacu_ajax_loader"
              src="<?php echo esc_url(WPACU_PLUGIN_URL); ?>/assets/icons/icon-ajax-loading-spinner.svg" alt="<?php _e('Loading'); ?>..." />
     </div>
 </div>

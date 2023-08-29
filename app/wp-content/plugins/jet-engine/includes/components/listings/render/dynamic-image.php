@@ -45,10 +45,8 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Image' ) ) {
 		 * @return [type] [description]
 		 */
 		public function render_image( $settings ) {
-
-			$listing_source = jet_engine()->listings->data->get_listing_source();
-			$source         = isset( $settings['dynamic_image_source'] ) ? $settings['dynamic_image_source'] : 'post_thumbnail';
-			$custom         = isset( $settings['dynamic_image_source_custom'] ) ? $settings['dynamic_image_source_custom'] : false;
+			$source = isset( $settings['dynamic_image_source'] ) ? $settings['dynamic_image_source'] : 'post_thumbnail';
+			$custom = isset( $settings['dynamic_image_source_custom'] ) ? $settings['dynamic_image_source_custom'] : false;
 
 			if ( ! $source && ! $custom ) {
 				return;

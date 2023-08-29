@@ -283,6 +283,7 @@ div[data-control-name="_build_layout"] {
 			align-items: flex-start;
 			padding: 5px 0 0 0;
 			flex-wrap: wrap;
+			gap: 10px;
 		}
 		&__captcha {
 			padding: 6px 0 0 0;
@@ -351,6 +352,8 @@ div[data-control-name="_build_layout"] {
 		}
 		&__buttons {
 			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
 		}
 		&__result {
 			height: 0;
@@ -361,7 +364,6 @@ div[data-control-name="_build_layout"] {
 			cursor: pointer;
 			background: #0085ba;
 			border: 1px solid;
-			margin: 0 0 0 10px;
 			border-color: #0073aa #006799 #006799;
 			box-shadow: 0 1px 0 #006799;
 			color: #fff;
@@ -390,9 +392,6 @@ div[data-control-name="_build_layout"] {
 					border-color: #999;
 					color: #23282d;
 				}
-			}
-			.rtl & {
-				margin: 0 10px 0 0;
 			}
 		}
 		.vue-grid-placeholder {
@@ -780,6 +779,8 @@ div[data-control-name="_build_layout"] {
 			width: 400px;
 		}
 		&-control {
+			max-width: 100%;
+
 			&-desc {
 				display: inline-block;
 				margin: 0 0 0 10px;
@@ -789,6 +790,9 @@ div[data-control-name="_build_layout"] {
 					margin: 0 10px 0 0;
 				}
 			}
+		}
+		&:not(.direction-column) &-label + &-control {
+			max-width: calc(100% - 250px);
 		}
 		&-notice {
 			padding: 5px 5px 5px 0;

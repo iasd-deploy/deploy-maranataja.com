@@ -83,6 +83,7 @@ if ( ! class_exists( 'Jet_Engine_Relations_Page_Edit' ) ) {
 						'quick_editable',
 						'width',
 						'default_val',
+						'revision_support',
 					)
 				) );
 			}

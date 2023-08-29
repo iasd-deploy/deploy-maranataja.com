@@ -277,6 +277,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Tax_Data' ) ) {
 				'add_or_remove_items',
 				'choose_from_most_used',
 				'not_found',
+				'back_to_items',
 			);
 
 			foreach ( $labels_list as $label_key ) {
@@ -293,12 +294,12 @@ if ( ! class_exists( 'Jet_Engine_CPT_Tax_Data' ) ) {
 				'show_in_menu',
 				'show_in_nav_menus',
 				'show_in_rest',
-				'query_var',
 				'rewrite',
 				'hierarchical',
 				'with_front',
 				'show_edit_link',
 				'hide_field_names',
+				'rewrite_hierarchical',
 			);
 
 			foreach ( $ensure_bool as $key ) {
@@ -314,6 +315,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Tax_Data' ) ) {
 			}
 
 			$regular_args = array(
+				'query_var'       => '',
 				'rewrite_slug'    => $slug,
 				'capability_type' => '',
 				'description'     => '',
@@ -365,12 +367,17 @@ if ( ! class_exists( 'Jet_Engine_CPT_Tax_Data' ) ) {
 				$with_front = isset( $result['with_front'] ) ? $result['with_front'] : true;
 				$with_front = filter_var( $with_front, FILTER_VALIDATE_BOOLEAN );
 
+				$rewrite_hierarchical = isset( $result['rewrite_hierarchical'] ) ? $result['rewrite_hierarchical'] : false;
+				$rewrite_hierarchical = filter_var( $rewrite_hierarchical, FILTER_VALIDATE_BOOLEAN );
+
 				$result['rewrite'] = array(
-					'slug'       => $result['rewrite_slug'],
-					'with_front' => $with_front,
+					'slug'         => $result['rewrite_slug'],
+					'with_front'   => $with_front,
+					'hierarchical' => $rewrite_hierarchical,
 				);
 
 				unset( $result['rewrite_slug'] );
+				unset( $result['rewrite_hierarchical'] );
 			}
 
 			unset( $result['args'] );

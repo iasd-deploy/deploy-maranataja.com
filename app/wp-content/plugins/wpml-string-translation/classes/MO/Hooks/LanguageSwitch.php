@@ -135,7 +135,7 @@ class LanguageSwitch implements \IWPML_Action {
 	private function resetTranslationAvailabilityInformation() {
 		global $wp_textdomain_registry;
 		if ( ! isset( $wp_textdomain_registry ) && function_exists( '_get_path_to_translation' ) ) {
-			_get_path_to_translation( null, true );
+			_get_path_to_translation( '', true );
 		}
 	}
 

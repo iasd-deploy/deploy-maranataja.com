@@ -7,14 +7,16 @@ if (! isset($data)) {
 }
 ?>
 <hr style="margin: 15px 0;"/>
-
 <!-- [Special Settings Area] -->
 <?php
 $specialSettings = array(
-	'do_not_also_clear_autoptimize_cache' => (defined('WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE') && WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE),
-	'load_on_oxygen_builder_edit'         => (defined('WPACU_LOAD_ON_OXYGEN_BUILDER_EDIT') && WPACU_LOAD_ON_OXYGEN_BUILDER_EDIT),
-	'load_on_divi_builder_edit'           => (defined('WPACU_LOAD_ON_DIVI_BUILDER_EDIT') && WPACU_LOAD_ON_DIVI_BUILDER_EDIT),
-	'load_on_bricks_builder'              => (defined('WPACU_LOAD_ON_BRICKS_BUILDER') && WPACU_LOAD_ON_BRICKS_BUILDER),
+    // Cache plugins caching: clear it or not after Asset CleanUp Lite/Pro caching is cleared
+	'do_not_also_clear_autoptimize_cache'   => (defined('WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE') && WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE),
+	'do_not_also_clear_cache_enabler_cache' => (defined('WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE') && WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE),
+
+	'load_on_oxygen_builder_edit'           => (defined('WPACU_LOAD_ON_OXYGEN_BUILDER_EDIT') && WPACU_LOAD_ON_OXYGEN_BUILDER_EDIT),
+	'load_on_divi_builder_edit'             => (defined('WPACU_LOAD_ON_DIVI_BUILDER_EDIT') && WPACU_LOAD_ON_DIVI_BUILDER_EDIT),
+	'load_on_bricks_builder'                => (defined('WPACU_LOAD_ON_BRICKS_BUILDER') && WPACU_LOAD_ON_BRICKS_BUILDER),
 );
 
 $noSpecialSettings = empty(array_filter($specialSettings));
@@ -44,9 +46,18 @@ $noSpecialSettings = empty(array_filter($specialSettings));
 					if ($specialSettings['do_not_also_clear_autoptimize_cache']) {
 						?>
 						<tr>
-							<td><span style="color: green;">Do not also clear Autoptimize cache after Asset CleanUp caching is cleared</span></td>
-							<td>The constant <code>WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE</code> is set to <code style="color: blue;">true</code>. <a style="text-decoration: none; white-space: nowrap;" target="_blank" href="https://www.assetcleanup.com/docs/?p=1502"><span class="dashicons dashicons-info"></span> Read more</a></td>
+							<td><span style="color: green;">Do not also clear Autoptimize cache after <?php echo WPACU_PLUGIN_TITLE; ?> caching is cleared</span></td>
+							<td>The constant <code>WPACU_DO_NOT_ALSO_CLEAR_AUTOPTIMIZE_CACHE</code> is set to <code style="color: blue;">true</code>. <a style="text-decoration: none; white-space: nowrap;" target="_blank" href="https://www.assetcleanup.com/docs/?p=1502#wpacu-autoptimize"><span class="dashicons dashicons-info"></span> Read more</a></td>
 						</tr>
+						<?php
+					}
+
+					if ($specialSettings['do_not_also_clear_cache_enabler_cache']) {
+						?>
+                        <tr>
+                            <td><span style="color: green;">Do not also clear "Cache Enabler" cache after <?php echo WPACU_PLUGIN_TITLE; ?> caching is cleared</span></td>
+                            <td>The constant <code>WPACU_DO_NOT_ALSO_CLEAR_CACHE_ENABLER_CACHE</code> is set to <code style="color: blue;">true</code>. <a style="text-decoration: none; white-space: nowrap;" target="_blank" href="https://www.assetcleanup.com/docs/?p=1502#wpacu-cache-enabler"><span class="dashicons dashicons-info"></span> Read more</a></td>
+                        </tr>
 						<?php
 					}
 

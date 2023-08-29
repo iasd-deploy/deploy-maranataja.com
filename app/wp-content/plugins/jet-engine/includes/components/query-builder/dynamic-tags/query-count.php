@@ -9,12 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Query_Count_Tag extends \Elementor\Core\DynamicTags\Tag {
 
+	use \Jet_Engine\Query_Builder\Traits\Query_Count_Trait;
+
 	public function get_name() {
 		return 'jet-query-count';
-	}
-
-	public function get_title() {
-		return __( 'Query Results Count', 'jet-engine' );
 	}
 
 	public function get_group() {
@@ -34,37 +32,13 @@ class Query_Count_Tag extends \Elementor\Core\DynamicTags\Tag {
 	}
 
 	protected function register_controls() {
-
-		$this->add_control(
-			'query_id',
-			array(
-				'label'   => __( 'Query', 'jet-engine' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'options' => Manager::instance()->get_queries_for_options(),
-			)
-		);
-
-		$this->add_control(
-			'count_type',
-			array(
-				'label'       => __( 'Returned Count', 'jet-engine' ),
-				'type'        => \Elementor\Controls_Manager::SELECT,
-				'label_block' => true,
-				'default'     => 'total',
-				'options'     => array(
-					'total'   => __( 'Total query results count', 'jet-engine' ),
-					'visible' => __( 'Currently visible query results count (per page)', 'jet-engine' ),
-				),
-			)
-		);
-
+		foreach ( $this->get_args() as $control_id => $control_args ) {
+			$this->add_control( $control_id, $control_args );
+		}
 	}
 
 	public function render() {
-		$query_id   = $this->get_settings( 'query_id' );
-		$count_type = $this->get_settings( 'count_type' );
-
-		echo Manager::instance()->get_query_count_html( $query_id, $count_type );
+		echo $this->get_result( $this->get_settings() );
 	}
 
 }

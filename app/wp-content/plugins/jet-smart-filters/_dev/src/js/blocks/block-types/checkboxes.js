@@ -4,7 +4,7 @@ import General from 'blocks/editor/panels/general';
 import AdditionalSettings from 'blocks/editor/panels/additional-settings';
 import Indexer from 'blocks/editor/panels/indexer';
 import TemplateRender from 'blocks/editor/controls/templateRender';
-//import CheckBoxes from 'filters/CheckBoxes';
+import CheckBoxes from 'filters/CheckBoxes';
 
 const { __ } = wp.i18n;
 
@@ -49,6 +49,9 @@ registerBlockType('jet-smart-filters/checkboxes', {
 		less_text: attributes.less_text,
 		dropdown_enabled: attributes.dropdown_enabled,
 		dropdown_placeholder: attributes.dropdown_placeholder,
+		dropdown_n_selected_enabled: attributes.dropdown_n_selected_enabled,
+		dropdown_n_selected_number: attributes.dropdown_n_selected_number,
+		dropdown_n_selected_text: attributes.dropdown_n_selected_text,
 		scroll_enabled: attributes.scroll_enabled,
 		scroll_height: attributes.scroll_height,
 	},
@@ -63,7 +66,10 @@ registerBlockType('jet-smart-filters/checkboxes', {
 		}
 
 		initCheckBoxes() {
-			new window.JetSmartFilters.filters.CheckBoxes(this._holder.find('.' + window.JetSmartFilters.filtersList.CheckBoxes));
+			const $filterContainer = this._holder.find('.' + window.JetSmartFilters.filtersList.CheckBoxes);
+
+			if ($filterContainer.length)
+				new CheckBoxes($filterContainer);
 		}
 
 		render() {
@@ -96,7 +102,7 @@ registerBlockType('jet-smart-filters/checkboxes', {
 					<TemplateRender
 						block="jet-smart-filters/checkboxes"
 						attributes={props.attributes}
-						onSuccess={() => { this.layoutUpdated() }}
+						onSuccess={() => { this.layoutUpdated(); }}
 					/>
 				</div>
 			];

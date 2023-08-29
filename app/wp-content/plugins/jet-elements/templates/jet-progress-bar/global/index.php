@@ -16,7 +16,8 @@ $prefix_html = '<span class="jet-progress-bar__percent-prefix">' . $prefix . '&n
 $suffix_html = '<span class="jet-progress-bar__percent-suffix">&nbsp' . $suffix . '</span>';
 
 if ( 'percent' === $settings['values_type'] ) {
-	$this->add_render_attribute( 'main-container', 'data-percent', $settings['percent'] );
+	$percent_value = 100 <= $settings['percent'] ? 100 : $settings['percent'];
+	$this->add_render_attribute( 'main-container', 'data-percent', $percent_value );
 	$percent_html = '<span class="jet-progress-bar__percent-value">0</span><span class="jet-progress-bar__percent-suffix">&#37;</span>';
 } else {
 	$current_value = (int)$settings['absolute_value_curr'];

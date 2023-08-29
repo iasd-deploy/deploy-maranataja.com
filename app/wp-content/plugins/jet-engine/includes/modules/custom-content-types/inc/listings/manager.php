@@ -14,6 +14,8 @@ class Manager {
 	public $repeater_source = 'custom_content_type_repeater';
 	public $current_item = false;
 
+	public $query = null;
+
 	/**
 	 * Class constructor
 	 */
@@ -25,7 +27,7 @@ class Manager {
 		require_once Module::instance()->module_path( 'listings/context.php' );
 		require_once Module::instance()->module_path( 'listings/maps.php' );
 
-		new Query( $this->source );
+		$this->query = new Query( $this->source );
 		new Blocks( $this );
 		new Popups();
 		new Context();
@@ -167,6 +169,18 @@ class Manager {
 		add_action(
 			'jet-engine/listings/document/get-preview/' . $this->repeater_source,
 			array( $this, 'setup_preview' )
+		);
+
+		add_filter(
+			'jet-engine/listings/frontend/custom-listing-url',
+			array( $this, 'custom_listing_url' ),
+			10, 2
+		);
+
+		add_filter(
+			'jet-engine/listing/container-atts',
+			array( $this, 'add_data_attr_for_listing' ),
+			10, 3
 		);
 
 	}
@@ -333,6 +347,11 @@ class Manager {
 			$current_object = jet_engine()->listings->data->get_current_object();
 		}
 
+		// Added additional conditions to prepare the current object on Single Post.
+		if ( ! isset( $current_object->cct_slug ) && isset( $current_object->ID ) && isset( $current_object->post_type ) ) {
+			$current_object = $this->query->maybe_add_item_to_post( $current_object );
+		}
+
 		if ( ! isset( $current_object->cct_slug ) ) {
 			return false;
 		}
@@ -365,7 +384,7 @@ class Manager {
 			$result = $current_object->$field;
 		}
 
-		return $result;
+		return wp_unslash( $result );
 
 	}
 
@@ -778,7 +797,14 @@ class Manager {
 	 * @return false|array
 	 */
 	public function get_dynamic_repeater_value( $value, $settings ) {
-		return $this->get_custom_value_by_setting( 'dynamic_field_source', $settings );
+
+		$result = $this->get_custom_value_by_setting( 'dynamic_field_source', $settings );
+
+		if ( ! $result ) {
+			return $value;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -834,7 +860,7 @@ class Manager {
 			$result = $current_object->$field;
 		}
 
-		return $result;
+		return wp_unslash( $result );
 	}
 
 	public function get_dynamic_field_repeater_value( $result, $settings ) {
@@ -879,6 +905,44 @@ class Manager {
 		$sources[] = $this->repeater_source;
 
 		return $sources;
+	}
+
+	public function custom_listing_url( $result, $settings ) {
+
+		$url = $this->get_custom_value_by_setting( 'listing_link_source', $settings );
+
+		if ( is_numeric( $url ) ) {
+			$url = get_permalink( $url );
+		}
+
+		if ( ! $url ) {
+			return $result;
+		} else {
+			return $url;
+		}
+	}
+
+	public function add_data_attr_for_listing( $attr, $settings, $render ) {
+
+		$type = null;
+
+		if ( $render->listing_query_id ) {
+			$query = \Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $render->listing_query_id );
+
+			if ( 'custom-content-type' === $query->query_type ) {
+				$query->setup_query();
+				$type = ! empty( $query->final_query['content_type'] ) ? $query->final_query['content_type'] : false;
+			}
+
+		} elseif ( 'custom_content_type' === jet_engine()->listings->data->get_listing_source() ) {
+			$type = jet_engine()->listings->data->get_listing_post_type();
+		}
+
+		if ( ! empty( $type ) ) {
+			$attr[] = 'data-cct-slug="' . esc_attr( $type ) . '"';
+		}
+
+		return $attr;
 	}
 
 }

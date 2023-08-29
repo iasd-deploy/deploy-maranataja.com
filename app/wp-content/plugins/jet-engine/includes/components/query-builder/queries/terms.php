@@ -16,6 +16,11 @@ class Terms_Query extends Base_Query {
 	public function _get_items() {
 		$current_query = $this->build_current_query();
 		$terms = get_terms( $current_query );
+
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return array();
+		}
+
 		return $terms;
 	}
 
@@ -30,10 +35,21 @@ class Terms_Query extends Base_Query {
 		$args = $this->final_query;
 
 		if ( ! $is_count && ! empty( $args['number_per_page'] ) ) {
-			$args['number'] = absint( $args['number_per_page'] );
+			$args['number'] = $this->get_items_page_count();
 		}
 
 		if ( ! empty( $args['meta_query'] ) ) {
+
+			// Fixed issue: Order by meta clause does not work if the clause name contains capital letters.
+			$args['meta_query'] = array_map( function( $item ) {
+
+				if ( isset( $item['clause_name'] ) ) {
+					$item['clause_name'] = strtolower( $item['clause_name'] );
+				}
+
+				return $item;
+			}, $args['meta_query'] );
+
 			$args['meta_query'] = $this->prepare_meta_query_args( $args );
 		}
 
@@ -46,7 +62,7 @@ class Terms_Query extends Base_Query {
 			$clause_name = ! empty( $args['order_meta_clause'][0] ) ? $args['order_meta_clause'][0] : false;
 
 			if ( $clause_name ) {
-				$args['orderby'] = $clause_name;
+				$args['orderby'] = strtolower( $clause_name );
 			}
 		}
 		
@@ -126,7 +142,24 @@ class Terms_Query extends Base_Query {
 	 * @return [type] [description]
 	 */
 	public function get_items_page_count() {
-		return $this->get_items_total_count();
+		$result   = $this->get_items_total_count();
+		$per_page = $this->get_items_per_page();
+
+		if ( $per_page < $result ) {
+
+			$page  = $this->get_current_items_page();
+			$pages = $this->get_items_pages_count();
+
+			if ( $page < $pages ) {
+				$result = $per_page;
+			} elseif ( $page == $pages ) {
+				$offset = $per_page * ( $page - 1 );
+				$result = $result - $offset;
+			}
+
+		}
+
+		return $result;
 	}
 
 	/**

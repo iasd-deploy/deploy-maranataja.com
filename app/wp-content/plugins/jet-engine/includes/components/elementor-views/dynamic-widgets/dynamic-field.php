@@ -110,6 +110,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 				'condition' => array(
 					'dynamic_field_source'      => 'object',
 					'dynamic_field_post_object' => 'post_excerpt',
+					'dynamic_field_wp_excerpt'  => 'yes',
 				),
 			)
 		);
@@ -125,6 +126,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 				'condition' => array(
 					'dynamic_field_source'      => 'object',
 					'dynamic_field_post_object' => 'post_excerpt',
+					'dynamic_field_wp_excerpt'  => 'yes',
 				),
 			)
 		);
@@ -190,13 +192,13 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 		$this->add_control(
 			'dynamic_field_post_meta_custom',
 			array(
-				'label'       => __( 'Custom meta field/repeater key', 'jet-engine' ),
+				'label'       => __( 'Custom Object field / Meta field / Repeater key', 'jet-engine' ),
 				'type'        => Controls_Manager::TEXT,
 				'default'     => '',
 				'label_block' => true,
-				'description' => __( 'Note: this field will override Meta Field value', 'jet-engine' ),
+				'description' => __( 'Note: this field will override Object field / Meta field value', 'jet-engine' ),
 				'condition'   => array(
-					'dynamic_field_source!' => array( 'object', 'query_var' ),
+					'dynamic_field_source!' => array( 'query_var', 'options_page', 'relations_hierarchy' ),
 				),
 			)
 		);
@@ -382,6 +384,155 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 			)
 		);
 
+		$this->dom_optimized_styles();
+		$this->dom_default_styles();
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_icon_style',
+			array(
+				'label'      => __( 'Icon', 'jet-engine' ),
+				'tab'        => Controls_Manager::TAB_STYLE,
+				'show_label' => false,
+			)
+		);
+
+		$this->add_control(
+			'icon_color',
+			array(
+				'label' => __( 'Color', 'jet-engine' ),
+				'type' => Controls_Manager::COLOR,
+				'selectors' => array(
+					$this->css_selector( '__icon' ) => 'color: {{VALUE}}',
+					$this->css_selector( '__icon :is(svg, path)' ) => 'fill: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'icon_size',
+			array(
+				'label'      => __( 'Size', 'jet-engine' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 10,
+						'max' => 100,
+					),
+				),
+				'selectors'  => array(
+					$this->css_selector( '__icon' ) => 'font-size: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'icon_gap',
+			array(
+				'label'      => __( 'Horizontal Gap', 'jet-engine' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 100,
+					),
+				),
+				'selectors'  => array(
+					'body:not(.rtl) ' . $this->css_selector( '__icon' ) => 'margin-right: {{SIZE}}{{UNIT}};',
+					'body.rtl ' . $this->css_selector( '__icon' ) => 'margin-left: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'icon_gap_v',
+			array(
+				'label'      => __( 'Vertical Gap', 'jet-engine' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 100,
+					),
+				),
+				'selectors'  => array(
+					$this->css_selector( '__icon' ) => 'margin-top: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_misc_style',
+			array(
+				'label'      => __( 'Misc', 'jet-engine' ),
+				'tab'        => Controls_Manager::TAB_STYLE,
+				'show_label' => false,
+			)
+		);
+
+		/**
+		 * Add custom controls for Callbacks
+		 */
+		do_action( 'jet-engine/listing/dynamic-field/misc-style-controls', $this );
+
+		$this->end_controls_section();
+
+	}
+
+	/**
+	 * Register DOM optimized styles
+	 * @return [type] [description]
+	 */
+	public function dom_optimized_styles() {
+
+		if ( ! $this->prevent_wrap() ) {
+			return;
+		}
+
+		$this->add_responsive_control(
+			'content_alignment',
+			array(
+				'label'       => esc_html__( 'Field Content Alignment', 'jet-engine' ),
+				'type'        => Controls_Manager::CHOOSE,
+				'default'     => 'left',
+				'options'     => array(
+					'left'    => array(
+						'title' => esc_html__( 'Left', 'jet-engine' ),
+						'icon'  => 'eicon-text-align-left',
+					),
+					'center' => array(
+						'title' => esc_html__( 'Center', 'jet-engine' ),
+						'icon'  => 'eicon-text-align-center',
+					),
+					'right' => array(
+						'title' => esc_html__( 'Right', 'jet-engine' ),
+						'icon'  => 'eicon-text-align-right',
+					),
+				),
+				'selectors'  => array(
+					$this->css_selector( '__content' ) => 'text-align: {{VALUE}};',
+				),
+			)
+		);
+
+	}
+
+	/**
+	 * Register non-DOM optimized styles
+	 * @return [type] [description]
+	 */
+	public function dom_default_styles() {
+		
+		if ( $this->prevent_wrap() ) {
+			return;
+		}
+
 		$this->add_control(
 			'field_width',
 			array(
@@ -536,85 +687,6 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 				'selector' => $this->css_selector( '.display-multiline' ) . ', ' . $this->css_selector( '.display-inline .jet-listing-dynamic-field__inline-wrap' ),
 			)
 		);
-
-		$this->end_controls_section();
-
-		$this->start_controls_section(
-			'section_icon_style',
-			array(
-				'label'      => __( 'Icon', 'jet-engine' ),
-				'tab'        => Controls_Manager::TAB_STYLE,
-				'show_label' => false,
-			)
-		);
-
-		$this->add_control(
-			'icon_color',
-			array(
-				'label' => __( 'Color', 'jet-engine' ),
-				'type' => Controls_Manager::COLOR,
-				'selectors' => array(
-					$this->css_selector( '__icon' ) => 'color: {{VALUE}}',
-					$this->css_selector( '__icon :is(svg, path)' ) => 'fill: {{VALUE}}',
-				),
-			)
-		);
-
-		$this->add_responsive_control(
-			'icon_size',
-			array(
-				'label'      => __( 'Size', 'jet-engine' ),
-				'type'       => Controls_Manager::SLIDER,
-				'size_units' => array( 'px' ),
-				'range'      => array(
-					'px' => array(
-						'min' => 10,
-						'max' => 100,
-					),
-				),
-				'selectors'  => array(
-					$this->css_selector( '__icon' ) => 'font-size: {{SIZE}}{{UNIT}};',
-				),
-			)
-		);
-
-		$this->add_responsive_control(
-			'icon_gap',
-			array(
-				'label'      => __( 'Gap', 'jet-engine' ),
-				'type'       => Controls_Manager::SLIDER,
-				'size_units' => array( 'px' ),
-				'range'      => array(
-					'px' => array(
-						'min' => 0,
-						'max' => 100,
-					),
-				),
-				'selectors'  => array(
-					'body:not(.rtl) ' . $this->css_selector( '__icon' ) => 'margin-right: {{SIZE}}{{UNIT}};',
-					'body.rtl ' . $this->css_selector( '__icon' ) => 'margin-left: {{SIZE}}{{UNIT}};',
-				),
-			)
-		);
-
-		$this->end_controls_section();
-
-		$this->start_controls_section(
-			'section_misc_style',
-			array(
-				'label'      => __( 'Misc', 'jet-engine' ),
-				'tab'        => Controls_Manager::TAB_STYLE,
-				'show_label' => false,
-			)
-		);
-
-		/**
-		 * Add custom controls for Callbacks
-		 */
-		do_action( 'jet-engine/listing/dynamic-field/misc-style-controls', $this );
-
-		$this->end_controls_section();
-
 	}
 
 	/**
@@ -652,7 +724,8 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 	}
 
 	protected function render() {
-		jet_engine()->listings->render_item( 'dynamic-field', $this->get_settings_for_display() );
+		$render = jet_engine()->listings->get_render_instance( 'dynamic-field', $this->get_settings_for_display() );
+		$render->render_content();
 	}
 
 }
