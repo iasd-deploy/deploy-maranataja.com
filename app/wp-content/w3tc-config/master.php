@@ -115,7 +115,7 @@
     "objectcache.memcached.binary_protocol": true,
     "objectcache.redis.persistent": true,
     "objectcache.redis.servers": [
-        "redis-2.internetdsa.com:6379"
+        "redis.internetdsa.com:6379"
     ],
     "objectcache.redis.verify_tls_certificates": true,
     "objectcache.redis.password": "",
@@ -162,7 +162,7 @@
     "pgcache.memcached.binary_protocol": true,
     "pgcache.redis.persistent": true,
     "pgcache.redis.servers": [
-        "redis-2.internetdsa.com:6379"
+        "redis.internetdsa.com:6379"
     ],
     "pgcache.redis.verify_tls_certificates": true,
     "pgcache.redis.password": "",
