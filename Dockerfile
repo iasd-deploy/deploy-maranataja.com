@@ -4,6 +4,11 @@ COPY --chown=www-data:www-data app /var/www/html
 
 RUN docker-php-ext-install opcache
 
+RUN apt-get update && \
+    apt-get install -y git zip unzip && \
+    pecl install redis && \
+    docker-php-ext-enable redis
+
 COPY extras/init /usr/local/bin/docker-entrypoint.sh
 COPY extras/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
