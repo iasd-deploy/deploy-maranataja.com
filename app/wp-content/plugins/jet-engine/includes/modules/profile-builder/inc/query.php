@@ -128,6 +128,11 @@ class Query {
 		} else {
 			foreach ( $pages as $page ) {
 				if ( ! empty( $page['slug'] ) && $this->subpagenow === $page['slug'] ) {
+
+					if ( ! empty( $page['template'] ) && ! is_array( $page['template'] ) ) {
+						$page['template'] = [ $page['template'] ];
+					}
+
 					$this->subpage = $page;
 				}
 			}
@@ -145,6 +150,10 @@ class Query {
 
 		// If first page is accessible for any role - use it as default
 		if ( ! empty( $pages[0] ) && empty( $pages[0]['roles'] ) ) {
+
+			if ( ! empty( $pages[0]['template'] ) && ! is_array( $pages[0]['template'] ) ) {
+				$pages[0]['template'] = [ $pages[0]['template'] ];
+			}
 
 			$this->subpage    = $pages[0];
 			$this->subpagenow = $this->subpage['slug'];

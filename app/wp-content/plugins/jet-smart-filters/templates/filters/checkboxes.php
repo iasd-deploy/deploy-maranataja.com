@@ -7,6 +7,7 @@ if ( empty( $args ) ) {
 $options             = $args['options'];
 $query_var           = $args['query_var'];
 $by_parents          = $args['by_parents'];
+$collapsible         = isset( $args['collapsible'] ) ? $args['collapsible'] : false;
 $scroll_height_style = $args['scroll_height'] ? 'style="max-height:' . $args['scroll_height'] . 'px"' : false;
 $show_decorator      = isset( $args['display_options']['show_decorator'] ) ? filter_var( $args['display_options']['show_decorator'], FILTER_VALIDATE_BOOLEAN ) : false;
 $extra_classes       = '';
@@ -38,7 +39,13 @@ $current = $this->get_current_filter_value( $args );
 		$args['current']       = $current;
 		$args['decorator']     = $show_decorator;
 
-		echo '<div class="jet-list-tree">';
+		$container_classes = "jet-list-tree";
+
+		if ( $collapsible ) {
+			$container_classes .= " jet-list-collapsible";
+		}
+
+		echo '<div class="' . $container_classes . '">';
 		echo $walker->walk( $options, 0, $args );
 		echo '</div>';
 	} else {

@@ -2,7 +2,7 @@
 
 	'use strict';
 
-	var JetEngineMetaBoxes = {
+	window.JetEngineMetaBoxes = {
 
 		init: function() {
 
@@ -39,6 +39,7 @@
 					$datepicker = $( '<input/>', {
 						'type': 'text',
 						'class': 'widefat cx-ui-text',
+						'placeholder': $this.attr( 'placeholder' ),
 					} );
 
 				if ( $this.prop( 'required' ) ) {
@@ -86,6 +87,7 @@
 						type:          'cx-control-change',
 						controlName:   $this.attr( 'name' ),
 						controlStatus: $this.val(),
+						input: $this,
 					} );
 				} );
 
@@ -98,6 +100,7 @@
 					$timepicker = $( '<input/>', {
 						'type': 'text',
 						'class': 'widefat cx-ui-text',
+						'placeholder': $this.attr( 'placeholder' ),
 					} );
 
 				if ( $this.prop( 'required' ) ) {
@@ -140,6 +143,7 @@
 						type:          'cx-control-change',
 						controlName:   $this.attr( 'name' ),
 						controlStatus: $this.val(),
+						input: $this,
 					} );
 				} );
 
@@ -152,6 +156,7 @@
 					$datetimepicker = $( '<input/>', {
 						'type': 'text',
 						'class': 'widefat cx-ui-text',
+						'placeholder': $this.attr( 'placeholder' ),
 					} );
 
 				if ( $this.prop( 'required' ) ) {
@@ -208,7 +213,9 @@
 						type:          'cx-control-change',
 						controlName:   $this.attr( 'name' ),
 						controlStatus: $this.val(),
+						input: $this,
 					} );
+
 				} );
 
 			} );
@@ -217,6 +224,6 @@
 
 	};
 
-	JetEngineMetaBoxes.init();
+	window.JetEngineMetaBoxes.init();
 
 })( jQuery );

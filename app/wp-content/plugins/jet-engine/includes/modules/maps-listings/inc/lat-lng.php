@@ -67,8 +67,29 @@ class Lat_Lng {
 			return;
 		}
 
+		$engine_fields = [];
+		$custom_fields = [];
+
+		foreach ( $preload_fields as $field ) {
+			if ( false === strpos( $field, '_custom::' ) ) {
+				$engine_fields[] = $field;
+			} else {
+				$custom_fields[] = $field;
+			}
+		}
+
 		foreach ( $sources as $source ) {
-			$source->preload_hooks( $preload_fields );
+			
+			// Preload non-Engine fields
+			if ( $source->is_custom() && ! empty( $custom_fields ) ) {
+				$source->preload_hooks( $custom_fields );
+			}
+
+			// Preload JetEngine fields
+			if ( ! $source->is_custom() && ! empty( $engine_fields ) ) {
+				$source->preload_hooks( $engine_fields );
+			}
+
 		}
 
 	}

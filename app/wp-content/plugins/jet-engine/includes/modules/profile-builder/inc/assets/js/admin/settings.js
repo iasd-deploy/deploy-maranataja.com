@@ -10,6 +10,115 @@
 		return result;
 	});
 
+	Vue.component( 'jet-profile-new-template', {
+		name: 'jet-profile-new-template',
+		template: '#jet-profile-builder-new-template',
+		data: function() {
+			return {
+				showPopup: false,
+				templateName: '',
+				templateType: '',
+				templateView: '',
+				listingSource: '',
+				defaultView: '',
+				nameError: false,
+				creating: false,
+			};
+		},
+		created() {
+			this.listingSource = this.templateSources()[0].value;
+			this.defaultView   = this.templateViews()[0].value;
+			this.templateType  = this.listingSource;
+			this.templateView  = this.defaultView;
+		},
+		computed: {
+			hasNameError() {
+				return ! this.templateName && this.nameError
+			},
+		},
+		methods: {
+			templateSources() {
+				return this.arrayFromObject( window.JetEngineProfileBuilder.template_sources );
+			},
+			templateViews() {
+				return this.arrayFromObject( window.JetEngineProfileBuilder.listing_views );
+			},
+			arrayFromObject( object ) {
+				const result = [];
+				
+				for ( const value in object ) {
+					result.push( {
+						value: value,
+						label: object[ value ]
+					} );
+				}
+
+				return result;
+			},
+			closePopup() {
+				this.showPopup = false;
+				this.nameError = false;
+				this.templateName = '';
+				this.templateType = this.listingSource;
+				this.templateView = this.defaultView;
+			},
+			createTemplate() {
+
+				if ( ! this.templateName ) {
+					this.nameError = true;
+					return;
+				}
+
+				this.creating = true;
+
+				jQuery.ajax({
+					url: window.ajaxurl,
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						action: 'jet_engine_create_profile_template',
+						template_name: this.templateName,
+						template_type: this.templateType,
+						template_view: this.templateView,
+						_nonce: JetEngineProfileBuilder._nonce,
+					},
+				}).done( ( response ) => {
+
+					this.creating = false;
+
+					if ( response.success ) {
+
+						this.$emit( 'on-create', { 
+							value: response.data.template_id, 
+							label: this.templateName + ' (' + window.JetEngineProfileBuilder.template_sources[ this.templateType ] + ')'
+						} );
+
+						window.open( response.data.template_url, '_blank' ).focus();
+						this.closePopup();
+					} else {
+						this.$CXNotice.add( {
+							message: response.data.message,
+							type: 'error',
+							duration: 7000,
+						} );
+					}
+
+				} ).fail( ( e, textStatus ) => {
+
+					this.creating = false;
+
+					this.$CXNotice.add( {
+						message: e.statusText,
+						type: 'error',
+						duration: 7000,
+					} );
+
+				} );
+				
+			}
+		}
+	} );
+
 	Vue.component( 'jet-profile-macros', {
 		name: 'jet-profile-macros',
 		template: '#jet-profile-builder-macros',
@@ -129,6 +238,24 @@
 			},
 		},
 		methods: {
+			setCreatedTemplate( where, prop, value, ref ) {
+
+				this.$set( where, prop, [ value.value ] );
+				
+				if ( ! ref ) {
+					ref = prop;
+				}
+
+				if ( this.$refs[ ref ][0] ) {
+					this.$refs[ ref ][0].selectedOptions = [ value ];
+				} else {
+					this.$refs[ ref ].selectedOptions = [ value ];
+				}
+
+				
+
+				this.saveSettings();
+			},
 			getRandomID: function() {
 				return Math.floor( Math.random() * 8999 ) + 1000;
 			},
@@ -211,6 +338,7 @@
 						query: query,
 						ids: ids,
 						post_type: JetEngineProfileBuilder.search_in.join( ',' ),
+						query_context: 'profile-builder',
 					} )
 				} );
 			},

@@ -42,15 +42,15 @@ class Item_Handler {
 		switch ( $_REQUEST[ $action_key ] ) {
 
 			case $actions_list['save']:
-				$this->save_item();
+				add_action( 'admin_init', array( $this, 'save_item' ) );
 				break;
 
 			case $actions_list['delete']:
-				$this->delete_item();
+				add_action( 'admin_init', array( $this, 'delete_item' ) );
 				break;
 
 			case $actions_list['clone']:
-				$this->clone_item();
+				add_action( 'admin_init', array( $this, 'clone_item' ) );
 				break;
 
 		}
@@ -86,8 +86,30 @@ class Item_Handler {
 		}
 
 		if ( ! $this->factory->user_has_access() ) {
-			wp_die( 'You don`t have permissions to fo this', 'Error' );
+			wp_die( 'You don`t have permissions to do this', 'Error' );
 		}
+
+		$this->raw_delete_item( $item_id );
+
+		if ( $redirect ) {
+			if ( $this->factory->admin_pages ) {
+				wp_redirect( $this->factory->admin_pages->page_url( false ) );
+				die();
+			}
+		}
+
+	}
+
+	/**
+	 * Delete CCT item without additional access checks.
+	 * Used to delete CCT items programatically from anywhere.
+	 * 
+	 * All user access checks must be implemented before calling of this method!
+	 * 
+	 * @param  int $item_id Item ID to delete
+	 * @return void
+	 */
+	public function raw_delete_item( $item_id ) {
 
 		$item = $this->factory->db->get_item( $item_id );
 
@@ -99,13 +121,6 @@ class Item_Handler {
 
 		do_action( 'jet-engine/custom-content-types/delete-item/' . $this->factory->get_arg( 'slug' ), $item_id, $item, $this );
 
-		if ( $redirect ) {
-			if ( $this->factory->admin_pages ) {
-				wp_redirect( $this->factory->admin_pages->page_url( false ) );
-				die();
-			}
-		}
-
 	}
 
 	public function clone_item( $item_id = false ) {
@@ -115,7 +130,7 @@ class Item_Handler {
 		}
 
 		if ( ! $this->factory->user_has_access() ) {
-			wp_die( 'You don`t have permissions to fo this', 'Error' );
+			wp_die( 'You don`t have permissions to do this', 'Error' );
 		}
 
 		if ( empty( $_REQUEST['_nonce'] ) || ! wp_verify_nonce( $_REQUEST['_nonce'], 'jet-cct-nonce' ) ) {
@@ -136,6 +151,10 @@ class Item_Handler {
 
 		if ( isset( $itemarr['_ID'] ) ) {
 			unset( $itemarr['_ID'] );
+		}
+
+		if ( isset( $itemarr['cct_single_post_id'] ) ) {
+			unset( $itemarr['cct_single_post_id'] );
 		}
 
 		$new_id = $this->update_item( $itemarr );
@@ -167,7 +186,7 @@ class Item_Handler {
 		}
 
 		if ( ! $this->factory->user_has_access() ) {
-			wp_send_json_error( 'You don`t have permissions to fo this' );
+			wp_send_json_error( 'You don`t have permissions to do this' );
 		}
 
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jet-cct-nonce' ) ) {
@@ -232,7 +251,7 @@ class Item_Handler {
 		}
 
 		if ( ! $this->factory->user_has_access() ) {
-			wp_die( 'You don`t have permissions to fo this', 'Error' );
+			wp_die( 'You don`t have permissions to do this', 'Error' );
 		}
 
 		if ( empty( $_POST['cct_nonce'] ) || ! wp_verify_nonce( $_POST['cct_nonce'], 'jet-cct-nonce' ) ) {
@@ -306,8 +325,6 @@ class Item_Handler {
 			$item_id = false;
 		}
 
-		$save_custom_fields = array();
-
 		foreach ( $fields as $field_name => $field_data ) {
 
 			if ( isset( $itemarr[ $field_name ] ) ) {
@@ -316,18 +333,7 @@ class Item_Handler {
 				$value = ! empty( $field['default_val'] ) ? $field['default_val'] : '';
 			}
 
-			$type = isset( $field_data['type'] ) ? $field_data['type'] : false;
-
-			if ( in_array( $type, array( 'checkbox', 'radio' ) ) ) {
-
-				$allow_custom = ! empty( $field_data['allow_custom'] ) && filter_var( $field_data['allow_custom'], FILTER_VALIDATE_BOOLEAN );
-				$save_custom  = ! empty( $field_data['save_custom'] ) && filter_var( $field_data['save_custom'], FILTER_VALIDATE_BOOLEAN );
-
-				if ( $allow_custom && $save_custom ) {
-					$save_custom_fields[ $field_name ] = $field_data;
-				}
-			}
-
+			$type  = isset( $field_data['type'] ) ? $field_data['type'] : false;
 			$value = $this->sanitize_field_value( $value, $field_data );
 			$value = apply_filters( 'jet-engine/custom-content-types/update-item/sanitize-field-value', $value, $field_name, $field_data );
 
@@ -446,10 +452,6 @@ class Item_Handler {
 
 			$this->update_status = 'added';
 
-		}
-
-		if ( ! empty( $save_custom_fields ) ) {
-			$this->factory->maybe_save_custom_check_radio_values( $save_custom_fields );
 		}
 
 		return $item_id;

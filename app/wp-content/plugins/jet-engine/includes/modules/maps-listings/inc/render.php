@@ -18,6 +18,7 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 			'posts_num'                  => 6,
 			'auto_center'                => true,
 			'max_zoom'                   => '',
+			'min_zoom'                   => '',
 			'custom_center'              => '',
 			'custom_zoom'                => 11,
 			'zoom_control'               => 'auto',
@@ -213,6 +214,10 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 						$post_id = $post->term_id;
 						break;
 
+					case 'Jet_Engine_Queried_Repeater_Item':
+						$post_id = $post->get_id();
+						break;
+
 					default:
 						$post_id = apply_filters( 'jet-engine/listing/custom-post-id', get_the_ID(), $post );
 				}
@@ -248,15 +253,13 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 		);
 
 		if ( ! $obj ) {
-			
+
 			if ( $this->listing_query_id ) {
-				
 				$query = \Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $this->listing_query_id );
 
 				if ( $query ) {
 					$source = str_replace( '-', '_', $query->query_type );
 				}
-
 			}
 		}
 
@@ -276,7 +279,20 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 					$source = 'terms';
 					break;
 
+				case 'Jet_Engine_Queried_Repeater_Item':
+					$source = 'repeater';
+					break;
+
 				default:
+
+					if ( $this->listing_query_id ) {
+						$query = \Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $this->listing_query_id );
+
+						if ( $query ) {
+							$source = str_replace( '-', '_', $query->query_type );
+						}
+					}
+
 					$source = apply_filters( 'jet-engine/maps-listing/source', $source, $obj );
 			}
 		}
@@ -401,6 +417,10 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 
 					$taxonomy = ! empty( $marker['tax_name'] ) ? $marker['tax_name'] : false;
 					$term     = ! empty( $marker['term_name'] ) ? $marker['term_name'] : false;
+
+					if ( $term ) {
+						$term = apply_filters( 'jet-engine/compatibility/translate/term', $term, $taxonomy );
+					}
 
 					if ( $taxonomy && $term && isset( $post->ID ) ) {
 						$condition_met = has_term( $term, $taxonomy, $post->ID );
@@ -659,6 +679,7 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 
 
 		if ( ! $auto_center && $custom_center ) {
+			$custom_center = jet_engine()->listings->macros->do_macros( $custom_center );
 			$custom_center = Module::instance()->lat_lng->get_from_transient( $custom_center );
 		}
 
@@ -675,12 +696,17 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 			'marker'           => $this->prepare_marker_data( $this->get_marker_data( $settings ) ),
 			'autoCenter'       => $auto_center,
 			'maxZoom'          => ! empty( $settings['max_zoom'] ) ? absint( $settings['max_zoom'] ) : false,
+			'minZoom'          => ! empty( $settings['min_zoom'] ) ? absint( $settings['min_zoom'] ) : false,
 			'customCenter'     => $custom_center,
 			'customZoom'       => $custom_zoom,
 			'popupPreloader'   => $popup_preloader,
 			'querySeparator'   => ! empty( $permalink_structure ) ? '?' : '&',
 			'markerClustering' => $marker_clustering,
+			'clusterMaxZoom'   => ! empty( $settings['cluster_max_zoom'] ) ? absint( $settings['cluster_max_zoom'] ) : '',
+			'clusterRadius'    => ! empty( $settings['cluster_radius'] ) ? absint( $settings['cluster_radius'] ) : '',
 			'popupOpenOn'      => ! empty( $settings['popup_open_on'] ) ? $settings['popup_open_on'] : 'click',
+			'centeringOnOpen'  => ! empty( $settings['centering_on_open'] ) ? filter_var( $settings['centering_on_open'], FILTER_VALIDATE_BOOLEAN ) : false,
+			'zoomOnOpen'       => ! empty( $settings['zoom_on_open'] ) ? absint( $settings['zoom_on_open'] ) : false,
 			'advanced'         => array(
 				'zoom_control' => ! empty( $settings['zoom_control'] ) ? $settings['zoom_control'] : 'auto',
 			),
@@ -699,7 +725,10 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 
 		$general = htmlspecialchars( json_encode( $general ) );
 
-		$classes = array( 'jet-map-listing' );
+		$classes = array( 
+			'jet-map-listing',
+			'jet-listing-grid--' . $listing_id, // for inline CSS consistency between differen views and listing widgets
+		);
 
 		if ( ! empty( $settings['popup_pin'] ) ) {
 			$classes[] = 'popup-has-pin';

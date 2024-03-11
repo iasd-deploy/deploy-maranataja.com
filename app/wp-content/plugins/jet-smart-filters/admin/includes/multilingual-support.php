@@ -22,13 +22,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Admin_Multilingual_Support' ) ) {
 		 */
 		public function __construct() {
 
-			$this->is_Enabled = defined( 'ICL_SITEPRESS_VERSION' ) || defined( 'WPML_ST_VERSION' );
+			global $sitepress;
+
+			$this->is_Enabled = $sitepress && ( defined( 'ICL_SITEPRESS_VERSION' ) || defined( 'WPML_ST_VERSION' ) );
 
 			if ( ! $this->is_Enabled ) {
 				return;
 			}
-
-			global $sitepress;
 
 			$this->default_language = $sitepress->get_default_language();
 			$this->current_language = $sitepress->get_current_language();

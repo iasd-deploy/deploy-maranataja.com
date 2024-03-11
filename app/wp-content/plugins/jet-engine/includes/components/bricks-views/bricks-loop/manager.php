@@ -2,16 +2,21 @@
 
 namespace Jet_Engine\Bricks_Views\Bricks_Loop;
 
+use Bricks\Database;
 use Jet_Engine\Bricks_Views\Helpers\Options_Converter;
 
 
 class Manager {
+
+	public $initial_object;
 
 	function __construct() {
 		add_filter( 'bricks/setup/control_options', [ $this, 'setup_query_controls' ] );
 		add_action( 'init', [ $this, 'add_control_to_elements' ], 40 );
 		add_filter( 'bricks/query/run', [ $this, 'run_query' ], 10, 2 );
 		add_filter( 'bricks/query/loop_object', [ $this, 'set_loop_object' ], 10, 3 );
+		add_action( 'bricks/query/after_loop', [ $this, 'reset_current_object' ], 10, 2 );
+		add_filter( 'jet-engine/listings/data/the-post/is-main-query', array( $this, 'maybe_modify_is_main_query' ), 10, 3 );
 	}
 
 	public function setup_query_controls( $control_options ) {
@@ -69,30 +74,11 @@ class Manager {
 			return $results;
 		}
 
-		$settings                    = $query_obj->settings;
-		$jet_engine_query_builder_id = ! empty( $settings['jet_engine_query_builder_id'] ) ? absint( $settings['jet_engine_query_builder_id'] ) : 0;
-
-		// Return empty results if no query selected or Use Query is not checked
-		if ( $jet_engine_query_builder_id === 0 || ! $settings['hasLoop'] ) {
-			return [];
-		}
-
-		$query_builder = \Jet_Engine\Query_Builder\Manager::instance();
-
-		// Get the query object from JetEngine based on the query id
-		$jet_engine_query = $query_builder->get_query_by_id( $jet_engine_query_builder_id );
+		$jet_engine_query = $this->get_jet_engine_query( $query_obj->settings );
 
 		// Return empty results if query not found in JetEngine Query Builder
 		if ( ! $jet_engine_query ) {
-			return [];
-		}
-
-		// Reset current object for Query type Repeater
-		// This condition is added to make the Bricks loop work properly (when using Query Builder on terms, relationships)
-		if ( $jet_engine_query->query_type === 'repeater' ) {
-			// When using two repeaters per page, the current object for the second repeater is the last element from the first repeater
-			// Because I added this reset
-			jet_engine()->listings->data->reset_current_object();
+			return $results;
 		}
 
 		// Setup query args
@@ -126,10 +112,68 @@ class Manager {
 
 		setup_postdata( $post );
 
+		$jet_engine_query = $this->get_jet_engine_query( $query->settings );
+
+		// Return empty results if query not found in JetEngine Query Builder
+		if ( ! $jet_engine_query ) {
+			return $loop_object;
+		}
+
+		// Set current object for JetEngine
 		jet_engine()->listings->data->set_current_object( $loop_object );
 
 		// We still return the $loop_object so \Bricks\Query::get_loop_object() can use it
 		return $loop_object;
 
+	}
+
+	public function reset_current_object( $query, $args ) {
+		if ( $query->object_type !== 'jet_engine_query_builder' ) {
+			return false;
+		}
+
+		$jet_engine_query = $this->get_jet_engine_query( $query->settings );
+
+		if ( ! $jet_engine_query ) {
+			return false;
+		}
+
+		// Reset current object
+		jet_engine()->listings->data->reset_current_object();
+	}
+
+	public function get_jet_engine_query( $settings ) {
+
+		$jet_engine_query_builder_id = ! empty( $settings['jet_engine_query_builder_id'] ) ? absint( $settings['jet_engine_query_builder_id'] ) : 0;
+
+		// Return empty results if no query selected or Use Query is not checked
+		if ( $jet_engine_query_builder_id === 0 || ! $settings['hasLoop'] ) {
+			return false;
+		}
+
+		$query_builder = \Jet_Engine\Query_Builder\Manager::instance();
+
+		// Get the query object from JetEngine based on the query id
+		return $query_builder->get_query_by_id( $jet_engine_query_builder_id );
+
+	}
+
+	/**
+	 * Modify the main query under certain conditions.
+	 *
+	 * @param bool   $is_main_query  Whether the query is the main query.
+	 * @param object $post           The current post object.
+	 * @param object $query          The current WP_Query object.
+	 *
+	 * @return bool  Modified value for $is_main_query.
+	 */
+	public function maybe_modify_is_main_query( $is_main_query, $post, $query ) {
+		$content_type = Database::$active_templates['content_type'] ?? '';
+
+		if ( $is_main_query && $content_type === 'archive' ) {
+			return ! $is_main_query;
+		}
+
+		return $is_main_query;
 	}
 }

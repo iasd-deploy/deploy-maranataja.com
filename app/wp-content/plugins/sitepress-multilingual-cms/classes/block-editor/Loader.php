@@ -20,7 +20,8 @@ class Loader implements \IWPML_Backend_Action, \IWPML_REST_Action {
 	public function add_hooks() {
 		if ( \WPML_Block_Editor_Helper::is_active() ) {
 			Hooks::onAction( 'init' )
-			     ->then( [ $this, 'registerBlocks' ] );
+			     ->then( [ $this, 'registerBlocks' ] )
+			     ->then( [ $this, 'maybeEnqueueNavigationBlockStyles' ] );
 
 			Hooks::onAction( 'wp_enqueue_scripts' )
 			     ->then( [ $this, 'enqueueBlockStyles' ] );
@@ -35,7 +36,7 @@ class Loader implements \IWPML_Backend_Action, \IWPML_REST_Action {
 
 	/**
 	 * @param array[] $block_categories
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public function registerCategory( $block_categories ) {
@@ -55,7 +56,7 @@ class Loader implements \IWPML_Backend_Action, \IWPML_REST_Action {
 	 * Register blocks that need server side render.
 	 */
 	public function registerBlocks() {
-		$LSLocalizedScriptData = make( LanguageSwitcher::class )->register();
+		$LSLocalizedScriptData     = make( LanguageSwitcher::class )->register();
 		$this->localizedScriptData = array_merge( $this->localizedScriptData, $LSLocalizedScriptData );
 	}
 
@@ -63,13 +64,13 @@ class Loader implements \IWPML_Backend_Action, \IWPML_REST_Action {
 	 * @return void
 	 */
 	public function enqueueBlockAssets() {
-		$dependencies = array_merge( [
+		$dependencies        = array_merge( [
 			'wp-blocks',
 			'wp-i18n',
 			'wp-element',
 		], $this->getEditorDependencies() );
 		$localizedScriptData = [ 'name' => 'WPMLBlocks', 'data' => $this->localizedScriptData ];
-		$enqueuedApp = Resources::enqueueApp( 'blocks' );
+		$enqueuedApp         = Resources::enqueueApp( 'blocks' );
 		$enqueuedApp( $localizedScriptData, $dependencies );
 	}
 
@@ -80,6 +81,23 @@ class Loader implements \IWPML_Backend_Action, \IWPML_REST_Action {
 			[],
 			ICL_SITEPRESS_VERSION
 		);
+	}
+
+	/**
+	 * We inherit the WP navigation block styles while rendering our Language Switcher Block,
+	 * so when there's no navigation block is rendered, we still need to enqueue the wp-block-navigation styles so that.,
+	 * the Language Switcher Block renders properly.
+	 *
+	 * @see wpmldev-2422
+	 *
+	 * @return void
+	 */
+	public function maybeEnqueueNavigationBlockStyles() {
+		if ( ! wp_style_is( 'wp-block-navigation', 'enqueued' ) || ! wp_style_is( 'wp-block-navigation', 'queue' ) ) {
+			wp_enqueue_block_style( LanguageSwitcher::BLOCK_LANGUAGE_SWITCHER, [
+				'handle' => 'wp-block-navigation'
+			] );
+		}
 	}
 
 	/**

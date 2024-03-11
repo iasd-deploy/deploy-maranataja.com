@@ -34,11 +34,14 @@ abstract class Base {
 
 	/**
 	 * Check user access to current end-popint
+	 * 
+	 * By default set to admin capabilities. 
+	 * For any other - should be rewritten in the endpoint itself
 	 *
-	 * @return bool
+	 * @return string|bool
 	 */
 	public function permission_callback() {
-		return true;
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

@@ -2,6 +2,8 @@
 
 namespace Jet_Smart_Filters\Bricks_Views\Elements;
 
+use Bricks\Database;
+use Bricks\Helpers;
 use Jet_Engine\Bricks_Views\Helpers\Options_Converter;
 
 // If this file is called directly, abort.
@@ -33,7 +35,6 @@ class Jet_Smart_Filters_Bricks_Remove_Filters extends \Jet_Engine\Bricks_Views\E
 
 	// Set builder controls
 	public function set_controls() {
-
 		$this->register_general_controls();
 		$this->register_filter_button_controls();
 	}
@@ -52,6 +53,23 @@ class Jet_Smart_Filters_Bricks_Remove_Filters extends \Jet_Engine\Bricks_Views\E
 	public function register_general_controls() {
 
 		$this->start_jet_control_group( 'section_general' );
+
+		$this->register_jet_control(
+			'notice_cache_query_loop',
+			[
+				'tab'         => 'content',
+				'type'        => 'info',
+				'content'     => esc_html__( 'You have enabled the "Cache query loop" option.', 'jet-smart-filters' ),
+				'description' => sprintf(
+					esc_html__( 'This option will break the filters functionality. You can disable this option or use "JetEngine Query Builder" query type. Go to: %s > Cache query loop', 'jet-smart-filters' ),
+					'<a href="' . Helpers::settings_url( '#tab-performance' ) . '" target="_blank">Bricks > ' . esc_html__( 'Settings', 'jet-smart-filters' ) . ' > Performance</a>'
+				),
+				'required'    => [
+					[ 'content_provider', '=', 'bricks-query-loop' ],
+					[ 'cacheQueryLoops', '=', true, 'globalSettings' ],
+				],
+			]
+		);
 
 		$provider_allowed = \Jet_Smart_Filters\Bricks_Views\Manager::get_allowed_providers();
 

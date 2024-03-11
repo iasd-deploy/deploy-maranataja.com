@@ -45,6 +45,14 @@
 					name="query_orderby"
 					v-model="query.orderby"
 				></cx-vui-select>
+				<cx-vui-input
+					label="<?php _e( 'Meta key', 'jet-engine' ); ?>"
+					description="<?php _e( 'Meta field name to order by', 'jet-engine' ); ?>"
+					v-if="'meta_value' === query.orderby || 'meta_value_num' === query.orderby"
+					:wrapper-css="[ 'equalwidth' ]"
+					size="fullwidth"
+					v-model="query.meta_key"
+				></cx-vui-input>
 				<cx-vui-f-select
 					v-if="'meta_clause' === query.orderby && metaClauses.length"
 					label="<?php _e( 'Meta Clause', 'jet-engine' ); ?>"

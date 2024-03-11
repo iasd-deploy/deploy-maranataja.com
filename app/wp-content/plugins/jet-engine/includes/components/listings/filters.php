@@ -78,6 +78,10 @@ if ( ! class_exists( 'Jet_Engine_Listings_Filters' ) ) {
 					'cb'   => 'jet_engine_get_term_titles',
 					'args' => false,
 				),
+				'render_icon' => array(
+					'cb'   => 'jet_engine_icon_html',
+					'args' => false,
+				),
 			) );
 		}
 

@@ -78,7 +78,12 @@ class Settings {
 			$items = Module::instance()->request->set_endpoint( $item, true )->get_items( array(), true );
 
 			if ( false === $items ) {
-				wp_send_json_error( array( 'message' => Module::instance()->request->get_error() ) );
+				wp_send_json_error( 
+					array( 
+						'message' => Module::instance()->request->get_error(), 
+						'error_details' => Module::instance()->request->get_error_details() 
+					) 
+				);
 			}
 
 			if ( ! is_array( $items ) ) {
@@ -329,7 +334,7 @@ class Settings {
 				></cx-vui-input>
 				<cx-vui-input
 					label="<?php _e( 'Items path', 'jet-engine' ); ?>"
-					description="<?php _e( 'Path to the items inside APIs response. If the response contains only items, leave `/`, if items are nested, please set the path to the items separated with `/` for example: `/data/items`. <a href=\'https://crocoblock.com/troubleshooting/articles/getting-right-item-path-for-rest-api-with-jetengine-wordpress-plugin/\' targer=\'blank\'>More instructions here</a>', 'jet-engine' ); ?>"
+					description="<?php _e( 'Path to the items inside APIs response. If the response contains only items, leave `/`, if items are nested, please set the path to the items separated with `/` for example: `/data/items`. <a href=\'https://crocoblock.com/knowledge-base/troubleshooting/getting-the-right-item-path-for-rest-api/\' targer=\'blank\'>More instructions here</a>', 'jet-engine' ); ?>"
 					:wrapper-css="[ 'equalwidth' ]"
 					size="fullwidth"
 					v-model="settings.items_path"

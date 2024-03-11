@@ -40,7 +40,7 @@ class Jet_Engine_Object_Property_Tag extends Elementor\Core\DynamicTags\Data_Tag
 			array(
 				'label'  => __( 'Field', 'jet-engine' ),
 				'type'   => \Elementor\Controls_Manager::SELECT,
-				'groups' => jet_engine()->listings->data->get_object_fields(),
+				'groups' => $this->get_object_fields(),
 			)
 		);
 
@@ -94,6 +94,10 @@ class Jet_Engine_Object_Property_Tag extends Elementor\Core\DynamicTags\Data_Tag
 		);
 
 		$this->end_controls_section();
+	}
+
+	public function get_object_fields() {
+		return jet_engine()->listings->data->get_object_fields();
 	}
 
 	public function get_value( array $options = array() ) {

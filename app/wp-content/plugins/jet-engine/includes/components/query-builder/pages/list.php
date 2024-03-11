@@ -92,6 +92,14 @@ class Queries_List extends \Jet_Engine_CPT_Page_Base {
 		);
 
 		wp_enqueue_script(
+			'jet-engine-list-navigation',
+			Manager::instance()->component_url( 'assets/js/admin/list-navigation.js' ),
+			array( 'cx-vue-ui', ),
+			jet_engine()->get_version(),
+			true
+		);
+
+		wp_enqueue_script(
 			'jet-engine-query-list',
 			Manager::instance()->component_url( 'assets/js/admin/list.js' ),
 			array( 'cx-vue-ui', 'wp-api-fetch', 'jet-engine-query-delete-dialog' ),
@@ -131,6 +139,11 @@ class Queries_List extends \Jet_Engine_CPT_Page_Base {
 		include Manager::instance()->component_path( 'templates/admin/delete-dialog.php' );
 		$content = ob_get_clean();
 		printf( '<script type="text/x-template" id="jet-query-delete-dialog">%s</script>', $content );
+
+		ob_start();
+		include Manager::instance()->component_path( 'templates/admin/list-navigation.php' );
+		$content = ob_get_clean();
+		printf( '<script type="text/x-template" id="jet-list-navigation">%s</script>', $content );
 
 	}
 

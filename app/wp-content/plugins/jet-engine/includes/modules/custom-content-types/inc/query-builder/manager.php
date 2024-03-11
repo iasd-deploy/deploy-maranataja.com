@@ -53,6 +53,7 @@ class Manager {
 		add_action( 'jet-engine/query-builder/query-editor/register', array( $this, 'register_editor_component' ) );
 		add_action( 'jet-engine/query-builder/queries/register', array( $this, 'register_query' ) );
 		add_action( 'jet-engine/maps-listing/geosearch/init', array( $this, 'init_geosearch_query' ) );
+		add_action( 'init', array( $this, 'init_repeater_query_source' ) );
 	}
 
 	public function init_geosearch_query() {
@@ -75,7 +76,7 @@ class Manager {
 	}
 
 	/**
-	 * Regsiter query class
+	 * Register query class
 	 *
 	 * @param  [type] $manager [description]
 	 * @return [type]          [description]
@@ -88,6 +89,11 @@ class Manager {
 
 		$manager::register_query( $type, $class );
 
+	}
+
+	public function init_repeater_query_source() {
+		require_once Module::instance()->module_path( 'query-builder/repeater-query.php' );
+		new Repeater_Query();
 	}
 
 }

@@ -364,7 +364,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Date_Period' ) ) {
 			$this->controls_manager->add_responsive_control([
 				'id'           => 'calendar_offset_top',
 				'type'         => 'range',
-				'label'        => esc_html__( 'Offset Top', 'jet-smart-filters' ),
+				'label'        => esc_html__( 'Vertical Offset', 'jet-smart-filters' ),
 				'css_selector' => [
 					'#datepickers-container .datepicker' => 'margin-top: {{VALUE}}{{UNIT}};',
 				],
@@ -379,8 +379,33 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Date_Period' ) ) {
 						'value' => 'px',
 						'intervals' => [
 							'step' => 1,
-							'min'  => 0,
-							'max'  => 40,
+							'min'  => -300,
+							'max'  => 300,
+						]
+					],
+				],
+			]);
+
+			$this->controls_manager->add_responsive_control([
+				'id'           => 'calendar_offset_left',
+				'type'         => 'range',
+				'label'        => esc_html__( 'Horizontal Offset', 'jet-smart-filters' ),
+				'css_selector' => [
+					'#datepickers-container .datepicker' => 'margin-left: {{VALUE}}{{UNIT}};',
+				],
+				'attributes' => [
+					'default' => [
+						'value' => 0,
+						'unit' => 'px'
+					]
+				],
+				'units' => [
+					[
+						'value' => 'px',
+						'intervals' => [
+							'step' => 1,
+							'min'  => -300,
+							'max'  => 300,
 						]
 					],
 				],

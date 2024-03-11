@@ -3,7 +3,8 @@ Contributors: optimole, salvatorefresta, isaumya
 Tags: cloudflare cache, improve speed, improve performance, page caching
 Requires at least: 4.9
 Requires PHP: 7.0
-Tested up to: 6.2
+Tested up to: 6.4
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,6 +166,33 @@ First check the questions mentioned in the FAQ tab inside the plugin settings pa
 
 
 == Changelog ==
+
+#####   Version 4.7.7 (2024-03-07)
+
+### Fixes
+
+- NPS Survey added
+- Updated dependencies
+
+
+
+
+#####   Version 4.7.6 (2024-02-15)
+
+### Fixes
+- Enhanced security
+- Updated dependencies
+
+
+
+
+#####   Version 4.7.5 (2023-10-30)
+
+- Added swcfpc_bypass_cache_metabox_post_types filter to ensure users can add their CPTs to the list of allowed post types for which the bypass cache meta box will be registered.
+- Make sure that the Purge CF cache option is not shown for WC Subscription page
+
+
+
 
 #####   Version 4.7.4 (2023-06-12)
 

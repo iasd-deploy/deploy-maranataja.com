@@ -62,12 +62,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Rating_Filter' ) ) {
 				return false;
 			}
 
-			$options      = get_post_meta( $filter_id, '_rating_options', true );
-			$options      = ! empty( $options ) ? range( 1, intval( $options ) ) : array();
-			$query_type   = 'meta_query';
-			$query_var    = get_post_meta( $filter_id, '_query_var', true );
+			$options          = get_post_meta( $filter_id, '_rating_options', true );
+			$options          = ! empty( $options ) ? range( 1, intval( $options ) ) : array();
+			$query_type       = 'meta_query';
+			$query_var        = get_post_meta( $filter_id, '_query_var', true );
+			$predefined_value = $this->get_predefined_value( $filter_id );
 
-			return array(
+			$result = array(
 				'options'              => $options,
 				'query_type'           => $query_type,
 				'query_var'            => $query_var,
@@ -81,6 +82,12 @@ if ( ! class_exists( 'Jet_Smart_Filters_Rating_Filter' ) ) {
 				'__widget_id'          => $widget_id,
 				'accessibility_label'  => $this->get_accessibility_label( $filter_id )
 			);
+
+			if ( $predefined_value !== false ) {
+				$result['predefined_value'] = $predefined_value;
+			}
+
+			return $result;
 		}
 	}
 }

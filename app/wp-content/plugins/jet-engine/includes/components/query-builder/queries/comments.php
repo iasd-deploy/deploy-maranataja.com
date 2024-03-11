@@ -6,6 +6,7 @@ use Jet_Engine\Query_Builder\Manager;
 class Comments_Query extends Base_Query {
 
 	use Traits\Meta_Query_Trait;
+	use Traits\Date_Query_Trait;
 
 	public $current_comments_query = null;
 	public $current_count_query = null;
@@ -47,6 +48,10 @@ class Comments_Query extends Base_Query {
 
 		if ( ! empty( $args['meta_query'] ) ) {
 			$args['meta_query'] = $this->prepare_meta_query_args( $args );
+		}
+
+		if ( ! empty( $args['date_query'] ) ) {
+			$args['date_query'] = $this->prepare_date_query_args( $args );
 		}
 
 		if ( isset( $args['paged'] ) && empty( $args['paged'] ) ) {

@@ -69,7 +69,7 @@ class Avaliable_Addons extends Page_Module_Base {
 		wp_enqueue_script(
 			'jet-elements-admin-script',
 			jet_elements()->plugin_url( 'assets/js/jet-elements-admin-vue-components.js' ),
-			array( 'cx-vue-ui' ),
+			array( 'cx-vue-ui', 'wp-api-fetch' ),
 			jet_elements()->get_version(),
 			true
 		);

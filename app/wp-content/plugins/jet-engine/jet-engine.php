@@ -3,7 +3,7 @@
  * Plugin Name: JetEngine
  * Plugin URI:  https://crocoblock.com/plugins/jetengine/
  * Description: The ultimate solution for managing custom post types, taxonomies and meta boxes.
- * Version:     3.2.4
+ * Version:     3.4.0
  * Author:      Crocoblock
  * Author URI:  https://crocoblock.com/
  * Text Domain: jet-engine
@@ -60,7 +60,7 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		 *
 		 * @var string
 		 */
-		private $version = '3.2.4';
+		private $version = '3.4.0';
 
 		/**
 		 * Holder for base plugin path
@@ -222,6 +222,9 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 					$this->plugin_path( 'framework/db-updater/cherry-x-db-updater.php' ),
 					$this->plugin_path( 'framework/admin-bar/jet-admin-bar.php' ),
 					$this->plugin_path( 'framework/knowledge-base-search/knowledge-base-search.php' ),
+					$this->plugin_path( 'framework/workflows/workflows.php' ),
+					$this->plugin_path( 'framework/macros/macros-handler.php' ),
+					$this->plugin_path( 'framework/macros/base-macros.php' ),
 				)
 			);
 
@@ -280,6 +283,7 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 		public function init() {
 
 			require $this->plugin_path( 'includes/classes/tools.php' );
+			require $this->plugin_path( 'includes/classes/icons.php' );
 			require $this->plugin_path( 'includes/base/base-db.php' );
 
 			$this->admin_init();
@@ -389,6 +393,28 @@ if ( ! class_exists( 'Jet_Engine' ) ) {
 						),
 					),
 				) );
+
+				// Init Workflows together with dashboard
+				$workflows_module_data = $this->framework->get_included_module_data( 'workflows.php' );
+				$workflows = new \Croblock\Workflows\Manager( [
+					'namespace' => 'jet-engine',
+					'label' => 'JetEngine',
+					'path' => $workflows_module_data['path'],
+					'url' => $workflows_module_data['url'],
+					'parent_page' => $jet_dashboard->dashboard_slug
+				] );
+
+				$workflows->run();
+
+				add_filter( 'plugin_action_links_' . $this->plugin_name, function( $actions ) use ( $workflows ) {
+
+					$actions[] = sprintf(
+						'<a href="%1$s"><b>%2$s</b></a>',
+						$workflows->get_page_url(), __( 'Interactive Tutorials', 'jet-engine' )
+					);
+
+					return $actions;
+				} );
 			}
 		}
 

@@ -64,7 +64,9 @@ class Get_Map_Point_Data extends \Jet_Engine_Base_API_Endpoint {
 	}
 
 	/**
-	 * Check user access to current end-point
+	 * Check user access to current end-point.
+	 *
+	 * With nonce header this endpoint can be used on public.
 	 *
 	 * @return bool
 	 */

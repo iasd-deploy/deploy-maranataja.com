@@ -22,7 +22,6 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 
 		private $provider          = null;
 		private $is_ajax_filter    = null;
-		private $queried_hierarchy = array();
 
 		/**
 		 * Constructor for the class
@@ -31,6 +30,12 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 
 			add_filter( 'the_posts', array( $this, 'query_props_handler' ), 999, 2 );
 			add_filter( 'posts_pre_query', array( $this, 'set_found_rows' ), 10, 2 );
+
+			/**
+			 * Alphabet filter
+			 * Note: Moved to the __construct to better compatibility with JetEngine LoadMore and LazyLoad
+			 */
+			add_filter( 'posts_where', array( $this, 'set_query_where' ), 10, 2 );
 		}
 
 		/**
@@ -48,7 +53,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 		/**
 		 * Store default query for passed provider
 		 */
-		public function store_provider_default_query( $provider_id, $query_args, $query_id = false ) {
+		public function store_provider_default_query( $provider_id, $query_args, $query_id = false, $force_rewrite = false ) {
 
 			if ( ! $query_id ) {
 				$query_id = 'default';
@@ -58,7 +63,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				$this->_default_query[ $provider_id ] = array();
 			}
 
-			if ( isset( $this->_default_query[ $provider_id ][ $query_id ] ) ) {
+			if ( ! $force_rewrite && isset( $this->_default_query[ $provider_id ][ $query_id ] ) ) {
 				return;
 			}
 
@@ -112,6 +117,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 		public function query_vars() {
 
 			return apply_filters( 'jet-smart-filters/query/vars', array(
+				'plain_query',
 				'tax_query',
 				'meta_query',
 				'date_query',
@@ -159,8 +165,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				return $this->is_ajax_filter;
 			}
 
-			if ( wp_doing_ajax() ) {
-				$this->is_ajax_filter = true;
+			if ( ! wp_doing_ajax() ) {
+				$this->is_ajax_filter = false;
 				return $this->is_ajax_filter;
 			}
 
@@ -307,8 +313,9 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 		 */
 		public function set_provider_from_request( $provider = '' ) {
 
-			if ( strpos( $provider, ':' ) ) {
-				$provider_data = explode( ':', $provider, 2 );
+			if ( preg_match( '/[\/:]/', $provider ) ) {
+				$delimiter = strpos( $provider, '/' ) !== false ? '/' : ':';
+				$provider_data = explode( $delimiter, $provider, 2 );
 				$provider_name = $provider_data[0];
 				$provider_id   = $provider_data[1];
 
@@ -319,78 +326,16 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 		}
 
 		/**
-		 * Parse current request
-		 */
-		public function parse_request() {
-
-			$data = ! empty( $_REQUEST['jet-smart-filters'] ) ? $_REQUEST['jet-smart-filters'] : false;
-
-			if ( ! $data ) {
-				return array();
-			}
-
-			$data      = explode( ';', $data );
-			$provider  = ! empty( $data[0] ) ? $data[0] : false;
-			$hierarchy = ! empty( $data[1] ) ? $data[1] : false;
-			$trail     = ! empty( $data[2] ) ? $data[2] : false;
-
-			$this->provider = $provider;
-
-			if ( $hierarchy && $trail ) {
-
-				$parsed_trail = array();
-				$trail        = explode( '|', $trail );
-
-				foreach ( $trail as $index => $item ) {
-
-					$item = explode( '=', $item );
-
-					if ( isset( $item[0] ) && isset( $item[1] ) ) {
-						$parsed_trail[] = array(
-							'depth' => $index,
-							'tax'   => $item[0],
-							'value' => $item[1],
-						);
-					}
-
-				}
-
-				$this->queried_hierarchy = array(
-					'filter_id' => $hierarchy,
-					'trail'     => $parsed_trail
-				);
-			}
-
-			return array(
-				'provider'          => $this->provider,
-				'queried_hierarchy' => $this->queried_hierarchy,
-			);
-		}
-
-		/**
-		 * Returns queried hierarchy
-		 */
-		public function get_queried_hierarchy() {
-
-			return $this->queried_hierarchy;
-		}
-
-		/**
 		 * Get current provider ID.
 		 */
 		public function get_current_provider( $return = null ) {
+
+			$provider = false;
 
 			if ( ! empty( $this->provider ) ) {
 				$provider = $this->provider;
 			} elseif ( $this->is_ajax_filter() && ! empty( $_REQUEST['provider'] ) ) {
 				$provider = $_REQUEST['provider'];
-			} else {
-				$request  = $this->parse_request();
-				$provider = ! empty( $request['provider'] ) ? $request['provider'] : false;
-
-				if ( ! $provider ) {
-					$provider_data = get_query_var( 'jet_smart_filters' );
-				}
 			}
 
 			if ( ! $provider ) {
@@ -433,24 +378,25 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				case 'tax':
 				case 'meta':
 					foreach ( explode( ';', $query_var_value ) as $data ) {
-						$key_value = explode( ':', $data );
+						preg_match( '/(.+?):(.+)/', $data, $key_value );
+						array_shift( $key_value );
 
 						if ( count( $key_value ) < 2 ) {
 							continue;
 						}
 
-						if ( strpos( $key_value[1], 'hc' ) ) {
-							$hierarchy_data = explode( 'hc', $key_value[1] );
-							$key_value[1]   = $hierarchy_data[0];
-							$_REQUEST['hc_' . $key_value[0]] = $hierarchy_data[1];
-						}
-
 						$key   = str_replace( '!', '|', $key_value[0] ); // replace query var suffix separator
 						$value = strpos( $key_value[1], ',' ) ? explode( ',', $key_value[1] ) : $key_value[1];
 
-						$_REQUEST['_' . $query_var . '_query_' . $key] = $value;
+						$_REQUEST[ '_' . $query_var . '_query_' . $key ] = $value;
 					}
+					break;
 
+				case 'plain_query':
+
+					$key_data = explode( ':', $query_var_value, 2 );
+					$value    = strpos( $key_data[1], ',' ) ? explode( ',', $key_data[1] ) : $key_data[1];
+					$_REQUEST[ '_' . $query_var . '_' . $key_data[0] ] = $value;
 					break;
 
 				case 'date':
@@ -503,6 +449,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 					$_REQUEST['_alphabet_'] = strpos( $query_var_value, ',' ) ? explode( ',', $query_var_value ) : $query_var_value;
 
 					break;
+
+				default:
+					$_REQUEST[ '_' . $query_var . '_' ] = $query_var_value;
+					break;
 			}
 		}
 
@@ -539,7 +489,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				}
 
 				array_walk( $data, function( $value, $key ) use ( $var ) {
-					if ( strpos( $key, '_' . $var ) !== false ) {
+
+					if ( $key === $var || strpos( $key, '_' . $var ) === 0 ) {
 						switch ( $var ) {
 							case 'tax_query':
 								$this->add_tax_query_var( $value, $this->clear_key( $key, $var ) );
@@ -547,7 +498,12 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 								break;
 
 							case 'date_query':
-								$this->add_date_query_var( $value );
+								$with_suffix = explode( '|', $key );
+								$date_type   = in_array( $with_suffix[1], ['date', 'm_date'] )
+									? $with_suffix[1]
+									: 'date';
+
+								$this->add_date_query_var( $value, $date_type );
 
 								break;
 
@@ -661,11 +617,20 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 								break;
 
 							case 'alphabet':
-
 								$this->_query[ $var ] = $value;
-								add_filter( 'posts_where', array( $this, 'set_query_where' ), 10, 2 );
+								//add_filter( 'posts_where', array( $this, 'set_query_where' ), 10, 2 );
 
 								break;
+
+							case 'plain_query':
+
+								if ( $key === $var ) {
+								//	$var = '_' . $var . '_' . 
+								}
+
+								$this->_query[ $this->clear_key( $key, $var ) ] = $value;
+								break;
+
 
 							default:
 
@@ -683,12 +648,17 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				} );
 			}
 
-			if ( isset( $request['paged'] ) && 'false' !== $request['paged'] ) {
-				$paged = absint( $request['paged'] );
-			} elseif ( isset( $request['jet_paged'] ) ) {
-				$paged = absint( $request['jet_paged'] );
+			// Page number
+			$paged = false;
+
+			if ( $this->is_ajax_filter() ) {
+				if ( isset( $request['paged'] ) && 'false' !== $request['paged'] ) {
+					$paged = absint( $request['paged'] );
+				}
 			} else {
-				$paged = false;
+				if ( isset( $request['jet_paged'] ) ) {
+					$paged = absint( $request['jet_paged'] );
+				}
 			}
 
 			if ( $paged ) {
@@ -787,7 +757,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 		/**
 		 * Add date query varibales
 		 */
-		public function add_date_query_var( $value ) {
+		public function add_date_query_var( $value, $date_type = 'date' ) {
 
 			$current_query = array(
 				'inclusive' => true
@@ -836,6 +806,16 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				$this->_query['date_query'] = array_merge( $this->_default_query['date_query'], $current_query );
 			} else {
 				$this->_query['date_query'] = $current_query;
+			}
+
+			switch ( $date_type ) {
+				case 'date':
+					$this->_query['date_query']['column'] = 'post_date';
+					break;
+				
+				case 'm_date':
+					$this->_query['date_query']['column'] = 'post_modified';
+					break;
 			}
 		}
 
@@ -959,13 +939,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 				switch ( $compare_operand ) {
 					case 'less' :
 						$compare     = '<=';
-						$custom_type = 'CHAR';
+						$custom_type = 'DECIMAL(16,4)';
 
 						break;
 
 					case 'greater' :
 						$compare     = '>=';
-						$custom_type = 'CHAR';
+						$custom_type = 'DECIMAL(16,4)';
 
 						break;
 
@@ -1040,13 +1020,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 							$end_date = strtotime( str_replace( '.', '-', $date_value[1] ) ) + ( 24*60*60 ) -1;
 						}
 
-						if ( $start_date && $end_date ) {
+						if ( $start_date !== false && $end_date !== false ) {
 							$current_row['value'] = array( $start_date, $end_date );
 							$current_row['compare'] = 'BETWEEN';
-						} else if ( $start_date ) {
+						} else if ( $start_date !== false ) {
 							$current_row['value'] = $start_date;
 							$current_row['compare'] = '>=';
-						} else if ( $end_date ) {
+						} else if ( $end_date !== false ) {
 							$current_row['value'] = $end_date;
 							$current_row['compare'] = '<=';
 						}
@@ -1078,8 +1058,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 
 		public function set_query_where( $where, $query ) {
 
-			if ( $query->get( 'jet_smart_filters' ) && ! empty( $this->_query['alphabet'] ) ) {
-				$letter = $this->_query['alphabet'];
+			if ( $query->get( 'jet_smart_filters' ) && $query->get( 'alphabet' ) ) {
+				$letter = $query->get( 'alphabet' );
 
 				if ( is_array( $letter ) ) {
 					$letter = implode( '|', $letter );

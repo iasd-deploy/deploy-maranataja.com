@@ -55,6 +55,9 @@ class Module {
 			new Elementor\Manager();
 		}
 
+		require_once $this->module_path( 'bricks-views/manager.php' );
+		new Bricks_Views\Manager();
+
 		add_action(
 			'jet-engine/rest-api/init-endpoints',
 			array( $this->query_dialog(), 'register_api_endpoint' )

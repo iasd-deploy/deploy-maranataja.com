@@ -41,6 +41,12 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 				$query_id = esc_attr( $settings['_element_id'] );
 			}
 
+			global $wp_query;
+
+			if ( $wp_query && $wp_query->get( 'wc_query' ) ) {
+				$args['wc_query'] = $wp_query->get( 'wc_query' );
+			}
+
 			$is_archive_template = isset( $settings['is_archive_template'] ) ? filter_var( $settings['is_archive_template'], FILTER_VALIDATE_BOOLEAN ) : false;
 
 			if ( $is_archive_template ) {
@@ -164,10 +170,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 		/**
 		 * Get provider list item selector
 		 */
-		public function get_item_selector() {
+		/* public function get_item_selector() {
 
 			return '.jet-listing-grid__item';
-		}
+		} */
 
 		/**
 		 * Action for wrapper selector - 'insert' into it or 'replace'
@@ -196,7 +202,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_Jet_Engine' ) ) {
 				return;
 			}
 
-			add_filter( 'jet-engine/listing/grid/posts-query-args', array( $this, 'add_query_args' ), 10, 2 );
+			add_filter( 'jet-engine/listing/grid/posts-query-args', array( $this, 'add_query_args' ), 20, 2 );
 		}
 
 		/**

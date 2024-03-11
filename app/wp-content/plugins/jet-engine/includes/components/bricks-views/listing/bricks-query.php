@@ -2,6 +2,7 @@
 /**
  * Extended Bricks query object
  */
+
 namespace Jet_Engine\Bricks_Views\Listing;
 
 /**
@@ -18,11 +19,11 @@ class Bricks_Query extends \Bricks\Query {
 
 		$this->register_query();
 
-		$this->element_id  = 'jet-listing-el';
-		$this->object_type = 'jet-engine-query';
-		$this->settings = ! empty( $element['settings'] ) ? $element['settings'] : [];
+		$this->element_id   = 'jet-listing-el';
+		$this->object_type  = 'jet-engine-query';
+		$this->settings     = ! empty( $element['settings'] ) ? $element['settings'] : [];
 		$this->query_result = [];
-		$this->is_looping  = true;
+		$this->is_looping   = true;
 
 	}
 

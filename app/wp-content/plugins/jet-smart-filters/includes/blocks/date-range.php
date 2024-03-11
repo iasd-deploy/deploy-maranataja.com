@@ -266,7 +266,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Date_Range' ) ) {
 			$this->controls_manager->add_control([
 				'id'        => 'calendar_offset_top',
 				'type'      => 'range',
-				'label'     => esc_html__( 'Offset Top', 'jet-smart-filters' ),
+				'label'     => esc_html__( 'Vertical Offset', 'jet-smart-filters' ),
 				'separator' => 'after',
 				'css_selector' => [
 					'.jet-smart-filters-datepicker-{{ID}}' . $this->css_scheme['calendar-wrapper'] => 'margin-top: {{VALUE}}{{UNIT}};',
@@ -282,8 +282,33 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Date_Range' ) ) {
 						'value' => 'px',
 						'intervals' => [
 							'step' => 1,
-							'min'  => 0,
-							'max'  => 40,
+							'min'  => -300,
+							'max'  => 300,
+						]
+					],
+				],
+			]);
+
+			$this->controls_manager->add_responsive_control([
+				'id'           => 'calendar_offset_left',
+				'type'         => 'range',
+				'label'        => esc_html__( 'Horizontal Offset', 'jet-smart-filters' ),
+				'css_selector' => [
+					'.jet-smart-filters-datepicker-{{ID}}' . $this->css_scheme['calendar-wrapper'] => 'margin-left: {{VALUE}}{{UNIT}};',
+				],
+				'attributes' => [
+					'default' => [
+						'value' => 0,
+						'unit' => 'px'
+					]
+				],
+				'units' => [
+					[
+						'value' => 'px',
+						'intervals' => [
+							'step' => 1,
+							'min'  => -300,
+							'max'  => 300,
 						]
 					],
 				],
@@ -1103,6 +1128,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Date_Range' ) ) {
 			$base_class           = 'jet-smart-filters-' . $this->get_name();
 			$provider             = $settings['content_provider'];
 			$query_id             = ! empty( $settings['query_id'] ) ? $settings['query_id'] : 'default';
+			$additional_providers = jet_smart_filters()->utils->get_additional_providers( $settings );
 			$show_label           = $settings['show_label'];
 			$hide_button          = $settings['hide_apply_button'];
 			$apply_button_text    = $settings['apply_button_text'];
@@ -1132,10 +1158,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Date_Range' ) ) {
 			include jet_smart_filters()->get_template( 'common/filter-label.php' );
 
 			jet_smart_filters()->filter_types->render_filter_template( $this->get_name(), array(
-				'block_id'             => $settings['blockID'],
+				'block_id'             => isset( $settings['blockID'] ) ? $settings['blockID'] : false,
 				'filter_id'            => $filter_id,
 				'content_provider'     => $provider,
 				'query_id'             => $query_id,
+				'additional_providers' => $additional_providers,
 				'apply_type'           => $apply_type,
 				'hide_button'          => $hide_button,
 				'button_text'          => $apply_button_text,

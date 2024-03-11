@@ -42,7 +42,7 @@ if ( -1 !== window.JetEngineListingData.activeModules.indexOf( 'calendar' ) ) {
 	const blockAttributes = window.JetEngineListingData.atts.listingCalendar;
 
 	registerBlockType( 'jet-engine/listing-calendar', {
-		title: __( 'Listing Calendar' ),
+		title: __( 'Dynamic Calendar' ),
 		icon: GIcon,
 		category: 'jet-engine',
 		attributes: blockAttributes,

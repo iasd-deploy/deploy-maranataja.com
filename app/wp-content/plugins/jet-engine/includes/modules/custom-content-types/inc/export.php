@@ -88,6 +88,8 @@ class Export {
 					$value = null;
 				}
 
+				$value = apply_filters( 'jet-engine/custom-content-types/export/value', $value, $key, $content_type, $item );
+
 				$preapred_item[] = $value;
 			}
 

@@ -41,37 +41,38 @@ Vue.component( 'jet-elements-general-settings', {
 
 			self.savingStatus = true;
 
-			self.ajaxSaveHandler = jQuery.ajax( {
-				type: 'POST',
-				url: window.JetElementsSettingsConfig.settingsApiUrl,
-				dataType: 'json',
-				data: self.preparedOptions,
-				beforeSend: function( jqXHR, ajaxSettings ) {
+			wp.apiFetch( {
+				method: 'post',
+				path: window.JetElementsSettingsConfig.settingsApiUrl,
+				data: self.preparedOptions
+			} ).then( function( response ) {
 
-					if ( null !== self.ajaxSaveHandler ) {
-						self.ajaxSaveHandler.abort();
-					}
-				},
-				success: function( responce, textStatus, jqXHR ) {
-					self.savingStatus = false;
+				self.savingStatus = false;
 
-					if ( 'success' === responce.status ) {
-						self.$CXNotice.add( {
-							message: responce.message,
-							type: 'success',
-							duration: 3000,
-						} );
-					}
-
-					if ( 'error' === responce.status ) {
-						self.$CXNotice.add( {
-							message: responce.message,
-							type: 'error',
-							duration: 3000,
-						} );
-					}
+				if ( 'success' === response.status ) {
+					self.$CXNotice.add( {
+						message: response.message,
+						type: 'success',
+						duration: 3000,
+					} );
 				}
+
+				if ( 'error' === response.status ) {
+					self.$CXNotice.add( {
+						message: response.message,
+						type: 'error',
+						duration: 3000,
+					} );
+				}
+				
+			} ).catch( function( response ) {
+				self.$CXNotice.add( {
+					message: response.message,
+					type: 'error',
+					duration: 3000,
+				} );
 			} );
+
 		},
 	}
 } );
@@ -117,36 +118,36 @@ Vue.component( 'jet-elements-integrations-settings', {
 
 			self.savingStatus = true;
 
-			self.ajaxSaveHandler = jQuery.ajax( {
-				type: 'POST',
-				url: window.JetElementsSettingsConfig.settingsApiUrl,
-				dataType: 'json',
-				data: self.preparedOptions,
-				beforeSend: function( jqXHR, ajaxSettings ) {
+			wp.apiFetch( {
+				method: 'post',
+				path: window.JetElementsSettingsConfig.settingsApiUrl,
+				data: self.preparedOptions
+			} ).then( function( response ) {
 
-					if ( null !== self.ajaxSaveHandler ) {
-						self.ajaxSaveHandler.abort();
-					}
-				},
-				success: function( responce, textStatus, jqXHR ) {
-					self.savingStatus = false;
+				self.savingStatus = false;
 
-					if ( 'success' === responce.status ) {
-						self.$CXNotice.add( {
-							message: responce.message,
-							type: 'success',
-							duration: 3000,
-						} );
-					}
-
-					if ( 'error' === responce.status ) {
-						self.$CXNotice.add( {
-							message: responce.message,
-							type: 'error',
-							duration: 3000,
-						} );
-					}
+				if ( 'success' === response.status ) {
+					self.$CXNotice.add( {
+						message: response.message,
+						type: 'success',
+						duration: 3000,
+					} );
 				}
+
+				if ( 'error' === response.status ) {
+					self.$CXNotice.add( {
+						message: response.message,
+						type: 'error',
+						duration: 3000,
+					} );
+				}
+				
+			} ).catch( function( response ) {
+				self.$CXNotice.add( {
+					message: response.message,
+					type: 'error',
+					duration: 3000,
+				} );
 			} );
 		},
 	}
@@ -193,36 +194,36 @@ Vue.component( 'jet-elements-avaliable-addons', {
 
 			self.savingStatus = true;
 
-			self.ajaxSaveHandler = jQuery.ajax( {
-				type: 'POST',
-				url: window.JetElementsSettingsConfig.settingsApiUrl,
-				dataType: 'json',
-				data: self.preparedOptions,
-				beforeSend: function( jqXHR, ajaxSettings ) {
+			wp.apiFetch( {
+				method: 'post',
+				path: window.JetElementsSettingsConfig.settingsApiUrl,
+				data: self.preparedOptions
+			} ).then( function( response ) {
 
-					if ( null !== self.ajaxSaveHandler ) {
-						self.ajaxSaveHandler.abort();
-					}
-				},
-				success: function( responce, textStatus, jqXHR ) {
-					self.savingStatus = false;
+				self.savingStatus = false;
 
-					if ( 'success' === responce.status ) {
-						self.$CXNotice.add( {
-							message: responce.message,
-							type: 'success',
-							duration: 3000,
-						} );
-					}
-
-					if ( 'error' === responce.status ) {
-						self.$CXNotice.add( {
-							message: responce.message,
-							type: 'error',
-							duration: 3000,
-						} );
-					}
+				if ( 'success' === response.status ) {
+					self.$CXNotice.add( {
+						message: response.message,
+						type: 'success',
+						duration: 3000,
+					} );
 				}
+
+				if ( 'error' === response.status ) {
+					self.$CXNotice.add( {
+						message: response.message,
+						type: 'error',
+						duration: 3000,
+					} );
+				}
+				
+			} ).catch( function( response ) {
+				self.$CXNotice.add( {
+					message: response.message,
+					type: 'error',
+					duration: 3000,
+				} );
 			} );
 		},
 	}

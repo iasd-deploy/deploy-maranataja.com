@@ -37,17 +37,18 @@
 		border-radius: 4px;
 		&-tip {
 			background: #23282D;
-			padding: 5px;
+			padding: 4px;
 			font-size: 12px;
 			line-height: 14px;
 			border-radius: 3px;
 			position: absolute;
+			text-align: center;
 			bottom: 45px;
 			color: #fff;
 			font-weight: normal;
-			width: 100px;
+			width: 104px;
 			left: 50%;
-			margin-left: -50px;
+			margin-left: -52px;
 			box-sizing: border-box;
 			visibility: hidden;
 			pointer-events: none;
@@ -343,7 +344,7 @@
 	height: 32px;
 	&__config {
 		text-align: right;
-		margin: -12px -15px 10px 0;
+		margin: -12px -10px 10px 0;
 		&-trigger {
 			color: #007cba;
 			text-decoration: underline;
@@ -402,6 +403,9 @@
 		box-sizing: border-box;
 		i {
 			cursor: pointer;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
 		}
 		&-clear {
 			cursor: pointer;
@@ -438,7 +442,7 @@
 		left: 0;
 		top: 36px;
 		background: #fff;
-		padding: 20px 30px;
+		padding: 20px 25px;
 		margin: 0;
 		border: 1px solid #ececec;
 		box-shadow: 0 2px 6px rgba( 35,40,45,.07 );
@@ -473,6 +477,18 @@
 			}
 		}
 	}
+	&__search {
+		&[type="search"] {
+			padding: 3px 8px;
+			margin-bottom: 10px;
+		}
+	}
+	&__list {
+		margin: 0 -25px;
+		padding: 0 25px;
+		overflow-y: auto;
+		max-height: 250px;
+	}
 	&-item {
 		&__name {
 			font-size: 13px;
@@ -491,6 +507,71 @@
 			font-size: 11px;
 			line-height: 12px;
 			padding: 3px 5px 0 0;
+		}
+	}
+}
+
+.cx-vui-component--api-url {
+	.cx-vui-component__control {
+		flex: 0 0 100%;
+	}
+}
+.jet-engine-query-builder-api-url {
+	position: relative;
+	width: 100%;
+	&__copy {
+		position: absolute;
+		right: 10px;
+		top: 12px;
+		cursor: pointer;
+		opacity: .6;
+		&:hover {
+			opacity: 1;
+		}
+	}
+	pre {
+		width: 100%;
+	}
+	code {
+		display: block;
+		padding: 15px 35px 15px 15px;
+	}
+}
+.jet-engine-query-builder-api-error {
+	color: #C92C2C;
+	padding: 5px 0 0 0;
+}
+.jet-engine-query-builder-api-args {
+	&__row {
+		display: flex;
+		gap: 5px;
+		align-items: center;
+		padding: 0 0 5px;
+		&-title {
+			flex: 1 1 50%;
+			color: #7B7E81;
+			font-size: 11px;
+			text-transform: uppercase;
+			font-weight: 500;
+		}
+		&.headings-row {
+			padding: 0;
+			&:after {
+				content: "";
+				width: 24px;
+				height: 24px;
+			}
+		}
+		.cx-vui-input {
+			flex: 1 1 50%;
+		}
+		.cx-vui-button {
+			width: 24px;
+			height: 24px;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			justify-content:center;
 		}
 	}
 }

@@ -186,6 +186,10 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Image' ) ) {
 				$image = jet_engine()->listings->data->get_meta_by_context( $field, $object_context );
 			}
 
+			if ( ! empty( $image ) ) {
+				$image = maybe_unserialize( $image );
+			}
+
 			if ( is_array( $image ) && isset( $image['url'] ) ) {
 
 				if ( $size && 'full' !== $size ) {

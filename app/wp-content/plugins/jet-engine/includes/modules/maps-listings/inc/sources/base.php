@@ -28,6 +28,14 @@ abstract class Base {
 	abstract public function get_failure_key( $obj );
 
 	/**
+	 * Defines if is source is for preloading non-JetEngine fields
+	 * @return boolean [description]
+	 */
+	public function is_custom() {
+		return false;
+	}
+
+	/**
 	 * Delete field value. Required to delete legacy values if exists.
 	 * Could be removed in the future
 	 * @param  [type]
@@ -82,6 +90,7 @@ abstract class Base {
 	}
 
 	public function preload_hooks( $preload_fields ) {
+		
 		$fields = array_filter( $preload_fields, array( $this, 'filtered_preload_fields' ) );
 
 		if ( empty( $fields ) ) {

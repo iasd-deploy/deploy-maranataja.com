@@ -244,6 +244,10 @@
 					:wrapper-css="[ 'equalwidth' ]"
 					:options-list="[
 										{
+											'value': '',
+											'label': 'Select type...'
+										},
+										{
 											value: 'visible',
 											label: 'Catalog & search',
 										},

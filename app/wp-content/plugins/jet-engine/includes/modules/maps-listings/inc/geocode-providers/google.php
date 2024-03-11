@@ -72,12 +72,12 @@ class Google extends Base {
 		}
 
 		return add_query_arg(
-			array(
+			apply_filters( 'jet-engine/maps-listings/autocomplete-url-args/google', array(
 				'input'    => urlencode( $query ),
 				'key'      => urlencode( $api_key ),
 				'language' => substr( get_bloginfo( 'language' ), 0, 2 ),
 				//'sessiontoken' => '', // todo - add sessiontoken to optimize request.
-			),
+			) ),
 			$api_url
 		);
 	}
@@ -192,7 +192,7 @@ class Google extends Base {
 				></cx-vui-switcher>
 				<cx-vui-input
 					label="<?php _e( 'Geocoding API Key', 'jet-engine' ); ?>"
-					description="<?php _e( 'Google maps API key with Geocoding API enabled. For this key <b>Application restrictions</b> should be set to <b>None</b> or <b>IP addresses</b> and in the <b>API restrictions</b> you need to select <b>Don\'t restrict key</b> or enable <b>Geocoding API</b>', 'jet-engine' ); ?>"
+					description="<?php _e( 'Google maps API key with <b>Geocoding API</b> and <b>Places API</b> enabled. For this key <b>Application restrictions</b> should be set to <b>None</b> or <b>IP addresses</b> and in the <b>API restrictions</b> you need to select <b>Don\'t restrict key</b> or enable <b>Geocoding API</b> and <b>Places API</b>.<br><br><b>Places API</b> is required for Location filter and Map field, to allow search of places matching query string.', 'jet-engine' ); ?>"
 					:wrapper-css="[ 'equalwidth' ]"
 					size="fullwidth"
 					@on-input-change="updateSetting( $event.target.value, 'geocoding_key' )"
@@ -203,7 +203,7 @@ class Google extends Base {
 			<template v-else>
 				<cx-vui-input
 					label="<?php _e( 'Geocoding API Key', 'jet-engine' ); ?>"
-					description="<?php _e( 'Google maps API key with Geocoding API enabled. For this key <b>Application restrictions</b> should be set to <b>None</b> or <b>IP addresses</b> and in the <b>API restrictions</b> you need to select <b>Don\'t restrict key</b> or enable <b>Geocoding API</b>', 'jet-engine' ); ?>"
+					description="<?php _e( 'Google maps API key with <b>Geocoding API</b> and <b>Places API</b> enabled. For this key <b>Application restrictions</b> should be set to <b>None</b> or <b>IP addresses</b> and in the <b>API restrictions</b> you need to select <b>Don\'t restrict key</b> or enable <b>Geocoding API</b> and and <b>Places API</b>.<br><br><b>Places API</b> is required for Location filter and Map field, to allow search of places matching query string.', 'jet-engine' ); ?>"
 					:wrapper-css="[ 'equalwidth' ]"
 					size="fullwidth"
 					@on-input-change="updateSetting( $event.target.value, 'geocoding_key' )"

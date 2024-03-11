@@ -93,7 +93,7 @@ class Sources {
 
 			default:
 			
-				$object_id = apply_filters( 'jet-engine/relations/object-id-by-source/' . $source, false );
+				$object_id = apply_filters( 'jet-engine/relations/object-id-by-source/' . $source, false, $var );
 				break;
 		}
 

@@ -50,10 +50,13 @@ abstract class Manager {
 	}
 
 	/**
+	 * Builds and saves the .MO file.
+	 * Returns false if file doesn't exist, file path otherwise.
+	 *
 	 * @param string $domain
 	 * @param string $locale
 	 *
-	 * @return bool
+	 * @return false|string
 	 */
 	public function add( $domain, $locale ) {
 		if ( ! $this->maybeCreateSubdir() ) {
@@ -75,7 +78,10 @@ abstract class Manager {
 		$filepath = $this->getFilepath( $domain, $locale );
 
 		$chmod = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
-		return $this->filesystem->put_contents( $filepath, $file_content, $chmod );
+		if ( $this->filesystem->put_contents( $filepath, $file_content, $chmod ) ) {
+			return $filepath;
+		}
+		return false;
 	}
 
 	/**

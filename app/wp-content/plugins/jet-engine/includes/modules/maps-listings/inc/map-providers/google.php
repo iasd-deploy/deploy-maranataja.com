@@ -42,13 +42,16 @@ class Google extends Base {
 
 		if ( ! $api_disabled ) {
 
+			$query_args = apply_filters( 'jet-engine/maps-listing/map-providers/google/api-url/query-args', array(
+				'key'      => Module::instance()->settings->get( 'api_key' ),
+				'language' => substr( get_bloginfo( 'language' ), 0, 2 ),
+				'callback' => 'Function.prototype', // fixed js error: Loading the Google Maps JavaScript API without a callback is not supported
+			) );
+
 			wp_register_script(
 				'jet-engine-google-maps-api',
 				add_query_arg(
-					array(
-						'key'      => Module::instance()->settings->get( 'api_key' ),
-						'callback' => 'Function.prototype', // fixed js error: Loading the Google Maps JavaScript API without a callback is not supported
-					),
+					$query_args,
 					'https://maps.googleapis.com/maps/api/js'
 				),
 				array(),

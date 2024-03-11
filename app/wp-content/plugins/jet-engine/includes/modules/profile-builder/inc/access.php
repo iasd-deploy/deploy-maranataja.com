@@ -95,11 +95,13 @@ class Access {
 
 			case 'page_redirect':
 
+				$redirect = apply_filters( 'jet-engine/profile-builder/not-logged-redirect-query-args', array(
+					'redirect_to' => get_permalink(),
+				) );
+
 				$page_url = Module::instance()->settings->get( 'not_logged_in_redirect', home_url( '/' ) );
 				$page_url = add_query_arg(
-					apply_filters( 'jet-engine/profile-builder/not-logged-rediret-query-args', array(
-						'redirect_to' => get_permalink(),
-					) ),
+					apply_filters( 'jet-engine/profile-builder/not-logged-rediret-query-args', $redirect ),
 					esc_url( $page_url )
 				);
 
@@ -142,11 +144,13 @@ class Access {
 
 			case 'page_redirect':
 
+				$redirect = apply_filters( 'jet-engine/profile-builder/not-accessible-redirect-query-args', array(
+					'redirect_to' => get_permalink(),
+				) );
+
 				$page_url = Module::instance()->settings->get( 'not_accessible_redirect', home_url( '/' ) );
 				$page_url = add_query_arg(
-					apply_filters( 'jet-engine/profile-builder/not-accessible-rediret-query-args', array(
-						'redirect_to' => get_permalink(),
-					) ),
+					apply_filters( 'jet-engine/profile-builder/not-accessible-rediret-query-args', $redirect ),
 					esc_url( $page_url )
 				);
 

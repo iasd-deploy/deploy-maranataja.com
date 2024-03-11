@@ -6,6 +6,7 @@ use Jet_Engine\Query_Builder\Manager;
 class Users_Query extends Base_Query {
 
 	use Traits\Meta_Query_Trait;
+	use Traits\Date_Query_Trait;
 
 	public $current_wp_query = null;
 
@@ -42,6 +43,10 @@ class Users_Query extends Base_Query {
 
 		if ( ! empty( $args['meta_query'] ) ) {
 			$args['meta_query'] = $this->prepare_meta_query_args( $args );
+		}
+
+		if ( ! empty( $args['date_query'] ) ) {
+			$args['date_query'] = $this->prepare_date_query_args( $args );
 		}
 
 		$this->current_wp_query = new \WP_User_Query( $args );

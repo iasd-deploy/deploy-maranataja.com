@@ -167,27 +167,20 @@ class Maps_Listings_Widget extends \Elementor\Jet_Listing_Grid_Widget {
 		);
 
 		$this->add_control(
-			'max_zoom',
-			array(
-				'label' => __( 'Max Zoom', 'jet-engine' ),
-				'type'  => Controls_Manager::NUMBER,
-				'min'   => 1,
-				'max'   => 20,
-				'step'  => 1,
-				'condition' => array(
-					'auto_center' => 'yes',
-				),
-			)
-		);
-
-		$this->add_control(
 			'custom_center',
 			array(
 				'label'       => __( 'Map Center', 'jet-engine' ),
+				'label_block' => true,
 				'type'        => Controls_Manager::TEXTAREA,
 				'default'     => '',
-				'label_block' => true,
-				'condition'    => array(
+				'dynamic'     => array(
+					'active'     => true,
+					'categories' => array(
+						\Jet_Engine_Dynamic_Tags_Module::TEXT_CATEGORY,
+						\Jet_Engine_Dynamic_Tags_Module::JET_MACROS_CATEGORY,
+					),
+				),
+				'condition'   => array(
 					'auto_center' => '',
 				),
 			)
@@ -209,6 +202,28 @@ class Maps_Listings_Widget extends \Elementor\Jet_Listing_Grid_Widget {
 		);
 
 		$this->add_control(
+			'max_zoom',
+			array(
+				'label' => __( 'Max Zoom', 'jet-engine' ),
+				'type'  => Controls_Manager::NUMBER,
+				'min'   => 1,
+				'max'   => 20,
+				'step'  => 1,
+			)
+		);
+
+		$this->add_control(
+			'min_zoom',
+			array(
+				'label' => __( 'Min Zoom', 'jet-engine' ),
+				'type'  => Controls_Manager::NUMBER,
+				'min'   => 1,
+				'max'   => 10,
+				'step'  => 1,
+			)
+		);
+
+		$this->add_control(
 			'legacy_notice',
 			array(
 				'type' => Controls_Manager::RAW_HTML,
@@ -217,6 +232,31 @@ class Maps_Listings_Widget extends \Elementor\Jet_Listing_Grid_Widget {
 		);
 
 		$this->add_provider_controls( 'section_general' );
+
+		$this->add_control(
+			'centering_on_open',
+			array(
+				'label'       => esc_html__( 'Map Centering', 'jet-engine' ),
+				'description' => esc_html__( 'This setting enables automatic map centering when clicking on a marker', 'jet-engine' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'default'     => '',
+				'separator'   => 'before',
+			)
+		);
+
+		$this->add_control(
+			'zoom_on_open',
+			array(
+				'label'     => esc_html__( 'Zoom Map', 'jet-engine' ),
+				'type'      => Controls_Manager::NUMBER,
+				'min'       => 1,
+				'max'       => 20,
+				'step'      => 1,
+				'condition' => array(
+					'centering_on_open' => 'yes',
+				),
+			)
+		);
 
 		$this->end_controls_section();
 
@@ -565,6 +605,33 @@ class Maps_Listings_Widget extends \Elementor\Jet_Listing_Grid_Widget {
 				'return_value' => 'true',
 				'default'      => 'true',
 				'separator'    => 'before',
+			)
+		);
+
+		$this->add_control(
+			'cluster_max_zoom',
+			array(
+				'label'       => esc_html__( 'Cluster Max Zoom', 'jet-engine' ),
+				'description' => esc_html__( 'Maximum zoom level that a marker can be part of a cluster', 'jet-engine' ),
+				'type'        => Controls_Manager::NUMBER,
+				'min'         => 1,
+				'max'         => 20,
+				'condition'   => array(
+					'marker_clustering' => 'true',
+				),
+			)
+		);
+
+		$this->add_control(
+			'cluster_radius',
+			array(
+				'label'       => esc_html__( 'Cluster Radius', 'jet-engine' ),
+				'description' => esc_html__( 'Radius of each cluster when clustering markers in px', 'jet-engine' ),
+				'type'        => Controls_Manager::NUMBER,
+				'min'         => 10,
+				'condition'   => array(
+					'marker_clustering' => 'true',
+				),
 			)
 		);
 

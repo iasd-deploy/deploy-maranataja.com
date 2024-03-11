@@ -62,6 +62,9 @@ class Maps_Listing_Blocks_Views_Type extends \Jet_Engine_Blocks_Views_Type_Base 
 			'max_zoom' => array(
 				'type' => 'number',
 			),
+			'min_zoom' => array(
+				'type' => 'number',
+			),
 			'custom_center' => array(
 				'type'    => 'string',
 				'default' => '',
@@ -93,6 +96,13 @@ class Maps_Listing_Blocks_Views_Type extends \Jet_Engine_Blocks_Views_Type_Base 
 			'map_type_controls' => array(
 				'type'    => 'boolean',
 				'default' => true,
+			),
+			'centering_on_open' => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'zoom_on_open' => array(
+				'type' => 'number',
 			),
 
 			// Marker
@@ -154,6 +164,12 @@ class Maps_Listing_Blocks_Views_Type extends \Jet_Engine_Blocks_Views_Type_Base 
 			'marker_clustering' => array(
 				'type'    => 'boolean',
 				'default' => true,
+			),
+			'cluster_max_zoom' => array(
+				'type' => 'number',
+			),
+			'cluster_radius' => array(
+				'type' => 'number',
 			),
 
 			// Popup

@@ -677,6 +677,11 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms_Notifications' ) ) {
 
 			if ( ! empty( $metafields_map ) ) {
 				foreach ( $metafields_map as $form_field => $meta_field ) {
+
+					if ( in_array( $meta_field, $this->get_disallowed_user_meta_fields() ) ) {
+						continue;
+					}
+
 					if ( ! empty( $this->data[ $form_field ] ) ) {
 						$metadata[ $meta_field ] = $this->data[ $form_field ];
 					}
@@ -903,6 +908,10 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms_Notifications' ) ) {
 			if ( ! empty( $data_map ) ) {
 				foreach ( $data_map as $meta_key => $meta_value ) {
 
+					if ( in_array( $meta_key, $this->get_disallowed_user_meta_fields() ) ) {
+						continue;
+					}
+
 					if ( $this->is_repeater_val( $meta_value ) ) {
 
 						$prepared_value = array();
@@ -930,6 +939,35 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms_Notifications' ) ) {
 
 			$this->log[] = true;
 
+		}
+
+		/**
+		 * Retrieve list of disallowed user meta fields to update
+		 *
+		 * @return array
+		 */
+		public function get_disallowed_user_meta_fields() {
+
+			$disallowed_meta_fields = array(
+				'rich_editing',
+				'syntax_highlighting',
+				'comment_shortcuts',
+				'admin_color',
+				'use_ssl',
+				'show_admin_bar_front',
+				'locale',
+				'wp_capabilities',
+				'wp_user_level',
+				'dismissed_wp_pointers',
+				'show_welcome_panel',
+				'session_tokens',
+				'wp_user-settings',
+				'wp_user-settings-time',
+				'wp_dashboard_quick_press_last_post_id',
+				'last_update',
+			);
+
+			return apply_filters( 'jet-engine/forms/booking/disallowed-user-meta-fields', $disallowed_meta_fields, $this );
 		}
 
 		/**

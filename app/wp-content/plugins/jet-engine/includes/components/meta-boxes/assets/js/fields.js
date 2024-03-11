@@ -23,6 +23,14 @@ Vue.component( 'jet-meta-field-options', {
 	created() {
 		this.options = [ ...this.value ];
 	},
+	watch: {
+		options: {
+			handler: function( val ) {
+				this.$emit( 'input', val );
+			},
+			deep: true,
+		},
+	},
 	methods: {
 		setOptionProp: function( optionIndex, key, value ) {
 
@@ -39,7 +47,7 @@ Vue.component( 'jet-meta-field-options', {
 			options[ optionIndex ][ key ] = value;
 
 			this.options = [ ...options ];
-			this.$emit( 'input', this.options );
+			//this.$emit( 'input', this.options );
 
 		},
 		getOptionSubtitle: function( option ) {
@@ -63,12 +71,12 @@ Vue.component( 'jet-meta-field-options', {
 				};
 
 			this.options.splice( optionIndex + 1, 0, newOption );
-			this.$emit( 'input', this.options );
+			//this.$emit( 'input', this.options );
 
 		},
 		deleteOption: function( optionIndex ) {
 			this.options.splice( optionIndex, 1 );
-			this.$emit( 'input', this.options );
+			//this.$emit( 'input', this.options );
 		},
 		addNewFieldOption: function( $event, index ) {
 
@@ -80,7 +88,7 @@ Vue.component( 'jet-meta-field-options', {
 			};
 
 			this.options.push( option );
-			this.$emit( 'input', this.options );
+			//this.$emit( 'input', this.options );
 
 		},
 		getRandomID: function() {
@@ -145,19 +153,45 @@ Vue.component( 'jet-meta-field', {
 		return {
 			field: {},
 			glossariesList: JetEngineFieldsConfig.glossaries,
+			queriesList: JetEngineFieldsConfig.queries,
+			allowedSources: JetEngineFieldsConfig.allowed_sources,
 			postTypes: JetEngineFieldsConfig.post_types,
 			i18n: JetEngineFieldsConfig.i18n,
 			quickEditSupports: JetEngineFieldsConfig.quick_edit_supports,
+			iconsLibraries: JetEngineFieldsConfig.icons_libraries,
 		};
 	},
 	created() {
 		this.field = { ...this.value };
+
+		// Ensure options_source migrated correctly
+		if ( ! this.field.options_source ) {
+			if ( this.field.options_from_glossary ) {
+				this.field.options_source = 'glossary';
+			} else {
+				this.field.options_source = 'manual';
+			}
+		}
+
+		// Ensure options_source migrated correctly for repeater fields
+		if ( 'repeater' === this.field.type ) {
+			for ( var i = 0; i < this.field['repeater-fields'].length; i++ ) {
+				if ( ! this.field['repeater-fields'][ i ].options_source ) {
+					if ( this.field['repeater-fields'][ i ].options_from_glossary ) {
+						this.field['repeater-fields'][ i ].options_source = 'glossary';
+					} else {
+						this.field['repeater-fields'][ i ].options_source = 'manual';
+					}
+				}
+			}
+		}
+
 	},
 	computed: {
 		repeaterFieldTypes: function() {
 			var skipTypes = [ 'repeater', 'html' ];
 			return this.fieldTypes.filter( function( field ) {
-				return ! skipTypes.includes( field.value );
+				return ! skipTypes.includes( field.value ) && ! field.skip_repeater;
 			} );
 		},
 	},
@@ -295,6 +329,7 @@ Vue.component( 'jet-meta-field', {
 				title: '',
 				name: '',
 				type: 'text',
+				options_source: 'manual',
 				collapsed: false,
 				id: this.getRandomID(),
 			};

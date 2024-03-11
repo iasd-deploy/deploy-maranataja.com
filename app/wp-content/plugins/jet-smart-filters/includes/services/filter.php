@@ -2,11 +2,12 @@
 /**
  * Filter service class
  */
-
+#[AllowDynamicProperties]
 class Jet_Smart_Filters_Service_Filter {
 
 	public $serialized_data_keys;
 	private $_adata;
+	private $_multilingual;
 
 	/**
 	 * Constructor for the class
@@ -43,7 +44,7 @@ class Jet_Smart_Filters_Service_Filter {
 		global $wpdb;
 
 		// escapes data for use in a MySQL query
-		$id = esc_sql( $id );
+		$id = absint( $id );
 
 		$output_data               = false;
 		$registered_settings_names = $this->_adata->registered_settings_names();

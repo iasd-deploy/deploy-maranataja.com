@@ -988,6 +988,9 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Checkboxes' ) ) {
 
 			$this->controls_manager->end_section();
 
+			// Include Collapse Icon Settings Style
+			include jet_smart_filters()->plugin_path( 'includes/blocks/common-controls/collapse-icon-style.php' );
+
 			// Include Additional Filter Settings Style
 			include jet_smart_filters()->plugin_path( 'includes/blocks/common-controls/additional-filter-style.php' );
 		}

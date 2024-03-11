@@ -2,6 +2,9 @@
 
 namespace Jet_Smart_Filters\Bricks_Views\Elements;
 
+use Bricks\Database;
+use Bricks\Helpers;
+
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }

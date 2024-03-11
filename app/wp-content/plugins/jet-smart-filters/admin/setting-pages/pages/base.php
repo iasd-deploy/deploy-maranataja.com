@@ -102,21 +102,28 @@ abstract class Jet_Smart_Filters_Admin_Setting_Page_Base extends Page_Module_Bas
 
 		return array(
 			'settingsApiUrl' => $rest_api_url . 'jet-smart-filters-api/v1/plugin-settings',
+			'ajaxurl'        => admin_url( 'admin-ajax.php' ),
 			'nonce'          => wp_create_nonce( 'wp_rest' ),
 			'settings'       => array(
-				'avaliable_providers'         => jet_smart_filters()->settings->get( 'avaliable_providers', $default_avaliable_providers ),
-				'use_indexed_filters'         => jet_smart_filters()->settings->get( 'use_indexed_filters' ),
-				'avaliable_post_types'        => jet_smart_filters()->settings->get( 'avaliable_post_types', $default_avaliable_post_types ),
-				'use_auto_indexing'           => jet_smart_filters()->settings->get( 'use_auto_indexing' ),
-				'url_structure_type'          => jet_smart_filters()->settings->get( 'url_structure_type', 'plain' ),
-				'rewritable_post_types'       => jet_smart_filters()->settings->get( 'rewritable_post_types', $default_rewritable_post_types ),
-				'use_url_aliases'             => jet_smart_filters()->settings->get( 'use_url_aliases', 'false' ),
-				'url_aliases'                 => jet_smart_filters()->settings->get( 'url_aliases', $default_url_aliases ),
-				'use_url_aliases_example'     => jet_smart_filters()->settings->get( 'use_url_aliases_example', 'false' ),
-				'url_aliases_example'         => htmlspecialchars_decode( jet_smart_filters()->settings->get( 'url_aliases_example', '/page/jsf/jet-engine/tax/category:1;post_tag:2/meta/meta-key:data-1/' ) ),
-				'ajax_request_types'          => jet_smart_filters()->settings->get( 'ajax_request_types', 'default' ),
-				'use_tabindex'                => jet_smart_filters()->settings->get( 'use_tabindex', false ),
-				'tabindex_color'              => jet_smart_filters()->settings->get( 'tabindex_color', '#0085f2' ),
+				'avaliable_providers'               => jet_smart_filters()->settings->get( 'avaliable_providers', $default_avaliable_providers ),
+				'use_indexed_filters'               => jet_smart_filters()->settings->get( 'use_indexed_filters' ),
+				'avaliable_post_types'              => jet_smart_filters()->settings->get( 'avaliable_post_types', $default_avaliable_post_types ),
+				'use_auto_indexing'                 => jet_smart_filters()->settings->get( 'use_auto_indexing' ),
+				'url_structure_type'                => jet_smart_filters()->settings->get( 'url_structure_type', 'plain' ),
+				'rewritable_post_types'             => jet_smart_filters()->settings->get( 'rewritable_post_types', $default_rewritable_post_types ),
+				'use_url_aliases'                   => jet_smart_filters()->settings->get( 'use_url_aliases', 'false' ),
+				'url_aliases'                       => jet_smart_filters()->settings->get( 'url_aliases', $default_url_aliases ),
+				'use_url_aliases_example'           => jet_smart_filters()->settings->get( 'use_url_aliases_example', 'false' ),
+				'url_aliases_example'               => htmlspecialchars_decode( jet_smart_filters()->settings->get( 'url_aliases_example', '/page/jsf/jet-engine/tax/category:1;post_tag:2/meta/meta-key:data-1/' ) ),
+				'ajax_request_types'                => jet_smart_filters()->settings->get( 'ajax_request_types', 'self' ),
+				'use_tabindex'                      => jet_smart_filters()->settings->get( 'use_tabindex', false ),
+				'tabindex_color'                    => jet_smart_filters()->settings->get( 'tabindex_color', '#0085f2' ),
+				'use_provider_preloader'            => jet_smart_filters()->provider_preloader->is_enabled,
+				'provider_preloader_fixed_position' => jet_smart_filters()->provider_preloader->fixed_position,
+				'provider_preloader_fixed_edge_gap' => jet_smart_filters()->provider_preloader->fixed_edge_gap,
+				'provider_preloader_type'           => jet_smart_filters()->provider_preloader->type,
+				'provider_preloader_styles'         => jet_smart_filters()->provider_preloader->styles,
+				'provider_preloader_css'            => jet_smart_filters()->provider_preloader->css,
 			),
 			'data'           => array(
 				'avaliable_providers_options'  => $this->get_avaliable_providers(),
@@ -145,8 +152,9 @@ abstract class Jet_Smart_Filters_Admin_Setting_Page_Base extends Page_Module_Bas
 						'label' => 'Permalink',
 					)
 				),
-				'rewritable_post_types_options' => $this->get_rewritable_post_types_options(),
-				'url_aliases_example_default'   => '/page/jsf/jet-engine/tax/category:1;post_tag:2/meta/meta-key:data-1/',
+				'rewritable_post_types_options'   => $this->get_rewritable_post_types_options(),
+				'url_aliases_example_default'     => '/page/jsf/jet-engine/tax/category:1;post_tag:2/meta/meta-key:data-1/',
+				'provider_preloader_type_options' => jet_smart_filters()->provider_preloader->type_options,
 			)
 		);
 	}

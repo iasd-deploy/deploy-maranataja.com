@@ -57,12 +57,19 @@ class Terms_Query extends Base_Query {
 			$args['offset'] = 0;
 		}
 
-		if ( ! empty( $args['orderby'] ) && 'meta_clause' === $args['orderby'] ) {
+		if ( ! empty( $args['orderby'] ) ) {
 
-			$clause_name = ! empty( $args['order_meta_clause'][0] ) ? $args['order_meta_clause'][0] : false;
+			if ( 'meta_clause' === $args['orderby'] ) {
 
-			if ( $clause_name ) {
-				$args['orderby'] = strtolower( $clause_name );
+				$clause_name = ! empty( $args['order_meta_clause'][0] ) ? $args['order_meta_clause'][0] : false;
+
+				if ( $clause_name ) {
+					$args['orderby'] = strtolower( $clause_name );
+				}
+			}
+
+			if ( isset( $args['meta_key'] ) && ! in_array( $args['orderby'], array( 'meta_value', 'meta_value_num' ) ) ) {
+				unset( $args['meta_key'] );
 			}
 		}
 		

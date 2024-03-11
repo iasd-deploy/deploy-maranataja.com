@@ -20,7 +20,7 @@ class Calendar extends Listing_Grid {
 
 	// Return localised element label
 	public function get_label() {
-		return esc_html__( 'Calendar', 'jet-engine' );
+		return esc_html__( 'Dynamic Calendar', 'jet-engine' );
 	}
 
 	// Set builder control groups

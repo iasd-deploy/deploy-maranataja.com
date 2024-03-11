@@ -4,6 +4,8 @@
  */
 namespace Jet_Engine\Bricks_Views;
 
+use Bricks\Database;
+
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -44,6 +46,8 @@ class Manager {
 		add_filter( 'jet-engine/gallery/grid/args', [ $this, 'add_arguments_to_gallery_grid' ], 10 );
 		add_filter( 'jet-engine/gallery/slider/args', [ $this, 'add_arguments_to_gallery_slider' ], 10 );
 		add_filter( 'jet-engine/gallery/lightbox-attr', [ $this, 'add_attributes_to_gallery' ], 10, 2 );
+
+		add_filter( 'bricks/elements/jet-engine-listing-dynamic-field/controls', [ $this, 'filter_controls' ], 10, 2 );
 
 		add_filter( 'bricks/builder/i18n', function( $i18n ) {
 			$i18n['jetengine'] = esc_html__( 'JetEngine', 'jet-engine' );
@@ -102,6 +106,7 @@ class Manager {
 			$this->component_path( 'elements/dynamic-field.php' ),
 			$this->component_path( 'elements/dynamic-image.php' ),
 			$this->component_path( 'elements/dynamic-link.php' ),
+			$this->component_path( 'elements/dynamic-terms.php' ),
 		);
 
 		foreach ( $element_files as $file ) {
@@ -197,5 +202,31 @@ class Manager {
 		$result['height'] = $img_src[2];
 
 		return $result;
+	}
+
+	// Adding repeater_field option to Dynamic Field sources
+	// for use in Listing (source - custom_content_type_repeater)
+	public function filter_controls( $controls ) {
+
+		if ( array_key_exists( 'repeater_field', $controls['dynamic_field_source']['options'] ) ) {
+			return $controls;
+		}
+
+		$post_id = isset( Database::$page_data['original_post_id'] ) ? Database::$page_data['original_post_id'] : Database::$page_data['preview_or_post_id'];
+
+		if ( ! $post_id ) {
+			return $controls;
+		}
+
+		$listing_data = get_post_meta( $post_id, '_listing_data', true );
+		$allowed_sources = [ 'repeater', 'custom_content_type_repeater' ];
+
+		if ( empty( $listing_data ) || ! in_array( $listing_data['source'], $allowed_sources )  ) {
+			return $controls;
+		}
+
+		$controls['dynamic_field_source']['options']['repeater_field'] = esc_html__( 'Repeater Field', 'jet-engine' );
+
+		return $controls;
 	}
 }

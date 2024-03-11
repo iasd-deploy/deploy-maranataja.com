@@ -149,7 +149,7 @@ if ( ! class_exists( 'Jet_Elements_Settings' ) ) {
 					'saveSuccess' => esc_html__( 'Saved', 'jet-elements' ),
 					'saveError'   => esc_html__( 'Error', 'jet-elements' ),
 				],
-				'settingsApiUrl' => $rest_api_url . 'jet-elements-api/v1/plugin-settings',
+				'settingsApiUrl' => '/jet-elements-api/v1/plugin-settings',
 				'settingsData' => [
 					'svg_uploads'             => [
 						'value' => $this->get( 'svg_uploads', 'enabled' ),

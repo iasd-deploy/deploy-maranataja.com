@@ -23,7 +23,71 @@ class Manager {
 			return;
 		}
 
-		add_action( 'jet-engine/bricks-views/register-elements', array( $this, 'register_elements' ), 11 );
+		add_action( 'jet-engine/bricks-views/register-elements', [ $this, 'register_elements' ], 11 );
+		add_filter( 'jet-engine/profile-builder/template/content', [ $this, 'render_template_content' ], 0, 4 );
+		add_filter( 'jet-engine/profile-builder/settings/template-sources', [ $this, 'register_templates_source' ] );
+
+		add_filter( 
+			'jet-engine/profile-builder/create-template/bricks_template',
+			[ $this, 'create_profile_template' ],
+			10, 3
+		);
+	}
+
+	/**
+	 * Check if profile template is Bricks template, render it with Bricks
+	 *
+	 * @param  string $content     Initial content
+	 * @param  int    $template_id template ID to render
+	 * @return string
+	 */
+	public function render_template_content( $content, $template_id, $frontend, $template ) {
+
+		if ( BRICKS_DB_TEMPLATE_SLUG !== $template->post_type ) {
+			return $content;
+		}
+
+		return \Bricks\Theme::instance()->templates->render_shortcode( [ 'id' => $template_id ] );
+	}
+
+	public function create_profile_template( $result = [], $template_name = '', $template_view = '' ) {
+
+		if ( ! $template_name ) {
+			return $result;
+		}
+
+		$template_id = wp_insert_post( [
+			'post_title' => $template_name,
+			'post_type'   => BRICKS_DB_TEMPLATE_SLUG,
+			'post_status' => 'publish',
+		] );
+
+		if ( ! $template_id ) {
+			return $result;
+		}
+
+		update_post_meta(
+			$template_id,
+			BRICKS_DB_TEMPLATE_TYPE,
+			'section'
+		);
+
+		return [
+			'template_url' => add_query_arg( [ 'bricks' => 'run' ], get_permalink( $template_id ) ),
+			'template_id'  => $template_id,
+		];
+
+	}
+
+	/**
+	 * Add Bricks templates to allowed profile builder templates
+	 * 
+	 * @param  array $sources Initial sources list
+	 * @return array
+	 */
+	public function register_templates_source( $sources ) {
+		$sources['bricks_template'] = __( 'Bricks Template', 'jet-engine' );
+		return $sources;
 	}
 
 	public function module_path( $relative_path = '' ) {

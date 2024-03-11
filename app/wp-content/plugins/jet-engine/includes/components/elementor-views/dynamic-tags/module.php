@@ -27,6 +27,7 @@ class Jet_Engine_Dynamic_Tags_Module extends Elementor\Modules\DynamicTags\Modul
 			'Jet_Engine_Dynamic_Function_Tag',
 			'Jet_Engine_Macros_Tag',
 			'Jet_Engine_Object_Property_Tag',
+			'Jet_Engine_Object_Property_Image_Tag',
 		) );
 	}
 

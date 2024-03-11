@@ -35,38 +35,71 @@ if ( ! class_exists( 'Jet_Elements_Download_Handler' ) ) {
 		private $hook = 'jet_download';
 
 		/**
-		 * Encrypt keys
-		 *
-		 * @var string
+		 * Return nonce key for hashing URL
+		 * 
+		 * @return [type] [description]
 		 */
-		private $encrypt_key_start = '';
-		private $encrypt_key_end   = '';
+		public function get_nonce_key() {
 
-		private $encrypt_multiplier;
-		private $use_encryption;
+			if ( defined( 'NONCE_SALT' ) ) {
+				return NONCE_SALT;
+			}
+
+			$encrypt_key = get_option( 'jet_elements_download_button_encrypt_key_start' );
+
+			if ( ! $encrypt_key ) {
+				$encrypt_key = $this->generate_security_key();
+				add_option( 'jet_elements_download_button_encrypt_key_start', $encrypt_key );
+			}
+
+			return $encrypt_key;
+
+		}
 
 		/**
 		 * Constructor for the class
 		 */
 		public function init() {
-
-			if ( false === get_option( 'jet_elements_download_button_encrypt_key_start' ) ) {
-				add_option( 'jet_elements_download_button_encrypt_key_start', $this->generate_security_key() );
-				$this->encrypt_key_start = get_option( 'jet_elements_download_button_encrypt_key_start' );
-			} else {
-				$this->encrypt_key_start = get_option( 'jet_elements_download_button_encrypt_key_start' );
-			}
-
-			if ( false === get_option( 'jet_elements_download_button_encrypt_key_end' ) ) {
-				add_option( 'jet_elements_download_button_encrypt_key_end', $this->generate_security_key() );
-				$this->encrypt_key_end = get_option( 'jet_elements_download_button_encrypt_key_end' );
-			} else {
-				$this->encrypt_key_end = get_option( 'jet_elements_download_button_encrypt_key_end' );
-			}
-
-			$this->encrypt_multiplier = $this->get_id_multiplier();
-
 			add_action( 'init', array( $this, 'process_download' ), 99 );
+			add_action( 'init', array( $this, 'reset_download_hashes' ), 99 );
+		}
+
+		public function get_reset_hashes_url() {
+			return add_query_arg(
+				array( $this->hook() . '_reset' => 1, 'nonce' => wp_create_nonce( $this->hook() ) ),
+				esc_url( home_url( '/' ) )
+			);
+		}
+
+		public function reset_download_hashes() {
+
+			if ( empty( $_GET[ $this->hook() . '_reset' ] ) ) {
+				return;
+			}
+
+			$nonce = ! empty( $_GET['nonce'] ) ? $_GET['nonce'] : false;
+
+			if ( ! $nonce || ! wp_verify_nonce( $nonce, $this->hook() ) ) {
+				wp_die( 
+					esc_html__( 'Your link is expired, please return to the previous page, reload it and try again.', 'jet-elements' ),
+					esc_html__( 'Error', 'jet-elements' )
+				);
+			}
+
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( 
+					esc_html__( 'Only site admins allowed to do this.', 'jet-elements' ),
+					esc_html__( 'Error', 'jet-elements' )
+				);
+			}
+
+			delete_option( 'jet_elements_download_button_hashes' );
+
+			wp_die( 
+				esc_html__( 'Download hashes successfully reseted. If you are using any caching plugins, you also need to reset cache to ensure all valid hashes regenerated.', 'jet-elements' ),
+				esc_html__( 'Success!', 'jet-elements' )
+			);
+
 		}
 
 		/**
@@ -76,15 +109,6 @@ if ( ! class_exists( 'Jet_Elements_Download_Handler' ) ) {
 		 */
 		private function generate_security_key() {
 			return absint( (int)( ( time() / random_int( 11, 100 ) ) * random_int( 2, 1000 ) ) );
-		}
-
-		private function get_id_multiplier() {
-			if ( false === get_option( 'jet_elements_download_button_encrypt_id_multiplier' ) ) {
-				add_option( 'jet_elements_download_button_encrypt_id_multiplier', random_int( 2, 1000 ) );
-				return get_option( 'jet_elements_download_button_encrypt_id_multiplier' );
-			} else {
-				return get_option( 'jet_elements_download_button_encrypt_id_multiplier' );
-			}
 		}
 
 		/**
@@ -97,13 +121,30 @@ if ( ! class_exists( 'Jet_Elements_Download_Handler' ) ) {
 		}
 
 		/**
+		 * Get plain encrypted ID
+		 * 
+		 * @param  [type] $id [description]
+		 * @return [type]     [description]
+		 */
+		public function get_encrypted_id( $id ) {
+			return sha1( $this->get_nonce_key() . $id );
+		}
+
+		/**
 		 * Encrypt download ID
 		 *
 		 * @return string
 		 */
 		private function encrypt_id( $id ) {
-			$id = (int) $id * $this->encrypt_multiplier;
-			return base64_encode( $this->encrypt_key_start . $id . $this->encrypt_key_end );
+
+			$hash = $this->get_encrypted_id( $id );
+			$hash_map = get_option( 'jet_elements_download_button_hashes', [] );
+			$sanitize_hashes = false;
+			$hash_map[ $hash ] = $id;
+
+			update_option( 'jet_elements_download_button_hashes', $hash_map, false );
+
+			return $hash;
 		}
 
 		/**
@@ -112,12 +153,8 @@ if ( ! class_exists( 'Jet_Elements_Download_Handler' ) ) {
 		 * @return string
 		 */
 		private function decrypt_id( $id ) {
-			$encrypt_key_start = $this->encrypt_key_start;
-			$encrypt_key_end   = $this->encrypt_key_end;
-			$id_raw            = base64_decode( $id );
-			$id                = preg_replace( array( '/' . $encrypt_key_start . '/', '/' . $encrypt_key_end . '/' ), '', $id_raw );
-			$id               /= $this->encrypt_multiplier;
-			return $id;
+			$hash_map = get_option( 'jet_elements_download_button_hashes', [] );
+			return isset( $hash_map[ $id ] ) ? $hash_map[ $id ] : false;
 		}
 
 		/**
@@ -127,9 +164,9 @@ if ( ! class_exists( 'Jet_Elements_Download_Handler' ) ) {
 		 * @return string
 		 */
 		public function get_download_link( $id = 0, $is_encrypted = '' ) {
-			if ( 'true' === $is_encrypted ) {
-				$id = $this->encrypt_id( $id );
-			}
+			
+			// For security reasons now is encrypted in any case
+			$id = $this->encrypt_id( $id );
 
 			return add_query_arg(
 				array( $this->hook() => $id ),
@@ -164,12 +201,8 @@ if ( ! class_exists( 'Jet_Elements_Download_Handler' ) ) {
 				return;
 			}
 
-			if ( preg_match("/[a-z]/i", $_GET[ $this->hook() ] ) ) {
-				$encrypted_id = $_GET[ $this->hook() ];
-				$id           = absint( $this->decrypt_id( $encrypted_id ) );
-			} else {
-				$id = $_GET[ $this->hook() ];
-			}
+			$encrypted_id = $_GET[ $this->hook() ];
+			$id           = absint( $this->decrypt_id( $encrypted_id ) );
 
 			if ( ! $id ) {
 				return;

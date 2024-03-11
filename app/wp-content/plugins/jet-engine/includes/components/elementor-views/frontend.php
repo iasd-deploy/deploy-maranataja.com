@@ -39,7 +39,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 			add_action( 'elementor/preview/enqueue_scripts',       array( jet_engine()->frontend, 'preview_scripts' ) );
 			add_action( 'elementor/preview/enqueue_scripts',       array( $this, 'preview_scripts' ) );
 
-			add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_listing_css' ) );
+			//add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_listing_css' ) );
+			add_action( 'elementor/css-file/post/enqueue', array( $this, 'maybe_enqueue_listing_css' ) );
 			add_action( 'jet-engine/locations/enqueue-location-css', array( $this, 'loc_enqueue_listing_css' ) );
 
 			add_action( 'jet-engine/ajax-handlers/before-call-handler', array( $this, 'register_assets_on_ajax' ) );
@@ -310,6 +311,10 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 		 */
 		public function maybe_enqueue_listing_css( $post_id = null ) {
 
+			if ( is_object( $post_id ) && $post_id instanceof Elementor\Core\Files\CSS\Post ) {
+				$post_id = $post_id->get_post_id();
+			}
+
 			if ( ! $post_id ) {
 				$post_id = get_the_ID();
 			}
@@ -336,6 +341,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 
 			foreach ( $matches[1] as $listing_id ) {
 
+				$listing_id = apply_filters( 'jet-engine/compatibility/translate/post', $listing_id );
+
 				if ( class_exists( 'Elementor\Core\Files\CSS\Post' ) ) {
 					$css_file = new Elementor\Core\Files\CSS\Post( $listing_id );
 				} else {
@@ -343,7 +350,7 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 				}
 
 				$css_file->enqueue();
-				$this->css_added[] = $listing_id;
+				$this->add_to_css_added( $listing_id );
 
 				// For nested listings
 				$this->maybe_enqueue_listing_css( $listing_id );

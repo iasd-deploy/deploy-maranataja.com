@@ -19,15 +19,10 @@ $accessibility_label = $args['accessibility_label'];
 	<?php
 	// is hierarchical
 	if ( $is_hierarchical ) {
+		$current = false;
+
 		if ( ! empty( $args['current_value'] ) ) {
 			$current = $args['current_value'];
-		} else {
-			$current = false;
-		}
-
-		if ( ! wp_doing_ajax() && ! empty( $args['is_loading'] ) ) {
-			/* if ( ! $current ) { $current = 'loading'; } */
-			$options = array( $current =>'jsf-loading-item' );
 		}
 
 		$classes[] = 'depth-' . $args['depth'];
@@ -66,21 +61,14 @@ $accessibility_label = $args['accessibility_label'];
 				}
 			}
 			?>
-			<?php if ( $label === 'jsf-loading-item' ) : ?>
-				<option
-					value="<?php echo $value; ?>"
-					loading-item
-					<?php echo $selected; ?>
-				><?php _e( 'Loading...', 'jet-smart-filters' ); ?></option>
-			<?php else: ?>
-				<option
-					value="<?php echo $value; ?>"
-					data-label="<?php echo $label; ?>"
-					data-counter-prefix="<?php echo $counter_prefix; ?>"
-					data-counter-suffix="<?php echo $counter_suffix; ?>"
-					<?php echo $selected; ?>
-				><?php echo $label; ?></option>
-			<?php endif;
+			<option
+				value="<?php echo $value; ?>"
+				data-label="<?php echo $label; ?>"
+				data-counter-prefix="<?php echo $counter_prefix; ?>"
+				data-counter-suffix="<?php echo $counter_suffix; ?>"
+				<?php echo $selected; ?>
+			><?php echo $label; ?></option>
+			<?php
 		}
 		?></select>
 	<?php endif; ?>

@@ -1,6 +1,8 @@
 <?php
 namespace Jet_Engine\Query_Builder\Queries;
 
+use Jet_Engine\Query_Builder\Manager;
+
 abstract class Base_Query {
 
 	public $id            = false;
@@ -11,6 +13,9 @@ abstract class Base_Query {
 	public $query_type    = null;
 	public $query_id      = null;
 	public $preview       = array();
+	public $cache_query   = true;
+
+	public $api_settings = [];
 
 	public $parsed_macros = array();
 
@@ -23,8 +28,44 @@ abstract class Base_Query {
 		$this->query         = ! empty( $args['query'] ) ? $args['query'] : false;
 		$this->dynamic_query = ! empty( $args['dynamic_query'] ) ? $args['dynamic_query'] : false;
 		$this->preview       = ! empty( $args['preview'] ) ? $args['preview'] : $this->preview;
+		$this->cache_query   = isset( $args['cache_query'] ) ? filter_var( $args['cache_query'], FILTER_VALIDATE_BOOLEAN ) : true;
+
+		$this->api_settings = [
+			'api_endpoint' => ! empty( $args['api_endpoint'] ) ? $args['api_endpoint'] : false,
+			'api_namespace' => ! empty( $args['api_namespace'] ) ? $args['api_namespace'] : false,
+			'api_path' => ! empty( $args['api_path'] ) ? $args['api_path'] : false,
+			'api_access' => ! empty( $args['api_access'] ) ? $args['api_access'] : false,
+			'api_access_cap' => ! empty( $args['api_access_cap'] ) ? $args['api_access_cap'] : false,
+			'api_access_role' => ! empty( $args['api_access_role'] ) ? $args['api_access_role'] : false,
+			'api_schema' => ! empty( $args['api_schema'] ) ? $args['api_schema'] : false,
+		];
 
 		$this->maybe_add_instance_fields_to_ui();
+
+	}
+
+	/**
+	 * Register Rest API endpoint for this query if enbaled.
+	 * 
+	 * @return [type] [description]
+	 */
+	public function maybe_register_rest_api_endpoint() {
+
+		if ( empty( $this->api_settings['api_endpoint'] ) ) {
+			return;
+		}
+
+		if ( empty( $this->api_settings['api_namespace'] ) || empty( $this->api_settings['api_path'] ) ) {
+			return;
+		}
+
+		if ( ! class_exists( '\Jet_Engine\Query_Builder\Rest\Query_Endpoint' ) ) {
+			require_once Manager::instance()->component_path( 'rest-api/query-endpoint.php' );
+		}
+
+		new \Jet_Engine\Query_Builder\Rest\Query_Endpoint( array_merge( $this->api_settings, [
+			'id' => $this->id
+		] ) );
 
 	}
 
@@ -75,7 +116,7 @@ abstract class Base_Query {
 	 * @return [type]      [description]
 	 */
 	public function get_cached_data( $key = null ) {
-		return wp_cache_get( $this->get_query_hash( $key ) );
+		return $this->cache_query ? wp_cache_get( $this->get_query_hash( $key ) ) : false;
 	}
 
 	/**
@@ -86,7 +127,7 @@ abstract class Base_Query {
 	 * @return [type]       [description]
 	 */
 	public function update_query_cache( $data = null, $key = null ) {
-		return wp_cache_set( $this->get_query_hash( $key ), $data );
+		return $this->cache_query ? wp_cache_set( $this->get_query_hash( $key ), $data ) : false;
 	}
 
 	/**

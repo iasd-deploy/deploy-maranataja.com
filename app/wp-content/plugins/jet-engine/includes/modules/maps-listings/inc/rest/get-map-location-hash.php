@@ -53,6 +53,9 @@ class Get_Map_Location_Hash extends \Jet_Engine_Base_API_Endpoint {
 	/**
 	 * Check user access to current end-point
 	 *
+	 * With nonce header this endpoint can be used on public.
+	 *
+	 * @used by JetFormBuiler map field type and JetEngine map field
 	 * @return bool
 	 */
 	public function permission_callback( $request ) {

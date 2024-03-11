@@ -26,13 +26,71 @@ class Settings {
 	 */
 	public function __construct() {
 
-		add_action( 'admin_menu', array( $this, 'register_menu_page' ), 40 );
+		add_action( 'admin_menu', [ $this, 'register_menu_page' ], 40 );
 
 		if ( $this->is_profile_builder_page() ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'menu_page_assets' ) );
+			add_action( 'admin_enqueue_scripts', [ $this, 'menu_page_assets' ] );
 		}
 
-		add_action( 'wp_ajax_jet_engine_save_settings', array( $this, 'save_settings' ) );
+		add_action( 'wp_ajax_jet_engine_save_settings', [ $this, 'save_settings' ] );
+		add_action( 'wp_ajax_jet_engine_create_profile_template', [ $this, 'create_template' ] );
+
+		add_filter( 'jet-engine/rest-api/search-posts/result-item', [ $this, 'adjust_serach_results' ], 10, 3 );
+
+	}
+
+	public function adjust_serach_results( $result, $post, $context ) {
+		if ( 'profile-builder' === $context ) {
+			$post_types = $this->get_search_post_types();
+			$result['label'] = sprintf(
+				'%1$s (%2$s)',
+				$result['label'], $post_types[ $post->post_type ] ?? $post->post_type
+			);
+		}
+		return $result;
+	}
+
+	public function get_search_post_types() {
+		return apply_filters( 'jet-engine/profile-builder/settings/template-sources', array(
+			jet_engine()->listings->post_type->slug() => __( 'Listing Item', 'jet-engine' ),
+		) );
+	}
+
+	/**
+	 * AJAX callback to create new profile template
+	 */
+	public function create_template() {
+
+		if ( empty( $_REQUEST['_nonce'] ) || ! wp_verify_nonce( $_REQUEST['_nonce'], $this->nonce_action ) ) {
+			wp_send_json_error( array(
+				'message' => __( 'The page is expired. Please reload page and try again.', 'jet-engine' ),
+			) );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Access denied', 'jet-engine' ) ) );
+		}
+
+		$template_name = ( ! empty( $_REQUEST['template_name'] ) ) ? $_REQUEST['template_name'] : false;
+		$template_type = ( ! empty( $_REQUEST['template_type'] ) ) ? $_REQUEST['template_type'] : jet_engine()->listings->post_type->slug();
+		$template_view = ( ! empty( $_REQUEST['template_view'] ) ) ? $_REQUEST['template_view'] : false;
+
+		if ( ! $template_name ) {
+			wp_send_json_error( array( 'message' => __( 'Template name is empty', 'jet-engine' ) ) );
+		}
+
+		$template_data = apply_filters(
+			'jet-engine/profile-builder/create-template/' . $template_type,
+			false,
+			$template_name,
+			$template_view
+		);
+
+		if ( empty( $template_data ) ) {
+			wp_send_json_error( array( 'message' => __( 'Template not created. Please try again with different template type.', 'jet-engine' ) ) );
+		}
+
+		wp_send_json_success( $template_data );
 
 	}
 
@@ -45,7 +103,7 @@ class Settings {
 
 		if ( empty( $_REQUEST['_nonce'] ) || ! wp_verify_nonce( $_REQUEST['_nonce'], $this->nonce_action ) ) {
 			wp_send_json_error( array(
-				'message' => __( 'Nonce validation failed', 'jet-engine' ),
+				'message' => __( 'The page is expired. Please reload page and try again.', 'jet-engine' ),
 			) );
 		}
 
@@ -115,15 +173,8 @@ class Settings {
 			true
 		);
 
-		$post_types = array(
-			'elementor_library',
-		);
-
-		if ( jet_engine()->listings ) {
-			$post_types[] = jet_engine()->listings->post_type->slug();
-		}
-
-		$settings = $this->get();
+		$post_types = $this->get_search_post_types();
+		$settings   = $this->get();
 
 		if ( ! empty( $settings['posts_restrictions'] ) ) {
 			for ( $i = 0; $i < count( $settings['posts_restrictions'] ); $i++ ) {
@@ -174,13 +225,15 @@ class Settings {
 			'jet-engine-profile-builder-settings',
 			'JetEngineProfileBuilder',
 			array(
-				'search_api'      => jet_engine()->api->get_route( 'search-posts' ),
-				'search_in'       => apply_filters(
+				'search_api'         => jet_engine()->api->get_route( 'search-posts' ),
+				'search_in'          => apply_filters(
 					'jet-engine/profile-builder/settings/template-post-types',
-					$post_types
+					array_keys( $post_types )
 				),
-				'settings'        => $settings,
-				'pages'           => $this->get_pages_for_options(),
+				'listing_views'      => jet_engine()->listings->post_type->get_listing_views(),
+				'template_sources'   => $post_types,
+				'settings'           => $settings,
+				'pages'              => $this->get_pages_for_options(),
 				'visibility_options' => array(
 					array(
 						'value' => 'all',
@@ -225,6 +278,13 @@ class Settings {
 				'user_page_image_fields' => $this->get_user_image_fields(),
 				'_nonce' => wp_create_nonce( $this->nonce_action ),
 			)
+		);
+
+		wp_enqueue_style(
+			'jet-engine-dashboard',
+			jet_engine()->plugin_url( 'assets/css/admin/dashboard.css' ),
+			array(),
+			jet_engine()->get_version()
 		);
 
 		add_action( 'admin_footer', array( $this, 'print_templates' ) );
@@ -279,6 +339,12 @@ class Settings {
 		$content = ob_get_clean();
 
 		printf( '<script type="text/x-template" id="jet-profile-builder-macros">%s</script>', $content );
+
+		ob_start();
+		include jet_engine()->modules->modules_path( 'profile-builder/inc/templates/admin/new-template.php' );
+		$content = ob_get_clean();
+
+		printf( '<script type="text/x-template" id="jet-profile-builder-new-template">%s</script>', $content );
 
 	}
 
@@ -356,6 +422,19 @@ class Settings {
 			
 			.jet-profile-macros__item + .jet-profile-macros__item {
 				border-top: 1px solid #ececec;
+			}
+
+			.jet-profile-template {
+				padding: 4px 0 0 0;
+			}
+
+			.jet-profile-template .jet-profile-template__trigger {
+				display: inline-flex;
+				line-height: 14px;
+			}
+
+			.jet-profile-template .jet-profile-template__trigger:focus {
+				text-decoration: none;
 			}
 		';
 
@@ -489,7 +568,12 @@ class Settings {
 
 			$pages = array_values( $pages );
 
-			foreach ( $pages as $_page ) {
+			foreach ( $pages as $index => $_page ) {
+
+				if ( ! empty( $_page['template'] ) && ! is_array( $_page['template'] ) ) {
+					$_page['template'] = [ $_page['template'] ];
+				}
+
 				if ( ! empty( $_page['slug'] ) && $_page['slug'] === $slug ) {
 					$page_data = $_page;
 					break;

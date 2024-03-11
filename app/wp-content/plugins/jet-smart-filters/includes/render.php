@@ -15,7 +15,17 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 	class Jet_Smart_Filters_Render {
 
 		private $_rendered_providers = array();
-		private $request_query_vars  = array( 'tax', 'meta', 'date', 'sort', 'alphabet', '_s', 'search', 'pagenum' );
+		private $request_query_vars  = array(
+			'tax',
+			'meta',
+			'date',
+			'sort',
+			'alphabet',
+			'_s',
+			'search',
+			'pagenum',
+			'plain_query',
+		);
 
 		/**
 		 * Constructor for the class
@@ -38,6 +48,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 			add_action( 'wp_ajax_nopriv_jet_smart_filters_get_indexed_data', array( $this, 'get_indexed_data' ) );
 		}
 
+		public function get_request_query_vars() {
+			return apply_filters( 'jet-smart-filters/render/query-vars', $this->request_query_vars );
+		}
+
 		/**
 		 * Update hierarchy levels starting from depth
 		 */
@@ -52,7 +66,6 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 
 			$values  = ! empty( $_REQUEST['values'] ) ? $_REQUEST['values'] : array();
 			$args    = ! empty( $_REQUEST['args'] ) ? $_REQUEST['args'] : array();
-			$indexer = isset( $_REQUEST['indexer'] ) ? $_REQUEST['indexer'] : false;
 
 			require jet_smart_filters()->plugin_path( 'includes/hierarchy.php' );
 
@@ -60,8 +73,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 				$filter_id,
 				$depth,
 				$values,
-				$args,
-				$indexer
+				$args
 			);
 
 			wp_send_json_success( $hierarchy->get_levels() );
@@ -115,16 +127,16 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 			$provider_id = $this->request_provider( 'provider' );
 			$provider    = jet_smart_filters()->providers->get_providers( $provider_id );
 
-			if ( ! $provider && is_callable( array( $provider, 'apply_filters_in_request' ) ) ) {
+			if ( ! $provider || ! is_callable( array( $provider, 'apply_filters_in_request' ) ) ) {
 				return;
 			}
 
-			foreach ( $this->request_query_vars as $query_var ) {
-				if ( empty( $_REQUEST[$query_var] ) ) {
+			foreach ( $this->get_request_query_vars() as $query_var ) {
+				if ( empty( $_REQUEST[ $query_var ] ) ) {
 					continue;
 				}
 
-				jet_smart_filters()->query->set_query_var_to_request( $query_var, $_REQUEST[$query_var] );
+				jet_smart_filters()->query->set_query_var_to_request( $query_var, $_REQUEST[ $query_var ] );
 			}
 
 			jet_smart_filters()->query->get_query_from_request();
@@ -144,14 +156,19 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 
 			$_REQUEST['jsf'] = strtok( $jsf_query_str, '/' );
 
-			foreach ( $this->request_query_vars as $query_var ) {
+			foreach ( $this->get_request_query_vars() as $query_var ) {
 				preg_match_all( "/$query_var\/(.*?)(\/|$)/", $jsf_query_str, $matches );
 
 				if ( empty( $matches[1][0] ) ) {
 					continue;
 				}
 
-				$_REQUEST[$query_var] = urldecode( $matches[1][0] );
+				$_REQUEST[ $query_var ] = apply_filters(
+					'jet-smart-filters/render/set-query-var',
+					urldecode( $matches[1][0] ),
+					$query_var,
+					$this
+				);
 			}
 
 			$this->apply_filters_from_request();

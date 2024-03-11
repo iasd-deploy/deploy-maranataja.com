@@ -40,6 +40,10 @@ window.JetEngineMapsProvider = function() {
 
 	this._activePopup = null;
 
+	this.getId = function() {
+		return 'mapbox';
+	}
+
 	this.initMap = function( container, settings ) {
 
 		settings = settings || {};
@@ -51,6 +55,7 @@ window.JetEngineMapsProvider = function() {
 			zoomControl: 'zoomControl',
 			style: 'styles',
 			maxZoom: 'maxZoom',
+			minZoom: 'minZoom',
 		};
 		
 		let parsedSettings = {}

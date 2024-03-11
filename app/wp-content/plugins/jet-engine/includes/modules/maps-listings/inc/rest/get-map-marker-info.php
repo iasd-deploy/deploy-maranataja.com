@@ -65,7 +65,7 @@ class Get_Map_Marker_Info extends \Jet_Engine_Base_API_Endpoint {
 		ob_start();
 
 		$content = jet_engine()->frontend->get_listing_item( $post_obj );
-		$content = sprintf( '<div class="jet-map-popup-%1$d jet-listing-dynamic-post-%1$d" data-item-object="%1$d">%2$s</div>', $post_id, $content );
+		$content = sprintf( '<div class="jet-map-popup-%1$s jet-listing-dynamic-post-%1$s" data-item-object="%1$s">%2$s</div>', $post_id, $content );
 		$content = apply_filters( 'jet-engine/maps-listings/marker-content', $content, $post_obj, $listing_id );
 
 		$content .= ob_get_clean();
@@ -90,7 +90,8 @@ class Get_Map_Marker_Info extends \Jet_Engine_Base_API_Endpoint {
 
 	/**
 	 * Check user access to current end-popint
-	 *
+	 * This is public endpoint so it always accessible
+	 * 
 	 * @return bool
 	 */
 	public function permission_callback( $request ) {

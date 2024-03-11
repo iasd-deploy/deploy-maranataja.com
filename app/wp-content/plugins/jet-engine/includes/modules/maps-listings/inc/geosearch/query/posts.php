@@ -104,17 +104,39 @@ class Posts extends Base {
 		$geo_query = $query->get( 'geo_query' );
 		
 		if ( $geo_query ) {
-			
+
 			$orderby = $query->get('orderby');
 			$order   = $query->get('order');
-			
-			if ( $orderby == 'distance' ) {
-				
+
+			if ( $orderby == 'distance' || ( is_array( $orderby ) && isset( $orderby['distance'] ) ) ) {
+
 				if ( ! $order ) {
 					$order = 'ASC';
 				}
 
-				$sql = $this->distance_term . ' ' . $order;
+				$order = ( is_array( $orderby ) && ! empty( $orderby['distance'] ) ) ? $orderby['distance'] : $order;
+
+				$distance_orderby = $this->distance_term . ' ' . $order;
+
+				if ( is_array( $orderby ) && 1 < count( $orderby ) ) {
+					$sql_array      = ! empty( $sql ) ? explode( ', ', $sql ) : array();
+					$distance_index = array_search( 'distance', array_keys( $orderby ) );
+
+					if ( 0 == $distance_index ) {
+						array_unshift( $sql_array, $distance_orderby );
+					} else {
+						$sql_array = array_merge(
+							array_slice( $sql_array, 0, $distance_index ),
+							array( $distance_orderby ),
+							array_slice( $sql_array, $distance_index, null )
+						);
+					}
+
+					$sql = implode( ', ', $sql_array );
+
+				} else {
+					$sql = $distance_orderby;
+				}
 			}
 		}
 

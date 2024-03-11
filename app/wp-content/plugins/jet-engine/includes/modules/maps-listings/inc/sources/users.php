@@ -41,20 +41,36 @@ class Users extends Base {
 	public function add_preload_hooks( $preload_fields ) {
 
 		foreach ( $preload_fields as $field ) {
+
+			$field  = str_replace( '_custom::users::', '', $field );
 			$fields = explode( '+', $field );
 
 			if ( 1 === count( $fields ) ) {
-				$field = str_replace( 'user::', '', $field );
-				add_action( 'jet-engine/user-meta/before-save/' . $field, array( $this, 'preload', ), 10, 3 );
+				add_filter( 'update_user_metadata', function( $return, $user_id, $meta_key, $meta_value ) use ( $field ) {
+
+					if ( $field === $meta_key ) {
+						$this->preload( $user_id, $meta_value, $meta_key );
+					}
+
+					return $return;
+				}, 10, 4 );
+
+				add_action( 'add_user_metadata', function( $return, $user_id, $meta_key, $meta_value ) use ( $field ) {
+
+					if ( $field === $meta_key ) {
+						$this->preload( $user_id, $meta_value, $meta_key );
+					}
+
+					return $return;
+				}, 10, 4 );
+
 			} else {
-				$this->field_groups[] = array_map( function ( $item ) {
-					return str_replace( 'user::', '', $item );
-				}, $fields );
+				$this->field_groups[] = $fields;
 			}
 		}
 
 		if ( ! empty( $this->field_groups ) ) {
-			add_action( 'jet-engine/user-meta/after-save', array( $this, 'preload_groups' ) );
+			add_action( 'save_post', array( $this, 'preload_groups' ), 9999 );
 		}
 	}
 

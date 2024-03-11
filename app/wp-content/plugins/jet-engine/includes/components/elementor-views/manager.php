@@ -68,6 +68,9 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 			jet_engine()->dynamic_tags = new Jet_Engine_Dynamic_Tags_Manager();
 			$this->frontend            = new Jet_Engine_Elementor_Frontend();
 
+			require jet_engine()->plugin_path( 'includes/components/elementor-views/icons.php' );
+			new Jet_Engine_Elementor_Icons();
+
 			// Fix listing while widgets config set up
 			add_action( 'elementor/ajax/register_actions', array( $this, 'set_listing_on_ajax' ), -1 );
 

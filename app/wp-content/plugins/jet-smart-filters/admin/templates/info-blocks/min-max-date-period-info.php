@@ -9,6 +9,7 @@
 		'%s - <strong>"2020-05-25"</strong>. ',
 		__( 'To set the limit by date, fill in the date in the following format', 'jet-smart-filters' )
 	);
+	echo '<br>';
 	printf(
 		__('You can also use the keyword "%1$s" instead of the year, month, or day. Example: %2$s - the limit will be the 15th of the current year and month', 'jet-smart-filters'),
 		'<strong>current</strong>',
@@ -26,6 +27,6 @@
 		'<strong>today + 3 days</strong>'
 	);
 	echo '.<br>';
-	echo __( 'Leave the field empty if there is no limitation needed', 'jet-smart-filters' );
+	echo __( 'If the field is empty there will be no limits on the date', 'jet-smart-filters' );
 ?>
 </div>

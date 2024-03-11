@@ -72,17 +72,21 @@ trait Meta_Query_Trait {
 
 		if ( ! empty( $this->final_query['meta_query'] ) ) {
 
-			foreach ( $this->final_query['meta_query'] as $index => $existing_row ) {
-				foreach ( $rows as $row_index => $row ) {
-					if ( isset( $row['key'] ) && $existing_row['key'] === $row['key'] ) {
+			$replace_rows = apply_filters( 'jet-engine/query-builder/meta-query/replace-rows', true, $this );
 
-						if ( ! empty( $existing_row['clause_name'] ) ) {
-							$row['clause_name'] = $existing_row['clause_name'];
+			if ( $replace_rows ) {
+				foreach ( $this->final_query['meta_query'] as $index => $existing_row ) {
+					foreach ( $rows as $row_index => $row ) {
+						if ( isset( $row['key'] ) && $existing_row['key'] === $row['key'] ) {
+
+							if ( ! empty( $existing_row['clause_name'] ) ) {
+								$row['clause_name'] = $existing_row['clause_name'];
+							}
+
+							$this->final_query['meta_query'][ $index ] = $row;
+							$replaced_rows[] = $row_index;
+							break;
 						}
-
-						$this->final_query['meta_query'][ $index ] = $row;
-						$replaced_rows[] = $row_index;
-						break;
 					}
 				}
 			}

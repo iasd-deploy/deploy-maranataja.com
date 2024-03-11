@@ -13,7 +13,6 @@ namespace RankMath\Module;
 use RankMath\KB;
 use RankMath\Helper;
 use RankMath\Traits\Hooker;
-use MyThemeShop\Helpers\Conditional;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -42,7 +41,7 @@ class Manager {
 	 * The Constructor.
 	 */
 	public function __construct() {
-		if ( Conditional::is_heartbeat() ) {
+		if ( Helper::is_heartbeat() ) {
 			return;
 		}
 
@@ -90,6 +89,7 @@ class Manager {
 		$modules = $this->do_filter( 'modules', [] );
 
 		ksort( $modules );
+		$modules = array_merge( [ 'content-ai' => $modules['content-ai'] ], $modules ); // Move Content AI to first position.
 		foreach ( $modules as $id => $module ) {
 			$this->add_module( $id, $module );
 		}
@@ -176,7 +176,7 @@ class Manager {
 			'title'       => esc_html__( 'Content AI', 'rank-math' ),
 			'desc'        => esc_html__( 'Get sophisticated AI suggestions for related Keywords, Questions & Links to include in the SEO meta & Content Area. Supports 80+ Countries.', 'rank-math' ),
 			'class'       => 'RankMath\ContentAI\Content_AI',
-			'icon'        => 'target',
+			'icon'        => 'content-ai',
 			'upgradeable' => true,
 			'settings'    => Helper::get_admin_url( 'options-general' ) . '#setting-panel-content-ai',
 			'betabadge'   => true,
@@ -334,7 +334,7 @@ class Manager {
 			'class'         => 'RankMath\WooCommerce\WooCommerce',
 			'icon'          => 'cart',
 			'upgradeable'   => true,
-			'disabled'      => ( ! Conditional::is_woocommerce_active() ),
+			'disabled'      => ( ! Helper::is_woocommerce_active() ),
 			'disabled_text' => esc_html__( 'Please activate WooCommerce plugin to use this module.', 'rank-math' ),
 		];
 
@@ -390,7 +390,7 @@ class Manager {
 				<?php $this->cta(); ?>
 
 				<?php
-				foreach ( $this->modules as $module ) :
+				foreach ( $this->modules as $key => $module ) :
 					if ( ! $module->can_display() ) {
 						continue;
 					}
@@ -407,6 +407,9 @@ class Manager {
 					?>
 					<div class="rank-math-box <?php echo $is_active ? 'active' : ''; ?> <?php echo $is_hidden ? 'hidden' : ''; ?> <?php echo $is_pro ? 'is-pro' : ''; ?>">
 						<i class="rm-icon rm-icon-<?php echo esc_attr( $module->get_icon() ); ?>"></i>
+						<?php if ( 'content-ai' === $key && 'free' === Helper::get_content_ai_plan() ) { ?>
+							<div class="rank-math-free-badge"><?php echo esc_html__( 'Free', 'rank-math' ); ?></div>
+						<?php } ?>
 						<header>
 							<h3>
 								<?php echo esc_html( $module->get( 'title' ) ); ?>

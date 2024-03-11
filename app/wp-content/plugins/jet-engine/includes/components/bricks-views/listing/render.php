@@ -2,7 +2,9 @@
 /**
  * Bricks views manager
  */
+
 namespace Jet_Engine\Bricks_Views\Listing;
+
 
 /**
  * Define render class
@@ -12,7 +14,6 @@ class Render {
 	private $current_query;
 
 	public function __construct() {
-		
 		add_filter( 'jet-engine/listing/content/bricks', [ $this, 'get_listing_content_cb' ], 10, 2 );
 		add_filter( 'jet-engine/listing/grid/columns', [ $this, 'remap_columns' ], 10, 2 );
 
@@ -21,7 +22,6 @@ class Render {
 
 		add_action( 'jet-smart-filters/render/ajax/before', [ $this, 'set_query_on_filters_ajax' ] );
 		add_action( 'jet-engine/ajax-handlers/before-do-ajax', [ $this, 'set_query_on_listing_ajax' ], 10, 2 );
-
 	}
 
 	public function set_bricks_query( $listing_id = 0, $settings = [] ) {
@@ -31,7 +31,7 @@ class Render {
 		}
 
 		if ( $listing_id && jet_engine()->bricks_views->is_bricks_listing( $listing_id ) ) {
-			$this->current_query = jet_engine()->bricks_views->listing->get_bricks_query( [
+			$this->current_query[ $listing_id ] = jet_engine()->bricks_views->listing->get_bricks_query( [
 				'id'       => 'jet-engine-listing-grid',
 				'settings' => $settings,
 			] );
@@ -39,24 +39,47 @@ class Render {
 
 	}
 
+	public function get_current_query( $listing_id ) {
+		return $this->current_query[ $listing_id ] ?? false;
+	}
+
 	public function set_query_on_filters_ajax() {
-		$settings = isset( $_REQUEST['settings'] ) ? $_REQUEST['settings'] : [];
-		$this->set_bricks_query( 0, $settings );
+
+		$settings   = isset( $_REQUEST['settings'] ) ? $_REQUEST['settings'] : [];
+		$listing_id = ! empty ( $settings['lisitng_id'] ) ? $settings['lisitng_id'] : 0;
+		$this->set_bricks_query( $listing_id, $settings );
+
 	}
 
 	public function set_query_on_listing_ajax( $ajax_handler, $request ) {
-		$settings = isset( $request['settings'] ) ? $request['settings'] : [];
-		$this->set_bricks_query( 0, $settings );
+
+		$settings   = $request['widget_settings'] ?? $request['settings'] ?? [];
+		$listing_id = ! empty ( $settings['lisitng_id'] ) ? $settings['lisitng_id'] : 0;
+		$this->set_bricks_query( $listing_id, $settings );
+
 	}
 
 	public function set_query_on_render( $render ) {
-		$this->set_bricks_query( $render->get_settings( 'lisitng_id' ), $render->get_settings() );
+
+		$listing_id = $render->get_settings( 'lisitng_id' );
+		$this->set_bricks_query( $listing_id, $render->get_settings() );
+
 	}
 
-	public function destroy_bricks_query() {
-		if ( $this->current_query ) {
-			$this->current_query->destroy();
+	public function destroy_bricks_query( $render ) {
+
+		$listing_id = $render->get_settings( 'lisitng_id' );
+		$current_query = $this->get_current_query( $listing_id );
+
+		if ( $current_query ) {
+			$current_query->is_looping = false;
+
+			// Destroy Query to explicitly remove it from global store
+			$current_query->destroy();
+
+			unset( $this->current_query[ $listing_id ] );
 		}
+
 	}
 
 	public function remap_columns( $columns, $settings ) {
@@ -74,10 +97,11 @@ class Render {
 		}
 
 		return $columns;
+
 	}
 
 	public function get_listing_content_cb( $result, $listing_id ) {
-		
+
 		$bricks_data = get_post_meta( $listing_id, BRICKS_DB_PAGE_CONTENT, true );
 
 		if ( ! $bricks_data ) {
@@ -87,7 +111,17 @@ class Render {
 		ob_start();
 		jet_engine()->bricks_views->listing->render_assets( $listing_id );
 		$result = ob_get_clean();
-		
+
+		$post = jet_engine()->listings->data->get_current_object();
+
+		// Retrieve the current query object based on the listing ID.
+		$current_query = $this->get_current_query( $listing_id );
+
+		// Set current query loop index to the adjusted value.
+		if ( isset( $post->ID ) && $current_query ) {
+			$current_query->loop_index = $post->ID;
+		}
+
 		// Prepare flat list of elements for recursive calls
 		// Default Bricks logic not used in this case because it reset elements list after rendering
 		foreach ( $bricks_data as $element ) {
@@ -96,9 +130,9 @@ class Render {
 
 		// Prevent errors when handling non-post queries with WooCommerce is active
 		if ( function_exists( 'WC' ) && \Bricks\Theme::instance()->woocommerce ) {
-			remove_filter( 
+			remove_filter(
 				'bricks/builder/data_post_id',
-				[ \Bricks\Theme::instance()->woocommerce, 'maybe_set_post_id' ], 
+				[ \Bricks\Theme::instance()->woocommerce, 'maybe_set_post_id' ],
 				10, 1
 			);
 		}
@@ -106,7 +140,7 @@ class Render {
 		if ( is_array( $bricks_data ) && count( $bricks_data ) ) {
 
 			foreach ( $bricks_data as $element ) {
-				
+
 				if ( ! empty( $element['parent'] ) ) {
 					continue;
 				}
@@ -126,13 +160,13 @@ class Render {
 		}
 
 		// Filter required for the compatibility with default Bricks dynamic data
-		return apply_filters( 
+		return apply_filters(
 			'bricks/dynamic_data/render_content',
 			$result,
-			jet_engine()->listings->data->get_current_object(),
+			$post,
 			null
 		);
 
 	}
-	
+
 }

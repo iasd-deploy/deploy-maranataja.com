@@ -99,12 +99,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Color_Image_Filter' ) ) {
 				return false;
 			}
 
-			$source     = get_post_meta( $filter_id, '_data_source', true );
-			$type       = get_post_meta( $filter_id, '_color_image_type', true );
-			$behavior   = get_post_meta( $filter_id, '_color_image_behavior', true );
-			$options    = get_post_meta( $filter_id, '_source_color_image_input', true );
-			$query_type = false;
-			$query_var  = false;
+			$source           = get_post_meta( $filter_id, '_data_source', true );
+			$type             = get_post_meta( $filter_id, '_color_image_type', true );
+			$behavior         = get_post_meta( $filter_id, '_color_image_behavior', true );
+			$options          = get_post_meta( $filter_id, '_source_color_image_input', true );
+			$query_type       = false;
+			$query_var        = false;
+			$predefined_value = $this->get_predefined_value( $filter_id );
 
 			$options = $this->prepare_options( $options, $source );
 
@@ -151,6 +152,38 @@ if ( ! class_exists( 'Jet_Smart_Filters_Color_Image_Filter' ) ) {
 					break;
 			}
 
+			// If radio behavior
+			if ( $behavior === 'radio' ) {
+				// Add all option
+				$add_all_option = filter_var( get_post_meta( $filter_id, '_color_image_add_all_option', true ), FILTER_VALIDATE_BOOLEAN );
+
+				if ( $add_all_option ) {
+					$all_option_label = get_post_meta( $filter_id, '_color_image_add_all_option_lael', true );
+					$all_option_image = get_post_meta( $filter_id, '_color_image_add_all_option_image', true );
+
+					if ( $all_option_label || $all_option_image ) {
+						$all_option = array(
+							'label' => '',
+							'color' => '',
+							'image' => ''
+						);
+
+						if ( $all_option_label ) {
+							$all_option['label'] = htmlspecialchars( $all_option_label );
+						}
+	
+						if ( $all_option_image ) {
+							$all_option['image'] = $all_option_image;
+						}
+
+						$options = array( 'all' => $all_option ) + $options;
+					}
+				}
+
+				// Ability to deselect radio buttons
+				$can_deselect = filter_var( get_post_meta( $filter_id, '_color_image_ability_deselect_radio', true ), FILTER_VALIDATE_BOOLEAN );
+			}
+
 			$options = apply_filters( 'jet-smart-filters/filters/filter-options', $options, $filter_id, $this );
 
 			$result = array(
@@ -181,7 +214,24 @@ if ( ! class_exists( 'Jet_Smart_Filters_Color_Image_Filter' ) ) {
 				$result['dropdown_n_selected_text']    = $dropdown_n_selected_text;
 			}
 
+			if ( isset( $can_deselect ) ) {
+				$result['can_deselect'] = $can_deselect;
+			}
+
+			if ( $predefined_value !== false ) {
+				$result['predefined_value'] = $predefined_value;
+			}
+
 			return $result;
+		}
+
+		public function additional_filter_data_atts( $args ) {
+
+			$additional_filter_data_atts = array();
+
+			if ( ! empty( $args['can_deselect'] ) ) $additional_filter_data_atts['data-can-deselect'] = $args['can_deselect'];
+
+			return $additional_filter_data_atts;
 		}
 	}
 }

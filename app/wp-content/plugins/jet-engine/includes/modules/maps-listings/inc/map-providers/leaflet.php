@@ -43,6 +43,11 @@ class Leaflet extends Base {
 
 	public function public_assets( $query, $settings, $render ) {
 
+		// Ensure registered `jet-plugins` script.
+		if ( ! wp_script_is( 'jet-plugins', 'registered' )  ) {
+			jet_engine()->frontend->register_jet_plugins_js();
+		}
+
 		$marker_clustering = isset( $settings['marker_clustering'] ) ? filter_var( $settings['marker_clustering'], FILTER_VALIDATE_BOOLEAN ) : true;
 
 		if ( $marker_clustering ) {
@@ -89,7 +94,7 @@ class Leaflet extends Base {
 		wp_enqueue_script(
 			'jet-leaflet-map-provider',
 			jet_engine()->plugin_url( 'includes/modules/maps-listings/assets/js/public/leaflet-maps.js' ),
-			array(),
+			array('jet-plugins'),
 			jet_engine()->get_version(),
 			true 
 		);

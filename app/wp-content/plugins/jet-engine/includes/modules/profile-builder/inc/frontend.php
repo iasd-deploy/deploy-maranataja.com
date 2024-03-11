@@ -108,7 +108,13 @@ class Frontend {
 
 		} else {
 			$template = get_post( $template_id );
-			echo apply_filters( 'jet-engine/profile-builder/template/content', $template->post_content, $template_id, $this );
+			echo apply_filters( 
+				'jet-engine/profile-builder/template/content',
+				$template->post_content,
+				$template_id,
+				$this,
+				$template
+			);
 		}
 
 	}

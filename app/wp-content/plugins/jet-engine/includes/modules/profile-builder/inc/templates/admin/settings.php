@@ -5,7 +5,9 @@
 ?>
 <div>
 	<div class="wrap">
-		<h1 class="cs-vui-title"><?php _e( 'User Profile Builder', 'jet-engine' ); ?></h1>
+		<h1 class="cs-vui-title" style="display:inline-block;"><?php 
+			_e( 'User Profile Builder', 'jet-engine' ); 
+		?></h1>
 		<?php
 			jet_engine()->get_video_help_popup( array(
 				'popup_title' => __( 'How to work with Profile Builder', 'jet-engine' ),
@@ -179,15 +181,16 @@
 					></cx-vui-select>
 					<cx-vui-f-select
 						label="<?php _e( 'Template', 'jet-engine' ); ?>"
-						description="<?php _e( 'Select Elementor/Listing Item template to show as page content for non-authorized user', 'jet-engine' ); ?>"
+						description="<?php _e( 'Select template to show as page content for non-authorized user', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						:remote="true"
 						:remote-callback="getPosts"
 						size="fullwidth"
 						:multiple="false"
 						v-if="'template' === settings.not_logged_in_action"
+						ref="not_logged_in_template"
 						v-model="settings.not_logged_in_template"
-					></cx-vui-f-select>
+					><jet-profile-new-template @on-create="( value ) => { setCreatedTemplate( settings, 'not_logged_in_template', value ) }"></jet-profile-new-template></cx-vui-f-select>
 					<cx-vui-input
 						label="<?php _e( 'Redirect URL', 'jet-engine' ); ?>"
 						description="<?php _e( 'Set page URL to redirect', 'jet-engine' ); ?>"
@@ -206,15 +209,16 @@
 					></cx-vui-select>
 					<cx-vui-f-select
 						label="<?php _e( 'Template', 'jet-engine' ); ?>"
-						description="<?php _e( 'Select Elementor/Listing Item template to show as page content for non-authorized user', 'jet-engine' ); ?>"
+						description="<?php _e( 'Select template to show as page content for non-authorized user', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'equalwidth' ]"
 						:remote="true"
 						:remote-callback="getPosts"
 						size="fullwidth"
 						:multiple="false"
 						v-if="'template' === settings.not_accessible_action"
+						ref="not_accessible_template"
 						v-model="settings.not_accessible_template"
-					></cx-vui-f-select>
+					><jet-profile-new-template @on-create="( value ) => { setCreatedTemplate( settings, 'not_accessible_template', value ) }"></jet-profile-new-template></cx-vui-f-select>
 					<cx-vui-input
 						label="<?php _e( 'Redirect URL', 'jet-engine' ); ?>"
 						description="<?php _e( 'Set page URL to redirect', 'jet-engine' ); ?>"
@@ -260,7 +264,7 @@
 								></cx-vui-input>
 								<cx-vui-f-select
 									label="<?php _e( 'Template', 'jet-engine' ); ?>"
-									description="<?php _e( 'Page template. Select Elementor/Listing Item template to show on current page', 'jet-engine' ); ?>"
+									description="<?php _e( 'Select template to show on current page', 'jet-engine' ); ?>"
 									:wrapper-css="[ 'equalwidth' ]"
 									:remote="true"
 									:remote-callback="getPosts"
@@ -268,7 +272,8 @@
 									:multiple="false"
 									:value="settings.account_page_structure[ index ].template"
 									@input="setPageProp( index, 'template', $event, 'account_page_structure' )"
-								></cx-vui-f-select>
+									:ref="'account_template_' + index"
+								><jet-profile-new-template @on-create="( value ) => { setCreatedTemplate( settings.account_page_structure[ index ], 'template', value, 'account_template_' + index ) }"></jet-profile-new-template></cx-vui-f-select>
 								<cx-vui-switcher
 									label="<?php _e( 'Hide from menu', 'jet-engine' ); ?>"
 									description="<?php _e( 'Page will be hidden from profile menu, but accessible by URL', 'jet-engine' ); ?>"
@@ -381,7 +386,8 @@
 									:multiple="false"
 									:value="settings.user_page_structure[ index ].template"
 									@input="setPageProp( index, 'template', $event, 'user_page_structure' )"
-								></cx-vui-f-select>
+									:ref="'user_page_template_' + index"
+								><jet-profile-new-template @on-create="( value ) => { setCreatedTemplate( settings.user_page_structure[ index ], 'template', value, 'user_page_template_' + index ) }"></jet-profile-new-template></cx-vui-f-select>
 								<cx-vui-switcher
 									label="<?php _e( 'Hide from menu', 'jet-engine' ); ?>"
 									description="<?php _e( 'Page will be hidden from profile menu, but accessible by URL', 'jet-engine' ); ?>"

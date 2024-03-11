@@ -52,11 +52,16 @@
 				this.activeTab = tab;
 			}
 
+			window.onhashchange = this.locationHashChanged;
+
 		},
 		mounted: function() {
 			this.$el.className = 'is-mounted';
 		},
 		methods: {
+			locationHashChanged() {
+				window.location.reload();
+			},
 			addTabLocationHash: function( activeTab ) {
 				window.history.replaceState( null, null, '#' + activeTab );
 			},

@@ -33,8 +33,15 @@
 
 			self.applyCustomOptions();
 
-			if ( '#add_new' === window.location.hash ) {
-				self.openPopup();
+			if ( window.location.hash.includes( '#add_new' ) ) {
+				let source      = window.location.hash.replace( '#add_new', '' );
+				let defaultArgs = {};
+
+				if ( source ) {
+					defaultArgs.listing_source = source.replace( '__', '' );
+				}
+
+				self.openPopup( false, defaultArgs );
 			}
 
 		},
@@ -202,13 +209,19 @@
 
 		},
 
-		openPopup: function( event ) {
+		openPopup: function( event, defaultArgs ) {
 
 			if ( event ) {
 				event.preventDefault();
 			}
 
 			$( '.jet-listings-popup.jet-listings-popup--new' ).addClass( 'jet-listings-popup-active' );
+
+			if ( defaultArgs ) {
+				for ( const arg in defaultArgs ) {
+					$( '#' + arg ).val( defaultArgs[ arg ] ).trigger( 'change' );
+				}
+			}
 
 		},
 

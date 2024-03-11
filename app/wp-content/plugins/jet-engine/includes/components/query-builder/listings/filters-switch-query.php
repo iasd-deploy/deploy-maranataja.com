@@ -79,15 +79,16 @@ class Filters_Switch_Query extends Filters_Options_Source {
 		$query = Manager::instance()->get_query_by_id( $query_id );
 
 		if ( $this->new_query_id && Manager::instance()->listings->filters->is_filters_request( $query ) ) {
-			$query_id = $this->new_query_id;
+			$_query_id = $query_id;
+			$query_id  = $this->new_query_id;
 			$this->new_query_id = null;
 
 			$has_load_more = ! empty( $settings['use_load_more'] ) ? $settings['use_load_more'] : false;
 			$has_load_more = filter_var( $has_load_more, FILTER_VALIDATE_BOOLEAN );
 
 			if ( $has_load_more ) {
-				add_filter( 'jet-engine/listing/grid/query-args', function ( $args ) use ( $query_id ) {
-					$args['is_switched_query'] = true;
+				add_filter( 'jet-engine/listing/grid/query-args', function ( $args ) use ( $_query_id ) {
+					$args['switched_query_id'] = $_query_id;
 					return $args;
 				} );
 			}
@@ -95,7 +96,8 @@ class Filters_Switch_Query extends Filters_Options_Source {
 
 		if ( jet_engine()->listings->is_listing_ajax( 'listing_load_more' )
 			 && ! empty( $_REQUEST['query'] ) && ! empty( $_REQUEST['query']['query_id'] )
-			 && ! empty( $_REQUEST['query']['is_switched_query'] )
+			 && ! empty( $_REQUEST['query']['switched_query_id'] )
+			 && intval( $query_id ) === intval( $_REQUEST['query']['switched_query_id'] )
 		) {
 			$query_id = $_REQUEST['query']['query_id'];
 		}

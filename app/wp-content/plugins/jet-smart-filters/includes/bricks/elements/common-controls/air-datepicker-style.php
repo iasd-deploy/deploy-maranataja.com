@@ -6,13 +6,31 @@ $this->register_jet_control(
 	'calendar_offset_top',
 	[
 		'tab'     => 'style',
-		'label'   => esc_html__( 'Offset top', 'jet-smart-filters' ),
+		'label'   => esc_html__( 'Vertical Offset', 'jet-smart-filters' ),
 		'type'     => 'number',
 		'units'    => true,
 		'default' => '10px',
 		'css'     => [
 			[
 				'property' => 'margin-top',
+				'selector' => ".selector-$this->id",
+				'id'       => '#datepickers-container',
+			],
+		],
+	]
+);
+
+$this->register_jet_control(
+	'calendar_offset_left',
+	[
+		'tab'     => 'style',
+		'label'   => esc_html__( 'Horizontal Offset', 'jet-smart-filters' ),
+		'type'     => 'number',
+		'units'    => true,
+		'default' => '0px',
+		'css'     => [
+			[
+				'property' => 'margin-left',
 				'selector' => ".selector-$this->id",
 				'id'       => '#datepickers-container',
 			],

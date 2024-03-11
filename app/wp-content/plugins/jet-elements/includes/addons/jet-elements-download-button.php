@@ -50,13 +50,23 @@ class Jet_Elements_Download_Button extends Jet_Elements_Base {
 			)
 		);
 
+		$file_description = esc_html__( 'Here you can specify ID of media library element which will be downloaded on button click.', 'jet-elements' );
+
+		if ( current_user_can( 'manage_options' ) ) {
+			$file_description .= sprintf( 
+				'<br><a href="%1$s" target="_blank">%2$s</a>', 
+				jet_elements_download_handler()->get_reset_hashes_url(),
+				__( 'Reset existing links hashes. Do this to ensure only actual link hashes are stored.', 'jet-elements' )
+			);
+		}
+
 		$this->add_control(
 			'download_file',
 			array(
 				'label'       => esc_html__( 'Download ID', 'jet-elements' ),
 				'type'        => Controls_Manager::TEXT,
 				'dynamic'     => array( 'active' => true, ),
-				'description' => esc_html__( 'Here you can specify ID of media library element which will be downloaded on button click', 'jet-elements' ),
+				'description' => $file_description,
 				'default'     => array(),
 			)
 		);
@@ -65,7 +75,7 @@ class Jet_Elements_Download_Button extends Jet_Elements_Base {
 			'download_id_encryption',
 			array(
 				'label'        => esc_html__( 'Add Encryption for Download ID', 'jet-elements' ),
-				'type'         => Controls_Manager::SWITCHER,
+				'type'         => Controls_Manager::HIDDEN,
 				'return_value' => 'true',
 				'default'      => '',
 			)
@@ -89,6 +99,16 @@ class Jet_Elements_Download_Button extends Jet_Elements_Base {
 				'type'        => Controls_Manager::TEXT,
 				'default'     => esc_html__( '%size%', 'jet-elements' ),
 				'description' => esc_html__( 'You can use %size% placeholder to show formatted file size in label', 'jet-elements' ),
+			)
+		);
+
+		$this->add_control(
+			'download_file_name',
+			array(
+				'label'        => esc_html__( 'Add Download Name', 'jet-elements' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'return_value' => 'true',
+				'default'      => '',
 			)
 		);
 
@@ -120,6 +140,7 @@ class Jet_Elements_Download_Button extends Jet_Elements_Base {
 				'icon'            => '.jet-download__icon',
 				'button_label'    => '.jet-download__label',
 				'button_sublabel' => '.jet-download__sub-label',
+				'button_filename' => '.jet-download__file-name',
 			)
 		);
 
@@ -413,6 +434,40 @@ class Jet_Elements_Download_Button extends Jet_Elements_Base {
 			50
 		);
 
+		$this->_add_control(
+			'button_filename',
+			array(
+				'label'     => esc_html__( 'Button Download Name', 'jet-elements' ),
+				'type'      => Controls_Manager::HEADING,
+				'separator' => 'before',
+			),
+			25
+		);
+
+		$this->_add_control(
+			'button_filename_color',
+			array(
+				'label'     => esc_html__( 'Text Color', 'jet-elements' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} ' . $css_scheme['button_filename'] => 'color: {{VALUE}}',
+				),
+			),
+			25
+		);
+
+		$this->_add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'button_filename_typography',
+				'selector' => '{{WRAPPER}}  ' . $css_scheme['button_filename'],
+				'global' => array(
+					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
+				),
+			),
+			50
+		);
+
 		$this->_end_controls_tab();
 
 		$this->_start_controls_tab(
@@ -592,6 +647,8 @@ class Jet_Elements_Download_Button extends Jet_Elements_Base {
 			$size = jet_elements_download_handler()->get_file_size( $id );
 			$text = str_replace( '%size%', $size, $text );
 		}
+
+		$text = apply_filters( 'jet-elements/download-button/label', $text, $id );
 
 		return $text;
 	}

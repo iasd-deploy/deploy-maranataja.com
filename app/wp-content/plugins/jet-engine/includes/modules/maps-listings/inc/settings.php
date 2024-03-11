@@ -86,6 +86,32 @@ class Settings {
 			);
 		}, $sources_list );
 
+		$fields_providers = [
+			[
+				'value' => 'jet-engine',
+				'label' => __( 'JetEngine', 'jet-engine' ),
+			],
+			[
+				'value' => 'custom',
+				'label' => __( 'Any other custom fields providers', 'jet-engine' ),
+			]
+		];
+
+		$custom_sources = [
+			[
+				'value' => 'posts',
+				'label' => __( 'Posts', 'jet-engine' ),
+			],
+			[
+				'value' => 'terms',
+				'label' => __( 'Terms', 'jet-engine' ),
+			],
+			[
+				'value' => 'users',
+				'label' => __( 'Users', 'jet-engine' ),
+			]
+		];
+
 		wp_localize_script(
 			'jet-engine-maps-settings',
 			'JetEngineMapsSettings',
@@ -93,7 +119,9 @@ class Settings {
 				'_nonce'          => wp_create_nonce( $this->settings_key ),
 				'settings'        => $this->get_all(),
 				'sources'         => $sources,
+				'fieldsProviders' => $fields_providers,
 				'fields'          => $fields,
+				'customSources'   => $custom_sources,
 				'renderProviders' => Module::instance()->providers->get_providers_for_js( 'map' ),
 				'geoProviders'    => Module::instance()->providers->get_providers_for_js( 'geocode' ),
 			)
@@ -219,10 +247,23 @@ class Settings {
 					?></div>
 					<div slot="content">
 						<cx-vui-select
+							label="<?php _e( 'Fields Provider', 'jet-engine' ); ?>"
+							description="<?php _e( 'From where you have added meta fields', 'jet-engine' ); ?>"
+							:wrapper-css="[ 'equalwidth', 'collpase-sides' ]"
+							:options-list="fieldsProviders"
+							size="fullwidth"
+							name="current_popup_provider"
+							v-model="currentPopupProvider"
+							@input="resetPopupFields"
+						></cx-vui-select>
+						<cx-vui-select
 							label="<?php _e( 'Source', 'jet-engine' ); ?>"
-							:wrapper-css="[ 'equalwidth' ]"
+							description="<?php _e( 'JetEngine Meta Box to get fields from', 'jet-engine' ); ?>"
+							:wrapper-css="[ 'equalwidth', 'collpase-sides' ]"
 							:options-list="sources"
 							size="fullwidth"
+							placeholder="Select..."
+							v-if="'jet-engine' === currentPopupProvider"
 							name="current_popup_source"
 							v-model="currentPopupSource"
 							@input="resetPopupFields"
@@ -230,16 +271,40 @@ class Settings {
 						<cx-vui-f-select
 							label="<?php _e( 'Fields', 'jet-engine' ); ?>"
 							description="<?php _e( 'Select multiple meta fields to add these fields names separated by the \'+\' sign', 'jet-engine' ); ?>"
-							:wrapper-css="[ 'equalwidth' ]"
+							:wrapper-css="[ 'equalwidth', 'collpase-sides' ]"
 							:options-list="allFields[ currentPopupSource ]"
 							:multiple="true"
 							size="fullwidth"
+							v-if="'jet-engine' === currentPopupProvider"
 							name="current_popup_fields"
 							v-model="currentPopupFields"
 							ref="current_popup_fields"
 						></cx-vui-f-select>
+						<cx-vui-select
+							label="<?php _e( 'Source', 'jet-engine' ); ?>"
+							description="<?php _e( 'This meta field is for...', 'jet-engine' ); ?>"
+							:wrapper-css="[ 'equalwidth', 'collpase-sides' ]"
+							:options-list="customSources"
+							size="fullwidth"
+							v-if="'custom' === currentPopupProvider"
+							name="current_popup_custom_source"
+							v-model="currentPopupCustomSource"
+							@input="resetPopupFields"
+						></cx-vui-select>
+						<cx-vui-input
+							label="<?php _e( 'Fields', 'jet-engine' ); ?>"
+							description="<?php _e( 'Paste name of meta field to get addrese from. To get address from multiple fields - use the \'+\' sign to combine them. For examle - state+city+address', 'jet-engine' ); ?>"
+							:wrapper-css="[ 'equalwidth', 'collpase-sides' ]"
+							size="fullwidth"
+							v-if="'custom' === currentPopupProvider"
+							name="current_popup_custom_fields"
+							v-model="currentPopupCustomFields"
+							ref="current_popup_custom_fields"
+						></cx-vui-input>
 					</div>
 				</cx-vui-popup>
+
+				<?php do_action( 'jet-engine/maps-listing/settings/after-controls' ); ?>
 			</div>
 		</script>
 		<?php

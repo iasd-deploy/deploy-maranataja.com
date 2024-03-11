@@ -56,6 +56,62 @@ if ( ! class_exists( 'Jet_Engine_Listings_Post_Type' ) ) {
 			$this->admin_screen = new Jet_Engine_Listing_Admin_Screen( $this->slug() );
 
 			add_action( 'wp', array( $this, 'set_singular_preview_object' ) );
+			
+			add_filter( 
+				'jet-engine/profile-builder/create-template/' . $this->slug(),
+				[ $this, 'create_profile_template' ],
+				10, 3
+			);
+
+		}
+
+		/**
+		 * Create new profile template
+		 * 
+		 * @param  array  $result         Argument to set URL and ID into.
+		 * @param  string $template_name Name of template to create.
+		 * @param  string $template_view Listing view.
+		 * @return string
+		 */
+		public function create_profile_template( $result = [], $template_name = '', $template_view = '' ) {
+
+			if ( ! $template_name || ! $template_view ) {
+				return $result;
+			}
+
+			$source  = 'users';
+			$listing = [
+				'source'    => $source,
+				'post_type' => 'post',
+				'tax'       => 'category',
+			];
+
+			$template_id = $this->admin_screen->update_template( [
+				'post_title' => $template_name,
+				'post_type'   => $this->slug(),
+				'post_status' => 'publish',
+				'meta_input' => [
+					'_listing_data' => $listing,
+					'_listing_type' => $template_view,
+					'_elementor_page_settings' => [
+						'listing_source' => $source,
+						'listing_post_type' => 'post',
+						'listing_tax' => 'category',
+						'repeater_source' => '',
+						'repeater_field' => '',
+						'repeater_option' => '',
+					],
+				],
+			], $template_view );
+
+			if ( ! $template_id ) {
+				return $result;
+			}
+
+			return [
+				'template_url' => $this->admin_screen->get_edit_url( $template_view, $template_id ),
+				'template_id'  => $template_id,
+			];
 
 		}
 

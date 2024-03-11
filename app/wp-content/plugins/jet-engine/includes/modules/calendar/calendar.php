@@ -30,7 +30,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Calendar' ) ) {
 		 * @return string
 		 */
 		public function module_name() {
-			return __( 'Calendar', 'jet-engine' );
+			return __( 'Dynamic Calendar', 'jet-engine' );
 		}
 
 		/**
@@ -38,7 +38,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Calendar' ) ) {
 		 * @return [type] [description]
 		 */
 		public function get_module_details() {
-			return '<p>After activation, the <b>Calendar widget</b> will appear in the Elementor widget menu and the <b>Listing Calendar block</b> will appear in the Gutenberg editor.</p>
+			return '<p>After activation, the <b>Dynamic Calendar widget</b> will appear in the Elementor widget menu and the <b>Dynamic Calendar block</b> will appear in the Gutenberg editor.</p>
 					<p>With help of this widget, you can showcase posts from any CPT in the events calendar format.</p>
 					<p>You will have to link with a Custom Post Type to show the events.</p>';
 		}
@@ -126,13 +126,16 @@ if ( ! class_exists( 'Jet_Engine_Module_Calendar' ) ) {
 			add_action( 'jet-engine/blocks-views/register-block-types', array( $this, 'register_block_types' ) );
 			add_filter( 'jet-engine/blocks-views/editor/config',        array( $this, 'add_editor_config' ) );
 
+			add_action( 'jet-engine/register-macros', array( $this, 'register_macros' ) );
+
+			add_filter( 'jet-smart-filters/query/allowed-ajax-actions', array( $this, 'allow_month_action' ) );
+
 			// Bricks Integration
 			require jet_engine()->plugin_path( 'includes/modules/calendar/bricks-views/manager.php' );
 			new Jet_Engine\Modules\Calendar\Bricks_Views\Manager();
 
-			add_action( 'jet-engine/register-macros', array( $this, 'register_macros' ) );
-
-			add_filter( 'jet-smart-filters/query/allowed-ajax-actions', array( $this, 'allow_month_action' ) );
+			require jet_engine()->plugin_path( 'includes/modules/calendar/advanced-date-field/manager.php' );
+			Jet_Engine_Advanced_Date_Field::instance();
 
 		}
 
@@ -187,7 +190,6 @@ if ( ! class_exists( 'Jet_Engine_Module_Calendar' ) ) {
 			if ( $current_post ) {
 				global $post;
 				$post = get_post( $current_post );
-
 				jet_engine()->listings->data->set_current_object( $post );
 			}
 

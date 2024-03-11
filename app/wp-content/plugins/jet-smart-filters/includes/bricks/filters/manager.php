@@ -20,7 +20,6 @@ class Manager {
 	}
 
 	public function register_provider_for_filters( $providers_manager ) {
-
 		$providers_manager->register_provider(
 			'\Jet_Smart_Filters\Bricks_Views\Filters\Provider', // Custom provider class name
 			jet_smart_filters()->plugin_path( 'includes/bricks/filters/provider.php' ) // Path to file where this class defined
@@ -35,7 +34,6 @@ class Manager {
 		foreach ( $elements as $name ) {
 			add_filter( "bricks/elements/{$name}/controls", [ $this, 'add_jet_smart_filters_controls' ], 40 );
 		}
-
 	}
 
 	public function add_jet_smart_filters_controls( $controls ) {
@@ -80,51 +78,159 @@ class Manager {
 	public function add_script( $data ) {
 
 		wp_add_inline_script( 'jet-smart-filters', '
+			const filtersStack = {};
 
-				const filtersStack = {};
-
-				document.addEventListener( "jet-smart-filters/inited", () => {
-					window.JetSmartFilters.events.subscribe( "ajaxFilters/start-loading", ( provider, queryID ) => {
-						if ( "bricks-query-loop" === provider && filtersStack[ queryID ] ) {
-							delete filtersStack[ queryID ];
-						}
-					} );
-				} );
-
-				jQuery( document ).on( "jet-filter-data-updated", ".jsfb-filterable", ( event, response, filter ) => {
-
-					if ( event.target.classList.contains( "jsfb-query--" + response.query_id ) ) {
-						if ( ! filtersStack[ response.query_id ] ) {
-							
-							filtersStack[ response.query_id ] = true;
-							
-							var newContent = response.rendered_content;
-							var replaced = false;
-
-							if ( ! response.loadMore ) {
-								jQuery( ".jsfb-filterable.jsfb-query--" + response.query_id ).replaceWith( () => {
-
-									if ( replaced ) {
-										newContent = "";
-									} else {
-										replaced = true;
-									}
-
-									return newContent;
-
-								} );
-							}
-
-							filter.$provider.last().after( newContent );
-							filter.$provider = jQuery( ".jsfb-filterable.jsfb-query--" + response.query_id );
-							window.JetPlugins && window.JetPlugins.init( filter.$provider.closest( "*" ) );
-							bricksInitQueryLoopInstances();
-
-						}
+			document.addEventListener( "jet-smart-filters/inited", () => {
+				window.JetSmartFilters.events.subscribe( "ajaxFilters/start-loading", (provider, queryID) => {
+					if ( "bricks-query-loop" === provider && filtersStack[queryID] ) {
+						delete filtersStack[queryID];
 					}
 				} );
+			} );
+			
+			window.JetSmartFilters.events.subscribe("ajaxFilters/updated", (provider, queryId, response) => {
+				if ("bricks-query-loop" !== provider) {
+					return;
+				}
 
-			' );
+				let filterGroup = window.JetSmartFilters.filterGroups[provider + "/" + queryId];
+				
+				if (!filterGroup || !filterGroup.$provider.length) {
+					return;
+				}
+				
+				const {
+					$provider: nodes,
+					providerSelector
+				} = filterGroup;
+								
+				const {
+					rendered_content: renderedContent,
+					element_id: elementId,
+					loadMore,
+					pagination,
+					styles,
+				} = response;
+				
+				const selector = `jsfb-query--${queryId}`;
+				
+				if (nodes[0].classList.contains(selector) && !filtersStack[queryId]) {
+					filtersStack[queryId] = true;					
+					let replaced = false;
+					
+					const replaceContent = () => {
+						if (replaced) {
+							return "";
+						} else {
+							replaced = true;
+							return renderedContent;
+						}
+					}
+					
+					// Replace content
+					if ( loadMore ) {
+						jQuery(providerSelector).last().after(renderedContent);
+					} else {
+						jQuery(providerSelector).replaceWith(() => replaceContent());
+					}
+					
+					// Remove the previous style element and Insert the new style element
+					const {
+						id: styleElementId,
+						style: styleElement
+					} = styles;
+					const previousStyleElement = document.getElementById(styleElementId);
+					
+					if (previousStyleElement) {
+						document.body.removeChild(previousStyleElement);
+					}
+					
+					document.body.insertAdjacentHTML("beforeend", styleElement);
+					
+					// Initializing a plugin
+					const filteredNodes = jQuery(providerSelector);
+					
+					window.JetPlugins && window.JetPlugins.init(filteredNodes.closest("*"));
+					
+					// Re-init Bricks scripts after filtering
+					const bricksScripts = {
+						".bricks-lightbox": bricksPhotoswipe,
+						".brxe-accordion, .brxe-accordion-nested": bricksAccordion,
+						".brxe-animated-typing": bricksAnimatedTyping,
+						".brxe-audio": bricksAudio,
+						".brxe-countdown": bricksCountdown,
+						".brxe-counter": bricksCounter,
+						".brxe-video": bricksVideo,
+						".bricks-lazy-hidden": bricksLazyLoad,
+						".brx-animated": bricksAnimation,
+						".brxe-pie-chart": bricksPieChart,
+						".brxe-progress-bar .bar span": bricksProgressBar,
+						".brxe-form": bricksForm,
+						".brx-query-trail": bricksInitQueryLoopInstances,
+						"[data-interactions]": bricksInteractions,
+						".brxe-alert svg": bricksAlertDismiss,
+						".brxe-tabs, .brxe-tabs-nested": bricksTabs,
+						".bricks-video-overlay, .bricks-video-overlay-icon, .bricks-video-preview-image": bricksVideoOverlayClickDetector,
+						".bricks-background-video-wrapper": bricksBackgroundVideoInit,
+						".brxe-toggle": bricksToggle,
+						".brxe-offcanvas": bricksOffcanvas,
+					};
+											
+					const contentWrapper = filteredNodes[0].parentNode;
+					
+					for (const key in bricksScripts) {
+						const widget = contentWrapper.querySelector(key);
+					
+						if (widget && typeof bricksScripts[key] === "function" && bricksScripts[key]) {
+					        bricksScripts[key](); // run function
+					    }
+					}
+					
+					// Re-init Bricks scripts when filtering children of nested elements
+					const scriptsNestedElements = {
+						".brxe-accordion-nested": {
+							node: contentWrapper,
+							func: bricksAccordionFn.run
+						},
+						".brxe-tabs-nested": {
+							node: contentWrapper.parentNode,
+							func: bricksTabsFn.run
+						},
+						".brxe-slider-nested.splide": {
+							node: contentWrapper.parentNode.parentNode,
+							func: bricksSplideFn.run
+						},
+					};
+					
+					const options = {
+						forceReinit: true,
+					};
+					
+					for (const key in scriptsNestedElements) {
+						const {node, func} = scriptsNestedElements[key];
+						if (node && node.matches(key)) {
+							options.parentNode = node.parentNode;
+							func(options);
+						}
+					}
+															
+					const interactions = document.querySelectorAll("[data-interactions]");
+					
+					// Manage the visibility of "Load More" buttons
+					if (interactions.length) {
+						interactions.forEach(el => {
+							const {loadMoreQuery} = JSON.parse(el.dataset.interactions)[0];
+							const {max_num_pages: maxPages, page} = pagination;
+								
+							if (elementId === loadMoreQuery) {
+								el.style.display = page >= maxPages ? "none" : "";
+							}
+						});	
+					}
+				}
+			});
+
+		' );
 
 		return $data;
 

@@ -37,21 +37,17 @@ if ( ! class_exists( 'Jet_Smart_Filters_Active_Filters' ) ) {
 				),
 			);
 
-			$title              = isset( $settings['filters_label'] ) ? $settings['filters_label'] : '';
-			$active_filter_html = jet_smart_filters()->utils->template_parse( 'for-js/active-filter.php' );
+			$title = isset( $settings['filters_label'] ) ? $settings['filters_label'] : '';
 
 			echo '<div class="jet-active-filters__list">';
 			echo '<div class="jet-active-filters__title">' . $title . '</div>';
-
 			foreach ( $active_filters as $_filter ) {
 				echo '<div class="jet-active-filter">';
-				$label = $_filter['label'];
-				$value = $_filter['value'];
-
-				eval( '?>'.$active_filter_html.'<?php ' );
+				echo jet_smart_filters()->utils->template_replace_with_value( 'for-js/active-filter/label.php', $_filter['label'] );
+				echo jet_smart_filters()->utils->template_replace_with_value( 'for-js/active-filter/value.php', $_filter['value'] );
+				echo jet_smart_filters()->utils->get_template_html( 'for-js/active-filter/remove.php' );
 				echo '</div>';
 			}
-
 			echo '<div>';
 		}
 
@@ -75,29 +71,21 @@ if ( ! class_exists( 'Jet_Smart_Filters_Active_Filters' ) ) {
 			$clear_item  = isset( $settings['clear_item'] ) ? filter_var( $settings['clear_item'], FILTER_VALIDATE_BOOLEAN ) : false;
 			$clear_label = ! empty( $settings['clear_item_label'] ) ? $settings['clear_item_label'] : false;
 
-			$active_tag_html = jet_smart_filters()->utils->template_parse( 'for-js/active-tag.php' );
-
 			echo '<div class="jet-active-tags__list">';
 			echo '<div class="jet-active-tags__title">' . $title . '</div>';
-
 			if ( $clear_item && $clear_label ) {
 				echo '<div class="jet-active-tag jet-active-tag--clear">';
-				$label = '';
-				$value = $clear_label;
-
-				eval( '?>'.$active_tag_html.'<?php ' );
+				echo jet_smart_filters()->utils->template_replace_with_value( 'for-js/active-tag/value.php', $clear_label );
+				echo jet_smart_filters()->utils->get_template_html( 'for-js/active-tag/remove.php' );
 				echo '</div>';
 			}
-
 			foreach ( $active_tags as $_tag ) {
 				echo '<div class="jet-active-tag">';
-				$label = $_tag['label'];
-				$value = $_tag['value'];
-
-				eval( '?>'.$active_tag_html.'<?php ' );
+				echo jet_smart_filters()->utils->template_replace_with_value( 'for-js/active-tag/label.php', $_tag['label'] );
+				echo jet_smart_filters()->utils->template_replace_with_value( 'for-js/active-tag/value.php', $_tag['value'] );
+				echo jet_smart_filters()->utils->get_template_html( 'for-js/active-tag/remove.php' );
 				echo '</div>';
 			}
-
 			echo '<div>';
 		}
 	}

@@ -36,6 +36,10 @@ class Jet_Smart_Filters_Admin_Setting_Pages {
 				'class' => 'Jet_Smart_Filters_Admin_Setting_Page_Accessibility',
 				'args'  => array(),
 			),
+			'jet-smart-filters-provider-preloader' => array(
+				'class' => 'Jet_Smart_Filters_Admin_Setting_Page_Provider_Preloader',
+				'args'  => array(),
+			),
 		) );
 
 		add_action( 'init', array( $this, 'register_settings_category' ), 10 );
@@ -59,6 +63,7 @@ class Jet_Smart_Filters_Admin_Setting_Pages {
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/url-structure.php' );
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/ajax-request-type.php' );
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/accessibility-settings.php' );
+		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/provider-preloader.php' );
 
 		foreach ( $this->subpage_modules as $subpage => $subpage_data ) {
 			\Jet_Dashboard\Dashboard::get_instance()->module_manager->register_subpage_module( $subpage, $subpage_data );

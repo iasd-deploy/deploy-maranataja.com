@@ -81,6 +81,14 @@
 			margin-top: 5px;
 		}
 	}
+
+	&__frame {
+		.gm-svpc {
+			img {
+				max-width: none;
+			}
+		}
+	}
 }
 
 @keyframes rotation {

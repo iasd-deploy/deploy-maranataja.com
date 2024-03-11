@@ -87,6 +87,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Checkboxes_Filter' ) ) {
 			$query_var               = false;
 			$relational_operator     = 'OR';
 			$current_value           = false;
+			$predefined_value        = $this->get_predefined_value( $filter_id );
 
 			switch ( $source ) {
 				case 'taxonomies':
@@ -217,6 +218,14 @@ if ( ! class_exists( 'Jet_Smart_Filters_Checkboxes_Filter' ) ) {
 				$result['dropdown_n_selected_enabled'] = $dropdown_n_selected_enabled;
 				$result['dropdown_n_selected_number']  = $dropdown_n_selected_number;
 				$result['dropdown_n_selected_text']    = $dropdown_n_selected_text;
+			}
+
+			if ( $by_parents ) {
+				$result['collapsible'] = filter_var( get_post_meta( $filter_id, '_group_collapsible', true ), FILTER_VALIDATE_BOOLEAN );
+			}
+
+			if ( $predefined_value !== false ) {
+				$result['predefined_value'] = $predefined_value;
 			}
 
 			return $result;

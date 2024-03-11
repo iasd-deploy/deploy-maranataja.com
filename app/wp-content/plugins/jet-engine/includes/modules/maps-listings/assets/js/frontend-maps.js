@@ -10,6 +10,8 @@
 		clusterersData: {},
 		mapProvider: mapProvider,
 
+		preventPanToMarker: false,
+
 		init: function() {
 
 			var widgets = {
@@ -17,7 +19,7 @@
 			};
 
 			$.each( widgets, function( widget, callback ) {
-				window.elementorFrontend.hooks.addAction( 'frontend/element_ready/' + widget, callback );
+				window.elementorFrontend?.hooks?.addAction( 'frontend/element_ready/' + widget, callback );
 			});
 
 		},
@@ -39,7 +41,12 @@
 
 			$scope = $scope || $( 'body' );
 
-			JetEngineMaps.initBlocks( $scope );
+			window.JetPlugins.init( $scope, [
+				{
+					block: 'jet-engine/bricks-maps-listing',
+					callback: JetEngineMaps.bricksWidgetMap
+				}
+			] );
 
 		},
 
@@ -50,6 +57,16 @@
 			} else {
 				JetEngineMaps.registerUrlAction();
 			}
+		},
+
+		bricksWidgetMap: function( $scope ) {
+
+			if (JetEngineMaps.isBricksHiddenWrap($scope)) {
+				JetEngineMaps.initMapAfterDisplayingWidgets($scope[0]);
+				return;
+			}
+
+			JetEngineMaps.widgetMap($scope);
 		},
 
 		widgetMap: function( $scope ) {
@@ -120,7 +137,11 @@
 					activeInfoWindow = false;
 				}, map );
 
-				mapProvider.openPopup( marker, function() {
+				mapProvider.openPopup( marker, function( event ) {
+					// Prevent clicking on a point of interest under listing marker
+					if ( event && event.stopPropagation ) {
+						event.stopPropagation();
+					}
 
 					if ( infowindow.contentIsSet() ) {
 
@@ -139,6 +160,8 @@
 						JetEngineMaps.initHandlers( $container.find( '.jet-map-box' ) );
 
 						activeInfoWindow = infowindow;
+
+						setCenterByMarker( marker );
 
 						return;
 
@@ -199,8 +222,27 @@
 
 					});
 
+					setCenterByMarker( marker );
+
 				}, infowindow, map, popupOpenOn );
 
+			};
+
+			var setCenterByMarker = function( marker ) {
+
+				if ( JetEngineMaps.preventPanToMarker ) {
+					return;
+				}
+
+				if ( ! general.centeringOnOpen ) {
+					return;
+				}
+
+				mapProvider.panTo( {
+					map: map,
+					position: mapProvider.getMarkerPosition( marker ),
+					zoom: general.zoomOnOpen ? +general.zoomOnOpen : false,
+				} );
 			};
 
 			var setAutoCenter = function() {
@@ -248,6 +290,10 @@
 				mapSettings.maxZoom = general.maxZoom;
 			}
 
+			if ( general.minZoom ) {
+				mapSettings.minZoom = general.minZoom;
+			}
+
 			if ( general.styles ) {
 				mapSettings.styles = general.styles;
 			}
@@ -271,6 +317,8 @@
 			width  = parseInt( general.width, 10 );
 			offset = parseInt( general.offset, 10 );
 
+			$container.data( 'mapInstance', map );
+
 			if ( markers ) {
 				$.each( markers, function( index, markerData ) {
 					markerData.markerClustering = general.markerClustering;
@@ -287,7 +335,9 @@
 				markerCluster = mapProvider.getMarkerCluster( {
 					map: map,
 					markers: gmMarkers,
-					clustererImg: general.clustererImg
+					clustererImg: general.clustererImg,
+					clusterMaxZoom: general.clusterMaxZoom,
+					clusterRadius: general.clusterRadius,
 				} );
 
 				JetEngineMaps.clusterersData[ mapID ] = markerCluster;
@@ -369,6 +419,10 @@
 				return;
 			}
 
+			if ( zoom ) {
+				JetEngineMaps.preventPanToMarker = true;
+			}
+
 			for ( var i = 0; i < JetEngineMaps.markersData[ popupID ].length; i++ ) {
 
 				var marker = JetEngineMaps.markersData[ popupID ][i].marker,
@@ -391,14 +445,21 @@
 
 				mapProvider.triggerOpenPopup( marker );
 			}
+
+			JetEngineMaps.preventPanToMarker = false;
 		},
 
 		customInitMapBySelector: function( $selector ) {
 			var $mapBlock = $selector.closest( '[data-is-block="jet-engine/maps-listing"]' ),
+				$mapBricks = $selector.closest( '[data-is-block="jet-engine/bricks-maps-listing"]' ),
 				$mapElWidget = $selector.closest( '.elementor-widget-jet-engine-maps-listing' );
 
 			if ( $mapBlock.length ) {
 				JetEngineMaps.widgetMap( $mapBlock );
+			}
+
+			if ( $mapBricks.length ) {
+				JetEngineMaps.bricksWidgetMap( $mapBricks );
 			}
 
 			if ( $mapElWidget.length ) {
@@ -436,6 +497,40 @@
 				window.JetPopupFrontend.initAttachedPopups( $selector );
 			}
 
+			// Reinit the common events for a map popup.
+			// Only for Google provider as event propagation is disabled.
+			if ( window.JetEngine && mapProvider.getId && 'google' === mapProvider.getId() ) {
+				JetEngine.commonEvents( $selector );
+			}
+
+		},
+
+		// Restart the map when it is displayed
+		initMapAfterDisplayingWidgets: function( node ) {
+			const observer = new IntersectionObserver((entries, observer) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						observer.unobserve(entry.target);
+
+						JetEngineMaps.widgetMap($(entry.target));
+					}
+				});
+			});
+
+			observer.observe(node);
+		},
+
+		// Check the Bricks parent node. Is it hidden or not?
+		// The problem was the accordion and tabs
+		isBricksHiddenWrap: function( $scope ) {
+			const generalWrapper = $scope[0].closest('.brxe-accordion-nested, .brxe-tabs-nested');
+			const wrapHidden = $scope[0].closest('.listening, .tab-pane');
+
+			if (generalWrapper && wrapHidden && !wrapHidden.classList.contains('brx-open')) {
+				return true;
+			}
+
+			return false;
 		},
 
 	};

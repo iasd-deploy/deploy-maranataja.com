@@ -170,6 +170,7 @@ class Edit extends \Jet_Engine_CPT_Page_Base {
 				'item_id'                 => $id,
 				'edit_button_label'       => $button_label,
 				'redirect'                => $redirect,
+				'rest_url'                => get_rest_url( null, '/' ),
 				'post_types'              => \Jet_Engine_Tools::get_post_types_for_js(),
 				'operators_list'          => \Jet_Engine_Tools::operators_list(),
 				'data_types'              => \Jet_Engine_Tools::data_types_list(),

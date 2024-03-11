@@ -15,14 +15,18 @@ trait Tax_Query_Trait {
 
 		if ( ! empty( $this->final_query['tax_query'] ) ) {
 
-			foreach ( $this->final_query['tax_query'] as $index => $existing_row ) {
-				foreach ( $rows as $row_index => $row ) {
-					if ( isset( $row['taxonomy'] ) && isset( $existing_row['taxonomy'] )
-						 && $existing_row['taxonomy'] === $row['taxonomy']
-						 && ! in_array( $row_index, $replaced_rows )
-					) {
-						$this->final_query['tax_query'][ $index ] = $row;
-						$replaced_rows[] = $row_index;
+			$replace_rows = apply_filters( 'jet-engine/query-builder/tax-query/replace-rows', true, $this );
+
+			if ( $replace_rows ) {
+				foreach ( $this->final_query['tax_query'] as $index => $existing_row ) {
+					foreach ( $rows as $row_index => $row ) {
+						if ( isset( $row['taxonomy'] ) && isset( $existing_row['taxonomy'] )
+							 && $existing_row['taxonomy'] === $row['taxonomy']
+							 && ! in_array( $row_index, $replaced_rows )
+						) {
+							$this->final_query['tax_query'][ $index ] = $row;
+							$replaced_rows[] = $row_index;
+						}
 					}
 				}
 			}

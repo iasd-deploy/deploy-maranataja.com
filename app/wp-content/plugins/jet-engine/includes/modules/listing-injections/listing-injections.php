@@ -25,6 +25,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 		private $is_last_static_hooked = false;
 		private $static_items_to_print = array();
 		private $static_injections = array();
+		private $static_items_post_ids = array();
+		private $injected_item = false;
 
 		/**
 		 * Module ID
@@ -94,6 +96,9 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 				'blocks_injections_config'
 			) );
 			add_filter( 'jet-engine/blocks-views/listing-grid/attributes', array( $this, 'block_atts' ) );
+
+			add_filter( 'jet-engine/listing/item-classes', array( $this, 'update_static_item_classes' ), 10, 5 );
+			add_filter( 'jet-engine/listing/item-post-id', array( $this, 'update_static_item_post_id' ), 10, 5 );
 
 		}
 
@@ -182,15 +187,34 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 		 */
 		public function maybe_inject_item( $content = false, $post = null, $i = 0, $widget = false, $query = null ) {
 
+			$this->injected_item = false;
+
 			$settings      = $widget->get_settings();
 			$injected_item = $this->get_injected_item( $settings, $post, $i, $widget, count( $query ) );
 
 			if ( ! $injected_item ) {
 				return $content;
 			} else {
+				$this->injected_item = $injected_item;
+				add_filter( 'jet-engine/listing/item-classes', array( $this, 'apply_item_class' ) );
 				return $this->get_injected_item_content( $injected_item, $post );
 			}
 
+		}
+
+		/**
+		 * Add class with injected listing ID to listing classes 
+		 * 
+		 * @param  [type] $classes [description]
+		 * @return [type]          [description]
+		 */
+		public function apply_item_class( $classes ) {
+
+			if ( $this->injected_item ) {
+				$classes[] = 'jet-listing-grid--' . $this->injected_item;
+			}
+
+			return $classes;
 		}
 
 		/**
@@ -263,6 +287,64 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 
 			return $classes;
 
+		}
+
+		public function update_static_item_classes( $classes = array(), $post = null, $i = null, $widget = null, $is_static = false ) {
+
+			$static_post_id = $this->get_static_item_post_id( $i, $is_static );
+
+			if ( ! $static_post_id ) {
+				return $classes;
+			}
+
+			$initial_id = jet_engine()->listings->data->get_current_object_id( $post );
+
+			if ( $initial_id == $static_post_id ) {
+				return $classes;
+			}
+
+			$classes = array_filter( $classes, function ( $class ) {
+				return false === strpos( $class, 'jet-listing-dynamic-post-' );
+			} );
+
+			$classes[] = 'jet-listing-dynamic-post-' . $static_post_id;
+
+			return $classes;
+		}
+
+		public function update_static_item_post_id( $id = null, $post = null, $i = null, $widget = null, $is_static = false ) {
+
+			$static_post_id = $this->get_static_item_post_id( $i, $is_static );
+
+			if ( ! $static_post_id ) {
+				return $id;
+			}
+
+			return $static_post_id;
+		}
+
+		public function get_static_item_post_id( $i, $is_static ) {
+
+			if ( ! $is_static ) {
+				return false;
+			}
+
+			if ( empty( $this->injected_indexes[ $i ] ) ) {
+				return false;
+			}
+
+			$item          = $this->injected_indexes[ $i ];
+			$injected_hash = $this->get_injected_hash( $item );
+
+			if ( empty( $this->static_items_post_ids[ $injected_hash ] ) ) {
+				return false;
+			}
+
+			if ( empty( $this->static_items_post_ids[ $injected_hash ][ $i ] ) ) {
+				return false;
+			}
+
+			return $this->static_items_post_ids[ $injected_hash ][ $i ];
 		}
 
 		/**
@@ -594,6 +676,14 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 								$this->static_injections[ $listing_id ] = isset( $this->static_injections[ $listing_id ] ) ? $this->static_injections[ $listing_id ] ++ : 1;
 							}
 
+							$injected_hash = $this->get_injected_hash( $item );
+
+							if ( empty( $this->static_items_post_ids[ $injected_hash ] ) ) {
+								$this->static_items_post_ids[ $injected_hash ] = array();
+							}
+
+							$this->static_items_post_ids[ $injected_hash ][ $i ] = jet_engine()->listings->data->get_current_object_id( $post );
+
 							$this->print_static_result( $result, $post, $item, $i, $listing_id );
 						}
 
@@ -608,6 +698,10 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 
 			return false;
 
+		}
+
+		public function get_injected_hash( $item ) {
+			return md5( json_encode( $item ) );
 		}
 
 		public function print_static_result( $result, $post, $item, $i, $listing_id = false ) {
@@ -1014,6 +1108,8 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 					if ( in_array( $inject_item_id, $css_added ) ) {
 						continue;
 					}
+
+					$inject_item_id = apply_filters( 'jet-engine/compatibility/translate/post', $inject_item_id );
 
 					if ( class_exists( 'Elementor\Core\Files\CSS\Post' ) ) {
 						$css_file = new Elementor\Core\Files\CSS\Post( $inject_item_id );

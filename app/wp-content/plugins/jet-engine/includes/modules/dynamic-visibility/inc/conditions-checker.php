@@ -41,7 +41,7 @@ class Condition_Checker {
 
 			foreach ( $args as $arg => $default ) {
 				$key = 'jedv_' . $arg;
-				$args[ $arg ] = ! empty( $condition[ $key ] ) ? $condition[ $key ] : $default;
+				$args[ $arg ] = ! \Jet_Engine_Tools::is_empty( $condition, $key ) ? $condition[ $key ] : $default;
 			}
 
 			// Apply macros in value

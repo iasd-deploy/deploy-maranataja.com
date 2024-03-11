@@ -48,8 +48,15 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Terms' ) ) {
 				return;
 			}
 
-			switch ( get_class( $object ) ) {
+			$class = get_class( $object );
+
+			if ( is_a( $object, 'WC_Product' ) ) {
+				$class = 'WC_Product';
+			}
+
+			switch ( $class ) {
 				case 'WP_Post':
+				case 'WC_Product':
 
 					$args      = array();
 					$args_keys = array( 'orderby', 'order' );

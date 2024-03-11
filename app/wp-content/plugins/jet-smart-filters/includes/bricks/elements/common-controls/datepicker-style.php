@@ -9,12 +9,28 @@ $this->register_jet_control(
 	'calendar_offset_top',
 	[
 		'tab'     => 'style',
-		'label'   => esc_html__( 'Offset top', 'jet-smart-filters' ),
+		'label'   => esc_html__( 'Vertical Offset', 'jet-smart-filters' ),
 		'type'    => 'number',
 		'default' => '10px',
 		'css'     => [
 			[
 				'property' => 'margin-top',
+				'selector' => ".jet-smart-filters-datepicker-$this->id " . $css_scheme['calendar-wrapper'],
+			],
+		],
+	]
+);
+
+$this->register_jet_control(
+	'calendar_offset_left',
+	[
+		'tab'     => 'style',
+		'label'   => esc_html__( 'Horizontal Offset', 'jet-smart-filters' ),
+		'type'    => 'number',
+		'default' => '10px',
+		'css'     => [
+			[
+				'property' => 'margin-left',
 				'selector' => ".jet-smart-filters-datepicker-$this->id " . $css_scheme['calendar-wrapper'],
 			],
 		],

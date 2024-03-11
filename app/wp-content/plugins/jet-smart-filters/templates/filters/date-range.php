@@ -9,10 +9,11 @@ $current     = $this->get_current_filter_value( $args );
 $from        = '';
 $to          = '';
 
-$date_format      = isset( $args['date_format'] ) ? $args['date_format'] : '';
-$from_placeholder = isset( $args['from_placeholder'] ) ? $args['from_placeholder'] : '';
-$to_placeholder   = isset( $args['to_placeholder'] ) ? $args['to_placeholder'] : '';
-
+$date_format         = isset( $args['date_format'] ) ? $args['date_format'] : '';
+$from_placeholder    = isset( $args['from_placeholder'] ) ? $args['from_placeholder'] : '';
+$to_placeholder      = isset( $args['to_placeholder'] ) ? $args['to_placeholder'] : '';
+$min_date_attr       = isset( $args['min_date'] ) ? 'data-mindate="' . $args['min_date'] . '"' : '';
+$max_date_attr       = isset( $args['max_date'] ) ? 'data-maxdate="' . $args['max_date'] . '"' : '';
 $accessibility_label = $args['accessibility_label'];
 
 $classes = array(
@@ -63,7 +64,9 @@ $hide_button = isset( $args['hide_button'] ) ? $args['hide_button'] : false;
 		name="<?php echo $query_var; ?>"
 		value="<?php echo $current; ?>"
 		aria-label="<?php _e( 'Date range value', 'jet-smart-filters' ); ?>"
-		data-date-format="<?php echo $date_format; ?>"
+		data-date-format="<?php echo $date_format;?>"
+		<?php echo $min_date_attr; ?>
+		<?php echo $max_date_attr; ?>
 	>
 	<?php if ( ! $hide_button ) : ?>
 	<button
