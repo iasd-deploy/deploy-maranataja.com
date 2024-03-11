@@ -1026,7 +1026,9 @@
     "timelimit.minify_recommendations": 600,
     "common.instance_id": 1820345189,
     "common.force_master": true,
-    "extensions.active": [],
+    "extensions.active": {
+        "cloudflare": "w3-total-cache\/Extension_CloudFlare_Plugin.php"
+    },
     "extensions.active_frontend": {
         "user-experience-emoji": "*",
         "cloudflare": "*"
@@ -1044,9 +1046,9 @@
     "fragmentcache": {
         "engine": "file"
     },
-    "page": "w3tc_objectcache",
-    "_wpnonce": "83f51b1698",
-    "_wp_http_referer": "\/wp-admin\/admin.php?page=w3tc_objectcache&w3tc_message=65ef3b9fd536d",
+    "page": "w3tc_extensions",
+    "_wpnonce": "791ab8e997",
+    "_wp_http_referer": "\/wp-admin\/admin.php?page=w3tc_extensions&extension=cloudflare&action=view",
     "w3tc_save_options": "Save Settings",
     "opcache.engine": "OPcache",
     "opcache.validate_timestamps": "1",
@@ -1067,5 +1069,38 @@
         "widget_cache_mins": "5",
         "pagecache": "1",
         "minify_js_rl_exclude": "0"
-    }
+    },
+    "extension": "cloudflare",
+    "action": "view",
+    "cloudflare_api_development_mode": "0",
+    "cloudflare_api_cache_level": "aggressive",
+    "cloudflare_api_sort_query_string_for_cache": "0",
+    "cloudflare_api_browser_cache_ttl": "",
+    "cloudflare_api_challenge_ttl": "1800",
+    "cloudflare_api_edge_cache_ttl": "7200",
+    "cloudflare_api_rocket_loader": "off",
+    "cloudflare_api_minify_js": "0",
+    "cloudflare_api_minify_css": "0",
+    "cloudflare_api_minify_html": "0",
+    "cloudflare_api_server_side_exclude": "1",
+    "cloudflare_api_email_obfuscation": "1",
+    "cloudflare_api_response_buffering": "0",
+    "cloudflare_api_prefetch_preload": "0",
+    "cloudflare_api_mobile_redirect": "1",
+    "cloudflare_api_origin_error_page_pass_thru": "0",
+    "cloudflare_api_hotlink_protection": "0",
+    "cloudflare_api_mirage": "0",
+    "cloudflare_api_security_level": "medium",
+    "cloudflare_api_browser_check": "1",
+    "cloudflare_api_always_online": "1",
+    "cloudflare_api_waf": "0",
+    "cloudflare_api_advanced_ddos": "1",
+    "cloudflare_api_max_upload": "100",
+    "cloudflare_api_ip_geolocation": "1",
+    "cloudflare_api_ipv6": "1",
+    "cloudflare_api_true_client_ip_header": "0",
+    "cloudflare_api_ssl": "full",
+    "cloudflare_api_security_header": "0",
+    "cloudflare_api_tls_1_2_only": "0",
+    "cloudflare_api_tls_client_auth": "0"
 }
