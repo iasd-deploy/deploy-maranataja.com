@@ -1027,7 +1027,10 @@
     "common.instance_id": 1820345189,
     "common.force_master": true,
     "extensions.active": [],
-    "extensions.active_frontend": [],
+    "extensions.active_frontend": {
+        "user-experience-emoji": "*",
+        "cloudflare": "*"
+    },
     "extensions.active_dropin": [],
     "plugin.license_key": "",
     "plugin.type": "",
@@ -1054,5 +1057,15 @@
     "extension.user-experience-oembed": "0",
     "file_locking": "0",
     "file_nfs": "0",
-    "extension.imageservice": "0"
+    "extension.imageservice": "0",
+    "cloudflare": {
+        "email": "email@maranataja.com",
+        "key": "key_maranataja",
+        "zone_id": "zone_id_maranataja",
+        "zone_name": "maranataja.com",
+        "widget_interval": "-30",
+        "widget_cache_mins": "5",
+        "pagecache": "1",
+        "minify_js_rl_exclude": "0"
+    }
 }

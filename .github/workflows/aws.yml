@@ -57,6 +57,9 @@ jobs:
         echo "Init transform: task-definition.json"
         sed -i 's/ECSTASK/${{ secrets.ECS_TASK }}/' task-definition.json
         sed -i 's/AWSACCID/${{ secrets.AWS_ACCOUNT_ID }}/' task-definition.json
+        sed -i 's/email@maranataja.com/${{ secrets.CLOUDFLARE_EMAIL }}/' ./app/wp-content/w3tc-config/master.php
+        sed -i 's/key_maranataja/${{ secrets.CLOUDFLARE_SECRET }}/' ./app/wp-content/w3tc-config/master.php
+        sed -i 's/zone_id_maranataja/${{ secrets.CLOUDFLARE_ZONEID }}/' ./app/wp-content/w3tc-config/master.php
         echo "End transform: task-definition.json"
 
     - name: Fill in the new image ID in the Amazon ECS task definition
