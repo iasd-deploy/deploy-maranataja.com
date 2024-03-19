@@ -4,7 +4,7 @@ Tags: page builder, editor, landing page, drag-and-drop, elementor, visual edito
 Requires at least: 6.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 3.20.0
+Stable tag: 3.20.1
 Beta tag: 3.20.0-beta4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -252,6 +252,11 @@ You can also add a new language via [translate.wordpress.org](https://go.element
 6. **Motion Effects** - Add entrance animations and transitions to any element in your website to captivate visitors.
 
 == Changelog ==
+
+= 3.20.1 - 2024-03-13 =
+
+* Fix: Radial background gradient is not working as expected in responsive mode ([#25038](https://github.com/elementor/elementor/issues/25038))
+* Fix: Tabs widget remains visible when disabled in the Element Manager
 
 = 3.20.0 - 2024-03-11 =
 

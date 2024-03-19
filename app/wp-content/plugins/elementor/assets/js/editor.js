@@ -1,4 +1,4 @@
-/*! elementor - v3.20.0 - 11-03-2024 */
+/*! elementor - v3.20.0 - 13-03-2024 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -13828,7 +13828,7 @@ ControlMediaItemView = ControlBaseDataView.extend({
     var checks = {
       height: 1080,
       width: 1920,
-      filesizeInBytes: 200000
+      filesizeInBytes: 100000
     };
     return Object.keys(checks).some(function (key) {
       var value = attachment[key] || false;
@@ -14790,7 +14790,7 @@ ControlMediaItemView = ControlMultipleBaseItemView.extend({
     var checks = {
       height: 1080,
       width: 1920,
-      filesizeInBytes: 200000
+      filesizeInBytes: 100000
     };
     return Object.keys(checks).some(function (key) {
       var value = attachment[key] || false;
