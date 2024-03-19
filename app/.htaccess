@@ -40,3 +40,8 @@ Header append Vary Accept
 </IfModule>
 AddType image/webp .webp
 # END EWWWIO
+# BEGIN WP Cloudflare Super Page Cache
+# As diretrizes (linhas) entre "BEGIN WP Cloudflare Super Page Cache" e "END WP Cloudflare Super Page Cache" são
+# geradas dinamicamente e só devem ser modificadas através de filtros do WordPress.
+# Quaisquer alterações nas diretivas entre esses marcadores serão sobrescritas.
+# END WP Cloudflare Super Page Cache
