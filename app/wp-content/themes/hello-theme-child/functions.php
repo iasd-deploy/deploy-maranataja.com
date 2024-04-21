@@ -44,8 +44,8 @@ function update_SiteMeta($post_id)
         if (isset($values['ct']) && is_array($values['ct'])) {
 
             foreach ($values['ct'] as $layout) {
-                if (isset($layout['acf_fc_layout']) && $layout['acf_fc_layout'] === 'ct-site') {
-                    $url = isset($layout['ct-site-url']) ? $layout['ct-site-url'] : '';
+                if (isset($layout['acf_fc_layout']) && $layout['acf_fc_layout'] === 'ct_site') {
+                    $url = isset($layout['ct_site_url']) ? $layout['ct_site_url'] : '';
                     // Obtém o conteúdo HTML da URL
                     $html = file_get_contents($url);
 
@@ -77,9 +77,9 @@ function update_SiteMeta($post_id)
                         }
 
                         // Atualiza os campos.
-                        update_field('ct_0_ct-site-title', $title, $post_id);
-                        update_field('ct_0_ct-site-description', $description, $post_id);
-                        update_field('ct_0_ct-site-image_url', $imageUrl, $post_id);
+                        update_field('ct_0_ct_site_title', $title, $post_id);
+                        update_field('ct_0_ct-site_description', $description, $post_id);
+                        update_field('ct_0_ct_site_image_url', $imageUrl, $post_id);
                     }
                     break;
                 }
