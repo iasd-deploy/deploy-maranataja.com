@@ -668,7 +668,7 @@ return array(
 		),
 		'_only_child' => array(
 			'type'       => 'switcher',
-			'title'      => __( 'Show only childs of current term', 'jet-smart-filters' ),
+			'title'      => __( 'Show only children of current term', 'jet-smart-filters' ),
 			'conditions' => array(
 				'_filter_type' => array( 'checkboxes', 'select', 'radio', 'color-image' ),
 				'_data_source' => 'taxonomies',

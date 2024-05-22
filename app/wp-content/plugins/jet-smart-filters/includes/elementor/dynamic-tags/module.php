@@ -34,7 +34,7 @@ class Jet_Smart_Filters_Elementor_Dynamic_Tags_Module extends Elementor\Modules\
 		foreach ( $this->get_tag_classes_names() as $tag_class ) {
 			$file     = str_replace( 'Jet_Smart_Filters_Elementor_', '', $tag_class );
 			$file     = str_replace( '_', '-', strtolower( $file ) ) . '.php';
-			$filepath = require jet_smart_filters()->plugin_path( 'includes/elementor/dynamic-tags/tags/' . $file );
+			$filepath = jet_smart_filters()->plugin_path( 'includes/elementor/dynamic-tags/tags/' . $file );
 
 			if ( file_exists( $filepath ) ) {
 				require $filepath;

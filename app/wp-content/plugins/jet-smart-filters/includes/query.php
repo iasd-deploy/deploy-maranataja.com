@@ -936,6 +936,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Query_Manager' ) ) {
 			if ( is_array( $value ) ) {
 				$compare = 'IN';
 			} else {
+				$value = stripslashes( $value );
+
 				switch ( $compare_operand ) {
 					case 'less' :
 						$compare     = '<=';

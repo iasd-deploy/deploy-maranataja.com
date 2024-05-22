@@ -139,11 +139,17 @@ if ( ! class_exists( 'Jet_Smart_Filters_Utils' ) ) {
 					}
 				}
 
-				if ( 'post__in' === $key && ! empty( $current_query_args[ $key ] ) ) {
-					$value = array_intersect( $current_query_args[ $key ], $value );
+				if ( 'post__in' === $key ) {
+					if ( ! is_array( $value ) ) {
+						$value = array( $value );
+					}
 
-					if ( empty( $value ) ) {
-						$value = array( PHP_INT_MAX );
+					if ( ! empty( $current_query_args[ $key ] ) ) {
+						$value = array_intersect( $current_query_args[ $key ], $value );
+
+						if ( empty( $value ) ) {
+							$value = array( PHP_INT_MAX );
+						}
 					}
 				}
 
@@ -406,6 +412,17 @@ if ( ! class_exists( 'Jet_Smart_Filters_Utils' ) ) {
 			$current_url = wp_parse_url( add_query_arg( array() ) );
 			
 			return strpos( $current_url['path'] ?? '/', $rest_url['path'], 0 ) === 0;
+		}
+
+		/**
+		 * Recursive stripslashes
+		 */
+		public function stripslashes( $value ) {
+			$value = is_array($value) ?
+						array_map( array( $this, 'stripslashes' ), $value ) :
+						stripslashes($value);
+
+			return $value;
 		}
 	}
 }

@@ -55,6 +55,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_URL_Aliases' ) ) {
 					$_SERVER['REQUEST_URI'] = $replaced_url;
 					$this->update_request_data_from_url( $replaced_url );
 
+					remove_action( 'template_redirect', 'redirect_canonical' );
+
 					break;
 				}
 			}
@@ -71,9 +73,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_URL_Aliases' ) ) {
 			parse_str( $parts['query'], $params );
 
 			foreach ( $params as $key => $param ) {
-				if ( ! isset( $_REQUEST[$key] ) ) {
-					$_REQUEST[$key] = $param;
+				if ( isset( $_REQUEST[$key] ) && $_REQUEST[$key] === $param ) {
+					continue;
 				}
+
+				$_REQUEST[$key] = $param;
 			}
 		}
 	}

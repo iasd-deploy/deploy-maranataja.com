@@ -172,16 +172,19 @@ if ( ! class_exists( 'Jet_Smart_Filters_Data' ) ) {
 		 */
 		public function get_choices_from_field_data( $args = array() ) {
 
+			$result = array();
+
 			$args = wp_parse_args( $args, array(
 				'field_key' => false,
 				'source'    => 'jet_engine',
 			) );
 
 			if ( empty( $args['field_key'] ) ) {
-				return array();
+				return $result;
 			}
 
-			$result = array();
+			// trimming accidentally entered spaces in the key field
+			$args['field_key'] = trim( $args['field_key'] );
 
 			switch ( $args['source'] ) {
 				case 'acf':
@@ -222,7 +225,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Data' ) ) {
 						}
 					}
 
-					if ( $found_field['options_source'] === 'manual_bulk' && ! empty( $found_field['bulk_options'] ) ) {
+					if ( isset( $found_field['options_source'] ) && $found_field['options_source'] === 'manual_bulk' && ! empty( $found_field['bulk_options'] ) ) {
 						$bulk_options = explode( PHP_EOL, $found_field['bulk_options'] );
 
 						foreach ( $bulk_options as $option ) {

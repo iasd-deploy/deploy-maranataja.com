@@ -128,6 +128,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Manager' ) ) {
 				'alphabet',
 				'_s',
 				'pagenum',
+				'plain_query',
 				// backward compatibility
 				'jet-smart-filters',
 				'jet_paged',

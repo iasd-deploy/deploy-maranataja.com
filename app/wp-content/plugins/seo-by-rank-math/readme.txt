@@ -1,11 +1,11 @@
-=== Rank Math SEO with AI SEO Tools ===
+=== Rank Math SEO with AI Best SEO Tools ===
 Contributors: rankmath
 Plugin link: https://rankmath.com/?utm_source=LP&utm_campaign=WP
 Tags: seo, sitemap, google search console, schema, redirection, WordPress SEO
-Tested up to: 6.4.1
-Requires at least: 6.0
+Tested up to: 6.5
+Requires at least: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.214
+Stable tag: 1.0.219
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -583,12 +583,13 @@ Please drop us an email at support@rankmath.com and we would be more than happy 
 
 == Changelog ==
 
-= 1.0.214 [Mar 07, 2024] =
-- Added: New [Organization Schema properties]((https://rankmath.com/kb/local-seo/)) recently introduced by Google
-- Fixed: [About](https://rankmath.com/kb/local-seo/#about-page) & [Contact Page](https://rankmath.com/kb/local-seo/#contact-page) search fields were not working when the Local SEO Module was disabled
-- Fixed: [Headless CMS](https://rankmath.com/kb/general-settings/#headless-cms-support) issue with Japanese characters
-- Fixed: Wrong colors in the [SEO Performance Graph](https://rankmath.com/kb/analytics/#seo-performance)
-- Fixed: Deprecated warning related to the `getBlocks` function in the browser's console
+= 1.0.219 [May 15, 2024] =
+- Added: [New filter](https://rankmath.com/kb/filters-hooks-api-developer/#change-block-content) to modify FAQ & HowTo Block content
+- Improved: Strengthened the security of the plugin's Blocks. Thanks to Dmitrii Ignatyev and Ngô Thiên for disclosing it responsibly
+- Fixed: Using Enter to submit a question to [RankBot](https://rankmath.com/kb/how-to-use-rankbot-ai/) duplicated the user's conversation
+- Fixed: Compatibility issue with Elementor's top bar feature where the Update button did not activate after Rank Math data changes
+- Fixed: [Capitalize Title](https://rankmath.com/kb/titles-and-meta/#capitalize-titles) was removing the starting integer from titles
+- Fixed: Compatibility issue with the Avia builder in the Enfold theme
 
 
 Full changelog can be found here - **[Rank Math changelog](https://rankmath.com/changelog/?utm_source=Plugin&utm_medium=Changelog&utm_campaign=WP)**

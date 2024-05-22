@@ -152,15 +152,16 @@ if ( ! class_exists( 'Jet_Smart_Filters_Indexer_Manager' ) ) {
 							}
 
 							if ( $value === 'true' ) {
-								$meta_row['item_value'] = $key;
+								$meta_row['item_value'] = addslashes( $key );
 							} else {
-								$meta_row['item_value'] = $value;
+								$meta_row['item_value'] = addslashes( $value );
 							}
 
 							$indexed_data[] = $meta_row;
 						}
 					} else {
-						$indexed_data[] = $meta_row;
+						$meta_row['item_value'] = addslashes( $meta_row['item_value'] );
+						$indexed_data[]         = $meta_row;
 					}
 				}
 			}
@@ -448,6 +449,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Indexer_Manager' ) ) {
 
 				foreach ( $metadata[$data_type] as $query_var => $data ) {
 					$meta_keys = explode( ',', $query_var );
+
+					foreach ( $data as &$value ) {
+						$value = addslashes( $value );
+					}
 
 					foreach ($meta_keys as $meta_key) {
 						$meta_key = trim( $meta_key );

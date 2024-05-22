@@ -156,6 +156,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Indexer_Data' ) ) {
 									? "item_key IN ('" . str_replace( [",",' '], ["','". ''], $meta_key ) . "')"
 									: "item_key = '$meta_key'";
 								if ( $meta_data ) {
+									foreach ( $meta_data as &$value ) {
+										$value = addslashes( $value );
+									}
+
 									$sql_and .= "(item_query = '$query_type' AND $item_key_condition AND item_value IN ('" . implode( "','", $meta_data ) . "'))";
 								}
 							}
@@ -240,7 +244,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Indexer_Data' ) ) {
 						$query_type,
 						$key,
 						$data,
-						$this
+						$this,
+						$queried_ids
 					);
 				}
 			}

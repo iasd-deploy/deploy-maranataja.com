@@ -17,6 +17,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Admin_Multilingual_Support' ) ) {
 
 		public $is_Enabled = false;
 
+		public $default_language;
+		public $current_language;
+		public $languages;
+
 		/**
 		 * Constructor for the class
 		 */

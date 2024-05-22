@@ -4110,7 +4110,7 @@ class SitePress extends WPML_WPDB_User implements
 				'plugin'    => false,
 				'slug'      => 'wpml-media',
 			),
-			'WooCommerce Multilingual'    => array(
+			'WooCommerce Multilingual & Multicurrency' => array(
 				'installed' => false,
 				'active'    => false,
 				'file'      => false,

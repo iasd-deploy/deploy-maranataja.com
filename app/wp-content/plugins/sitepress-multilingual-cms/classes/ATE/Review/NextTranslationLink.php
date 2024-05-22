@@ -72,6 +72,10 @@ class NextTranslationLink {
 			$getJob = function ( $sourceLanguage, $targetLanguages ) use ( $currentJob ) {
 				$excludeCurrentJob = pipe( invoke( 'get_translate_job_id' ), Relation::equals( (int) $currentJob->job_id ), Logic::not() );
 
+				$postJobsEntitiesOnly = function ( $nextJob ) {
+					return $nextJob instanceof \WPML_TM_Post_Job_Entity;
+				};
+
 				$samePostTypes = function ( $nextJob ) use ( $currentJob ) {
 					$currentJobPostType = \get_post_type( $currentJob->original_doc_id );
 					$nextJobPostType    = \get_post_type( $nextJob->get_original_element_id() );
@@ -81,12 +85,14 @@ class NextTranslationLink {
 
 				$nextJob = \wpml_collect(wpml_tm_get_jobs_repository()
 					->get( self::buildSearchParams( $sourceLanguage, $targetLanguages ) ) )
+					->filter( $postJobsEntitiesOnly )
 					->filter( $samePostTypes )
 					->first( $excludeCurrentJob );
 
 				if ( ! $nextJob ) {
 					$nextJob = \wpml_collect( wpml_tm_get_jobs_repository()
 						->get( self::buildSearchParams( $sourceLanguage, $targetLanguages ) ) )
+						->filter( $postJobsEntitiesOnly )
 						->first( $excludeCurrentJob );
 				}
 

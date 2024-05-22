@@ -180,7 +180,10 @@ class RecommendationsManager {
 							$isActive
 						);
 
-						if ( $pluginData['download_recommendation_section'] ) {
+						if (
+							array_key_exists( 'download_recommendation_section', $pluginData ) &&
+							is_string( $pluginData['download_recommendation_section'] )
+						) {
 							$pluginsRecommendations[ $pluginData['download_recommendation_section'] ]['plugins'][ $pluginData['slug'] ] = $sectionPlugin;
 							$pluginsData[ $pluginData['slug'] ]                                                                         = $recommendation;
 						}

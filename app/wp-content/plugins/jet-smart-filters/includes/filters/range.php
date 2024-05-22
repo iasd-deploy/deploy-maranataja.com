@@ -94,6 +94,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Range_Filter' ) ) {
 				$step = 1;
 			}
 
+			/**
+			 * Allow to convert non-callable string callback name to callable array/object
+			 */
+			$source_cb = apply_filters( 'jet-smart-filters/range-filter/string-callback-callable', $source_cb );
+
 			if ( is_callable( $source_cb ) ) {
 				$data = call_user_func( $source_cb, array( 'key' => $query_var ) );
 				$min  = isset( $data['min'] ) ? $data['min'] : false;

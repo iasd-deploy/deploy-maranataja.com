@@ -180,6 +180,8 @@ class WPML_TM_ATE_Jobs_Actions implements IWPML_Action {
 
 			$message = __( '%1$s jobs added to the Advanced Translation Editor.', 'wpml-translation-management' );
 			$this->add_message( 'updated', sprintf( $message, count( $created_jobs ) ), 'wpml_tm_ate_create_job' );
+
+			do_action( 'wpml_tm_ate_jobs_created', $created_jobs );
 		} else {
 			if ( Lst::includes( $sentFrom, [ Jobs::SENT_AUTOMATICALLY, Jobs::SENT_RETRY ] ) ) {
 				if ( $sentFrom === Jobs::SENT_RETRY ) {

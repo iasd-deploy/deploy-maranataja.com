@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4
+class ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67
 {
     public static $files = array (
         'b45b351e6b6f7487d819961fef2fda77' => __DIR__ . '/..' . '/jakeasmith/http_build_url/src/http_build_url.php',
@@ -688,6 +688,7 @@ class ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4
         'WPML\\Media\\Translate\\Endpoint\\PrepareForTranslation' => __DIR__ . '/../..' . '/classes/media/translate/endpoints/PrepareForTranslation.php',
         'WPML\\Media\\Translate\\Endpoint\\TranslateExistingMedia' => __DIR__ . '/../..' . '/classes/media/translate/endpoints/TranslateExistingMedia.php',
         'WPML\\Notices\\DismissNotices' => __DIR__ . '/../..' . '/classes/notices/DismissNotices.php',
+        'WPML\\Notices\\ExportImport\\Notice' => __DIR__ . '/../..' . '/classes/notices/export-import/Notice.php',
         'WPML\\Options\\Reset' => __DIR__ . '/../..' . '/classes/options/Reset.php',
         'WPML\\Plugins' => __DIR__ . '/../..' . '/classes/plugins/Plugins.php',
         'WPML\\PostTranslation\\SpecialPage\\Hooks' => __DIR__ . '/../..' . '/classes/post-translation/SpecialPage/Hooks.php',
@@ -746,15 +747,20 @@ class ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\AutoTranslate' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/AutoTranslate.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\CancelJobs' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/CancelJobs.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\CheckLanguageSupport' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/CheckLanguageSupport.php',
-        'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\CountJobsInProgress' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/CountJobsInProgress.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\EnableATE' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/EnableATE.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\GetATEJobsToSync' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/GetATEJobsToSync.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\GetCredits' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/GetCredits.php',
+        'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\GetJobsCount' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/GetJobsCount.php',
+        'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\GetJobsInfo' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/GetJobsInfo.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\GetNumberOfPosts' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/GetNumberOfPosts.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\Languages' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/Languages.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\ResumeAll' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/ResumeAll.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\SetForPostType' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/SetForPostType.php',
         'WPML\\TM\\ATE\\AutoTranslate\\Endpoint\\SyncLock' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/endpoints/SyncLock.php',
+        'WPML\\TM\\ATE\\AutoTranslate\\Hooks\\JobsCountCacheInvalidateAction' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/hooks/JobsCountCacheInvalidateAction.php',
+        'WPML\\TM\\ATE\\AutoTranslate\\Repository\\CachedJobsCount' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/repository/CachedJobsCount.php',
+        'WPML\\TM\\ATE\\AutoTranslate\\Repository\\JobsCount' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/repository/JobsCount.php',
+        'WPML\\TM\\ATE\\AutoTranslate\\Repository\\JobsCountInterface' => __DIR__ . '/../..' . '/classes/ATE/auto-translate/repository/JobsCountInterface.php',
         'WPML\\TM\\ATE\\ClonedSites\\ApiCommunication' => __DIR__ . '/../..' . '/classes/ATE/API/ClonedSites/ApiCommunication.php',
         'WPML\\TM\\ATE\\ClonedSites\\Endpoints\\Copy' => __DIR__ . '/../..' . '/classes/ATE/API/ClonedSites/Endpoints/Copy.php',
         'WPML\\TM\\ATE\\ClonedSites\\Endpoints\\CopyWithCredits' => __DIR__ . '/../..' . '/classes/ATE/API/ClonedSites/Endpoints/CopyWithCredits.php',
@@ -802,7 +808,7 @@ class ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4
         'WPML\\TM\\ATE\\Retry\\Process' => __DIR__ . '/../..' . '/classes/ATE/Retry/Process.php',
         'WPML\\TM\\ATE\\Retry\\Result' => __DIR__ . '/../..' . '/classes/ATE/Retry/Result.php',
         'WPML\\TM\\ATE\\Retry\\Trigger' => __DIR__ . '/../..' . '/classes/ATE/Retry/Trigger.php',
-        'WPML\\TM\\ATE\\ReturnedJobsQueue' => __DIR__ . '/../..' . '/classes/ATE/ReturnedJobsQueue.php',
+        'WPML\\TM\\ATE\\ReturnedJobs' => __DIR__ . '/../..' . '/classes/ATE/ReturnedJobs.php',
         'WPML\\TM\\ATE\\Review\\AcceptTranslation' => __DIR__ . '/../..' . '/classes/ATE/Review/AcceptTranslation.php',
         'WPML\\TM\\ATE\\Review\\ApplyJob' => __DIR__ . '/../..' . '/classes/ATE/Review/ApplyJob.php',
         'WPML\\TM\\ATE\\Review\\ApproveTranslations' => __DIR__ . '/../..' . '/classes/ATE/Review/ApproveTranslations.php',
@@ -1025,6 +1031,7 @@ class ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4
         'WPML_Ajax_Factory' => __DIR__ . '/../..' . '/classes/ajax/class-wpml-ajax-factory.php',
         'WPML_Ajax_Response' => __DIR__ . '/../..' . '/classes/ajax/class-wpml-ajax-response.php',
         'WPML_Ajax_Route' => __DIR__ . '/../..' . '/classes/ajax/class-wpml-ajax-route.php',
+        'WPML_Ajax_Scan_Link_Targets' => __DIR__ . '/../..' . '/classes/translate_link_targets/class-wpml-ajax-scan-link-targets.php',
         'WPML_Ajax_Update_Link_Targets_In_Content' => __DIR__ . '/../..' . '/classes/translate_link_targets/class-wpml-ajax-update-link-targets-in-content.php',
         'WPML_Ajax_Update_Link_Targets_In_Posts' => __DIR__ . '/../..' . '/classes/translate_link_targets/class-wpml-ajax-update-link-targets-in-posts.php',
         'WPML_Ajax_Update_Link_Targets_In_Strings' => __DIR__ . '/../..' . '/classes/translate_link_targets/class-wpml-ajax-update-link-targets-in-strings.php',
@@ -2023,9 +2030,9 @@ class ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit286fed9ba556ccb8d35eca69afdd98b4::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67::$classMap;
 
         }, null, ClassLoader::class);
     }

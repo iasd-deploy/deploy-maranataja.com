@@ -289,7 +289,7 @@ class Generic_Plugin {
 					$menu_items['10015.generic'] = array(
 						'id'     => 'w3tc_flush_all_except_cf',
 						'parent' => 'w3tc',
-						'title'  => __( 'Purge All Caches Except CloudFlare', 'w3-total-cache' ),
+						'title'  => __( 'Purge All Caches Except Cloudflare', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
 							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
 							'w3tc'
@@ -551,12 +551,17 @@ class Generic_Plugin {
 					'newrelic',
 					'cdn',
 					'browsercache',
-					'pagecache',
 				),
 				$buffer
 			);
 
 			$buffer = apply_filters( 'w3tc_processed_content', $buffer );
+
+			// Apply the w3tc_processed_content filter before pagecache callback.
+			$buffer = Util_Bus::do_ob_callbacks(
+				array( 'pagecache' ),
+				$buffer
+			);
 		}
 
 		return $buffer;

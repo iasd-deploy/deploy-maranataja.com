@@ -32,6 +32,10 @@ class Jet_Smart_Filters_Compatibility_WMPL {
 		// For Indexer
 		add_filter( 'jet-smart-filters/indexer/tax-query-args', array( $this, 'remove_wpml_terms_filters' ) );
 
+		// Translatable nodes
+		add_action( 'init', array( $this, 'load_wpml_integration_classes' ) );
+		add_filter( 'wpml_elementor_widgets_to_translate', array( $this, 'add_translatable_nodes' ) );
+
 	}
 
 	public function add_action_to_multi_currency_ajax( $ajax_actions = array() ) {
@@ -98,6 +102,26 @@ class Jet_Smart_Filters_Compatibility_WMPL {
 		}
 
 		return $args;
+	}
+
+	public function load_wpml_integration_classes() {
+
+		if ( ! class_exists( 'WPML_Elementor_Module_With_Items' ) ) {
+			return;
+		}
+
+		require jet_smart_filters()->plugin_path( 'includes/compatibility/wpml/integration-classes/jet-smart-filters-sorting.php' );
+	}
+
+	public function add_translatable_nodes( $nodes_to_translate ) {
+
+		$nodes_to_translate[ 'jet-smart-filters-sorting' ] = array(
+			'conditions'        => array( 'widgetType' => 'jet-smart-filters-sorting' ),
+			'fields'            => array(),
+			'integration-class' => 'WPML_Integration_Jet_Smart_Filters_Sorting',
+		);
+
+		return $nodes_to_translate;
 	}
 
 }

@@ -46,7 +46,32 @@ abstract class Manager {
 	 * @param string $locale
 	 */
 	public function remove( $domain, $locale ) {
-		$this->filesystem->delete( $this->getFilepath( $domain, $locale ) );
+		$filepath = $this->getFilepath( $domain, $locale );
+		$this->filesystem->delete( $filepath );
+
+		do_action(
+			'wpml_st_translation_file_removed',
+			$filepath,
+			$domain,
+			$locale
+		);
+	}
+
+	public function write( $domain, $locale, $content ) {
+		$filepath = $this->getFilepath( $domain, $locale );
+		$chmod = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
+		if ( ! $this->filesystem->put_contents( $filepath, $content, $chmod ) ) {
+			return false;
+		}
+
+		do_action(
+			'wpml_st_translation_file_written',
+			$filepath,
+			$domain,
+			$locale
+		);
+
+		return $filepath;
 	}
 
 	/**
@@ -75,13 +100,7 @@ abstract class Manager {
 			->set_language( $locale )
 			->get_content( $strings );
 
-		$filepath = $this->getFilepath( $domain, $locale );
-
-		$chmod = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
-		if ( $this->filesystem->put_contents( $filepath, $file_content, $chmod ) ) {
-			return $filepath;
-		}
-		return false;
+		return $this->write( $domain, $locale, $file_content );
 	}
 
 	/**

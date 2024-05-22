@@ -93,8 +93,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Instance' ) ) {
 
 			$query_var = $this->get_query_var( $args );
 
-			if ( isset( $_REQUEST[ $query_var ] ) ) {
-				return $_REQUEST[ $query_var ];
+			if ( isset( $_REQUEST[$query_var] ) ) {
+				return jet_smart_filters()->utils->stripslashes( $_REQUEST[$query_var] );
 			}
 
 			if ( isset( $args['current_value'] ) ) {

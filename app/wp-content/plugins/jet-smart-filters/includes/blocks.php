@@ -24,10 +24,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Blocks_Manager' ) ) {
 				return;
 			}
 
+			add_action( 'init', array( $this, 'register_block_types' ) );
 			add_action( 'enqueue_block_editor_assets', array( $this, 'blocks_assets' ) );
 			add_filter( 'block_categories_all', array( $this, 'add_filters_category' ) );
 
-			$this->register_block_types();
 		}
 
 		/**

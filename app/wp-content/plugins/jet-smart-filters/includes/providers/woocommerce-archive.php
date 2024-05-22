@@ -346,7 +346,9 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_WooCommerce_Archive' ) ) {
 				return;
 			}
 
-			foreach ( jet_smart_filters()->query->get_query_args() as $query_var => $value ) {
+			$jet_query_args = jet_smart_filters()->query->get_query_args();
+
+			foreach ( $jet_query_args as $query_var => $value ) {
 				if ( in_array( $query_var, array( 'tax_query', 'meta_query' ) ) ) {
 					$current = $query->get( $query_var );
 
@@ -357,6 +359,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_WooCommerce_Archive' ) ) {
 					$query->set( $query_var, $value );
 				} else {
 					$query->set( $query_var, $value );
+				}
+			}
+
+			foreach ( ['orderby', 'order'] as $value ) {
+				if ( array_key_exists( $value, $jet_query_args ) ) {
+					WC()->query->remove_ordering_args();
+					break;
 				}
 			}
 		}

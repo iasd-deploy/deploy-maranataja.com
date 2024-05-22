@@ -7,9 +7,12 @@ class WPML_PO_Import_Strings {
 	private $errors;
 
 	public function maybe_import_po_add_strings() {
-		if ( array_key_exists( 'icl_po_upload', $_POST ) && wp_verify_nonce( $_POST[ '_wpnonce' ], 'icl_po_form' ) ) {
+		if ( array_key_exists( 'icl_po_upload', $_POST ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'icl_po_form' ) ) {
 			add_filter( 'wpml_st_get_po_importer', array( $this, 'import_po' ) );
-		} elseif ( array_key_exists( 'action', $_POST ) && 'icl_st_save_strings' === $_POST[ 'action' ] ) {
+			return;
+		}
+
+		if ( array_key_exists( 'action', $_POST ) && 'icl_st_save_strings' === $_POST['action'] && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'add_po_strings' ) ) {
 			$this->add_strings();
 		}
 	}

@@ -2,6 +2,46 @@
 
 # ChangeLog
 
+## 3.4.5
+
+- ADD: trimming accidentally entered spaces in the "Custom Field Key"
+- ADD: 'jet-smart-filters/range-filter/string-callback-callable' filter
+- UPD: JetWooBuilder Products Grid/List providers remake
+- FIX: same filters synchronization
+- FIX: url with plain_query
+- FIX: Move blocks registration to 'init' hook
+- FIX: removed the keyboard on devices for 'Date Period'
+- FIX: elementor dynamic-tags require files
+
+## 3.4.4
+
+- FIX: links in Crocoblock Dashboard
+- FIX: nested provider preloader
+- FIX: ePro products add query args condition
+- FIX: no update indexer if 'Change Counters' = 'never'
+- FIX: the 'paged' property has added by default
+- FIX: Deprecated: Creation of dynamic property on PHP 8.1+
+- FIX: _plain_query::post__in single value
+
+## 3.4.3
+
+- FIX: Products Loop sorting on reload
+- FIX: ePro loop grid sorting filter
+- FIX: ePro Loop Grid if global widget
+- FIX: url aliases
+- FIX: location & distance filter with redirect
+- FIX: getting additional filters
+- FIX: deprecated
+
+## 3.4.2
+
+- FIX: indexer value with quotation mark
+- FIX: datepicker on mobile devices
+- FIX: ePro archive products pagination on reload 
+- FIX: epro-archive-products removed the addition of jet_smart_filters argument from the archive query
+- FIX: plain URL aliases with pagination on direct link or reload
+- FIX: Warning after update
+
 ## 3.4.1
 
 - UPD: changing the default Ajax Request Type value to "self"

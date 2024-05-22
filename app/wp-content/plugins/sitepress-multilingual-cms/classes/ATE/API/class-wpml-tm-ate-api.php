@@ -694,7 +694,10 @@ class WPML_TM_ATE_API {
 			return $signedUrl;
 		}
 
-		if ( $bodyArgs ) {
+		// For GET requests there's no point sending parameters in the body.
+		// Actually, this will trigger an error in WP_HTTP Curl class when
+		// trying to build the params into a string.
+		if ( $bodyArgs && $requestArgs['method'] !== 'GET' ) {
 			$requestArgs['body'] = $this->encode_body_args( $bodyArgs );
 		}
 

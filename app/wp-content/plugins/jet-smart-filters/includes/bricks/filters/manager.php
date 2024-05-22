@@ -16,7 +16,6 @@ class Manager {
 		add_action( 'jet-smart-filters/providers/register', [ $this, 'register_provider_for_filters' ] );
 		add_filter( 'jet-smart-filters/filters/localized-data', [ $this, 'add_script' ] );
 		add_filter( 'jet-engine/query-builder/filters/allowed-providers', [ $this, 'add_provider_to_query_builder' ] );
-
 	}
 
 	public function register_provider_for_filters( $providers_manager ) {
@@ -27,7 +26,6 @@ class Manager {
 	}
 
 	public function add_control_to_elements() {
-
 		// Only container, block and div element have query controls
 		$elements = [ 'container', 'block', 'div' ];
 
@@ -37,7 +35,6 @@ class Manager {
 	}
 
 	public function add_jet_smart_filters_controls( $controls ) {
-
 		$jet_smart_filters_control['jsfb_is_filterable'] = [
 			'tab'         => 'content',
 			'label'       => esc_html__( 'Is filterable', 'jet-smart-filters' ),
@@ -76,7 +73,6 @@ class Manager {
 	}
 
 	public function add_script( $data ) {
-
 		wp_add_inline_script( 'jet-smart-filters', '
 			const filtersStack = {};
 
@@ -109,7 +105,7 @@ class Manager {
 					element_id: elementId,
 					loadMore,
 					pagination,
-					styles,
+					styles: styleElement,
 				} = response;
 				
 				const selector = `jsfb-query--${queryId}`;
@@ -132,17 +128,6 @@ class Manager {
 						jQuery(providerSelector).last().after(renderedContent);
 					} else {
 						jQuery(providerSelector).replaceWith(() => replaceContent());
-					}
-					
-					// Remove the previous style element and Insert the new style element
-					const {
-						id: styleElementId,
-						style: styleElement
-					} = styles;
-					const previousStyleElement = document.getElementById(styleElementId);
-					
-					if (previousStyleElement) {
-						document.body.removeChild(previousStyleElement);
 					}
 					
 					document.body.insertAdjacentHTML("beforeend", styleElement);
@@ -223,7 +208,11 @@ class Manager {
 							const {max_num_pages: maxPages, page} = pagination;
 								
 							if (elementId === loadMoreQuery) {
-								el.style.display = page >= maxPages ? "none" : "";
+								if (page >= maxPages) {
+									el.classList.add("brx-load-more-hidden");
+								} else {
+									el.classList.remove("brx-load-more-hidden");
+								}
 							}
 						});	
 					}
@@ -233,6 +222,5 @@ class Manager {
 		' );
 
 		return $data;
-
 	}
 }

@@ -3,7 +3,7 @@
  * Plugin Name: JetSmartFilters
  * Plugin URI:  https://crocoblock.com/plugins/jetsmartfilters/
  * Description: Adds easy-to-use AJAX filters to the pages built with Elementor which contain the dynamic listings.
- * Version:     3.4.1
+ * Version:     3.4.5
  * Author:      Crocoblock
  * Author URI:  https://crocoblock.com/
  * Text Domain: jet-smart-filters
@@ -27,7 +27,7 @@ if ( ! class_exists( 'Jet_Smart_Filters' ) ) {
 		/**
 		 * Plugin version
 		 */
-		private $version = '3.4.1';
+		private $version = '3.4.5';
 
 		/**
 		 * Holder for base plugin URL
@@ -262,6 +262,13 @@ if ( ! class_exists( 'Jet_Smart_Filters' ) ) {
 			$jet_dashboard_module_data = $this->framework->get_included_module_data( 'jet-dashboard.php' );
 			$jet_dashboard             = \Jet_Dashboard\Dashboard::get_instance();
 
+			$url_filters    = $this->is_classic_admin
+				? add_query_arg( array( 'post_type' => 'jet-smart-filters' ), admin_url( 'edit.php' ) )
+				: add_query_arg( array( 'page' => 'jet-smart-filters#/' ), admin_url( 'admin.php' ) );
+			$url_new_filter = $this->is_classic_admin
+				? add_query_arg( array( 'post_type' => 'jet-smart-filters' ), admin_url( 'post-new.php' ) )
+				: add_query_arg( array( 'page' => 'jet-smart-filters#/new' ), admin_url( 'admin.php' ) );
+
 			$jet_dashboard->init( array(
 				'path'           => $jet_dashboard_module_data['path'],
 				'url'            => $jet_dashboard_module_data['url'],
@@ -273,12 +280,12 @@ if ( ! class_exists( 'Jet_Smart_Filters' ) ) {
 					'plugin_links' => array(
 						array(
 							'label'  => esc_html__( 'Smart Filters', 'jet-smart-filters' ),
-							'url'    => add_query_arg( array( 'post_type' => 'jet-smart-filters' ), admin_url( 'edit.php' ) ),
+							'url'    => $url_filters,
 							'target' => '_self',
 						),
 						array(
 							'label'  => esc_html__( 'Add New Filter', 'jet-smart-filters' ),
-							'url'    => add_query_arg( array( 'post_type' => 'jet-smart-filters' ), admin_url( 'post-new.php' ) ),
+							'url'    => $url_new_filter,
 							'target' => '_self',
 						),
 						array(

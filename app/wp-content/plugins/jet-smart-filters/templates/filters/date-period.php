@@ -39,6 +39,7 @@ if ( '' !== $args['button_icon'] ) {
 				data-format="<?php echo $date_format; ?>"
 				<?php echo $min_date_attr; ?>
 				<?php echo $max_date_attr; ?>
+				readonly
 			>
 		</div>
 		<div class="jet-date-period__next" <?php echo jet_smart_filters()->data->get_tabindex_attr(); ?>><i class="fa fa-chevron-right" aria-hidden="true"></i></div>

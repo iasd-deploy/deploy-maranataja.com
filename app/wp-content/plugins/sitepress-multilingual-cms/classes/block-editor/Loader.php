@@ -3,7 +3,6 @@
 
 namespace WPML\BlockEditor;
 
-use WP_Mock\Hook;
 use WPML\BlockEditor\Blocks\LanguageSwitcher;
 use WPML\LIB\WP\Hooks;
 use WPML\Core\WP\App\Resources;
@@ -88,15 +87,21 @@ class Loader implements \IWPML_Backend_Action, \IWPML_REST_Action {
 	 * so when there's no navigation block is rendered, we still need to enqueue the wp-block-navigation styles so that.,
 	 * the Language Switcher Block renders properly.
 	 *
-	 * @see wpmldev-2422
-	 *
 	 * @return void
+	 * @see wpmldev-2422
+	 * @see wpmldev-2491
+	 *
 	 */
 	public function maybeEnqueueNavigationBlockStyles() {
+
 		if ( ! wp_style_is( 'wp-block-navigation', 'enqueued' ) || ! wp_style_is( 'wp-block-navigation', 'queue' ) ) {
-			wp_enqueue_block_style( LanguageSwitcher::BLOCK_LANGUAGE_SWITCHER, [
-				'handle' => 'wp-block-navigation'
-			] );
+			add_filter( 'render_block', function ( $blockContent, $block ) {
+				if ( $block['blockName'] === LanguageSwitcher::BLOCK_LANGUAGE_SWITCHER ) {
+					wp_enqueue_style( 'wp-block-navigation' );
+				}
+
+				return $blockContent;
+			}, 10, 2 );
 		}
 	}
 

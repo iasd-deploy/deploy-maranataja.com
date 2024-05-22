@@ -39,7 +39,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 			$default_query = $this->get_default_query( $query );
 
 			jet_smart_filters()->query->store_provider_default_query( $this->get_id(), $default_query );
-			$query->set( 'jet_smart_filters', $this->get_id() );
+			//$query->set( 'jet_smart_filters', $this->get_id() );
 		}
 
 		public function store_search_query( $query ) {
@@ -51,7 +51,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 			$default_query = $this->get_default_query( $query );
 
 			jet_smart_filters()->query->store_provider_default_query( $this->get_id(), $default_query );
-			$query->set( 'jet_smart_filters', $this->get_id() );
+			//$query->set( 'jet_smart_filters', $this->get_id() );
 		}
 
 		public function get_default_query( $query ) {
@@ -325,7 +325,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 		 */
 		public function add_query_args( $query ) {
 
-			if ( $query->get('jsf') !== $this->get_id() && ! $query->get( 'wc_query' ) && ! $query->is_search ) {
+			if ( $query->get('jsf') !== $this->get_id() || ! $query->get( 'wc_query' ) ) {
 				return;
 			}
 

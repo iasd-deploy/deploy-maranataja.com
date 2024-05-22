@@ -93,7 +93,7 @@ class WPML_Canonicals_Hooks {
 		$currentUri = $_SERVER['REQUEST_URI'];
 		$lang       = $this->sitepress->get_current_language();
 
-		$home_url        = $this->url_converter->get_abs_home();
+		$home_url        = rtrim( $this->url_converter->get_abs_home(), '/' );
 		$parsed_site_url = wp_parse_url( $home_url );
 
 		if ( isset( $parsed_site_url['path'] ) ) {

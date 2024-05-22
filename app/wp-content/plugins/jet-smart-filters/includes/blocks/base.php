@@ -14,11 +14,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Base' ) ) {
 	 */
 	abstract class Jet_Smart_Filters_Block_Base {
 
-		protected $namespace  = 'jet-smart-filters/';
+		public $block_manager 		= null;
+		public $css_scheme    		= null;
+		public $controls_manager 	= null;
 
-		public $block_manager = null;
-
-		public $css_scheme    = null;
+		protected $namespace  		= 'jet-smart-filters/';
 
 		public function __construct() {
 

@@ -42,10 +42,6 @@ class Manager {
 			return $i18n;
 		} );
 
-		add_filter( 'bricks/posts/query_vars', [ $this, 'merge_query_vars' ], 10, 3 );
-		add_filter( 'bricks/terms/query_vars', [ $this, 'merge_query_vars' ], 10, 3 );
-		add_filter( 'bricks/users/query_vars', [ $this, 'merge_query_vars' ], 10, 3 );
-
 		require jet_smart_filters()->plugin_path( 'includes/bricks/filters/manager.php' );
 		new Filters\Manager();
 
@@ -134,63 +130,6 @@ class Manager {
 				}
 			}
 		}
-	}
-
-	// Combine JetSmartFilters $query_vars with Bricks $query_vars
-	// for the correct operation of Load more and Infinite scroll.
-	public function merge_query_vars( $query_vars, $settings, $element_id ) {
-
-		$post_id = Database::$page_data['preview_or_post_id'];
-		$bricks_data = Helpers::get_bricks_data( $post_id );
-		$isLoadMore = false;
-
-		if ( ! empty( $bricks_data ) ) {
-			foreach ( $bricks_data as $element ) {
-				$interactions = $element['settings']['_interactions'] ?? false;
-
-				if ( ! empty( $interactions ) && isset( $interactions[0]['loadMoreQuery'] ) && $interactions[0]['loadMoreQuery'] === $element_id ) {
-					$isLoadMore = true;
-				}
-			}
-		}
-
-		if ( isset( $settings['query']['infinite_scroll'] ) || $isLoadMore ) {
-
-			$jsf_query_args = jet_smart_filters()->query->get_query_args();
-
-			if ( ! empty( $jsf_query_args ) ) {
-
-				$query_vars = wp_parse_args( $jsf_query_args, $query_vars );
-
-			}
-
-		}
-
-		/**
-		 * Check if current request is a load more/infinite scroll request
-		 *
-		 * If so, do not render wrappers.
-		 *
-		 * @since 1.8.1
-		 */
-		$is_load_more_request = Api::is_current_endpoint( 'load_query_page' );
-
-		// Additional merge in case Bricks loop has default meta or tax query
-		// and Bricks loop is also filtered by meta or tax query.
-		if ( $is_load_more_request ) {
-
-			$merge_vars = $settings['query']['_merge_vars'];
-
-			if ( ! empty ( $merge_vars['meta_query'] ) && ! empty ( $query_vars['meta_query'] ) ) {
-				$query_vars['meta_query'] = array_merge( $query_vars['meta_query'], $merge_vars['meta_query'] );
-			}
-
-			if ( ! empty ( $merge_vars['tax_query'] ) && ! empty ( $query_vars['tax_query'] ) ) {
-				$query_vars['tax_query'] = array_merge( $query_vars['tax_query'], $merge_vars['tax_query'] );
-			}
-		}
-
-		return $query_vars;
 	}
 
 	public function has_bricks() {

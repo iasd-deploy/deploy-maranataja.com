@@ -173,7 +173,8 @@ class WPML_Locale {
 			}
 			load_textdomain(
 				'sitepress',
-				WPML_PLUGIN_PATH . '/locale/sitepress-' . $this->get_locale( $lang_code ) . '.mo'
+				WPML_PLUGIN_PATH . '/locale/sitepress-' . $this->get_locale( $lang_code ) . '.mo',
+				is_string( $this->get_locale( $lang_code ) ) ? $this->get_locale( $lang_code ) : null
 			);
 		} else { // switch back
 			$l10n['sitepress'] = $original_l10n;

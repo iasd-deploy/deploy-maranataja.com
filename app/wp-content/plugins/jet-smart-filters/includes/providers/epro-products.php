@@ -436,10 +436,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Products' ) ) {
 
 		public function add_archive_query_args( $query ) {
 
-			if ( $query->get('jsf') !== $this->get_id() && ! $query->get( 'wc_query' ) && ! $query->is_search ) {
+			//if ( $query->get('jsf') !== $this->get_id() && ! $query->get( 'wc_query' ) && ! $query->is_search )
+			if ( $query->get('jsf') !== $this->get_id() || ! $query->get( 'wc_query' ) ) {
 				return;
 			}
-
+	
 			$jet_query_args = jet_smart_filters()->query->get_query_args();
 
 			foreach ( $jet_query_args as $query_var => $value ) {
