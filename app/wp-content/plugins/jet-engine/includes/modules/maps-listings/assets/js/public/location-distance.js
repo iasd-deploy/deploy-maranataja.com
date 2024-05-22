@@ -4,7 +4,6 @@
 
 	const initLocationDistanceFilter = function() {
 
-
 		window.JetSmartFilters.filtersList.JetEngineLocationDistance = 'jet-smart-filters-location-distance';
 		window.JetSmartFilters.filters.JetEngineLocationDistance = class JetEngineLocationDistance extends window.JetSmartFilters.filters.Search {
 
@@ -38,6 +37,10 @@
 				} );
 
 				this.defaultLocation = $filter.data( 'current-location' );
+
+				if ( this.defaultLocation ) {
+					this.updateLocationData( this.defaultLocation, true );
+				}
 
 				if ( this.defaultLocation.address ) {
 					this.$locationInput.val( this.defaultLocation.address );
@@ -178,7 +181,7 @@
 					this.updateLocationData( { ...newData }, true );
 				}
 
-				if ( newData && newData.address ) {
+				if ( newData && undefined !== newData.address ) {
 
 					if ( 0 == newData.address && newData.latitude && newData.longitude ) {
 						this.$locationInput.val( this.currentLocationVerbose );
@@ -203,7 +206,7 @@
 
 			get activeValue() {
 
-				if ( ! this.hasLocation() && this.defaultLocation.distance == this.locationData.distance ) {
+				if ( ! this.hasLocation() && ! this.locationData.distance ) {
 					return false;
 				}
 				
@@ -319,9 +322,10 @@
 
 				if ( 0 !== Object.keys( newData ).length ) {
 
-					if ( 0 !== Object.keys( this.defaultLocation ).length ) {
-						newData = { ...this.defaultLocation, ...newData };
-					}
+					// The following condition is commented to prevent conflicts with Reload or Mixed apply types.
+					// if ( 0 !== Object.keys( this.defaultLocation ).length ) {
+					// 	newData = { ...this.defaultLocation, ...newData };
+					// }
 
 					for ( const prop in newData ) {
 						this.locationData[ prop ] = newData[ prop ];
@@ -351,6 +355,14 @@
 
 		};
 	}
+
+	// Added the filter name to the `filterNames` property on `DOMContentLoaded` event before `elementor/frontend/init` event
+	// to better compatibility with Elementor Popup.
+	window.addEventListener( 'DOMContentLoaded', () => {
+		if ( window.JetSmartFilters && -1 === window.JetSmartFilters.filterNames.indexOf( 'location-distance' ) ) {
+			window.JetSmartFilters.filterNames.push( 'location-distance' );
+		}
+	} );
 
 	if ( window.JetMapListingGeolocationFilterData && 'jet-smart-filters/before-init' === window.JetMapListingGeolocationFilterData.initEvent ) {
 		document.addEventListener( 'jet-smart-filters/before-init', ( e ) => {

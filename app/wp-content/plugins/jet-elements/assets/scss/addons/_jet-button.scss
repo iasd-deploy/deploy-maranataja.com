@@ -13,9 +13,6 @@
 		cursor: pointer;
 		transform: translateZ(0);
 		transition: all .3s cubic-bezier(.5,.12,.46,.88);
-		&.hover-effect-1{
-			overflow: visible;
-		}
 	}
 
 	&__plane {

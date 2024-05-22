@@ -99,6 +99,7 @@ class Jet_Engine_Help_Video_Popup {
 	}
 
 	public function print_script() {
+
 		echo '<script>
 		(function( $ ) {
 			
@@ -112,7 +113,7 @@ class Jet_Engine_Help_Video_Popup {
 			var $document = $( document );
 
 			if ( window.JetListingsVideoPageTrigger' .  $this->id . ' ) {
-				console.log( $( window.JetListingsVideoTriggerSelector' .  $this->id . ' ) );
+				//console.log( $( window.JetListingsVideoTriggerSelector' .  $this->id . ' ) );
 				$( window.JetListingsVideoTriggerSelector' .  $this->id . ' ).after( \'<a href="#" class="jet-listings-video-popup-trigger">' . $this->get_trigger_icon() . '\' + window.JetListingsVideoSettings' .  $this->id . '.label + \'</a>\' );
 			}
 

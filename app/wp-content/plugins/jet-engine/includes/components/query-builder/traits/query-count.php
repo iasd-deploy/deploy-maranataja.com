@@ -35,7 +35,7 @@ trait Query_Count_Trait {
 				'label'       => esc_html__( 'Format', 'jet-engine' ),
 				'label_block' => true,
 				'type'        => 'textarea',
-				'default'     => esc_html__( 'Showing %start-item%-%end-item% of %total% items', 'jet-engine' ),
+				'default'     => esc_html__( 'Showing [start-item]-[end-item] of [total] items', 'jet-engine' ),
 				'description' => $this->get_format_description(),
 				'has_html'    => true,
 				'condition'   => array(
@@ -46,12 +46,12 @@ trait Query_Count_Trait {
 	}
 
 	public function get_format_description() {
-		$html = '<b>' . esc_html__( 'Available macros:', 'jet-engine' ) . '</b>';
+		$html = '<b>' . esc_html__( 'Available shortcodes:', 'jet-engine' ) . '</b>';
 		$html .= '<ul>';
-			$html .= '<li><code>%total%</code> - ' . esc_html__( 'Total query results count', 'jet-engine' ) . '</li>';
-			$html .= '<li><code>%visible%</code> - ' . esc_html__( 'Currently visible query results count', 'jet-engine' ) . '</li>';
-			$html .= '<li><code>%start-item%</code> - ' . esc_html__( 'Start item index on page', 'jet-engine' ) . '</li>';
-			$html .= '<li><code>%end-item%</code> - ' . esc_html__( 'End item index on page', 'jet-engine' ) . '</li>';
+			$html .= '<li><code>[total]</code> - ' . esc_html__( 'Total query results count', 'jet-engine' ) . '</li>';
+			$html .= '<li><code>[visible]</code> - ' . esc_html__( 'Currently visible query results count', 'jet-engine' ) . '</li>';
+			$html .= '<li><code>[start-item]</code> - ' . esc_html__( 'Start item index on page', 'jet-engine' ) . '</li>';
+			$html .= '<li><code>[end-item]</code> - ' . esc_html__( 'End item index on page', 'jet-engine' ) . '</li>';
 		$html .= '</ul>';
 
 		return $html;
@@ -74,7 +74,7 @@ trait Query_Count_Trait {
 			);
 
 			if ( ! empty( $format ) ) {
-				$result = preg_replace_callback( '/%([a-z_-]+)%/', function ( $matches ) use ( $query_id, $available_macros ) {
+				$result = preg_replace_callback( '/(?:%|\[)([a-z_-]+)(?:%|\])/', function ( $matches ) use ( $query_id, $available_macros ) {
 
 					if ( ! in_array( $matches[1], $available_macros ) ) {
 						return '';

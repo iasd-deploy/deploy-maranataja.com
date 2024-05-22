@@ -272,6 +272,26 @@ class Jet_Engine_Meta_Boxes_Option_Sources {
 					$data_handler->sanitize_item_from_request( $is_built_in )
 				) );
 
+				// Update `meta_fields` storage.
+				// Solution for correct calculation indexers.
+				if ( in_array( $object_type, [ 'post', 'taxonomy' ] ) ) {
+					$found_new_field = false;
+
+					foreach ( $_meta_fields as $_meta_field ) {
+						if ( ! empty( $_meta_field['name'] ) && $field === $_meta_field['name'] ) {
+							$found_new_field = $_meta_field;
+						}
+					}
+
+					if ( ! empty( $found_new_field ) ) {
+						foreach ( jet_engine()->meta_boxes->meta_fields[ $sub_type ] as $index => $_field ) {
+							if ( ! empty( $_field['name'] ) && $field === $_field['name'] ) {
+								jet_engine()->meta_boxes->meta_fields[ $sub_type ][ $index ] = $found_new_field;
+							}
+						}
+					}
+				}
+
 			}
 		}
 
@@ -309,8 +329,8 @@ class Jet_Engine_Meta_Boxes_Option_Sources {
 
 						if ( $custom_item_value ) {
 							$meta_fields[ $meta_index ] = $this->get_field_with_merged_options( 
-								$meta_fields[ $meta_index ], 
-								$custom_value 
+								$meta_fields[ $meta_index ],
+								wp_unslash( $custom_value )
 							);
 
 							$update_meta = true;
@@ -325,8 +345,8 @@ class Jet_Engine_Meta_Boxes_Option_Sources {
 				if ( ! Jet_Engine_Tools::is_empty( $custom_value ) ) {
 
 					$meta_fields[ $meta_index ] = $this->get_field_with_merged_options( 
-						$meta_fields[ $meta_index ], 
-						$custom_value 
+						$meta_fields[ $meta_index ],
+						wp_unslash( $custom_value )
 					);
 
 					$update_meta = true;

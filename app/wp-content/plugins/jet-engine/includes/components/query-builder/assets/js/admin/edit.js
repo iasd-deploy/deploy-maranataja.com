@@ -156,9 +156,9 @@
 				
 				this.$set( this.generalSettings.api_schema[ index ], prop, value );
 
-				if ( value && index === this.generalSettings.api_schema.length - 1 ) {
-					this.generalSettings.api_schema.push( { arg: '', value: '' } );
-				}
+				// if ( value && index === this.generalSettings.api_schema.length - 1 ) {
+				// 	this.generalSettings.api_schema.push( { arg: '', value: '' } );
+				// }
 
 			},
 			deleteQueryArgument( index ) {
@@ -169,6 +169,9 @@
 					this.generalSettings.api_schema.push( { arg: '', value: '' } );
 				}
 
+			},
+			addQueryArgRow() {
+				this.generalSettings.api_schema.push( { arg: '', value: '' } );
 			},
 			resetQueryArgDelete() {
 				this.queryArgToDelete = -1;

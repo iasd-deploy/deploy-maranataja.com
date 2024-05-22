@@ -158,6 +158,12 @@ class Manager {
 		);
 
 		add_filter(
+			'jet-engine/listings/frontend/custom-listing-url',
+			[ $this, 'set_custom_listing_url' ],
+			10, 2
+		);
+
+		add_filter(
 			'jet-engine/twig-views/functions/dynamic-url/controls',
 			function( $controls ) {
 				$controls['size']['condition']['source'][] = 'get_product_image_url';
@@ -169,6 +175,17 @@ class Manager {
 			'acf/pre_load_post_id',
 			[ $this, 'set_wc_queried_product_id' ],
 			10, 2
+		);
+
+		add_filter(
+			'jet-engine/listing/container-classes',
+			[ $this, 'set_listing_woo_class' ],
+			10, 3
+		);
+
+		add_filter(
+			'body_class',
+			[ $this, 'set_woo_class_to_listing_doc' ]
 		);
 
 	}
@@ -290,6 +307,38 @@ class Manager {
 
 		// Just in case
 		return $result;
+
+	}
+
+	/**
+	 * Set custom listing URL for clickable listing item.
+	 *
+	 * @since 3.4.2
+	 *
+	 * @param string $url      Listing url.
+	 * @param array  $settings List of listing settings.
+	 *
+	 * @return string
+	 */
+	public function set_custom_listing_url( $url, $settings ) {
+
+		$source = ! empty( $settings['listing_link_source'] ) ? $settings['listing_link_source'] : '_permalink';
+
+		if ( 'add_to_cart' !== $source ) {
+			return $url;
+		}
+
+		global $product;
+
+		if ( is_null( $product ) ) {
+			$product = jet_engine()->listings->data->get_current_object();
+		}
+
+		if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+			return $url;
+		}
+
+		return esc_url( $product->add_to_cart_url() );
 
 	}
 
@@ -916,6 +965,102 @@ class Manager {
 
 		return $object;
 
+	}
+
+	/**
+	 * Added `woocommerce` css class for product listing to fix styling issues with woo widgets by Elementor Pro.
+	 * See: https://github.com/Crocoblock/issues-tracker/issues/7660
+	 *
+	 * @param array $classes
+	 * @param array $settings
+	 * @param null  $render
+	 *
+	 * @return array
+	 */
+	public function set_listing_woo_class( $classes = [], $settings = [], $render = null ) {
+
+		$add_woo_class = false;
+
+		if ( $render->listing_query_id ) {
+			$query = \Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $render->listing_query_id );
+
+			if ( $query && 'wc-product-query' === $query->query_type ) {
+				$add_woo_class = true;
+			}
+		}
+
+		if ( $render->posts_query ) {
+
+			$post_types = $render->posts_query->get( 'post_type' );
+
+			if ( ! empty( $post_types ) ) {
+
+				if ( ! is_array( $post_types ) ) {
+					$post_types = array( $post_types );
+				}
+
+				if ( in_array( 'product', $post_types ) ) {
+					$add_woo_class = true;
+				}
+			}
+		}
+
+		if ( $add_woo_class ) {
+			$classes[] = 'woocommerce';
+		}
+
+		return $classes;
+	}
+
+	public function set_woo_class_to_listing_doc( $classes = [] ) {
+
+		if ( ! class_exists( 'Elementor\Plugin' ) ) {
+			return $classes;
+		}
+
+		if ( ! \Elementor\Plugin::$instance->preview->is_preview() ) {
+			return $classes;
+		}
+
+		$doc = \Elementor\Plugin::$instance->documents->get( get_the_ID() );
+
+		if ( ! $doc || jet_engine()->listings->get_id() !== $doc->get_name() ) {
+			return $classes;
+		}
+
+		$add_woo_class = false;
+
+		$source = $doc->get_settings( 'listing_source' );
+
+		switch ( $source ) {
+			case 'posts':
+				$post_type = $doc->get_settings( 'listing_post_type' );
+
+				if ( 'product' === $post_type ) {
+					$add_woo_class = true;
+				}
+
+				break;
+
+			case 'query':
+				$query_id = $doc->get_settings( '_query_id' );
+
+				if ( ! empty( $query_id ) ) {
+					$query = \Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $query_id );
+
+					if ( $query && 'wc-product-query' === $query->query_type ) {
+						$add_woo_class = true;
+					}
+				}
+
+				break;
+		}
+
+		if ( $add_woo_class ) {
+			$classes[] = 'woocommerce';
+		}
+
+		return $classes;
 	}
 
 	/**

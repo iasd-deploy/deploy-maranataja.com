@@ -98,7 +98,7 @@ class Provider_Content_Types extends \Bricks\Integrations\Dynamic_Data\Providers
 			$post = $preview->get_preview_object();
 		}
 
-		$post_id = isset( $post->ID ) ? $post->ID : '';
+		$post_id = isset( $post->_ID ) ? $post->_ID : '';
 
 		$field = $this->tags[ $tag ]['field'];
 
@@ -156,18 +156,29 @@ class Provider_Content_Types extends \Bricks\Integrations\Dynamic_Data\Providers
 					break;
 
 				case 'media':
-					if ( $context === 'image' ) {
-						$filters['object_type'] = 'media';
-						$filters['separator']   = '';
+					$filters['object_type'] = 'media';
+					$filters['separator']   = '';
 
-						// Empty field value should return empty array to avoid default post title in text context. @see $this->format_value_for_context()
-						$value = ! empty( $value ) ? [ $value ] : [];
+					if ( isset( $field['value_format'] ) ) {
+						if ( $field['value_format'] === 'url' ) {
+							$value = attachment_url_to_postid( $value );
+						} elseif ( $field['value_format'] === 'both' ) {
+							$value = isset( $value['id'] ) ? $value['id'] : '';
+						}
 					}
+
+					// Empty field value should return empty array to avoid default post title in text context. @see $this->format_value_for_context()
+					$value = ! empty( $value ) ? [ $value ] : [];
+
 					break;
 
 				case 'gallery':
 					$filters['object_type'] = 'media';
-					$filters['separator']   = '';
+					$filters['separator']   = ', ';
+
+					if ( isset( $filters['image'] ) ) {
+						$filters['separator']   = '';
+					}
 
 					if ( isset( $field['value_format'] ) ) {
 						if ( $field['value_format'] === 'id' ) {
@@ -191,12 +202,19 @@ class Provider_Content_Types extends \Bricks\Integrations\Dynamic_Data\Providers
 					$filters['link']        = true;
 
 					break;
+
 				case 'checkbox':
-					$value = '';
+					$options_source = $field['options_source'] ?? '';
+
+					if ( $options_source === 'glossary' ) {
+						$glossary_id = $field['glossary_id'] ?? 0;
+						$value       = jet_engine_label_by_glossary( $value, $glossary_id );
+					} else {
+						$value = jet_engine_render_checkbox_values( $value );
+					}
 
 					break;
 			}
-
 		}
 
 		// STEP: Apply context (text, link, image, media)

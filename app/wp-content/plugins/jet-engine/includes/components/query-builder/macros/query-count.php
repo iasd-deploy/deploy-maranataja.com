@@ -25,7 +25,7 @@ class Query_Count_Macro extends \Jet_Engine_Base_Macros {
 	 * @inheritDoc
 	 */
 	public function macros_args() {
-		return$this->get_args();
+		return $this->get_args();
 	}
 
 	/**

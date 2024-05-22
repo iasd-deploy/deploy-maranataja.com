@@ -35,6 +35,8 @@ class Jet_Engine_Objects_Stack {
 		add_action( 'jet-engine/listings/data/set-current-object', array( $this, 'ensure_root' ) );
 		add_action( 'jet-engine/listings/frontend/setup-data', array( $this, 'increase_stack' ) );
 		add_action( 'jet-engine/listings/frontend/object-done', array( $this, 'decrease_stack' ) );
+		add_action( 'jet-engine/object-stack/increase', array( $this, 'increase_stack' ) );
+		add_action( 'jet-engine/object-stack/decrease', array( $this, 'decrease_stack' ) );
 	}
 
 	/**
@@ -97,11 +99,11 @@ class Jet_Engine_Objects_Stack {
 	 * @return [type]         [description]
 	 */
 	public function increase_stack( $object ) {
-		
+
 		if ( ! in_array( $object, $this->stack ) ) {
 			$this->stack[] = $object;
 		}
-		
+
 		$this->in_stack = true;
 	}
 

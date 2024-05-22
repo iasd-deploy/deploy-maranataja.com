@@ -160,17 +160,27 @@ class Filters {
 
 			} );
 
+			// Maybe set the orderby random seed
+			if ( ! empty( $_REQUEST[ '_random_seed_' . $query->id ] ) ) {
+				$query->set_filtered_prop( '_random_seed', absint( $_REQUEST[ '_random_seed_' . $query->id ] ) );
+			}
+
 		}
 
 		// Process pager
 		if ( $this->is_filters_request( $query ) && ( ! empty( $_REQUEST['paged'] ) || ! empty( $_REQUEST['jet_paged'] ) ) ) {
 
-			if ( ! empty( $_REQUEST['paged'] ) ) {
-				$page = absint( $_REQUEST['paged'] );
-			} elseif ( ! empty( $_REQUEST['jet_paged'] ) ) {
-				$page = absint( $_REQUEST['jet_paged'] );
+			// https://github.com/Crocoblock/issues-tracker/issues/7104
+			$page = 1;
+
+			if ( jet_smart_filters()->query->is_ajax_filter() ) {
+				if ( ! empty( $_REQUEST['paged'] ) ) {
+					$page = absint( $_REQUEST['paged'] );
+				}
 			} else {
-				$page = 1;
+				if ( ! empty( $_REQUEST['jet_paged'] ) ) {
+					$page = absint( $_REQUEST['jet_paged'] );
+				}
 			}
 
 			$query->set_filtered_prop( '_page', $page );
@@ -201,7 +211,13 @@ class Filters {
 			$query_id = jet_smart_filters()->query->get_current_provider( 'query_id' );
 		}
 
-		switch ( $widget->get_name() ) {
+		$name = $widget->get_name();
+
+		if ( false === $name ) {
+			return;
+		}
+
+		switch ( $name ) {
 
 			case 'jet-engine-maps-listing':
 				$provider = 'jet-engine-maps';
@@ -248,12 +264,17 @@ class Filters {
 		 * After indexer get required data, remove query builder-related arguments from localized filters data to avoid it from sending
 		 * with AJAX requests and break these requests if query have to much args
 		 */
-		add_filter( 'jet-smart-filters/filters/localized-data', function( $data = array() ) use ( $provider, $query_id ) {
+		add_filter( 'jet-smart-filters/filters/localized-data', function( $data = array() ) use ( $provider, $query_id, $query ) {
 
 			$query_id = $query_id ? $query_id : 'default';
 
 			if ( isset( $data['queries'][ $provider ][ $query_id ] ) ) {
 				unset( $data['queries'][ $provider ][ $query_id ] );
+			}
+
+			// Store the orderby random seed if it exists.
+			if ( ! empty( $query->final_query['_random_seed'] ) ) {
+				$data['extra_props'][ '_random_seed_' . $query->id ] = $query->final_query['_random_seed'];
 			}
 
 			return $data;

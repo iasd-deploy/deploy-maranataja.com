@@ -199,6 +199,8 @@ if ( ! class_exists( 'Jet_Engine_Seo_Package' ) ) {
 				'textarea',
 				'wysiwyg',
 				'repeater',
+				'media',
+				'gallery',
 			) );
 
 			foreach ( $fields as $object => $obj_fields ) {
@@ -438,6 +440,10 @@ if ( ! class_exists( 'Jet_Engine_Seo_Package' ) ) {
 				return $content;
 			}
 
+			$all_fields_args  = jet_engine()->meta_boxes->get_fields_for_context( 'post_type', $post_type );
+			$all_fields_names = wp_list_pluck( $all_fields_args, 'name' );
+			$fields_args      = array_combine( $all_fields_names, $all_fields_args );
+
 			$fields_content = '';
 
 			foreach ( $current_obj_fields as $field_key ) {
@@ -461,10 +467,22 @@ if ( ! class_exists( 'Jet_Engine_Seo_Package' ) ) {
 						continue;
 					}
 
+					$field_args       = ! empty( $fields_args[ $repeater_key ] ) ? $fields_args[ $repeater_key ] : array();
+					$sub_fields       = ! empty( $field_args['repeater-fields'] ) ? $field_args['repeater-fields'] : array();
+					$sub_fields_names = wp_list_pluck( $sub_fields, 'name' );
+					$sub_fields_args  = array_combine( $sub_fields_names, $sub_fields );
+
+					$sub_field_args = ! empty( $sub_fields_args[ $repeater_field_key ] ) ? $sub_fields_args[ $repeater_field_key ] : array();
+					$sub_field_type = ! empty( $sub_field_args['type'] ) ? $sub_field_args['type'] : 'text';
+
 					foreach ( $repeater_items as $repeater_item ) {
 
 						if ( ! empty( $repeater_item[ $repeater_field_key ] ) ) {
-							$fields_content .= "\n" . $repeater_item[ $repeater_field_key ];
+							if ( in_array( $sub_field_type, array( 'media', 'gallery' ) ) ) {
+								$fields_content .= "\n" . $this->get_media_content( $repeater_item[ $repeater_field_key ], $sub_field_type );
+							} else {
+								$fields_content .= "\n" . $repeater_item[ $repeater_field_key ];
+							}
 						}
 
 					}
@@ -473,16 +491,44 @@ if ( ! class_exists( 'Jet_Engine_Seo_Package' ) ) {
 					$field_content = get_post_meta( $id, $field_key, true );
 
 					if ( ! empty( $field_content ) ) {
-						$fields_content .= "\n" . $field_content;
+						$field_args = ! empty( $fields_args[ $field_key ] ) ? $fields_args[ $field_key ] : array();
+						$field_type = ! empty( $field_args['type'] ) ? $field_args['type'] : 'text';
+
+						if ( in_array( $field_type, array( 'media', 'gallery' ) ) ) {
+							$fields_content .= "\n" . $this->get_media_content( $field_content, $field_type );
+						} else {
+							$fields_content .= "\n" . $field_content;
+						}
 					}
 				}
 			}
 
 			if ( ! empty( $fields_content ) ) {
-				$content = $content . strip_tags( $fields_content );
+				$content = $content . wp_kses_post( $fields_content );
 			}
 
 			return $content;
+		}
+
+		public function get_media_content( $value = null, $type = 'media' ) {
+			$result = '';
+
+			if ( 'media' === $type ) {
+				$value = array( $value );
+			} elseif ( 'gallery' === $type && ! is_array( $value ) ) {
+				$value = explode( ',', $value );
+			}
+
+			foreach ( $value as $img ) {
+				$img_data = Jet_Engine_Tools::get_attachment_image_data_array( $img );
+
+				if ( ! empty( $img_data['url'] ) ) {
+					$alt    = ! empty( $img_data['id'] ) ? get_post_meta( $img_data['id'], '_wp_attachment_image_alt', true ) : '';
+					$result .= "\n" . '<img src="' . esc_url( $img_data['url'] ) . '" alt="' . esc_attr( $alt ) . '">';
+				}
+			}
+
+			return $result;
 		}
 
 		public function register_rank_math_cct_field_snippet() {

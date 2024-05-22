@@ -35,6 +35,8 @@ class Filters {
 			return $args;
 		}
 
+		jet_engine()->glossaries->data->clear_cache();
+
 		$options = $this->get_glossary_options( $glossary_id, array() );
 		$prepared_options = array();
 

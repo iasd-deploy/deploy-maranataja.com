@@ -214,14 +214,14 @@ if ( ! class_exists( 'Jet_Engine_CPT_Admin_Filters' ) ) {
 							$option_all = ! empty( $filter['title'] ) ? $filter['title'] : '';
 						}
 
-						$args = array(
+						$args = apply_filters( 'jet-engine/post-types/admin-filters/taxonomy/args', array(
 							'show_option_all' => $option_all,
 							'name'            => $this->get_filter_name( $index ),
 							'taxonomy'        => $filter['tax'],
 							'selected'        => $this->get_active_filter_value( $index ),
 							'hierarchical'    => ! empty( $filter['show_hierarchy'] ) ? true : false,
 							'show_count'      => ! empty( $filter['show_count'] ) ? true : false,
-						);
+						) );
 
 						if ( ! empty( $filter['tax_order_by'] ) ) {
 							$args['orderby'] = $filter['tax_order_by'];
@@ -410,6 +410,11 @@ if ( ! class_exists( 'Jet_Engine_CPT_Admin_Filters' ) ) {
 					if ( isset( $value['value'] ) && isset( $value['label'] ) ) {
 						$formatted_result[] = array(
 							'value' => apply_filters( 'jet-engine/admin-filters/filter-value', $value['value'], $filter, $this ),
+							'label' => apply_filters( 'jet-engine/admin-filters/filter-label', $value['label'], $filter, $this ),
+						);
+					} elseif ( ! isset( $value['value'] ) && isset( $value['label'] ) ) { // condition for radio fields.
+						$formatted_result[] = array(
+							'value' => apply_filters( 'jet-engine/admin-filters/filter-value', $key, $filter, $this ),
 							'label' => apply_filters( 'jet-engine/admin-filters/filter-label', $value['label'], $filter, $this ),
 						);
 					} else {

@@ -282,6 +282,10 @@ if ( ! class_exists( 'Jet_Engine_Modules_Updater' ) ) {
 
 					$update = new stdClass();
 
+					if ( ! class_exists( 'Jet_Dashboard\Utils' ) ) {
+						jet_engine()->jet_dashboard_init( true );
+					}
+
 					$package = false;
 					$license = \Jet_Dashboard\Utils::get_plugin_license_key( 'jet-engine/jet-engine.php' );
 

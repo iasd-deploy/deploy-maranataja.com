@@ -186,6 +186,10 @@ abstract class Base {
 			return array();
 		}
 
+		if ( is_array( $value ) ) {
+			return $value;
+		}
+
 		$value = explode( ',', $value );
 		$value = array_map( 'trim', $value );
 

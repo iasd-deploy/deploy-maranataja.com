@@ -44,6 +44,26 @@ class Repeater_Query extends Base_Query {
 	}
 
 	/**
+	 * Ensure `Jet_Engine_Queried_Repeater_Item` class is included
+	 */
+	public function include_queried_repeater_item() {
+		if ( ! class_exists( '\Jet_Engine_Queried_Repeater_Item' ) ) {
+			require_once jet_engine()->plugin_path( 'includes/classes/repeater-item.php' );
+		}
+	}
+
+	/**
+	 * Returns queried items array
+	 *
+	 * @return array
+	 */
+	public function get_items() {
+		// Before get items, ensure `Jet_Engine_Queried_Repeater_Item` class is included
+		$this->include_queried_repeater_item();
+		return parent::get_items();
+	}
+
+	/**
 	 * Returns queries items
 	 *
 	 * @return [type] [description]
@@ -119,9 +139,7 @@ class Repeater_Query extends Base_Query {
 			$items = array();
 		}
 
-		if ( ! class_exists( '\Jet_Engine_Queried_Repeater_Item' ) ) {
-			require_once jet_engine()->plugin_path( 'includes/classes/repeater-item.php' );
-		}
+		$this->include_queried_repeater_item();
 
 		if ( ! empty( $args['meta_query'] ) ) {
 			$args['meta_query'] = $this->prepare_meta_query_args( $args );
@@ -408,7 +426,7 @@ class Repeater_Query extends Base_Query {
 				$object = get_post( $object );
 			}
 
-			$object = apply_filters( 'jet-engine/query-builder/repeater-query/object-by-id', $object );
+			$object = apply_filters( 'jet-engine/query-builder/repeater-query/object-by-id', $object, $this );
 		}
 
 		if ( is_object( $object ) ) {
@@ -444,6 +462,10 @@ class Repeater_Query extends Base_Query {
 
 		return $object_id;
 
+	}
+
+	public function get_object_id() {
+		return $this->object_id;
 	}
 
 	public function get_current_items_page() {

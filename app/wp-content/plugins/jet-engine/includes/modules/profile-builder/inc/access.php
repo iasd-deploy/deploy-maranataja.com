@@ -127,15 +127,18 @@ class Access {
 
 		$subpage = Module::instance()->query->get_subpage_data();
 
-		if ( empty( $subpage ) || empty( $subpage['roles'] ) ) {
-			return $result;
-		}
+		if ( ! empty( $subpage ) ) {
 
-		$user = wp_get_current_user();
-		$intersect = array_intersect( $user->roles, $subpage['roles'] );
+			if ( empty( $subpage['roles'] ) ) {
+				return $result;
+			}
 
-		if ( ! empty( $intersect ) ) {
-			return $result;
+			$user = wp_get_current_user();
+			$intersect = array_intersect( $user->roles, $subpage['roles'] );
+
+			if ( ! empty( $intersect ) ) {
+				return $result;
+			}
 		}
 
 		$action = Module::instance()->settings->get( 'not_accessible_action', 'login_redirect' );

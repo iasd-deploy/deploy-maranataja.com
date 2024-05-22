@@ -318,6 +318,38 @@ class Edit_Item_Page extends \Jet_Engine_Options_Page_Factory {
 			)
 		);
 
+		if ( 'edit' === $this->page['action'] ) {
+			$value = $this->get( 'cct_created' );
+			$value = strtotime( $value );
+			$value = is_numeric( $value ) ? date( 'Y-m-d\TH:i:s', $value ) : '';
+
+			$time_format = \Jet_Engine_Tools::convert_date_format_php_to_js( 'H:i:s' );
+
+			$this->builder->register_control(
+				array(
+					'cct_created' => array(
+						'type'         => 'text',
+						'input_type'   => 'datetime-local',
+						'autocomplete' => 'off',
+						'parent'       => 'settings_bottom',
+						'id'           => 'cct_created',
+						'name'         => 'cct_created',
+						'label'        => __( 'Item published', 'jet-engine' ),
+						'value'        => $value,
+						'extra_attr'   => array(
+							'data-datetime-settings' => htmlspecialchars( json_encode( array(
+								'timeFormat'    => $time_format,
+								'altTimeFormat' => $time_format,
+								'altSeparator'  => ' ',
+							) ) ),
+						),
+					),
+				)
+			);
+
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_date_assets' ) );
+		}
+
 		$this->builder->register_html(
 			array(
 				'save_button' => array(

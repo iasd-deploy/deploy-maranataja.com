@@ -115,7 +115,14 @@ class Factory {
 		foreach ( $args as $key => $arg ) {
 
 			if ( ! empty( $arg['relation'] ) ) {
-				$prepared[ $key ] = $arg;
+				$sub_rel = $arg['relation'];
+				unset( $arg['relation'] );
+
+				$prepared[ $key ] = array_merge(
+					array( 'relation' => $sub_rel ),
+					$this->prepare_query_args( $arg )
+				);
+				//$prepared[ $key ] = $arg;
 				continue;
 			}
 
@@ -556,7 +563,19 @@ class Factory {
 
 		if ( null === $this->_quick_edit_columns ) {
 
-			$this->_quick_edit_columns = array();
+			$this->_quick_edit_columns = array(
+				// default service fields
+				'cct_status' => array(
+					'type'        => 'select',
+					'name'        => 'cct_status',
+					'object_type' => 'service_field',
+				),
+				'cct_created' => array(
+					'type'        => 'sql-date',
+					'name'        => 'cct_created',
+					'object_type' => 'service_field',
+				),
+			);
 
 			foreach ( $this->fields as $field ) {
 				if ( ! empty( $field['quick_editable'] ) ) {

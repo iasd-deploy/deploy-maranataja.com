@@ -10,12 +10,12 @@ $A2A_SHARE_SAVE_services = array(
 	"mastodon" => array(
 		"name" => "Mastodon",
 		"icon" => "mastodon",
-		"color" => "2b90d9",
+		"color" => "6364FF",
 	),
 	"pinterest" => array(
 		"name" => "Pinterest",
 		"icon" => "pinterest",
-		"color" => "BD081C",
+		"color" => "e60023",
 	),
 	"whatsapp" => array(
 		"name" => "WhatsApp",
@@ -71,6 +71,11 @@ $A2A_SHARE_SAVE_services = array(
 		"name" => "BlogMarks",
 		"icon" => "blogmarks",
 		"color" => "535353",
+	),
+	"bluesky" => array(
+		"name" => "Bluesky",
+		"icon" => "bluesky",
+		"color" => "1285fe",
 	),
 	"bookmarks_fr" => array(
 		"name" => "Bookmarks.fr",
@@ -227,6 +232,11 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "mewe",
 		"color" => "007DA1",
 	),
+	"micro_blog" => array(
+		"name" => "Micro.blog",
+		"icon" => "micro_blog",
+		"color" => "FF8800",
+	),
 	"mix" => array(
 		"name" => "Mix",
 		"icon" => "mix",
@@ -365,7 +375,7 @@ $A2A_SHARE_SAVE_services = array(
 	"threads" => array(
 		"name" => "Threads",
 		"icon" => "threads",
-		"color" => "2A2A2A",
+		"color" => "1A1A1A",
 	),
 	"threema" => array(
 		"name" => "Threema",
@@ -388,7 +398,7 @@ $A2A_SHARE_SAVE_services = array(
 		"color" => "1D9BF0",
 	),
 	"typepad_post" => array(
-		"name" => "TypePad Post",
+		"name" => "TypePad",
 		"icon" => "typepad",
 		"color" => "D2DE61",
 	),
@@ -477,6 +487,12 @@ $A2A_FOLLOW_services = array(
 		'href' => 'https://www.behance.net/${id}',
 		'icon' => 'behance',
 		'color' => '007EFF',
+	),
+	'bluesky' => array(
+		'name' => 'Bluesky',
+		'href' => 'https://bsky.app/profile/${id}',
+		'icon' => 'bluesky',
+		'color' => '1285FE',
 	),
 	'flickr' => array(
 		'name' => 'Flickr',

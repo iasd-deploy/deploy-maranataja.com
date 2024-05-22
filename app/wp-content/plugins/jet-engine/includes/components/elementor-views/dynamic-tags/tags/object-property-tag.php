@@ -45,6 +45,17 @@ class Jet_Engine_Object_Property_Tag extends Elementor\Core\DynamicTags\Data_Tag
 		);
 
 		$this->add_control(
+			'custom_object_prop',
+			array(
+				'label'       => __( 'Or set object field name manually', 'jet-engine' ),
+				'label_block' => true,
+				'description' => '<small style="display: block; line-height: 16px;">' . __( 'Please note! This control will override value from Field control', 'jet-engine' ) . '</small>',
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => '',
+			)
+		);
+
+		$this->add_control(
 			'object_context',
 			array(
 				'label'     => __( 'Context', 'jet-engine' ),
@@ -65,10 +76,10 @@ class Jet_Engine_Object_Property_Tag extends Elementor\Core\DynamicTags\Data_Tag
 		);
 
 		$this->add_control(
-			'notice',
+			'advanced_section_notice',
 			array(
 				'type' => Elementor\Controls_Manager::RAW_HTML,
-				'raw'  => '<div style="font-weight: bold; font-style: italic;">' . esc_html__( 'The following settings only work for string values.', 'jet-engine' ) . '</div>',
+				'raw'  => '<i>' . esc_html__( 'The following settings only work for string values.', 'jet-engine' ) . '</i>',
 			)
 		);
 
@@ -103,7 +114,12 @@ class Jet_Engine_Object_Property_Tag extends Elementor\Core\DynamicTags\Data_Tag
 	public function get_value( array $options = array() ) {
 	
 		$object_prop    = $this->get_settings( 'object_prop' );
+		$custom_prop    = $this->get_settings( 'custom_object_prop' );
 		$object_context = $this->get_settings( 'object_context' );
+
+		if ( ! empty( $custom_prop ) ) {
+			$object_prop = $custom_prop;
+		}
 
 		if ( empty( $object_prop ) ) {
 			return '';

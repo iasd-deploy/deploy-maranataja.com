@@ -133,6 +133,7 @@
 			this.$row.style.display = 'none';
 
 			this.$quickEditRow.classList.add( 'quick-edit-row' );
+			this.$quickEditRow.classList.add( 'inline-edit-row' );
 			this.$quickEditRow.appendChild( quickEditContent );
 
 			for ( const field in this.fieldsData ) {

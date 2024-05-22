@@ -3,7 +3,7 @@
 	$position = isset( $settings['download_icon_position'] ) ? $settings['download_icon_position'] : 'left';
 	$rel      = $this->_get_html( 'download_link_rel', ' rel="%s"' );
 
-?><a class="elementor-button elementor-size-md jet-download jet-download-icon-position-<?php echo $position; ?>" href="<?php echo jet_elements_download_handler()->get_download_link( $settings['download_file'] ); ?>" <?php echo $rel; ?>><?php
+	?><a class="elementor-button elementor-size-md jet-download jet-download-icon-position-<?php echo $position; ?>" data-e-disable-page-transition="true" href="<?php echo jet_elements_download_handler()->get_download_link( $settings['download_file'] ); ?>" <?php echo $rel; ?>><?php
 
 	$icon_format = '<span class="jet-download__icon jet-download-icon-' . $position . ' jet-elements-icon">%s</span>';
 

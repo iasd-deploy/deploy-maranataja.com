@@ -120,6 +120,7 @@
 					timeText: i18n.timeText,
 					hourText: i18n.hourText,
 					minuteText: i18n.minuteText,
+					secondText: i18n.secondText,
 					currentText: i18n.currentText,
 					closeText: i18n.closeText,
 					altFieldTimeOnly: false,
@@ -153,6 +154,7 @@
 
 				var $this = $( this ),
 					value = $this.val(),
+					extraSettings = $this.data( 'datetime-settings' ) || {},
 					$datetimepicker = $( '<input/>', {
 						'type': 'text',
 						'class': 'widefat cx-ui-text',
@@ -167,7 +169,7 @@
 				$this.prop( 'type', 'hidden' );
 				$this.after( $datetimepicker );
 
-				$datetimepicker.datetimepicker({
+				var datetimeSettings = Object.assign( {}, {
 					dateFormat: dateFormat,
 					timeFormat: timeFormat,
 					altField: $this,
@@ -181,6 +183,7 @@
 					timeText: i18n.timeText,
 					hourText: i18n.hourText,
 					minuteText: i18n.minuteText,
+					secondText: i18n.secondText,
 					currentText: i18n.currentText,
 					closeText: i18n.closeText,
 					monthNames: i18n.monthNames,
@@ -188,12 +191,14 @@
 					beforeShow: function( input, datepicker ) {
 						datepicker.dpDiv.addClass( 'jet-engine-datepicker' );
 					},
-				});
+				}, extraSettings );
+
+				$datetimepicker.datetimepicker( datetimeSettings );
 
 				if ( value ) {
 					$datetimepicker.datetimepicker(
 						'setDate',
-						$.datepicker.parseDateTime( saveDateFormat, saveTimeFormat, value, {}, {
+						$.datepicker.parseDateTime( datetimeSettings.altFormat, datetimeSettings.altTimeFormat, value, {}, {
 								separator: 'T',
 								monthNames: i18n.monthNames,
 								monthNamesShort: i18n.monthNamesShort,

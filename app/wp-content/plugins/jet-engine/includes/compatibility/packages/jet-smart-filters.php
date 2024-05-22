@@ -175,6 +175,12 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 
 			if ( class_exists( 'Jet_Engine\Query_Builder\Manager' ) ) {
 				$query_builder_id = Jet_Engine\Query_Builder\Manager::instance()->listings->get_query_id( $widget_settings['lisitng_id'], $widget_settings );
+
+				$query = Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $query_builder_id );
+
+				if ( $query && ! empty( $query->final_query['_random_seed'] ) ) {
+					$response['filters_data']['extra_props'][ '_random_seed_' . $query_builder_id ] = $query->final_query['_random_seed'];
+				}
 			}
 
 			/**

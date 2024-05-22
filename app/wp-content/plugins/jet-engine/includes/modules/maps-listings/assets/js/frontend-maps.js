@@ -183,6 +183,15 @@
 
 					var querySeparator = general.querySeparator || '?';
 					var api = general.api + querySeparator + 'listing_id=' + general.listingID + '&post_id=' + markerData.id + '&source=' + general.source;
+					var queriedID = $container.data( 'queried-id' );
+
+					if ( queriedID ) {
+						api += '&queried_id=' + queriedID;
+					}
+
+					if ( mapID ) {
+						api += '&element_id=' + mapID;
+					}
 
 					jQuery.ajax({
 						url: api,

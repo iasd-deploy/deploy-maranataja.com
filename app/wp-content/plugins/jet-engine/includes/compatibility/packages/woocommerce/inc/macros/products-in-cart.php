@@ -1,5 +1,8 @@
 <?php
+
 namespace Jet_Engine\Compatibility\Packages\Jet_Engine_Woo_Package\Macros;
+
+defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
 class Products_In_Cart extends \Jet_Engine_Base_Macros {
 
@@ -22,11 +25,11 @@ class Products_In_Cart extends \Jet_Engine_Base_Macros {
 	}
 
 	/**
-	 * Callback function to return macros value
+	 * Callback function to return macros value.
 	 *
 	 * @return string
 	 */
-	public function macros_callback( $args = array() ) {
+	public function macros_callback( $args = [] ) {
 
 		if ( ! function_exists( 'WC' ) ) {
 			return false;
@@ -45,7 +48,7 @@ class Products_In_Cart extends \Jet_Engine_Base_Macros {
 			}
 		}
 
-		return $result;
+		return implode( ',', array_unique( $result ) );
 
 	}
 

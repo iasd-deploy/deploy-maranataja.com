@@ -283,6 +283,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 				'max'        => 6,
 				'step'       => 1,
 				'responsive' => true,
+				'frontend_available' => true,
 				'selectors'  => array(
 					'{{WRAPPER}} .jet-listing-dynamic-field .jet-engine-gallery-grid' => '--columns: {{VALUE}}',
 				),
@@ -305,6 +306,16 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 
 			$args['img_gallery_lightbox'] = array(
 				'label'     => __( 'Use lightbox', 'jet-engine' ),
+				'type'      => 'switcher',
+				'default'   => '',
+				'condition' => array(
+					'dynamic_field_filter' => 'yes',
+					'filter_callback'      => array( 'jet_engine_img_gallery_grid' ),
+				),
+			);
+
+			$args['img_gallery_masonry'] = array(
+				'label'     => __( 'Masonry', 'jet-engine' ),
 				'type'      => 'switcher',
 				'default'   => '',
 				'condition' => array(
@@ -338,6 +349,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Gallery_Grid' ) ) {
 				'cols_desk'   => ! empty( $settings['img_columns'] ) ? $settings['img_columns'] : 3,
 				'cols_tablet' => ! empty( $settings['img_columns_tablet'] ) ? $settings['img_columns_tablet'] : 3,
 				'cols_mobile' => ! empty( $settings['img_columns_mobile'] ) ? $settings['img_columns_mobile'] : 1,
+				'masonry'     => ! empty( $settings['img_gallery_masonry'] ) ? filter_var( $settings['img_gallery_masonry'], FILTER_VALIDATE_BOOLEAN ) : false,
 			);
 
 			return array_merge( $args, array( $gallery_args ) );

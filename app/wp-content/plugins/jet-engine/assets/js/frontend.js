@@ -429,9 +429,15 @@
 							$elemContainer = $container.find( '> .elementor-widget-container' ),
 							$items         = $container.find( '.jet-listing-grid__items' ),
 							nav            = $items.data( 'nav' ),
-							query          = nav.query;
+							query          = nav.query,
+							postID         = window.elementorFrontend ? window.elementorFrontendConfig.post.id : 0;
 
 						nav = JetEngine.ensureJSON( nav );
+
+						// Context Bricks
+						if ( $container.hasClass( 'brxe-jet-engine-listing-grid' ) ) {
+							postID = window.bricksData.postId;
+						}
 
 						JetEngine.ajaxGetListing( {
 							handler: 'get_listing',
@@ -441,7 +447,7 @@
 							append: false,
 							query: query,
 							widgetSettings: nav.widget_settings,
-							postID: window.elementorFrontendConfig.post.id,
+							postID,
 							elementID: $container.data( 'id' ),
 						}, function( response ) {
 							JetEngine.widgetListingGrid( $container );
@@ -632,9 +638,15 @@
 							$elemContainer = $container.find( '> .elementor-widget-container' ),
 							$items         = $container.find( '.jet-listing-grid__items' ),
 							nav            = $items.data( 'nav' ),
-							query          = nav.query;
+							query          = nav.query,
+							postID         = window.elementorFrontend ? window.elementorFrontendConfig.post.id : 0;
 
 						nav = JetEngine.ensureJSON( nav );
+
+						// Context Bricks
+						if ( $container.hasClass( 'brxe-jet-engine-listing-grid' ) ) {
+							postID = window.bricksData.postId;
+						}
 
 						JetEngine.ajaxGetListing( {
 							handler: 'get_listing',
@@ -644,7 +656,7 @@
 							append: false,
 							query: query,
 							widgetSettings: nav.widget_settings,
-							postID: window.elementorFrontendConfig.post.id,
+							postID,
 							elementID: $container.data( 'id' ),
 						}, function( response ) {
 							JetEngine.widgetListingGrid( $container );
@@ -1088,16 +1100,24 @@
 
 		},
 
-		initMasonry: function( $masonry ) {
+		initMasonry: function( $masonry, masonrySettings ) {
 			imagesLoaded( $masonry, function() {
-				JetEngine.runMasonry( $masonry );
+				JetEngine.runMasonry( $masonry, masonrySettings );
 			} );
 		},
 
-		runMasonry: function( $masonry ) {
-			var $eWidget = $masonry.closest( '.elementor-widget' ),
-				$items  = $( '> .jet-listing-grid__item', $masonry ),
-				options = $masonry.data( 'masonry-grid-options' );
+		runMasonry: function( $masonry, masonrySettings ) {
+			var defaultSettings = {
+				itemSelector: '> .jet-listing-grid__item',
+				columnsKey:   'columns',
+			};
+
+			masonrySettings = masonrySettings || {};
+			masonrySettings = $.extend( {}, defaultSettings, masonrySettings );
+
+			var $eWidget     = $masonry.closest( '.elementor-widget' ),
+				$items       = $( masonrySettings.itemSelector, $masonry ),
+				options      = $masonry.data( 'masonry-grid-options' ) || {};
 
 			options = JetEngine.ensureJSON( options );
 
@@ -1125,17 +1145,18 @@
 			if ( $eWidget.length ) {
 				var settings     = JetEngine.getElementorElementSettings( $eWidget ),
 					breakpoints  = {},
-					eBreakpoints = window.elementorFrontend.config.responsive.activeBreakpoints;
+					eBreakpoints = window.elementorFrontend.config.responsive.activeBreakpoints,
+					columnsKey   = masonrySettings.columnsKey;
 
-				args.columns = settings.columns_widescreen ? +settings.columns_widescreen : +settings.columns;
+				args.columns = settings[columnsKey + '_widescreen'] ? +settings[columnsKey + '_widescreen'] : +settings[columnsKey];
 
 				Object.keys( eBreakpoints ).reverse().forEach( function( breakpointName ) {
 
-					if ( settings['columns_' + breakpointName] ) {
+					if ( settings[columnsKey + '_' + breakpointName] ) {
 						if ( 'widescreen' === breakpointName ) {
-							breakpoints[eBreakpoints[breakpointName].value - 1] = +settings['columns'];
+							breakpoints[eBreakpoints[breakpointName].value - 1] = +settings[columnsKey];
 						} else {
-							breakpoints[eBreakpoints[breakpointName].value] = +settings['columns_' + breakpointName];
+							breakpoints[eBreakpoints[breakpointName].value] = +settings[columnsKey + '_' + breakpointName];
 						}
 					}
 
@@ -1304,6 +1325,8 @@
 						}
 					}
 				}
+
+				$( document ).trigger( 'jet-engine/listing/ajax-get-listing/done', [ $html, options ] );
 
 			} ).done( doneCallback ).fail( function() {
 				container.removeAttr( 'style' );
@@ -1570,14 +1593,22 @@
 
 									if ( response.data.filters_data ) {
 										$.each( response.data.filters_data, function( param, data ) {
-											if ( window.JetSmartFilterSettings[ param ]['jet-engine'] ) {
-												window.JetSmartFilterSettings[ param ]['jet-engine'] = $.extend(
+											if ( 'extra_props' === param ) {
+												window.JetSmartFilterSettings[ param ] = $.extend(
 													{},
-													window.JetSmartFilterSettings[ param ]['jet-engine'],
+													window.JetSmartFilterSettings[ param ],
 													data
 												);
 											} else {
-												window.JetSmartFilterSettings[ param ]['jet-engine'] = data;
+												if ( window.JetSmartFilterSettings[ param ]['jet-engine'] ) {
+													window.JetSmartFilterSettings[ param ]['jet-engine'] = $.extend(
+														{},
+														window.JetSmartFilterSettings[ param ]['jet-engine'],
+														data
+													);
+												} else {
+													window.JetSmartFilterSettings[ param ]['jet-engine'] = data;
+												}
 											}
 										});
 
@@ -1777,6 +1808,36 @@
 				} );
 			}
 
+			// Temporary solution issue with Lazy Load images + RTL on Chrome.
+			// Remove after fix in Chrome.
+			// See: https://github.com/Crocoblock/issues-tracker/issues/7552
+			if ( slickOptions.rtl ) {
+				$sliderItems.on( 'init', function() {
+					var $items      = $( this ),
+						$lazyImages = $( 'img[loading=lazy]', $items ),
+						lazyImageObserver = new IntersectionObserver(
+							function( entries, observer ) {
+								entries.forEach( function( entry ) {
+									if ( entry.isIntersecting ) {
+										// If an image does not load, need to remove the `loading` attribute.
+										if ( ! entry.target.complete ) {
+											entry.target.removeAttribute( 'loading' );
+										}
+
+										// Detach observer
+										observer.unobserve( entry.target );
+									}
+								} );
+							}
+						);
+
+					$lazyImages.each( function() {
+						const $img = $( this );
+						lazyImageObserver.observe( $img[0] );
+					} );
+				} );
+			}
+
 			if ( $sliderItems.hasClass( 'slick-initialized' ) ) {
 				$sliderItems.slick( 'refresh', true );
 				return;
@@ -1906,6 +1967,16 @@
 
 				lightbox.init();
 			});
+
+			// Masonry init
+			var $masonry = $scope.find( '.jet-engine-gallery-grid--masonry' );
+
+			if ( $masonry.length ) {
+				JetEngine.initMasonry( $masonry, {
+					columnsKey: 'img_columns',
+					itemSelector: '> .jet-engine-gallery-grid__item',
+				} );
+			}
 
 		},
 

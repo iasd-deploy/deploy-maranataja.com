@@ -115,6 +115,25 @@
 				return result;
 
 			},
+			availableOrderByColumns: function() {
+				var columns = JSON.parse( JSON.stringify( this.availableColumns ) );
+
+				if ( this.query?.include_calc && this.query?.calc_cols?.length ) {
+
+					for ( var i = 0; i < this.query.calc_cols.length; i++ ) {
+						if ( this.query.calc_cols[ i ]?.column && this.query.calc_cols[ i ]?.function ) {
+							columns.push( {
+								label: this.query.calc_cols[ i ].function + '(' + this.query.calc_cols[ i ].column + ')',
+								value: this.query.calc_cols[ i ].function + '(' + this.query.calc_cols[ i ].column + ')',
+							} );
+						}
+					}
+
+				}
+
+				return columns;
+
+			},
 		},
 		methods: {
 			presetJoin: function() {

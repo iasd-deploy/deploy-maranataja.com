@@ -1,7 +1,57 @@
 # ChangeLog
 
+## 3.4.4
+* ADD: Ability to sort by calc columns in SQL query https://github.com/Crocoblock/suggestions/issues/7200;
+* ADD: Allow to delete related meta data when deleting meta field;
+* UPD: Compatibility of Media and Gallery meta field types with SEO plugins;
+* UPD: Allow to ddd more than 1 header in the REST API Endpoints https://github.com/Crocoblock/suggestions/issues/7294;
+* UPD: Add 'custom' to size units for the column gap in the Listing Grid widget for Elementor;
+* FIX: Can't display relation meta data in Bricks Loop;
+* FIX: 404 error when the page has the same slug as the account page;
+* FIX: Profile Builder redirection doesn't work on main account page for users with restricted access;
+* FIX: Dynamic Field is breaking in Bricks, when there is nested query loop;
+* FIX: Register CCT Dynamic tags for ajax request.
+
+## 3.4.3
+* ADD: `jet-engine/maps-listings/autocomplete-url-args/openstreetmap` filter;
+* FIX: JetSmartFilters+JetEngine: Pagination/Load More with random order;
+* FIX: Bricks. Dynamic field. Image gallery slider, image size;
+* FIX: Bricks: Data store button causes error in console, if there is no Elementor plugin installed;
+* FIX: Process adding custom meta values with single quotes;
+* FIX: Dynamic fields in the Elementor Loop Grid with exclude current post causes warnings;
+* FIX: Bricks: Dynamic Styles for CCT;
+* FIX: Location & Distance filter in the popup does not work;
+* FIX: Reset radius in Location and Distance filter;
+* FIX: Purchased Products macros https://github.com/Crocoblock/suggestions/issues/7447;
+* FIX: Taxonomy admin filters doesn't work with private posts;
+* FIX: Colorpicker meta field disregarded in gradient background type;
+
+## 3.4.2
+* ADD: an ability to change a cct_created date in CCT Admin UI;
+* ADD: Masonry Layout for Images gallery grid callback;
+* FIX: Relations + Polylang compatibility;
+* FIX: Warnings in CCT Repeater listing;
+* FIX: Clickable listing template + Add to Cart source;
+* FIX: JS process filters on re-init;
+* FIX: Current WP Query. 'Posts per page' settings do not work;
+* FIX: Add custom value / save custom indexer problems;
+* FIX: Bricks. Fatal error in the listing (CPT/User/Term) when use bricks dynamic tag;
+* FIX: Bricks. Show media field type.
+
+## 3.4.1
+* UPD: Elementor Views: Allow manually set field name in Current Object Field dynamic tag;
+* FIX: Relations: Relation meta data do not displays on the Map Listing;
+* FIX: Timber/Twig views: Installation of Crocoblock plugin with Timber library;
+* FIX: CCT: Checkbox field with Query Builder source do not work;
+* FIX: Query Builder: Object ID field in Repeater Query with source Custom Content Type Field not working;
+* FIX: Meta Fields: When adding a new image to a gallery meta field on the back end nothing happens;
+* FIX: Errors if Bricks Views are disabled;
+* FIX: CPT: Admin Сolumn break up after quick edit;
+* FIX: CPT: Admin Filter by Radio Fields do not work;
+* FIX: Prevent PHP Warnings in Elementor Editor;
+* FIX: Query Builder: Current WP query do not work with the sorting filter.
+
 ## 3.4.0
-* ADD: Query Builder: Allow to show query results in the Rest API;
 * ADD: Data Stores: User IP store type;
 * ADD: Iconpicker meta field type: allow to select icons library;
 * ADD: Query Builder: Allow to filter queries on the Query Builder admin page;

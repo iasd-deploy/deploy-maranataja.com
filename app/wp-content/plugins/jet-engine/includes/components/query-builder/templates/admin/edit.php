@@ -218,7 +218,7 @@
 							:value="argRow.arg"
 							@input="( event ) => { updateQueryArgs( index, 'arg', event.target.value ) }"
 							class="cx-vui-input"
-							placeholder="<?php _e( 'Query Argumnet', 'jet-engine' ); ?>"
+							placeholder="<?php _e( 'Query Argument', 'jet-engine' ); ?>"
 						/>
 						<input
 							type="text"
@@ -248,6 +248,15 @@
 									@click.stop="resetQueryArgDelete()"
 								><?php _e( 'No', 'jet-engine' ); ?></span>
 							</div>
+						</cx-vui-button>
+					</div>
+					<div class="jet-engine-query-builder-api-args__actions">
+						<cx-vui-button
+							:button-style="'link-accent'"
+							:size="'link'"
+							@click="addQueryArgRow"
+						>
+							<span slot="label"><?php _e( '+ Add new', 'jet-engine' ); ?></span>
 						</cx-vui-button>
 					</div>
 				</div>

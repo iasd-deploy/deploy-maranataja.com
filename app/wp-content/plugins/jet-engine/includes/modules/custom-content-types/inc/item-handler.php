@@ -392,6 +392,14 @@ class Item_Handler {
 
 			if ( empty( $item['cct_created'] ) ) {
 				unset( $item['cct_created'] );
+			} else {
+				$created_time = strtotime( $item['cct_created'] );
+
+				if ( \Jet_Engine_Tools::is_valid_timestamp( $created_time ) ) {
+					$item['cct_created'] = date( 'Y-m-d H:i:s', $created_time );
+				} else {
+					unset( $item['cct_created'] );
+				}
 			}
 
 			do_action( 'jet-engine/custom-content-types/update-item/' . $this->factory->get_arg( 'slug' ), $item, $prev_item, $this );

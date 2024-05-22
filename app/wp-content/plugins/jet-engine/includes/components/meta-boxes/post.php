@@ -870,6 +870,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 						'timeText'        => esc_html__( 'Time', 'jet-engine' ),
 						'hourText'        => esc_html__( 'Hour', 'jet-engine' ),
 						'minuteText'      => esc_html__( 'Minute', 'jet-engine' ),
+						'secondText'      => esc_html__( 'Second', 'jet-engine' ),
 						'currentText'     => esc_html__( 'Now', 'jet-engine' ),
 						'closeText'       => esc_html__( 'Done', 'jet-engine' ),
 						'monthNames'      => array_values( $wp_locale->month ),

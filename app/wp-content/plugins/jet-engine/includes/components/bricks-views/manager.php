@@ -34,20 +34,22 @@ class Manager {
 	 * Constructor for the class
 	 */
 	function __construct() {
-
 		if ( ! $this->has_bricks() ) {
 			return;
 		}
 
+		do_action( 'jet-engine/bricks-views/init' );
+
 		add_action( 'init', array( $this, 'register_elements' ), 10 );
 		add_action( 'init', array( $this, 'init_listings' ), 10 );
-		add_action( 'init', array( $this, 'integrate_in_bricks_loop' ), 10 );
+		add_action( 'init', array( $this, 'integrate_jet_engine_in_bricks_loop' ), 10 );
+		add_action( 'init', array( $this, 'integrate_query_builder_in_bricks' ), 10 );
 
-		add_filter( 'jet-engine/gallery/grid/args', [ $this, 'add_arguments_to_gallery_grid' ], 10 );
-		add_filter( 'jet-engine/gallery/slider/args', [ $this, 'add_arguments_to_gallery_slider' ], 10 );
-		add_filter( 'jet-engine/gallery/lightbox-attr', [ $this, 'add_attributes_to_gallery' ], 10, 2 );
+		add_filter( 'jet-engine/gallery/grid/args', array( $this, 'add_arguments_to_gallery_grid' ), 10 );
+		add_filter( 'jet-engine/gallery/slider/args', array( $this, 'add_arguments_to_gallery_slider' ), 10 );
+		add_filter( 'jet-engine/gallery/lightbox-attr', array( $this, 'add_attributes_to_gallery' ), 10, 2 );
 
-		add_filter( 'bricks/elements/jet-engine-listing-dynamic-field/controls', [ $this, 'filter_controls' ], 10, 2 );
+		add_filter( 'bricks/elements/jet-engine-listing-dynamic-field/controls', array( $this, 'filter_controls' ), 10, 2 );
 
 		add_filter( 'bricks/builder/i18n', function( $i18n ) {
 			$i18n['jetengine'] = esc_html__( 'JetEngine', 'jet-engine' );
@@ -69,7 +71,6 @@ class Manager {
 		} );
 
 		$this->compat_tweaks();
-
 	}
 
 	public function init_listings() {
@@ -77,9 +78,14 @@ class Manager {
 		$this->listing = new Listing\Manager();
 	}
 
-	public function integrate_in_bricks_loop() {
-		require $this->component_path( 'bricks-loop/manager.php' );
-		new Bricks_Loop\Manager();
+	public function integrate_jet_engine_in_bricks_loop() {
+		require_once $this->component_path( 'query-loop.php' );
+		new Query_Loop();
+	}
+
+	public function integrate_query_builder_in_bricks() {
+		require_once $this->component_path( 'query-controller.php' );
+		new Query_Controller();
 	}
 
 	public function component_path( $relative_path = '' ) {
@@ -87,7 +93,6 @@ class Manager {
 	}
 
 	public function register_elements() {
-
 		require $this->component_path( 'elements/base.php' );
 		require $this->component_path( 'helpers/options-converter.php' );
 		require $this->component_path( 'helpers/controls-converter/base.php' );
@@ -114,11 +119,6 @@ class Manager {
 		}
 
 		do_action( 'jet-engine/bricks-views/register-elements' );
-
-	}
-
-	public function has_bricks() {
-		return ( defined( 'BRICKS_VERSION' ) && \Jet_Engine\Modules\Performance\Module::instance()->is_tweak_active( 'enable_bricks_views' ) );
 	}
 
 	/**
@@ -127,7 +127,6 @@ class Manager {
 	 * @return boolean [description]
 	 */
 	public function is_bricks_editor() {
-
 		// is API request
 		$bricks_request_str = 'wp-json/bricks/v1/render_element';
 		$is_api = ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], $bricks_request_str ) );
@@ -146,7 +145,6 @@ class Manager {
 	}
 
 	public function compat_tweaks() {
-
 		// fix slider arrows bug for the listing grid
 		add_filter( 'jet-engine/listing/grid/slider-options', function( $options ) {
 			
@@ -157,7 +155,6 @@ class Manager {
 
 			return $options;
 		} );
-
 	}
 
 	public function add_arguments_to_gallery_slider( $args ) {
@@ -228,5 +225,9 @@ class Manager {
 		$controls['dynamic_field_source']['options']['repeater_field'] = esc_html__( 'Repeater Field', 'jet-engine' );
 
 		return $controls;
+	}
+
+	public function has_bricks() {
+		return ( defined( 'BRICKS_VERSION' ) && \Jet_Engine\Modules\Performance\Module::instance()->is_tweak_active( 'enable_bricks_views' ) );
 	}
 }

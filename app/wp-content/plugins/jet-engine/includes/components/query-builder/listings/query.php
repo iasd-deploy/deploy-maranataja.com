@@ -43,6 +43,30 @@ class Query {
 
 	}
 
+	public function get_query_for_element( $query_id, $settings = [], $widget = null ) {
+
+		if ( ! $widget ) {
+			$widget = new class {
+				public function get_name() {
+					return false;
+				}
+			};
+		}
+
+		$query = Query_Manager::instance()->get_query_by_id( $query_id );
+
+		if ( ! $query ) {
+			return false;
+		}
+
+		$query->setup_query();
+
+		do_action( 'jet-engine/query-builder/listings/on-query', $query, $settings, $widget, $this );
+
+		return $query;
+
+	}
+
 	public function query_items( $items, $settings, $widget ) {
 
 		$listing_id = jet_engine()->listings->data->get_listing()->get_main_id();
@@ -58,15 +82,11 @@ class Query {
 			return array();
 		}
 
-		$query = Query_Manager::instance()->get_query_by_id( $query_id );
+		$query = $this->get_query_for_element( $query_id, $settings, $widget );
 
 		if ( ! $query ) {
 			return array();
 		}
-
-		$query->setup_query();
-
-		do_action( 'jet-engine/query-builder/listings/on-query', $query, $settings, $widget, $this );
 
 		$request = array( 'query_id' => $query_id );
 		$request = $this->maybe_add_load_more_query_args( $request, $query, $settings );
@@ -147,28 +167,9 @@ class Query {
 		$use_load_more = ! empty( $settings['use_load_more'] ) ? $settings['use_load_more'] : false;
 		$use_load_more = filter_var( $use_load_more, FILTER_VALIDATE_BOOLEAN );
 
-		// Add `orderby` args to the request if use random order
-		if ( $use_load_more && ! empty( $query->current_wp_query ) ) {
-
-			$orderby = $query->current_wp_query->get( 'orderby' );
-
-			if ( ! empty( $orderby ) && is_array( $orderby ) ) {
-
-				$has_random_orderby = false;
-
-				foreach ( $orderby as $key => $order ) {
-
-					if ( false === strpos( $key, 'RAND' ) ) {
-						continue;
-					}
-
-					$has_random_orderby = true;
-				}
-
-				if ( $has_random_orderby ) {
-					$request['filtered_query']['orderby'] = $orderby;
-				}
-			}
+		// Add `orderby random seed` to the request if use random order
+		if ( $use_load_more && ! empty( $query->final_query['_random_seed'] ) ) {
+			$request['filtered_query']['_random_seed'] = $query->final_query['_random_seed'];
 		}
 
 		return $request;

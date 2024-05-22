@@ -170,11 +170,13 @@ if ( ! class_exists( 'Jet_Elements_Assets' ) ) {
 			$key          = jet_elements_settings()->get( 'api_key' );
 
 			if ( ! empty( $key ) && ( empty( $api_disabled ) || 'true' !== $api_disabled['disable'] ) ) {
+				
+				$map_query_arg = apply_filters( 'jet-elements/advanced-map/query-arg', array( 'key' => jet_elements_settings()->get( 'api_key' )));
 
 				wp_register_script(
 					'google-maps-api',
 					add_query_arg(
-						array( 'key' => jet_elements_settings()->get( 'api_key' ), ),
+						$map_query_arg,
 						'https://maps.googleapis.com/maps/api/js'
 					),
 					false,

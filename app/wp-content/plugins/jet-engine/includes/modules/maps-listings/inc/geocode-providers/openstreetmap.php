@@ -5,10 +5,10 @@ class OpenStreetMap extends Base {
 
 	public function build_api_url( $location ) {
 		return add_query_arg(
-			array(
+			apply_filters( 'jet-engine/maps-listings/autocomplete-url-args/openstreetmap', array(
 				'q'      => urlencode( $location ),
 				'format' => 'json',
-			),
+			) ),
 			'https://nominatim.openstreetmap.org/search'
 		);
 	}

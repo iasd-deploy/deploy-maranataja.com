@@ -230,7 +230,7 @@
 								label="<?php _e( 'Order By', 'jet-engine' ); ?>"
 								description="<?php _e( 'Sort retrieved items by selected parameter', 'jet-engine' ); ?>"
 								:wrapper-css="[ 'equalwidth' ]"
-								:options-list="availableColumns"
+								:options-list="availableOrderByColumns"
 								size="fullwidth"
 								:value="query.orderby[ index ].orderby"
 								@input="setFieldProp( order._id, 'orderby', $event, query.orderby )"

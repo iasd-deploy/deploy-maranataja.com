@@ -224,7 +224,7 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 
 						$columns = ! empty( $args['admin_columns'] ) ? $args['admin_columns'] : array();
 
-						if ( ! empty( $columns ) && $this->columns_allowed( $post_type ) ) {
+						if ( ! empty( $columns ) && ( $this->columns_allowed( $post_type ) || $this->is_quick_edit_request( $post_type ) ) ) {
 
 							if ( ! class_exists( 'Jet_Engine_CPT_Admin_Columns' ) ) {
 								require_once $this->component_path( 'admin-columns.php' );
@@ -284,6 +284,21 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 
 			return ( ! empty( $_GET['post_type'] ) && $post_type === $_GET['post_type'] );
 
+		}
+
+		/**
+		 * Check if admin columns registration is allowed on quick edit request
+		 *
+		 * @param  string $post_type
+		 * @return boolean
+		 */
+		public function is_quick_edit_request( $post_type ) {
+
+			if ( empty( $_REQUEST['action'] ) || 'inline-save' !== $_REQUEST['action'] ) {
+				return false;
+			}
+
+			return ( ! empty( $_REQUEST['post_type'] ) && $post_type === $_REQUEST['post_type'] );
 		}
 
 		/**
@@ -434,7 +449,7 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 				register_post_type( $post_type['slug'], $post_type );
 
 				if ( is_admin() ) {
-					if ( ! empty( $post_type['admin_columns'] ) && $this->columns_allowed( $post_type['slug'] ) ) {
+					if ( ! empty( $post_type['admin_columns'] ) && ( $this->columns_allowed( $post_type['slug'] ) || $this->is_quick_edit_request( $post_type['slug'] ) ) ) {
 
 						if ( ! class_exists( 'Jet_Engine_CPT_Admin_Columns' ) ) {
 							require_once $this->component_path( 'admin-columns.php' );

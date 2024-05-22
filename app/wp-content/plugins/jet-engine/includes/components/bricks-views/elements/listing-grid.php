@@ -190,6 +190,20 @@ class Listing_Grid extends Base {
 		);
 
 		$this->register_jet_control(
+			'notice_use_query_builder',
+			[
+				'tab'         => 'content',
+				'type'        => 'info',
+				'content'     => esc_html__( 'Use Query Builder to Apply Dynamic Styling for Listings', 'jet-smart-filters' ),
+				'description' => sprintf(
+					esc_html__( 'Using dynamic styles inside the listing? In this case, make sure to use Query Builder as a data source for it. You can apply a query from Query Builder in the Custom Query settings. Go to: %s.', 'jet-smart-filters' ),
+					'<a href="' . add_query_arg( array( 'page' => 'jet-engine-query' ), admin_url( 'admin.php' ) ) . '" target="_blank">Query Builder</a>'
+				),
+				'required'    => [ 'custom_query_id', '=', '' ],
+			]
+		);
+
+		$this->register_jet_control(
 			'columns',
 			[
 				'tab'     => 'content',

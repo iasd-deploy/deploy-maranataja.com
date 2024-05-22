@@ -274,7 +274,33 @@ class Listing {
 			return false;
 		}
 
-		return $relation->get_current_meta( $field );
+		$object_context  = isset( $settings['object_context'] ) ? $settings['object_context'] : false;
+		$current_context = 'rel_' . $rel_id;
+		$default_object  = false;
+		$current_object  = false;
+
+		if ( $object_context === $current_context ) {
+
+			$default_object = jet_engine()->listings->data->get_current_object();
+			$current_object = $relation->apply_context();
+
+			if ( is_array( $current_object ) ) {
+				$current_object = (object) $current_object;
+			}
+
+			if ( $current_object && is_object( $current_object ) ) {
+				jet_engine()->listings->data->set_current_object( $current_object );
+			}
+
+		}
+
+		$meta = $relation->get_current_meta( $field );
+
+		if ( $object_context === $current_context && $default_object && $current_object ) {
+			jet_engine()->listings->data->set_current_object( $default_object );
+		}
+
+		return $meta;
 
 	}
 

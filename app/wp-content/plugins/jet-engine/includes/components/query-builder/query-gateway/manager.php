@@ -28,6 +28,12 @@ class Manager {
 
 	public function set_item_object( $item ) {
 		if ( ! empty( $item['_jet_engine_queried_object'] ) ) {
+
+			// Store initial object
+			if ( ! $this->initial_object ) {
+				$this->initial_object = jet_engine()->listings->data->get_current_object();
+			}
+
 			jet_engine()->listings->data->set_current_object( $item['_jet_engine_queried_object'] );
 		}
 	}
@@ -39,10 +45,13 @@ class Manager {
 		}
 
 		if ( $this->initial_object === jet_engine()->listings->data->get_current_object() ) {
+			$this->initial_object = null;
 			return;
 		}
 
 		jet_engine()->listings->data->set_current_object( $this->initial_object );
+
+		$this->initial_object = null;
 	}
 
 	public function query_items( $items, $control_name, $widget ) {

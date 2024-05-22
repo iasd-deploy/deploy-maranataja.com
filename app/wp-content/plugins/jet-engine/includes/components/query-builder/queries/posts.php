@@ -156,7 +156,7 @@ class Posts_Query extends Base_Query {
 
 					case 'rand':
 
-						$rand = sprintf( 'RAND(%s)', rand() );
+						$rand = sprintf( 'RAND(%s)', $this->get_random_seed() );
 						$args['orderby'][ $rand ] = $order;
 
 						break;
@@ -485,6 +485,24 @@ class Posts_Query extends Base_Query {
 
 	public function reset_query() {
 		$this->current_wp_query = null;
+	}
+
+	/**
+	 * Returns a random seed for random orderby.
+	 *
+	 * @return mixed|void
+	 */
+	public function get_random_seed() {
+
+		if ( ! empty( $this->final_query['_random_seed'] ) ) {
+			return $this->final_query['_random_seed'];
+		}
+
+		$seed = apply_filters( 'jet-engine/query-builder/types/posts-query/random-seed', rand(), $this );
+
+		$this->final_query['_random_seed'] = $seed;
+
+		return $this->final_query['_random_seed'];
 	}
 
 }

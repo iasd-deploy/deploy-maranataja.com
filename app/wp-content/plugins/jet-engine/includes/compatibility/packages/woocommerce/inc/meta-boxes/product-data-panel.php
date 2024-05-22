@@ -53,13 +53,13 @@ class Product_Data_Panel extends \Jet_Engine_CPT_Meta {
 
 		$this->args = $meta_box['args'];
 
-		if ( ! jet_engine()->meta_boxes->conditions->check_conditions( '', $this->args ) ) {
-			return;
-		}
-
 		$object_name = $this->args['name'] . ' ' . __( '( WC product data fields)', 'jet-engine' );
 
 		jet_engine()->meta_boxes->store_fields( $object_name, $meta_box['meta_fields'], 'woocommerce_product_data' );
+
+		if ( ! jet_engine()->meta_boxes->conditions->check_conditions( '', $this->args ) ) {
+			return;
+		}
 
 		if ( ! empty( $this->args['show_edit_link'] ) ) {
 			$this->add_edit_link( add_query_arg(

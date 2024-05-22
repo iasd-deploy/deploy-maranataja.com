@@ -167,11 +167,15 @@ class Posts_Per_Page_Manager {
 
 	}
 
+	public function check_default_tax( $tax, $query ) {
+		return ( $tax === 'category' && $query->is_category() ) || ( $tax === 'post_tag' && $query->is_tag() );
+	}
+	
 	public function check_tax_items( $items, &$query ) {
 
 		foreach ( $items as $tax => $per_page ) {
 
-			if ( $query->is_tax( $tax ) ) {
+			if ( $query->is_tax( $tax ) || $this->check_default_tax( $tax, $query ) ) {
 				$query->set( 'posts_per_page', $per_page );
 				return;
 			}

@@ -87,6 +87,24 @@
   position: sticky;
   top: 40px;
 }
+.jet-engine-edit-page__actions-extra-settings {
+  margin-top: 30px;
+}
+.jet-engine-edit-page__actions-extra-settings .jet-engine-reverse-switcher {
+  display: block;
+}
+.jet-engine-edit-page__actions-extra-settings .jet-engine-reverse-switcher .cx-vui-component__control {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 10px;
+}
+.jet-engine-edit-page__actions-extra-settings .jet-engine-reverse-switcher .cx-vui-component__desc {
+  padding: 8px 0 0;
+}
 .jet-engine-edit-page--loading {
   display: none;
 }

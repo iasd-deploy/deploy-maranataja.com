@@ -36,6 +36,7 @@ class Jet_Elementor_Widgets_Storage {
 	public function setup_storage_data( $widget ) {
 
 		$name              = $widget->get_name();
+		$uniq_name         = $name . '_' . $widget->get_id();
 		$settings          = [];
 		$dynamic_contols   = [];
 		$frontend_settings = [];
@@ -57,7 +58,7 @@ class Jet_Elementor_Widgets_Storage {
 		}
 
 		wp_cache_set( $name . $this->dynamic_key, $dynamic_contols, $this->cache_group );
-		wp_cache_set( $name . $this->defaults_key, $settings, $this->cache_group );
+		wp_cache_set( $uniq_name . $this->defaults_key, $settings, $this->cache_group );
 		wp_cache_set( $name . $this->frontend_key, $frontend_settings, $this->cache_group );
 
 		return [
@@ -95,19 +96,8 @@ class Jet_Elementor_Widgets_Storage {
 
 	public function get_widget_defaults( $widget ) {
 
-		$d = array(
-			'_transform_scale_popover' => '',
-			'_transform_rotate_popover' => '',
-			'_transform_flipX_effect' => '',
-			'_transform_flipY_effect' => '',
-			'_transform_scale_popover_hover' => '',
-			'_transform_rotate_popover_hover' => '',
-			'_transform_flipX_effect_hover' => '',
-			'_transform_flipY_effect_hover' => '',
-		);
-
-		$name = $widget->get_name();
-		$settings = wp_cache_get( $name . $this->defaults_key, $this->cache_group );
+		$uniq_name = $widget->get_name() . '_' . $widget->get_id();
+		$settings  = wp_cache_get( $uniq_name . $this->defaults_key, $this->cache_group );
 
 		if ( ! $settings ) {
 			$settings = $this->setup_storage_data( $widget )[ $this->defaults_key ];

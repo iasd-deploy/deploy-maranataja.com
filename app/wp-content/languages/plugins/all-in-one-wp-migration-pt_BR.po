@@ -1,23 +1,40 @@
-# Translation of Plugins - All-in-One WP Migration - Stable (latest release) in Portuguese (Brazil)
-# This file is distributed under the same license as the Plugins - All-in-One WP Migration - Stable (latest release) package.
+# Translation of Plugins - All-in-One WP Migration and Backup - Stable (latest release) in Portuguese (Brazil)
+# This file is distributed under the same license as the Plugins - All-in-One WP Migration and Backup - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-03-07 18:19:25+0000\n"
+"PO-Revision-Date: 2024-03-14 18:28:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: GlotPress/4.0.0-rc.1\n"
+"X-Generator: GlotPress/4.0.1\n"
 "Language: pt_BR\n"
-"Project-Id-Version: Plugins - All-in-One WP Migration - Stable (latest release)\n"
+"Project-Id-Version: Plugins - All-in-One WP Migration and Backup - Stable (latest release)\n"
+
+#: lib/view/reset/index.php:39
+msgid "Reset Hub Demo"
+msgstr "Redefinir Demo do Hub"
 
 #: lib/view/reset/index.php:39
 msgid "Upgrade to Premium "
 msgstr "Atualizar para Premium "
 
+#: lib/view/reset/index.php:37
+msgid "Please note, the features displayed below are part of an image showcasing the potential of Reset Hub in its Premium version. To activate and enjoy these advanced features, <a href=\"https://servmask.com/products/unlimited-extension\" title=\"Upgrade to Premium\" target=\"_blank\">upgrade to Premium now</a>! Elevate your website management experience with these exclusive functionalities and priority support."
+msgstr "Note que os recursos exibidos abaixo são parte de uma imagem exibindo o potencial do Redefinir Hub em sua versão Premium. Para ativar e se beneficiar destes recursos avançados, <a href=\"https://servmask.com/products/unlimited-extension\" title=\"Atualize para Premium\" target=\"_blank\"> atualize para Premium agora</a>! Aprimore a experiência de gerenciamento do seu site com estas funcionalidades exclusivas e suporte prioritário."
+
 #: lib/view/reset/index.php:35
 msgid "Experience Full Functionality with Premium!"
 msgstr "Experimente funcionalidade completa com Premium!"
+
+#: lib/view/reset/index.php:34
+msgid "Star"
+msgstr "Estrela"
+
+#: lib/controller/class-ai1wm-main-controller.php:674
+#: lib/controller/class-ai1wm-main-controller.php:675
+msgid "Reset Hub"
+msgstr "Redefinir o Hub"
 
 #: lib/view/main/premium-badge.php:31
 msgid "Premium"
@@ -221,15 +238,15 @@ msgstr "Não foi possível criptografar os dados."
 msgid "Unable to generate random bytes."
 msgstr "Não foi possível gerar bytes aleatórios."
 
-#: lib/view/backups/backups-list.php:122
+#: lib/view/backups/backups-list.php:129
 msgid "List"
 msgstr "Listar"
 
-#: lib/view/backups/backups-list.php:120
+#: lib/view/backups/backups-list.php:127
 msgid "Show backup content"
 msgstr "Mostrar conteúdo do backup"
 
-#: lib/view/backups/backups-list.php:113
+#: lib/view/backups/backups-list.php:120
 msgid "Downloading is not possible because backups directory is not accessible."
 msgstr "Não é possível baixar porque o diretório de backups não está acessível."
 
@@ -253,7 +270,7 @@ msgstr "Erro ao ler o conteúdo do backup"
 msgid "Error"
 msgstr "Erro"
 
-#: lib/controller/class-ai1wm-backups-controller.php:185
+#: lib/controller/class-ai1wm-backups-controller.php:186
 msgid "Unable to list backup content"
 msgstr "Não foi possível listar o conteúdo do backup"
 
@@ -377,7 +394,7 @@ msgstr "Arquivando %d arquivos de mídia...<br />%d%% concluído(s)"
 msgid "Archiving %d content files...<br />%d%% complete"
 msgstr "Arquivando %d arquivos de conteúdo...<br />%d%% concluído(s)"
 
-#: lib/model/export/class-ai1wm-export-enumerate-content.php:106
+#: lib/model/export/class-ai1wm-export-enumerate-content.php:111
 msgid "Done retrieving a list of WordPress content files."
 msgstr "Concluída a coleta da lista de arquivos de conteúdo do WordPress."
 
@@ -1106,7 +1123,7 @@ msgstr "Criar backup"
 msgid "There are no backups available at this time, why not create a new one?"
 msgstr "Não há nenhum backup disponível no momento, vamos criar um?"
 
-#: lib/view/backups/backups-list.php:127 lib/view/backups/backups-list.php:129
+#: lib/view/backups/backups-list.php:134 lib/view/backups/backups-list.php:136
 msgid "Delete"
 msgstr "Excluir"
 
@@ -1114,8 +1131,9 @@ msgstr "Excluir"
 msgid "Restore"
 msgstr "Restaurar"
 
-#: lib/view/backups/backups-list.php:106 lib/view/backups/backups-list.php:108
-#: lib/view/backups/backups-list.php:115
+#: lib/view/backups/backups-list.php:107 lib/view/backups/backups-list.php:109
+#: lib/view/backups/backups-list.php:112 lib/view/backups/backups-list.php:114
+#: lib/view/backups/backups-list.php:122
 msgid "Download"
 msgstr "Baixar"
 

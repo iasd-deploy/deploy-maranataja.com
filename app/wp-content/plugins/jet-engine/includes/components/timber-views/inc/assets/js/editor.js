@@ -691,6 +691,14 @@
 				}
 			} );
 
+			document.addEventListener( 'keydown', ( event ) => {
+				if ( ( event.ctrlKey || event.metaKey ) && event.key === 's' ) {
+					// Prevent the default action (e.g., opening the save dialog)
+					event.preventDefault();
+					this.save();
+				}
+			});
+
 			this.reloadPreview();
 
 		},

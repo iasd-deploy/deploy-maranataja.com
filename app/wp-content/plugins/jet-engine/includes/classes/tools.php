@@ -921,22 +921,11 @@ class Jet_Engine_Tools {
 		return $options;
 	}
 
+	/**
+	 * Duplicate of `Jet_Engine_Tools::insert_after`.
+	 */
 	public static function array_insert_after( $source = array(), $after = null, $insert = array() ) {
-
-		$keys  = array_keys( $source );
-		$index = array_search( $after, $keys );
-
-		if ( ! $source ) {
-			$source = array();
-		}
-
-		if ( false === $index ) {
-			return $source + $insert;
-		}
-
-		$offset = $index + 1;
-
-		return array_slice( $source, 0, $offset, true ) + $insert + array_slice( $source, $offset, null, true );
+		return self::insert_after( $source, $after, $insert );
 	}
 
 	/**
@@ -1032,6 +1021,95 @@ class Jet_Engine_Tools {
 			return $orderby;
 		}
 		return false;
+	}
+
+	public static function delete_metadata_by_object_where( $meta_type = null, $meta_key = null, $object_where = array() ) {
+
+		if ( empty( $meta_type )  || empty( $meta_key ) || empty( $object_where ) ) {
+			return false;
+		}
+
+		if ( ! in_array( $meta_type, array( 'post', 'term', 'user' ) ) ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$raw_meta_table   = $meta_type . 'meta';
+		$raw_object_table = ( 'term' === $meta_type ) ? 'term_taxonomy' : $meta_type . 's';
+
+		if ( empty( $wpdb->$raw_meta_table ) || empty( $wpdb->$raw_object_table ) ) {
+			return false;
+		}
+
+		$meta_table    = $wpdb->$raw_meta_table;
+		$object_table  = $wpdb->$raw_object_table;
+		$meta_column   = sanitize_key( $meta_type . '_id' );
+		$object_column = ( 'term' === $meta_type ) ? 'term_id' : 'ID';
+		$id_column     = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id';
+
+		$query = "SELECT $raw_meta_table.$id_column FROM $meta_table AS $raw_meta_table ";
+		$query .= "INNER JOIN $object_table AS $raw_object_table ON $raw_object_table.$object_column = $raw_meta_table.$meta_column ";
+
+		$query .= "WHERE ";
+
+		$where = array(
+			"$raw_meta_table.meta_key" => $meta_key
+		);
+
+		foreach ( $object_where as $column => $value ) {
+			$where["$raw_object_table.$column"] = $value;
+		}
+
+		$glue = '';
+
+		foreach ( $where as $column => $value ) {
+
+			if ( empty( $value ) ) {
+				continue;
+			}
+
+			if ( is_array( $value ) ) {
+				$operator = 'IN';
+				$value = array_map( 'trim', $value );
+				$value = array_map( function ( $item ) {
+					return sprintf( "'%s'", esc_sql( $item ) );
+				}, $value );
+				$value = sprintf( '( %s )', implode( ', ', $value ) );
+			} else {
+				$operator = '=';
+				$value    = sprintf( "'%s'", esc_sql( $value ) );
+			}
+
+			$column = esc_sql( $column );
+			$query .= $glue;
+			$query .= "$column $operator $value";
+			$glue = ' AND ';
+		}
+
+		$meta_ids = $wpdb->get_col( $query );
+
+		if ( ! count( $meta_ids ) ) {
+			return false;
+		}
+
+		$object_ids_query = str_replace( "SELECT $raw_meta_table.$id_column", "SELECT $raw_meta_table.$meta_column", $query );
+
+		$object_ids = $wpdb->get_col( $object_ids_query );
+		$object_ids = array_unique( $object_ids );
+		$object_ids = array_values( $object_ids );
+
+		$delete_query = "DELETE FROM $meta_table WHERE $id_column IN( " . implode( ',', $meta_ids ) . " )";
+
+		$count = $wpdb->query( $delete_query );
+
+		if ( ! $count ) {
+			return false;
+		}
+
+		wp_cache_delete_multiple( (array) $object_ids, $meta_type . '_meta' );
+
+		return true;
 	}
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Jet_Engine\Compatibility\Packages\Jet_Engine_Woo_Package\Macros;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -38,8 +39,7 @@ class Purchased_Products extends \Jet_Engine_Base_Macros {
 
 		$orders = wc_get_orders( [
 			'customer_id' => $user_id,
-			'limit'     => -1,
-			'status' => array_keys( wc_get_is_paid_statuses() ),
+			'status'      => wc_get_is_paid_statuses(),
 		] );
 
 		if ( ! $orders ) {
@@ -49,10 +49,6 @@ class Purchased_Products extends \Jet_Engine_Base_Macros {
 		$products = [];
 
 		foreach ( $orders as $order ) {
-			if ( ! in_array( $order->get_status(), wc_get_is_paid_statuses() ) ) {
-				continue;
-			}
-
 			$items = $order->get_items();
 
 			foreach ( $items as $item ) {

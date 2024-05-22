@@ -15,13 +15,13 @@ class Product_Variation_Panel extends Product_Data_Panel {
 
 	public function __construct( $meta_box ) {
 
-		if ( ! jet_engine()->meta_boxes->conditions->check_conditions( '', $meta_box['args'] ) ) {
-			return;
-		}
-
 		$object_name = $meta_box['args']['name'] . ' ' . __( '( WC product variation fields)', 'jet-engine' );
 
 		jet_engine()->meta_boxes->store_fields( $object_name, $meta_box['meta_fields'], 'woocommerce_product_variation' );
+
+		if ( ! jet_engine()->meta_boxes->conditions->check_conditions( '', $meta_box['args'] ) ) {
+			return;
+		}
 
 		if ( ! empty( $meta_box['args']['show_edit_link'] ) ) {
 			$this->add_edit_link( add_query_arg(

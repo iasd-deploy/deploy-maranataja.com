@@ -29,6 +29,11 @@ class Repeater_Query {
 			array( $this, 'get_instance_fields' ),
 			10, 3
 		);
+
+		add_filter( 'jet-engine/query-builder/repeater-query/object-by-id',
+			array( $this, 'get_object_by_id' ),
+			10, 2
+		);
 	}
 
 	public function register_source( $data ) {
@@ -107,5 +112,44 @@ class Repeater_Query {
 		$content_type = Module::instance()->manager->get_content_types( $type );
 
 		return $query->get_options_from_fields_data( $field_name, $content_type->fields );
+	}
+
+	public function get_object_by_id( $object, $query ) {
+
+		$object_id = $query->get_object_id();
+
+		if ( empty( $object_id ) ) {
+			return $object;
+		}
+
+		if ( empty( $query->final_query['source'] ) ) {
+			return $object;
+		}
+
+		if ( $this->source !== $query->final_query['source'] ) {
+			return $object;
+		}
+
+		if ( empty( $query->final_query[ $this->source ] ) ) {
+			return $object;
+		}
+
+		$field_data   = explode( '__', $query->final_query[ $this->source ] );
+		$content_type = Module::instance()->manager->get_content_types( $field_data[0] );
+
+		if ( ! $content_type ) {
+			return $object;
+		}
+
+		$flag = \OBJECT;
+		$content_type->db->set_format_flag( $flag );
+
+		$item = $content_type->db->get_item( $object_id );
+
+		if ( ! $item ) {
+			return $object;
+		}
+
+		return $item;
 	}
 }

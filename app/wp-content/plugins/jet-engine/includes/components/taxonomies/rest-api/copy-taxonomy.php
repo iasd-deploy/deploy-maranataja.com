@@ -71,6 +71,7 @@ class Jet_Engine_CPT_Rest_Copy_Taxonomy extends Jet_Engine_Base_API_Endpoint {
 			'object_type'                => $this->safe_get( $tax_data, 'general_settings', 'object_type' ),
 			'show_edit_link'             => $this->safe_get( $tax_data, 'general_settings', 'show_edit_link' ),
 			'hide_field_names'           => $this->safe_get( $tax_data, 'general_settings', 'hide_field_names' ),
+			'delete_metadata'            => $this->safe_get( $tax_data, 'general_settings', 'delete_metadata' ),
 			'singular_name'              => $this->safe_get( $tax_data, 'labels', 'singular_name' ),
 			'menu_name'                  => $this->safe_get( $tax_data, 'labels', 'menu_name' ),
 			'all_items'                  => $this->safe_get( $tax_data, 'labels', 'all_items' ),

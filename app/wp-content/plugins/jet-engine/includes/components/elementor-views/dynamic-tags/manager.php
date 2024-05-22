@@ -201,9 +201,15 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Tags_Manager' ) ) {
 				return;
 			}
 
-			$media_conditions_keys = array_map( function ( $key ) {
+			$media_conditions_url_keys = array_map( function ( $key ) {
 				return $key . '[url]!';
 			}, $media_dynamic_settings );
+
+			$media_conditions_id_keys = array_map( function ( $key ) {
+				return $key . '[id]!';
+			}, $media_dynamic_settings );
+
+			$media_conditions_keys = array_merge( $media_conditions_url_keys, $media_conditions_id_keys );
 
 			foreach ( $all_controls as $control_id => $control ) {
 				if ( empty( $control['selectors'] ) || empty( $control['condition'] ) ) {

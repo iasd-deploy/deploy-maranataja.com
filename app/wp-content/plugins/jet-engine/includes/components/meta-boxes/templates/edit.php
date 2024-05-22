@@ -177,6 +177,18 @@
 					</div>
 				</div>
 			</div>
+			<div class="jet-engine-edit-page__actions-extra-settings cx-vui-panel">
+				<div class="jet-engine-reverse-switcher cx-vui-component">
+					<div class="cx-vui-component__control">
+						<cx-vui-switcher
+							:prevent-wrap="true"
+							v-model="generalSettings.delete_metadata"
+						></cx-vui-switcher>
+						<div class="cx-vui-component__label"><?php _e( 'Delete metadata', 'jet-engine' ); ?></div>
+					</div>
+					<div class="cx-vui-component__desc"><?php _e( 'Toggle this option to delete metadata from the database for the deleted meta fields or when deleting the Meta Box.', 'jet-engine' ); ?></div>
+				</div>
+			</div>
 			<div class="cx-vui-hr"></div>
 			<div class="cx-vui-subtitle jet-engine-help-list-title"><?php _e( 'Need Help?', 'jet-engine' ); ?></div>
 			<div class="cx-vui-panel">

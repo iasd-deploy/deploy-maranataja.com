@@ -4,8 +4,8 @@
  */
 namespace Jet_Engine\Bricks_Views\Listing;
 
+use Bricks\Elements;
 use Bricks\Query;
-use Jet_Engine\Query_Builder\Manager as Query_Manager;
 
 /**
  * Rewrite Bricks assets class
@@ -25,7 +25,6 @@ class Assets extends \Bricks\Assets {
 	public static $fonts_stack = [];
 
 	public function __construct() {
-
 		$wp_uploads_dir = wp_upload_dir( null, false );
 
 		self::$wp_uploads_dir = $wp_uploads_dir['basedir'];
@@ -65,8 +64,8 @@ class Assets extends \Bricks\Assets {
 		$inline_css = '';
 		$elements   = get_post_meta( $post_id, BRICKS_DB_PAGE_CONTENT, true );
 
-		$cached          = get_post_meta( $post_id, self::$css_cache_key, true );
-		$has_dynamic_css = false;
+		$cached            = get_post_meta( $post_id, self::$css_cache_key, true );
+		$has_dynamic_value = false;
 
 		if ( $cached ) {
 			/**
@@ -84,9 +83,29 @@ class Assets extends \Bricks\Assets {
 		$any          = Query::is_any_looping();
 		$query_object = Query::get_query_object( $any );
 
-		if ( ! empty( $query_object ) ) {
-			$query_args = self::get_query_args( $query_object->settings, $post_id );
+		if ( empty( $query_object ) ) {
+			return '';
 		}
+
+		$custom_query    = $query_object->settings['custom_query'] ?? false;
+		$custom_query    = filter_var( $custom_query, FILTER_VALIDATE_BOOLEAN );
+		$custom_query_id = ! empty ( $query_object->settings['custom_query_id'] ) ? intval( $query_object->settings['custom_query_id'] ) : 0;
+
+		$element_query    = [];
+		$element_settings = [
+			'hasLoop' => 1,
+		];
+
+		// Check if the listing query builder is set
+		if ( $custom_query && $custom_query_id ) {
+			$element_settings['jet_engine_query_builder_id'] = $custom_query_id;
+			$element_settings['listing_settings']            = $query_object->settings;
+			$element_query['objectType']                     = 'jet_engine_query_builder';
+		} else {
+			$element_query = self::get_query_args( $query_object->settings, $post_id );
+		}
+
+		$element_settings['query'] = $element_query;
 
 		// Saves $inline_css before generating Listing grid styles
 		if ( ! empty( self::$inline_css ) ) {
@@ -119,15 +138,12 @@ class Assets extends \Bricks\Assets {
 		self::$css_looping_elements = [];
 
 		// Create a wrapper element representing a container element for generating dynamic css
-		if ( ! empty( $query_args ) ) {
+		if ( ! empty( $element_query ) ) {
 			$wrapper = [
 				'id'       => 'jet-listing-elements',
 				'name'     => 'div',
 				'parent'   => 0,
-				'settings' => [
-					'hasLoop' => 1,
-					'query'   => $query_args
-				],
+				'settings' => $element_settings,
 			];
 
 			$children = [];
@@ -138,6 +154,12 @@ class Assets extends \Bricks\Assets {
 					$elements[ $index ]['parent'] = $wrapper['id'];
 					$children[]                   = $element['id'];
 				}
+
+				if ( $has_dynamic_value ) {
+					break;
+				}
+
+				$has_dynamic_value = self::check_element_has_dynamic_value( $element );
 			}
 
 			$wrapper['children'] = $children;
@@ -145,11 +167,20 @@ class Assets extends \Bricks\Assets {
 			array_unshift( $elements, $wrapper );
 		}
 
+		// Set the $post_id during Rest API request
+		if ( defined( 'REST_REQUEST' ) && $_REQUEST['post_id'] ) {
+			self::$post_id = $_REQUEST['post_id'];
+		}
+
 		// Set the current loop iteration index
 		add_filter( 'bricks/query/force_loop_index', [ self::class, 'force_loop_index' ] );
 
+		do_action( 'jet-engine/bricks-views/listing/before-css-generation' );
+
 		// STEP: Content
 		self::generate_css_from_elements( $elements, 'content' );
+
+		do_action( 'jet-engine/bricks-views/listing/after-css-generation' );
 
 		remove_filter( 'bricks/query/force_loop_index', [ self::class, 'force_loop_index' ] );
 
@@ -207,7 +238,6 @@ class Assets extends \Bricks\Assets {
 		// #7 Dynamic data CSS
 		if ( ! empty( self::$inline_css_dynamic_data ) ) {
 			$inline_css .= self::$inline_css_dynamic_data;
-			$has_dynamic_css = true;
 		}
 
 		// Make CSS selector to nested listing elements builder agnostic
@@ -219,7 +249,7 @@ class Assets extends \Bricks\Assets {
 		self::jet_load_webfonts( $inline_css, $post_id );
 		self::jet_load_extra_assets( $elements, $post_id );
 
-		if ( $has_dynamic_css ) {
+		if ( $has_dynamic_value ) {
 			delete_post_meta( $post_id, self::$css_cache_key );
 		} else {
 			update_post_meta( $post_id, self::$css_cache_key, $inline_css );
@@ -251,10 +281,17 @@ class Assets extends \Bricks\Assets {
 
 			if ( false !== strpos( $bricks_settings_string, '"library":"fontawesome' ) ) {
 				$used_icons[] = [
-					'handle' => 'bricks-font-awesome',
-					'src' => BRICKS_URL_ASSETS . 'css/libs/font-awesome.min.css',
+					'handle' => 'bricks-font-awesome-6',
+					'src' => BRICKS_URL_ASSETS . 'css/libs/font-awesome-6.min.css',
 					'deps' => [ 'bricks-frontend' ],
-					'ver' => filemtime( BRICKS_PATH_ASSETS . 'css/libs/font-awesome.min.css' ),
+					'ver' => filemtime( BRICKS_PATH_ASSETS . 'css/libs/font-awesome-6.min.css' ),
+				];
+
+				$used_icons[] = [
+					'handle' => 'bricks-font-awesome-6-brands',
+					'src' => BRICKS_URL_ASSETS . 'css/libs/font-awesome-6-brands.min.css',
+					'deps' => [ 'bricks-frontend' ],
+					'ver' => filemtime( BRICKS_PATH_ASSETS . 'css/libs/font-awesome-6-brands.min.css' ),
 				];
 			}
 
@@ -567,29 +604,19 @@ class Assets extends \Bricks\Assets {
 	}
 
 	public static function get_query_args( $settings, $post_id ) {
-		$custom_query    = $settings['custom_query'] ?? false;
-		$custom_query    = filter_var( $custom_query, FILTER_VALIDATE_BOOLEAN );
-		$custom_query_id = $settings['custom_query_id'] ?? false;
+		// Obtain the query instance for a listing grid
+		$instance = jet_engine()->listings->get_render_instance( 'listing-grid', $settings );
 
-		// Check if the listing query builder is set
-		if ( $custom_query && intval( $custom_query_id ) ) {
-			$query_builder = Query_Manager::instance()->get_query_by_id( $custom_query_id );
-			$query_args    = ! empty( $query_builder->get_query_args() ) ? $query_builder->get_query_args() : [];
-		} else {
-			// Obtain the query instance for a listing grid
-			$instance = jet_engine()->listings->get_render_instance( 'listing-grid', $settings );
+		// Save the current listing data and set it based on the post ID
+		$current_listing = jet_engine()->listings->data->get_listing();
+		jet_engine()->listings->data->set_listing_by_id( $post_id );
 
-			// Save the current listing data and set it based on the post ID
-			$current_listing = jet_engine()->listings->data->get_listing();
-			jet_engine()->listings->data->set_listing_by_id( $post_id );
+		// Call the get_query method to generate the query_vars
+		$instance->get_query( $settings );
+		$query_args = ! empty( $instance->query_vars['request'] ) ? $instance->query_vars['request'] : [];
 
-			// Call the get_query method to generate the query_vars
-			$instance->get_query( $settings );
-			$query_args = ! empty( $instance->query_vars['request'] ) ? $instance->query_vars['request'] : [];
-
-			// Restore the original listing data
-			jet_engine()->listings->data->set_listing( $current_listing );
-		}
+		// Restore the original listing data
+		jet_engine()->listings->data->set_listing( $current_listing );
 
 		// Is that the calendar widget setting?
 		if ( isset( $settings['start_from_year'] ) ) {
@@ -601,5 +628,28 @@ class Assets extends \Bricks\Assets {
 		}
 
 		return $query_args;
+	}
+
+	public static function check_element_has_dynamic_value( $element, $has_dynamic_value = false ) {
+		$controls = Elements::get_element( $element, 'controls' );
+		$settings = ! empty( $element['settings'] ) ? $element['settings'] : [];
+
+		foreach ( $settings as $setting_key => $setting_value ) {
+			if ( $has_dynamic_value ) {
+				break;
+			}
+
+			$control_key = $setting_key;
+			$control      = ! empty( $controls[ $control_key ] ) ? $controls[ $control_key ] : false;
+
+			$css_definitions = isset( $control['css'] ) && is_array( $control['css'] ) ? $control['css'] : false;
+
+			if ( $css_definitions ) {
+				// Check if setting value uses dynamic data tags (@since 1.8)
+				$has_dynamic_value = strpos( wp_json_encode( $setting_value ), '"{' ) !== false;
+			}
+		}
+
+		return $has_dynamic_value;
 	}
 }

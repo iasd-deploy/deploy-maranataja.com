@@ -81,8 +81,8 @@ class Manual_Options {
 
 		if ( $this->is_field_of_current_source( $field ) ) {
 			$field['options'][] = array(
-				'key'        => esc_attr( $custom_value ),
-				'value'      => esc_attr( $custom_value ),
+				'key'        => sanitize_text_field( $custom_value ),
+				'value'      => sanitize_text_field( $custom_value ),
 				'is_checked' => '',
 			);
 		}

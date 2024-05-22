@@ -50,6 +50,7 @@ class Jet_Engine_CPT_Rest_Edit_BI_Tax extends Jet_Engine_Base_API_Endpoint {
 			'object_type'                => $this->safe_get( $params, 'general_settings', 'object_type' ),
 			'show_edit_link'             => $this->safe_get( $params, 'general_settings', 'show_edit_link' ),
 			'hide_field_names'           => $this->safe_get( $params, 'general_settings', 'hide_field_names' ),
+			'delete_metadata'            => $this->safe_get( $params, 'general_settings', 'delete_metadata' ),
 			'singular_name'              => $this->safe_get( $params, 'labels', 'singular_name' ),
 			'menu_name'                  => $this->safe_get( $params, 'labels', 'menu_name' ),
 			'all_items'                  => $this->safe_get( $params, 'labels', 'all_items' ),

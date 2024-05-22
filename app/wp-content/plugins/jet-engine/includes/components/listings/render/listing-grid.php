@@ -1395,6 +1395,13 @@ if ( ! class_exists( 'Jet_Engine_Render_Listing_Grid' ) ) {
 					$container_classes[] = 'jet-equal-columns__wrapper';
 				}
 
+				$container_classes = apply_filters(
+					'jet-engine/listing/container-classes',
+					$container_classes,
+					$settings,
+					$this
+				);
+
 				do_action( 'jet-engine/listing/grid-items/before', $settings, $this );
 
 				printf(

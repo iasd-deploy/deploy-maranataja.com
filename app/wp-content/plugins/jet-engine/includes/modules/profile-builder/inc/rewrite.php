@@ -95,7 +95,7 @@ class Rewrite {
 				break;
 
 			default:
-				$regex    = $slug . '/?([^/]+)?';
+				$regex    = $slug . '(?:/([^/]+))?/?$';
 				$redirect = 'pagename=' . $slug . '&' . $this->page_var . '=' . $page . '&' . $this->subpage_var . '=$matches[1]';
 				break;
 		}

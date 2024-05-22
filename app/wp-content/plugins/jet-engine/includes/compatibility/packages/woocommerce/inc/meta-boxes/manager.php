@@ -56,6 +56,9 @@ class Manager {
 		add_action( 'jet-engine/meta-boxes/register-custom-source/woocommerce_product_data', [ $this, 'register_product_panel_meta_box' ] );
 		add_action( 'jet-engine/meta-boxes/register-custom-source/woocommerce_product_variation', [ $this, 'register_product_variation_meta_box' ] );
 
+		add_action( 'jet-engine/meta-boxes/data/delete-metadata/woocommerce_product_data',      [ $this, 'delete_product_metadata' ] );
+		add_action( 'jet-engine/meta-boxes/data/delete-metadata/woocommerce_product_variation', [ $this, 'delete_product_variation_metadata' ] );
+
 	}
 
 	/**
@@ -398,6 +401,26 @@ class Manager {
 
 			$this->has_inline_script = true;
 		}
+	}
+
+	public function delete_product_metadata( $to_delete ) {
+		\Jet_Engine_Tools::delete_metadata_by_object_where(
+			'post',
+			$to_delete,
+			array(
+				'post_type' => 'product',
+			)
+		);
+	}
+
+	public function delete_product_variation_metadata( $to_delete ) {
+		\Jet_Engine_Tools::delete_metadata_by_object_where(
+			'post',
+			$to_delete,
+			array(
+				'post_type' => 'product_variation',
+			)
+		);
 	}
 
 	/**

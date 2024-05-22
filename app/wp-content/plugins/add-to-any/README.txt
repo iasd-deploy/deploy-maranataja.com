@@ -2,15 +2,15 @@
 Contributors: micropat, addtoany
 Tags: buttons, share, icons, social media, share buttons, sharing, share button, media, social, marketing, links, email, seo, woocommerce, google, linkedin, reddit, facebook, twitter, pinterest, whatsapp, instagram, youtube, share this, sharethis, feed
 Requires at least: 4.5
-Tested up to: 6.4
+Tested up to: 6.6
 Requires PHP: 5.6
-Stable tag: 1.8.9
+Stable tag: 1.8.10
 
 Share buttons for WordPress including the AddToAny button, Facebook, Mastodon, WhatsApp, Pinterest, Reddit, Threads, many more, and follow icons too.
 
 == Description ==
 
-The AddToAny Share Buttons plugin for WordPress increases traffic & engagement by helping people share your posts and pages to any service. Services include Facebook, Mastodon, Pinterest, WhatsApp, LinkedIn, Threads, Tumblr, Reddit, X, WeChat, and many more sharing and social media sites & apps.
+The AddToAny Share Buttons plugin for WordPress increases traffic & engagement by helping people share your posts and pages to any service. Services include Facebook, Mastodon, Pinterest, WhatsApp, LinkedIn, Threads, Bluesky, Tumblr, Reddit, X, WeChat, and many more sharing and social media sites & apps.
 
 AddToAny is the home of universal sharing, and the AddToAny plugin is the most popular share plugin for WordPress, making sites social media ready since 2006.
 
@@ -334,6 +334,12 @@ Upload (or move) the `add-to-any` plugin directory into the `/wp-content/mu-plug
 
 == Changelog ==
 
+= 1.8.10 =
+* Add Bluesky share button
+* Add Bluesky follow button
+* Add Micro.blog share button
+* Improve internationalization (thanks alexclassroom)
+
 = 1.8.9 =
 * Add Mix
 * Add Raindrop.io
@@ -360,10 +366,7 @@ Upload (or move) the `add-to-any` plugin directory into the `/wp-content/mu-plug
 * Add X share button
 
 = 1.8.7 =
-* Add Threads share button (early support as a standalone share button)
- * Threads doesn't offer a sharing endpoint for the web yet, but:
- * You can enable the Threads share button early, and the button will appear once Threads' sharing endpoint is available on the web
- * Users can use the AddToAny share button on mobile to share to the native Threads app
+* [Add Threads share button](https://www.addtoany.com/blog/threads-share-button/)
 * Add Threads follow button
 * Add TikTok follow button
 * Support for the proposed WP Consent API from the `wp-consent-api` plugin

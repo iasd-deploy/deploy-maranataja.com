@@ -171,9 +171,12 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 				'cols_tablet' => 3,
 				'cols_mobile' => 1,
 				'css_classes' => [ 'jet-engine-gallery-grid' ],
+				'masonry'     => false,
 			) ) );
 
 			ob_start();
+
+			$gallery_id = self::get_gallery_id();
 
 			$classes = array_merge( $args['css_classes'], array(
 				'grid-col-desk-' . $args['cols_desk'],
@@ -181,11 +184,30 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 				'grid-col-mobile-' . $args['cols_mobile'],
 			) );
 
-			$classes = implode( ' ', $classes );
+			$attr = array(
+				'class' => $classes,
+			);
 
-			echo '<div class="' . $classes . '">';
+			if ( ! empty( $args['masonry'] ) ) {
 
-			$gallery_id = self::get_gallery_id();
+				jet_engine()->frontend->enqueue_masonry_assets();
+
+				$attr['class'][] = 'jet-engine-gallery-grid--masonry';
+
+				$masonry_options = apply_filters( 'jet-engine/gallery/grid/masonry-options', array(
+					'columns' => array(
+						'desktop' => $args['cols_desk'],
+						'tablet'  => $args['cols_tablet'],
+						'mobile'  => $args['cols_mobile'],
+					),
+				), $args, $gallery_id );
+
+				$attr['data-masonry-grid-options'] = htmlspecialchars( json_encode( $masonry_options ) );
+			}
+
+			$attr = apply_filters( 'jet-engine/gallery/grid/attr', $attr, $args, $gallery_id );
+
+			echo '<div ' . Jet_Engine_Tools::get_attr_string( $attr ) . '>';
 
 			foreach ( $images as $img_data ) {
 

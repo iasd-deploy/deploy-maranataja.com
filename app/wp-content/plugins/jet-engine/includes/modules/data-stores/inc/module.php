@@ -18,6 +18,7 @@ class Module {
 	public $stores = null;
 	public $elementor_integration = null;
 	public $blocks_integration = null;
+	public $bricks_integration = null;
 	public $render = null;
 
 	/**
@@ -59,10 +60,10 @@ class Module {
 		$this->settings              = new Settings();
 		$this->stores                = new Stores\Manager();
 		$this->elementor_integration = new Elementor_Integration();
+		$this->bricks_integration    = new Bricks_Views\Manager();
 		$this->blocks_integration    = new Blocks_Integration();
 		$this->render                = new Render_Links();
 
-		new Bricks_Views\Manager();
 		new Twig_Views\Manager();
 		new Macros();
 		new Query();

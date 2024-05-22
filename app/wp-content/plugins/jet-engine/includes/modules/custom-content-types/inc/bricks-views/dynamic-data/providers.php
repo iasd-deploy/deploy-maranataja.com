@@ -35,19 +35,29 @@ class Providers {
 	public static function register( $providers = [] ) {
 		$instance = new self( $providers );
 
+		// I had a problem that my dynamic tags do not render during an ajax request
+		// (listing load more and lazy load, listing calendar and turn month, ...)
+		// I tried to join a hook that fires before 'init' and 'wp'.
+		//
+		// Bricks' Registers class register their tags on hooks 'init' and 'wp'
+		// because their Registers classes are connected at a high level.
+			add_action( 'wp_loaded', [ $instance, 'register_providers' ], 10 );
+
 		// Priority set to 10000 due to CMB2 priority
-		add_action( 'init', [ $instance, 'register_providers' ], 10000 );
+//		add_action( 'init', [ $instance, 'register_providers' ], 10000 );
 
 		// Register providers during WP REST API call (priority 7 to run before register_tags() on WP REST API)
-		add_action( 'rest_api_init', [ $instance, 'register_providers' ], 7 );
+//		add_action( 'rest_api_init', [ $instance, 'register_providers' ], 7 );
+
+		add_action( 'wp_loaded', [ $instance, 'register_tags' ], 10 );
 
 		// Register tags before wp_enqueue_scripts (but not before wp to get the post custom fields)
 		// Priority = 8 to run before Setup::init_control_options
-		add_action( 'wp', [ $instance, 'register_tags' ], 8 );
+//		add_action( 'wp', [ $instance, 'register_tags' ], 8 );
 
 		// Hook "wp" doesn't run on AJAX/REST API calls so we need this to register the tags when rendering elements (needed for Posts element) or fetching dynamic data content
-		add_action( 'admin_init', [ $instance, 'register_tags' ], 8 );
-		add_action( 'rest_api_init', [ $instance, 'register_tags' ], 8 );
+//		add_action( 'admin_init', [ $instance, 'register_tags' ], 8 );
+//		add_action( 'rest_api_init', [ $instance, 'register_tags' ], 8 );
 
 		add_filter( 'bricks/dynamic_tags_list', [ $instance, 'add_tags_to_builder' ] );
 

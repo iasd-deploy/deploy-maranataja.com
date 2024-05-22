@@ -33,6 +33,22 @@ class Get_Map_Marker_Info extends \Jet_Engine_Base_API_Endpoint {
 			) );
 		}
 
+		$queried_id = 0;
+
+		// Set the current queried object.
+		if ( ! empty( $params['queried_id'] ) ) {
+			$queried_obj_data = explode( '|', $params['queried_id'] );
+			$queried_id       = ! empty( $queried_obj_data[0] ) ? absint( $queried_obj_data[0] ) : false;
+			$queried_class    = ! empty( $queried_obj_data[1] ) ? $queried_obj_data[1] : 'WP_Post';
+
+			if ( $queried_id ) {
+				jet_engine()->listings->data->set_current_object_by_id( $queried_id, $queried_class );
+			}
+		}
+
+		// Set the current element id.
+		$element_id = $params['element_id'] ?? '';
+
 		jet_engine()->listings->data->set_listing_by_id( $listing_id );
 
 		$post_obj = false;
@@ -60,7 +76,7 @@ class Get_Map_Marker_Info extends \Jet_Engine_Base_API_Endpoint {
 
 		jet_engine()->frontend->set_listing( $listing_id );
 
-		do_action( 'jet-engine/maps-listings/get-map-marker', $listing_id );
+		do_action( 'jet-engine/maps-listings/get-map-marker', $listing_id, $queried_id, $element_id );
 
 		ob_start();
 
@@ -115,6 +131,10 @@ class Get_Map_Marker_Info extends \Jet_Engine_Base_API_Endpoint {
 			),
 			'source' => array(
 				'default'  => 'posts',
+				'required' => false,
+			),
+			'queried_id' => array(
+				'default'  => '',
 				'required' => false,
 			),
 		);

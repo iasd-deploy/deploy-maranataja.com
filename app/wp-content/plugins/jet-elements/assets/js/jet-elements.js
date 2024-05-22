@@ -1384,8 +1384,8 @@
 							$( { Counter: 0 } ).animate( { Counter: currentValue }, {
 								duration: 1000,
 								easing: 'swing',
-								step: function () {
-									$percent.text( Math.ceil( this.Counter ) + '/' + maxValue );
+								step: function ( now ) { 
+									$percent.text( Math.round( now ) + '/' + maxValue ); 
 								}
 							} );
 						}

@@ -21,7 +21,7 @@
 					Please select the preferred Timber plugin version:
 				</div>
 			</div>
-			<div class="jet-timber-views-wizard__sources" v-if="! hasTimber">
+			<div :class="{ 'jet-timber-views-wizard__sources': true, 'jet-timber-views-wizard__sources-installing': installing }" v-if="! hasTimber">
 				<div 
 					class="jet-timber-views-wizard__source"
 					:style="sourceCSS()"
@@ -31,6 +31,7 @@
 					<div class="jet-timber-views-wizard__source-name">Install {{ source.name }}</div>
 					<div class="jet-timber-views-wizard__source-desc">{{ source.description }}</div>
 				</div>
+				<div class="jet-timber-views-wizard__installing-message" v-if="installing">Installing...</div>
 			</div>
 			<div class="jet-timber-views-wizard__error" v-if="error">{{ error }}</div>
 		</div>`,

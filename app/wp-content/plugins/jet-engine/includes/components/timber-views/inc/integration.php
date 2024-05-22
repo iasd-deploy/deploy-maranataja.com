@@ -81,7 +81,7 @@ class Integration {
 			}
 
 		} else {
-			$url = $sources['url'];
+			$url = $source['url'];
 		}
 
 		if ( ! class_exists( '\Plugin_Upgrader', false ) ) {
@@ -99,7 +99,7 @@ class Integration {
 				wp_send_json_error( $skin->result->get_error_message() );
 			}
 		} elseif ( $skin->get_errors()->has_errors() ) {
-			wp_send_json_error( $skin->get_error_message() );
+			wp_send_json_error( $skin->get_error_messages() );
 		} elseif ( is_null( $result ) ) {
 			global $wp_filesystem;
 
@@ -127,7 +127,11 @@ class Integration {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 
-		$plugin_data = get_plugin_data( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
+		if ( $is_wp ) {
+			$plugin_data = get_plugin_data( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
+		} else {
+			$plugin_data = [ 'Version' => '2.0.0' ];
+		}
 
 		wp_send_json_success( [
 			'version' => $plugin_data['Version'],
@@ -193,6 +197,34 @@ class Integration {
 				display: flex;
 				gap: 20px;
 				padding: 0 0 20px;
+				position: relative;
+			}
+			.jet-timber-views-wizard__sources.jet-timber-views-wizard__sources-installing {
+				pointer-events: none;
+			}
+			.jet-timber-views-wizard__installing-message {
+				background: #fff;
+				position: absolute;
+				top: calc( 50% - 10px );
+				left: 50%;
+				line-height: 16px;
+				padding: 4px 0;
+				width: 120px;
+				text-align: center;
+				margin: -12px 0 0 -60px;
+				box-shadow: 0 5px 15px rgba(0,0,0,.1);
+				z-index: 10;
+			}
+			.jet-timber-views-wizard__sources.jet-timber-views-wizard__sources-installing:after {
+				content: "";
+				background: #fff;
+				opacity: .6;
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				z-index: 5;
 			}
 			.jet-timber-views-wizard__source {
 				flex: 1;
@@ -254,7 +286,7 @@ class Integration {
 				'name' => 'Timber 2.X',
 				'description' => 'Timber 2.0.0+ bundled into separate plugin',
 				'url' => 'https://account.crocoblock.com/free-download/crocoblock-timber-library.zip',
-				'slug' => 'crocoblock-timber-library/crocoblock-timber-library',
+				'slug' => 'crocoblock-timber-library/crocoblock-timber-library.php',
 			]
 		];
 	}

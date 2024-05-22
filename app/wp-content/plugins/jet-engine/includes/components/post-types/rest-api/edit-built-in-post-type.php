@@ -49,6 +49,7 @@ class Jet_Engine_CPT_Rest_Edit_BI_Post_Type extends Jet_Engine_Base_API_Endpoint
 			'slug'                  => $this->safe_get( $params, 'general_settings', 'slug' ),
 			'show_edit_link'        => $this->safe_get( $params, 'general_settings', 'show_edit_link' ),
 			'hide_field_names'      => $this->safe_get( $params, 'general_settings', 'hide_field_names' ),
+			'delete_metadata'       => $this->safe_get( $params, 'general_settings', 'delete_metadata' ),
 			'singular_name'         => $this->safe_get( $params, 'labels', 'singular_name' ),
 			'menu_name'             => $this->safe_get( $params, 'labels', 'menu_name' ),
 			'name_admin_bar'        => $this->safe_get( $params, 'labels', 'name_admin_bar' ),

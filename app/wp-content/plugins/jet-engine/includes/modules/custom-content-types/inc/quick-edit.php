@@ -51,11 +51,19 @@ class Quick_Edit extends Pages\Edit_Item_Page {
 	public $builder = null;
 
 	/**
+	 * Factory holder
+	 *
+	 * @var null
+	 */
+	private $factory = null;
+
+	/**
 	 * Constructor for the class
 	 */
-	public function __construct( $page, $pages_manager ) {
+	public function __construct( $page, $factory ) {
 		$this->page     = $page;
 		$this->meta_box = $page['fields'];
+		$this->factory  = $factory;
 	}
 
 	/**
@@ -78,17 +86,40 @@ class Quick_Edit extends Pages\Edit_Item_Page {
 
 		$fields = $this->get_prepared_fields();
 
-		$this->builder->register_section(
+		$this->builder->register_settings(
 			array(
 				'settings_top' => array(
-					'type'   => 'section',
-					'scroll' => false,
-					'class'  => 'fields-count-' . count( $fields ),
+					'type'  => 'settings',
+					'class' => 'fields-count-' . count( $fields ),
+				),
+				'settings_bottom' => array(
+					'type' => 'settings',
 				),
 			)
 		);
 
-		$this->builder->register_control( $fields );
+		// Register the Service Fields
+		$service_fields = array(
+			'cct_status' => array(
+				'type'    => 'select',
+				'parent'  => 'settings_bottom',
+				'id'      => 'cct_status',
+				'name'    => 'cct_status',
+				'title'   => __( 'Status', 'jet-engine' ),
+				'options' => $this->factory->get_statuses(),
+			),
+			'cct_created' => array(
+				'type'         => 'text',
+				'input_type'   => 'datetime-local',
+				'autocomplete' => 'off',
+				'parent'       => 'settings_bottom',
+				'id'           => 'cct_created',
+				'name'         => 'cct_created',
+				'title'        => __( 'Published', 'jet-engine' ),
+			),
+		);
+
+		$this->builder->register_control( array_merge( $fields, $service_fields ) );
 
 	}
 

@@ -122,6 +122,10 @@ class Render {
 			$current_query->loop_index = $post->ID;
 		}
 
+		if ( ( isset( $post->cct_slug ) || isset( $post->_ID ) ) && $current_query ) {
+			$current_query->loop_index = $post->_ID;
+		}
+
 		// Prepare flat list of elements for recursive calls
 		// Default Bricks logic not used in this case because it reset elements list after rendering
 		foreach ( $bricks_data as $element ) {
@@ -164,7 +168,7 @@ class Render {
 			'bricks/dynamic_data/render_content',
 			$result,
 			$post,
-			null
+			'text'
 		);
 
 	}

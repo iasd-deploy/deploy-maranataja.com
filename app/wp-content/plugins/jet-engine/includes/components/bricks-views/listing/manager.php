@@ -41,8 +41,6 @@ class Manager {
 		add_action( 'jet-engine/listing/grid/before-render', [ $this, 'set_global_post_for_listing' ] );
 
 		add_filter( 'bricks/link_css_selectors', [ $this, 'link_css_selectors' ], 10, 1 );
-		add_action( 'jet-engine/listing-element/before-render', [ $this, 'set_current_object_in_bricks_loop' ] );
-		add_action( 'bricks/query/after_loop', [ $this, 'reset_current_object_in_bricks_loop' ] );
 
 		add_action( 'jet-engine/listing/grid/before', [ $this, 'actions_before_grid_items' ], 10 );
 		add_action( 'jet-engine/listing/grid/after', [ $this, 'actions_after_grid_items' ], 10 );
@@ -209,24 +207,6 @@ class Manager {
 	// Integration of bricks condition into the listing grid widget
 	public function set_post_id( $post_id ) {
 		return jet_engine()->listings->data->get_current_object_id();
-	}
-
-	// Set current User or Term object to dynamic widgets in a bricks loop
-	public function set_current_object_in_bricks_loop() {
-		if ( ! \Bricks\Query::is_looping() ) {
-			return;
-		}
-
-		if ( in_array( \Bricks\Query::get_query_object_type(), [ 'user', 'term' ] ) ) {
-			jet_engine()->listings->data->set_current_object( \Bricks\Query::get_loop_object() );
-		}
-	}
-
-	// Reset current User or Term object for dynamic widgets in a bricks loop
-	public function reset_current_object_in_bricks_loop() {
-		if ( in_array( \Bricks\Query::get_query_object_type(), [ 'user', 'term' ] ) ) {
-			jet_engine()->listings->data->reset_current_object();
-		}
 	}
 
 	// Set page data for list grid during ajax filter

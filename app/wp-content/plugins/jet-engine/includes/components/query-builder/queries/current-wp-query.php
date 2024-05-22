@@ -102,8 +102,9 @@ class Current_WP_Query extends Posts_Query {
 	public function requery_posts() {
 		
 		global $wp_query;
-		
+
 		foreach ( $this->final_query as $key => $value ) {
+
 			switch ( $key ) {
 				case 'meta_query':
 				case 'tax_query':
@@ -115,6 +116,26 @@ class Current_WP_Query extends Posts_Query {
 					}
 
 					$wp_query->set( $key, $value );
+					break;
+
+				case 'orderby':
+
+					if ( is_array( $value ) && ! empty( $value['custom'] ) ) {
+
+						if ( isset( $value['custom']['orderby'] ) ) {
+							$wp_query->set( 'orderby', $value['custom']['orderby'] );
+						}
+
+						if ( isset( $value['custom']['order'] ) ) {
+							$wp_query->set( 'order', $value['custom']['order'] );
+						}
+
+						if ( ! empty( $value['custom']['meta_key'] ) ) {
+							$wp_query->set( 'meta_key', $value['custom']['meta_key'] );
+						}
+
+					}
+
 					break;
 
 				default:
@@ -190,7 +211,9 @@ class Current_WP_Query extends Posts_Query {
 
 	public function set_filtered_prop( $prop = '', $value = null ) {
 
-		$this->get_current_wp_query()->posts = false;
+		if ( $this->current_wp_query && $this->current_wp_query->posts ) {
+			$this->current_wp_query->posts = false;
+		}
 
 		switch ( $prop ) {
 

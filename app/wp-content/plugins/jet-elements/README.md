@@ -4,6 +4,26 @@ Brand new addon for Elementor Page builder. It provides the set of modules to cr
 
 # ChangeLog
 
+## [2.6.18](https://github.com/ZemezLab/jet-elements/archive/2.6.18.zip) - 14.05.2024
+* Added: `jet-elements/advanced-map/query-arg` filter hook
+* Added: new icons of widgets
+* Fixed: incorrent numbers in the Progress Bar widget
+* Fixed: triggers page transition in the Download Button
+* Fixed: error and does not allow the Elementor ready templates to load
+* Fixed: minor issues
+
+## [2.6.17.1](https://github.com/ZemezLab/jet-elements/archive/2.6.17.1.zip) - 04.04.2024
+* Fixed: minor bugs
+
+## [2.6.17](https://github.com/ZemezLab/jet-elements/archive/2.6.17.zip) - 03.04.2024
+* Fixed: slider item flashing in safari
+* Fixed: overlay style with scratch switch type in the Animated Box widget
+* Fixed: hover effects in the Button widget
+* Fixed: compatibility with deprecated methods
+* Fixed: correctly escape URL for all widgets where user can manually set a link
+* Fixed: security issues 
+* Fixed: minor issues
+
 ## [2.6.16](https://github.com/ZemezLab/jet-elements/archive/2.6.16.zip) - 21.02.2024
 * Added: [Crocoblock/suggestions#7318](https://github.com/Crocoblock/suggestions/issues/7318)
 * Added: `Labels length` option in the Bar Chart Widget

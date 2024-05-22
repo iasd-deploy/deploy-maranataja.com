@@ -227,6 +227,15 @@ class Data extends \Jet_Engine_Base_Data {
 		return $item;
 	}
 
+	public function clear_cache() {
+		$this->found_items = array();
+
+		// Clear db cache
+		if ( isset( jet_engine()->glossaries->data->db->query_cache[ $this->table ] ) ) {
+			unset( jet_engine()->glossaries->data->db->query_cache[ $this->table ] );
+		}
+	}
+
 	public function get_fields_from_file( $item ) {
 		$file    = ! empty( $item['source_file'] ) ? $item['source_file'] : array();
 		$file_id = ! empty( $file['id'] ) ? absint( $file['id'] ) : false;

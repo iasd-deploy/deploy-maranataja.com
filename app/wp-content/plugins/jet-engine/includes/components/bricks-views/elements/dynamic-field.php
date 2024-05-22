@@ -223,17 +223,36 @@ class Dynamic_Field extends Base {
 			]
 		);
 
+		$cssArray = [
+			[
+				'selector' => $this->css_selector( '__icon svg' ), // Use to target SVG file
+			],
+		];
+
+		if ( $this->prevent_wrap() ) {
+			array_push($cssArray,
+				[
+					'property' => 'display',
+					'value'    => 'flex',
+				],
+				[
+					'property' => 'align-items',
+					'value'    => 'center',
+				],
+				[
+					'property' => 'gap',
+					'value'    => '12px',
+				],
+			);
+		}
+
 		$this->register_jet_control(
 			'selected_field_icon',
 			[
 				'tab'   => 'content',
 				'label' => esc_html__( 'Field icon', 'jet-engine' ),
 				'type'  => 'icon',
-				'css'   => [
-					[
-						'selector' => $this->css_selector( '__icon svg' ), // Use to target SVG file
-					],
-				],
+				'css'   => $cssArray,
 			]
 		);
 
@@ -491,22 +510,24 @@ class Dynamic_Field extends Base {
 			]
 		);
 
-		$this->register_jet_control(
-			'field_icon_gap',
-			[
-				'tab'     => 'style',
-				'label'   => esc_html__( 'Icon gap', 'jet-engine' ),
-				'type'    => 'number',
-				'units'   => true,
-				'default' => '12px',
-				'css'     => [
-					[
-						'property' => 'gap',
-						'selector' => ! $this->prevent_wrap() ? '.display-multiline, ' . $this->css_selector( '__inline-wrap' ) : '',
+		if ( ! $this->prevent_wrap() ) {
+			$this->register_jet_control(
+				'field_icon_gap',
+				[
+					'tab'     => 'style',
+					'label'   => esc_html__( 'Icon gap', 'jet-engine' ),
+					'type'    => 'number',
+					'units'   => true,
+					'default' => '12px',
+					'css'     => [
+						[
+							'property' => 'gap',
+							'selector' => '.display-multiline, ' . $this->css_selector( '__inline-wrap' ),
+						],
 					],
-				],
-			]
-		);
+				]
+			);
+		}
 
 		$this->end_jet_control_group();
 

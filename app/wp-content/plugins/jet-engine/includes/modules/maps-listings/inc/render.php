@@ -762,6 +762,12 @@ class Render extends \Jet_Engine_Render_Listing_Grid {
 			$attrs['data-query-id'] = $this->listing_query_id;
 		}
 
+		$queried_id = $this->get_queried_id();
+
+		if ( $queried_id ) {
+			$attrs['data-queried-id'] = $queried_id;
+		}
+
 		if ( ! empty( $custom_css ) ) {
 			$attrs['style'] = $custom_css;
 		}

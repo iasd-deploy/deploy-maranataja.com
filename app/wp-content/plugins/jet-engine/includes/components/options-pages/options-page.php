@@ -548,6 +548,10 @@ if ( ! class_exists( 'Jet_Engine_Options_Page_Factory' ) ) {
 					$result[ $field_name ]['id']   = $field_name;
 					$result[ $field_name ]['name'] = $field_name;
 
+					if ( isset( $result[ $field_name ]['options_callback'] ) && is_callable( $result[ $field_name ]['options_callback'] ) ) {
+						$result[ $field_name ]['options'] = call_user_func( $result[ $field_name ]['options_callback'] );
+					}
+
 					$result[ $field_name ]['value'] = $this->get(
 						$field_name,
 						isset( $result[ $field_name ]['value'] ) ? $result[ $field_name ]['value'] : false,

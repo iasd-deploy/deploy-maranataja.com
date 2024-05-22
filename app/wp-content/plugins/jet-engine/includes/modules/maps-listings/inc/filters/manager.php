@@ -67,22 +67,30 @@ class Manager {
 
 	public function adjust_geo_query( $query ) {
 
-		// Prepare `geo_query` on Page Reload
+		// Prepare `geo_query` on Page Reload and Redirect.
 		if ( ! empty( $query['geo_query'] ) && is_string( $query['geo_query'] ) ) {
-			$raw_geo_query = explode( ';', $query['geo_query'] );
-			$geo_query     = array();
 
-			foreach ( $raw_geo_query as $data ) {
-				$key_value = explode( ':', $data, 2 );
+			// Try to decode json string.
+			$_geo_query = json_decode( wp_unslash( $query['geo_query'] ), true );
 
-				if ( ! isset( $key_value[0] ) || ! isset( $key_value[1] ) ) {
-					continue;
+			if ( ! empty( $_geo_query ) ) {
+				$query['geo_query'] = $_geo_query;
+			} else {
+				$raw_geo_query = explode( ';', $query['geo_query'] );
+				$geo_query     = array();
+
+				foreach ( $raw_geo_query as $data ) {
+					$key_value = explode( ':', $data, 2 );
+
+					if ( ! isset( $key_value[0] ) || ! isset( $key_value[1] ) ) {
+						continue;
+					}
+
+					$geo_query[ $key_value[0] ] = $key_value[1];
 				}
 
-				$geo_query[ $key_value[0] ] = $key_value[1];
+				$query['geo_query'] = $geo_query;
 			}
-
-			$query['geo_query'] = $geo_query;
 		}
 
 		if (
@@ -127,7 +135,6 @@ class Manager {
 	}
 
 	public function register_bricks_types() {
-
 		if ( ! $this->has_bricks() || ! class_exists( '\Jet_Smart_Filters\Bricks_Views\Elements\Jet_Smart_Filters_Bricks_Base' ) ) {
 			return;
 		}
@@ -226,10 +233,6 @@ class Manager {
 		return $data;
 	}
 
-	public function has_bricks() {
-		return defined( 'BRICKS_VERSION' );
-	}
-
 	public function add_merged_query_key( $keys ) {
 		$keys[] = 'geo_query';
 		return $keys;
@@ -239,4 +242,9 @@ class Manager {
 		$params[] = 'geo_query';
 		return $params;
 	}
+
+	public function has_bricks() {
+		return ( defined( 'BRICKS_VERSION' ) && \Jet_Engine\Modules\Performance\Module::instance()->is_tweak_active( 'enable_bricks_views' ) );
+	}
+
 }
