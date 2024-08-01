@@ -12,7 +12,7 @@
 				adminFiltersTypes: JetEngineCPTConfig.admin_filters_types,
 				taxonomies: JetEngineCPTConfig.taxonomies_full_data,
 				allFields: JetEngineCPTConfig.all_fields,
-				glossariesList: JetEngineCPTConfig.glossaries_list
+				glossariesList: JetEngineCPTConfig.glossaries_list,
 			};
 		},
 		created() {
@@ -414,7 +414,43 @@
 				);
 			}
 		},
+		computed: {
+			reservedFieldsNames: function() {
+				if ( this.generalSettings.custom_storage ) {
+					return JetEngineCPTConfig.post_properties;
+				} else {
+					return [];
+				}
+			}
+		},
 		methods: {
+			getHiddenOptions() {
+				var options = [];
+
+				if ( this.generalSettings.custom_storage ) {
+					options.push( 'repeater_save_separate' );
+				}
+
+				return options;
+			},
+			validateFieldName( field ) {
+				
+				if ( this.generalSettings.custom_storage && field.name.includes( '-' ) ) {
+					throw 'For custom meta storage only "_" allowed as delimiter';
+				}
+
+				if ( this.generalSettings.custom_storage && 'advanced-date' === field.type ) {
+					throw 'Custom meta storage doesn`t suppport Advanced Date field type';
+				}
+
+				return true;
+			},
+			getTableName() {
+				return JetEngineCPTConfig.table_name_format.replace(
+					'<table>', 
+					this.generalSettings.slug.replaceAll( '-', '_' )
+				);
+			},
 			slugIsChanged: function() {
 				if ( ! this.isEdit ) {
 					return false;

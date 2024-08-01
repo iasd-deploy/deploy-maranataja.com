@@ -193,6 +193,17 @@ class Dynamic_Terms extends Base {
 		);
 
 		$this->register_jet_control(
+			'field_fallback',
+			[
+				'tab'         => 'content',
+				'label'       => esc_html__( 'Fallback', 'jet-engine' ),
+				'type'        => 'text',
+				'description' => esc_html__( 'Show this if field value is empty', 'jet-engine' ),
+				'required'    => [ 'hide_if_empty', '=', false ],
+			]
+		);
+
+		$this->register_jet_control(
 			'object_context',
 			[
 				'tab'     => 'content',

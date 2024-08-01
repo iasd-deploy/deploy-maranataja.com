@@ -5,7 +5,13 @@ use Elementor\Group_Control_Typography;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+if ( ! trait_exists( '\Jet_Engine_Get_Data_Sources_Trait' ) ) {
+	require_once jet_engine()->plugin_path( 'includes/traits/get-data-sources.php' );
+}
+
 class Jet_Listing_Dynamic_Link_Widget extends \Jet_Listing_Dynamic_Widget {
+
+	use \Jet_Engine_Get_Data_Sources_Trait;
 
 	public function get_name() {
 		return 'jet-listing-dynamic-link';
@@ -42,7 +48,7 @@ class Jet_Listing_Dynamic_Link_Widget extends \Jet_Listing_Dynamic_Widget {
 			'dynamic_link_source',
 			array(
 				'label'   => __( 'Source', 'jet-engine' ),
-				'type'    => Controls_Manager::SELECT,
+				'type'    => 'jet-select2',
 				'default' => '_permalink',
 				'groups'  => $meta_fields,
 			)
@@ -57,7 +63,7 @@ class Jet_Listing_Dynamic_Link_Widget extends \Jet_Listing_Dynamic_Widget {
 					'dynamic_link_option',
 					array(
 						'label'     => __( 'Option', 'jet-engine' ),
-						'type'      => Controls_Manager::SELECT,
+						'type'      => 'jet-select2',
 						'default'   => '',
 						'groups'    => $options_pages_select,
 						'condition' => array(
@@ -77,11 +83,12 @@ class Jet_Listing_Dynamic_Link_Widget extends \Jet_Listing_Dynamic_Widget {
 		$this->add_control(
 			'dynamic_link_source_custom',
 			array(
-				'label'       => __( 'Custom meta field/repeater key', 'jet-engine' ),
+				'label'       => __( 'Custom field/repeater key/component control', 'jet-engine' ),
 				'type'        => Controls_Manager::TEXT,
 				'default'     => '',
 				'label_block' => true,
 				'description' => __( 'Note: this field will override Meta Field value', 'jet-engine' ),
+				'ai'          => [ 'active' => false ],
 				'condition'   => array(
 					'dynamic_link_source!' => 'delete_post_link',
 				),
@@ -686,33 +693,29 @@ class Jet_Listing_Dynamic_Link_Widget extends \Jet_Listing_Dynamic_Widget {
 	 */
 	public function get_meta_fields_for_post_type() {
 
-		$default = array(
-			'label'   => __( 'General', 'jet-engine' ),
-			'options' => apply_filters( 'jet-engine/elementor-view/dynamic-link/generel-options', array(
-				'_permalink' => __( 'Permalink', 'jet-engine' ),
-				'delete_post_link' => __( 'Delete current post link', 'jet-engine' ),
-			) ),
+		$raw    = $this->get_dynamic_sources( 'plain' );
+		$result = [];
+
+		foreach ( $raw as $group ) {
+			$result[] = [
+				'label'   => $group['label'],
+				'options' => array_combine(
+					array_map( function( $item ) {
+						return $item['value'];
+					}, $group['values'] ),
+					array_map( function( $item ) {
+						return $item['label'];
+					}, $group['values'] )
+				),
+			];
+		}
+
+		$result[0]['options'] = apply_filters( 
+			'jet-engine/elementor-view/dynamic-link/generel-options',
+			$result[0]['options']
 		);
 
-		$result      = array();
-		$meta_fields = array();
-
-		if ( jet_engine()->options_pages ) {
-			$default['options']['options_page'] = __( 'Options', 'jet-engine' );
-		}
-
-		if ( jet_engine()->modules->is_module_active( 'profile-builder' ) ) {
-			$default['options']['profile_page'] = __( 'Profile Page', 'jet-engine' );
-		}
-
-		if ( jet_engine()->meta_boxes ) {
-			$meta_fields = jet_engine()->meta_boxes->get_fields_for_select( 'plain' );
-		}
-
-		return apply_filters(
-			'jet-engine/listings/dynamic-link/fields',
-			array_merge( array( $default ), $meta_fields )
-		);
+		return $result;
 
 	}
 

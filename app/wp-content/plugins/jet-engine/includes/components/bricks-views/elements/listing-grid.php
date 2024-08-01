@@ -1392,7 +1392,6 @@ class Listing_Grid extends Base {
 		$settings = $this->parse_jet_render_attributes( $this->get_jet_settings() );
 
 		$this->set_attribute( '_root', 'class', 'brxe-' . $this->id );
-		$this->set_attribute( '_root', 'class', 'brxe-jet-listing-el' );
 		$this->set_attribute( '_root', 'class', 'jet-listing-base' );
 		$this->set_attribute( '_root', 'data-element-id', $this->id );
 		$this->set_attribute( '_root', 'data-listing-type', 'bricks' );
@@ -1437,6 +1436,7 @@ class Listing_Grid extends Base {
 		$attrs['pause_on_hover']    = $attrs['pause_on_hover'] ?? false;
 		$attrs['infinite']          = $attrs['infinite'] ?? false;
 		$attrs['not_found_message'] = $attrs['not_found_message'] ?? '';
+		$attrs['_id']               = $this->id;
 
 		return $attrs;
 	}

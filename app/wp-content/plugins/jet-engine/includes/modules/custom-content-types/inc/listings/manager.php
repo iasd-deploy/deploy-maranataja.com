@@ -373,7 +373,7 @@ class Manager {
 		$prefix = $current_object->cct_slug . '__';
 
 		if ( '_permalink' === $field ) {
-			$post_id = ! empty( $current_object->cct_single_post_id ) ? $current_object->cct_single_post_id : get_the_ID();
+			$post_id = $current_object->cct_single_post_id ?? $current_object->{$prefix . 'cct_single_post_id'} ?? get_the_ID();
 
 			if ( $post_id ) {
 				return get_permalink( $post_id );

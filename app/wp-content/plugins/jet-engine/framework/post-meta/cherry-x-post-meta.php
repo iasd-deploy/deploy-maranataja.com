@@ -2,7 +2,7 @@
 /**
  * Post Meta module
  *
- * Version: 1.8.0
+ * Version: 1.8.2
  */
 
 // If this file is called directly, abort.
@@ -76,6 +76,8 @@ if ( ! class_exists( 'Cherry_X_Post_Meta' ) ) {
 				$this->args['page'] = array( $this->args['page'] );
 			}
 
+			$this->args = apply_filters( 'cx_post_meta/args', $this->args, $this );
+
 			$this->init_columns_actions();
 
 			add_action( 'admin_enqueue_scripts', array( $this, 'init_builder' ), 0 );
@@ -96,13 +98,7 @@ if ( ! class_exists( 'Cherry_X_Post_Meta' ) ) {
 		public function init_builder( $hook ) {
 			global $post;
 
-			if ( ! in_array( $hook, array( 'post-new.php', 'post.php' ) ) ) {
-				return;
-			}
-
-			$post_type = get_post_type();
-
-			if ( ! in_array( $post_type, $this->args['page'] ) ) {
+			if ( ! $this->is_allowed_page() ) {
 				return;
 			}
 
@@ -319,6 +315,8 @@ if ( ! class_exists( 'Cherry_X_Post_Meta' ) ) {
 		 * @return void
 		 */
 		public function get_fields( $post ) {
+
+			$post = apply_filters( 'cx_post_meta/get_fields/post', $post, $this );
 
 			if ( is_array( $this->args['single'] ) && isset( $this->args['single']['key'] ) ) {
 				$this->meta_values = get_post_meta( $post->ID, $this->args['single']['key'], true );
@@ -600,6 +598,11 @@ if ( ! class_exists( 'Cherry_X_Post_Meta' ) ) {
 					 */
 					do_action( 'cx_post_meta/before_delete_meta/' . $key, $post_id, $key );
 
+					// Delete all separate fields of repeater.
+					if ( 'repeater' === $field['type'] && ! empty( $field['save_separate'] ) ) {
+						$this->delete_repeater_separate_fields( $post_id, $key, $field );
+					}
+
 					update_post_meta( $post_id, $key, false );
 
 					continue;
@@ -622,6 +625,11 @@ if ( ! class_exists( 'Cherry_X_Post_Meta' ) ) {
 
 				if ( 'textarea' === $field['type'] && false === strpos( $value, "\\" ) ) {
 					$value = wp_slash( $value );
+				}
+
+				// Save the value of each repeater field as a separate field.
+				if ( 'repeater' === $field['type'] && ! empty( $field['save_separate'] ) ) {
+					$this->save_repeater_separate_fields( $post_id, $key, $value, $field );
 				}
 
 				update_post_meta( $post_id, $key, $value );
@@ -760,6 +768,73 @@ if ( ! class_exists( 'Cherry_X_Post_Meta' ) ) {
 
 			return ( empty( $meta ) ) ? $default : $meta[0];
 
+		}
+
+		/**
+		 * Returns the repeater separate field key.
+		 *
+		 * @param $repeater_key
+		 * @param $field_key
+		 *
+		 * @return string
+		 */
+		public function get_repeater_separate_field_key( $repeater_key, $field_key ) {
+			return apply_filters(
+				'cx_post_meta/repeater/separate_field_key',
+				$repeater_key . '_' . $field_key,
+				$repeater_key,
+				$field_key
+			);
+		}
+
+		/**
+		 * Delete all separate fields of repeater.
+		 *
+		 * @param $post_id
+		 * @param $key
+		 * @param $field
+		 */
+		public function delete_repeater_separate_fields( $post_id, $key, $field ) {
+
+			if ( empty( $field['fields'] ) ) {
+				return;
+			}
+
+			foreach ( $field['fields'] as $repeater_field_key => $repeater_field ) {
+				delete_post_meta( $post_id, $this->get_repeater_separate_field_key( $key, $repeater_field_key ) );
+			}
+		}
+
+		/**
+		 * Save the value of each repeater field as a separate field.
+		 *
+		 * @param $post_id
+		 * @param $key
+		 * @param $value
+		 * @param $field
+		 */
+		public function save_repeater_separate_fields( $post_id, $key, $value, $field ) {
+
+			$this->delete_repeater_separate_fields( $post_id, $key, $field );
+
+			if ( empty( $value ) || ! is_array( $value ) ) {
+				return;
+			}
+
+			foreach ( $value as $repeater_item_value ) {
+
+				if ( empty( $repeater_item_value ) ) {
+					continue;
+				}
+
+				foreach ( $repeater_item_value as $repeater_field_key => $repeater_field_value ) {
+					add_post_meta(
+						$post_id,
+						$this->get_repeater_separate_field_key( $key, $repeater_field_key ),
+						$repeater_field_value
+					);
+				}
+			}
 		}
 
 		/**

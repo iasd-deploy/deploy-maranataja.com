@@ -285,6 +285,7 @@ class SQL_Query extends Base_Query {
 		$advanced_query = $this->get_advanced_query();
 
 		if ( $advanced_query ) {
+			$sql = rtrim( $sql );
 			$sql = rtrim( $sql, ';' );
 			$sql = 'SELECT ' . $select . ' FROM ( ' . $sql . ' ) AS advanced_query_result;';
 			return round( $this->wpdb()->get_var( $sql ), $decimal_count );
@@ -416,17 +417,19 @@ class SQL_Query extends Base_Query {
 			if ( ! empty( $this->final_query['include_calc'] ) && ! empty( $this->final_query['calc_cols'] ) ) {
 				foreach ( $this->final_query['calc_cols'] as $col ) {
 
-					if ( empty( $col['function'] ) || empty( $col['column'] ) ) {
+					if ( empty( $col['column'] ) ) {
 						continue;
 					}
 
-					if ( 'custom' === $col['function'] ) {
+					$col_func = ! empty( $col['function'] ) ? $col['function'] : '';
+
+					if ( 'custom' === $col_func ) {
 						$custom_col      = ! empty( $col['custom_col'] ) ? $col['custom_col'] : '%1$s';
 						$prepared_col    = str_replace( '%1$s', $col['column'], $custom_col );
 						$prepared_col    = jet_engine()->listings->macros->do_macros( $prepared_col );
-						$prepared_col_as = sprintf( '%1$s(%2$s)', $col['function'], $col['column'] );
+						$prepared_col_as = sprintf( '%1$s(%2$s)', $col_func, $col['column'] );
 					} else {
-						$prepared_col    = sprintf( '%1$s(%2$s)', $col['function'], $col['column'] );
+						$prepared_col    = sprintf( '%1$s(%2$s)', $col_func, $col['column'] );
 						$prepared_col_as = $prepared_col;
 					}
 
@@ -931,11 +934,13 @@ class SQL_Query extends Base_Query {
 		if ( ! empty( $this->query['include_calc'] ) && ! empty( $this->query['calc_cols'] ) ) {
 			foreach ( $this->query['calc_cols'] as $col ) {
 
-				if ( empty( $col['function'] ) || empty( $col['column'] ) ) {
+				if ( empty( $col['column'] ) ) {
 					continue;
 				}
 
-				$cols[] = sprintf( '%1$s(%2$s)', $col['function'], $col['column'] );
+				$col_func = ! empty( $col['function'] ) ? $col['function'] : '';
+
+				$cols[] = sprintf( '%1$s(%2$s)', $col_func, $col['column'] );
 			}
 		}
 

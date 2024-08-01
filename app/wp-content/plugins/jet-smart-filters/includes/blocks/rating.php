@@ -21,6 +21,21 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Rating' ) ) {
 			return 'rating';
 		}
 
+		public function get_rating_icon( $icon_name = 'star' ) {
+
+			$icon_template = jet_smart_filters()->get_template( 'svg/' . $icon_name . '.svg' );
+
+			if ( ! $icon_template ) {
+				$icon_template = jet_smart_filters()->get_template( 'svg/star.svg' );
+			}
+
+			ob_start();
+			include $icon_template;
+			$icon = ob_get_clean();
+
+			return $icon;
+		}
+
 		public function set_css_scheme() {
 
 			$this->css_scheme = apply_filters(

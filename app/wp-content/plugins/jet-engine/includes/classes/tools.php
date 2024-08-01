@@ -85,6 +85,7 @@ class Jet_Engine_Tools {
 			}
 
 			$url = add_query_arg( $final_query_args, $url );
+
 		}
 
 		return $url;
@@ -633,36 +634,28 @@ class Jet_Engine_Tools {
 
 	public static function get_post_statuses_for_js() {
 
-		return array(
+		$statuses = array(
 			array(
 				'value' => 'any',
 				'label' => __( 'Any', 'jet-engine' ),
 			),
-			array(
-				'value' => 'publish',
-				'label' => __( 'Publish', 'jet-engine' ),
-			),
-			array(
-				'value' => 'pending',
-				'label' => __( 'Pending', 'jet-engine' ),
-			),
-			array(
-				'value' => 'draft',
-				'label' => __( 'Draft', 'jet-engine' ),
-			),
-			array(
-				'value' => 'future',
-				'label' => __( 'Future', 'jet-engine' ),
-			),
-			array(
-				'value' => 'private',
-				'label' => __( 'Private', 'jet-engine' ),
-			),
-			array(
-				'value' => 'trash',
-				'label' => __( 'Trash', 'jet-engine' ),
-			)
 		);
+
+		$labels_map = array(
+			'future' => __( 'Future', 'jet-engine' ),
+		);
+
+		$post_statuses = get_post_stati( array( 'show_in_admin_status_list' => true ), 'objects' );
+		$post_statuses = apply_filters( 'jet-engine/tools/post-statuses', $post_statuses );
+
+		foreach ( $post_statuses as $post_status => $post_status_obj ) {
+			$statuses[] = array(
+				'value' => $post_status,
+				'label' => sprintf( '%s (%s)', $labels_map[ $post_status ] ?? $post_status_obj->label, $post_status ),
+			);
+		}
+
+		return $statuses;
 
 	}
 

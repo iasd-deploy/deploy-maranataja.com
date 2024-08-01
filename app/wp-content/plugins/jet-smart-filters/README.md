@@ -2,6 +2,50 @@
 
 # ChangeLog
 
+## 3.5.3
+
+- UPD: remove font-awesome
+- UPD: JetDashboard to v2.2.0
+- FIX: WooCommerce Shortcode with Query ID
+- FIX: hierarchical filter fatal errore
+- FIX: collapsible filter shift
+- FIX: hide inactive filters
+- FIX: generate new popups after filtering
+- FIX: Add preloader to the first item of the bricks loop
+
+
+## 3.5.2
+
+- FIX: indexer for ePro Posts provider on the archive page
+- FIX: ePro Archive Products with url aliases
+- FIX: URL aliases + dynamic tag
+- FIX: URL Structure Type for different permalink structures
+- FIX: ePro Archive Products + Query ID with url aliases
+- FIX: synchronization of hierarchical filters
+- FIX: Re-initialize Bricks scripts in listing grid after JetSmartFilters filtering
+
+## 3.5.1
+
+- ADD: do_shortcode to ePro loop grid provider No Result Text option
+- UPD: open collapsible checked items on initialization
+- UPD: open the checkbox filter dropdown on top when the page at it's bottom
+- FIX: range filter for safari
+- FIX: html decode for search filter on reload
+- FIX: Indexer + Custom query
+- FIX: added support for native text control in Bricks loop when no results are found.
+
+## 3.5.0
+
+- ADD: SEO & Sitemap Rules
+- ADD: "Add signatures to filters requests" option
+- ADD: pagination 'Hide inactive' option
+- ADD: Additional Settings -> Dropdown -> Add apply button
+- ADD: pagination for JetEngine listing Data Store on AJAX
+- ADD: create/verify request signatures to avoid request hacking
+- ADD: 'jet-smart-filters/range-filter/search-query' filter
+- FIX: twice init the Listing Grid after filtering
+- FIX: error for 3.4.3+ version
+
 ## 3.4.5
 
 - ADD: trimming accidentally entered spaces in the "Custom Field Key"

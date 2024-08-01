@@ -19,10 +19,100 @@ class Jet_Engine_Listing_Admin_Screen {
 		add_action( 'wp_ajax_jet_engine_get_edit_listing_popup', array( $this, 'get_edit_listing_popup' ) );
 		add_action( 'wp_ajax_jet_engine_save_listing_settings', array( $this, 'save_template' ) );
 		add_action( 'admin_action_jet_create_new_listing', array( $this, 'save_template' ) );
+		
+		add_filter( 'views_edit-' . $this->post_type, array( $this, 'set_listing_list_views' ), 999 );
 
 		if ( is_admin() ) {
 			$this->register_admin_columns();
+			add_action( 'pre_get_posts', array( $this, 'apply_views_args' ) );
 		}
+
+	}
+
+	/**
+	 * Update listing items views
+	 * 
+	 * @param [type] $views [description]
+	 */
+	public function set_listing_list_views( $views ) {
+
+		if ( ! get_option( 'jet_engine_set_entry_types' ) ) {
+			
+			$posts = get_posts( [
+				'post_type' => $this->post_type,
+				'posts_per_page' => -1,
+				'fields' => 'ids',
+				'meta_query' => array( array(
+					'key'     => '_entry_type',
+					'value'   => '',
+					'compare' => 'NOT EXISTS',
+				) )
+			] );
+
+			if ( ! empty( $posts ) ) {
+				foreach ( $posts as $post_id ) {
+					update_post_meta( $post_id, '_entry_type', 'listing' );
+				}
+			}
+
+			update_option( 'jet_engine_set_entry_types', 1, false );
+		}
+
+		global $wpdb;
+
+		$counts = $wpdb->get_results( "SELECT pm.meta_value AS entry_type, COUNT(*) AS posts_count FROM {$wpdb->posts} AS p LEFT JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id OR pm.post_id = NULL WHERE p.post_type = '{$this->post_type}' AND p.post_status <> 'trash' AND pm.meta_key = '_entry_type' GROUP BY entry_type;", OBJECT_K );
+		
+		$all_link = $views['all'];
+		
+		unset( $views['all'] );
+		unset( $views['publish'] );
+
+		$base_url = remove_query_arg( 'post_status' );
+
+		$views = array_merge( [ 'all' => $all_link ], apply_filters(
+			'jet-engine/templates/editor-views-list',
+			array(
+				'listing_items' => sprintf(
+					'<a href="%1$s" %3$s>%2$s <span class="count">(%4$s)</span></a>',
+					add_query_arg( [ 'entry_type' => 'listing' ], $base_url ),
+					esc_html__( 'Listing Items', 'jet-engine' ),
+					( ! empty( $_GET['entry_type'] ) && 'listing' === $_GET['entry_type'] ) ? 'class="current" aria-current="page"' : '',
+					isset( $counts['listing'] ) ? $counts['listing']->posts_count : 0
+				),
+			),
+			$counts,
+			$base_url
+		) ,$views );
+		
+		return $views;
+	}
+
+	/**
+	 * Apply views arguments to the query
+	 * 
+	 * @return [type] [description]
+	 */
+	public function apply_views_args( $query ) {
+		if ( 
+			empty( $_GET['entry_type'] )
+			|| empty( $_GET['post_type'] )
+			|| $this->post_type !== $_GET['post_type']
+			|| $this->post_type !== $query->get( 'post_type' ) 
+		) {
+			return;
+		}
+
+		$entry_type = sanitize_text_field( $_GET['entry_type'] );
+
+		$meta_query = array(
+			array(
+				'key'   => '_entry_type',
+				'value' => $entry_type
+			)
+		);
+
+		$query->set( 'meta_query', $meta_query );
+
 	}
 
 	/**
@@ -126,11 +216,16 @@ class Jet_Engine_Listing_Admin_Screen {
 			'meta_input'  => array(),
 		);
 
-		$is_edit = false;
+		$entry_type   = 'listing';
+		$is_edit      = false;
 		$default_view = 'elementor';
 
+		if ( ! empty( $_REQUEST['template_entry_type'] ) ) {
+			$entry_type = esc_attr( $_REQUEST['template_entry_type'] );
+		}
+
 		if ( ! empty( $_REQUEST['_listing_id'] ) ) {
-			
+
 			if ( ! current_user_can( 'edit_post', $_REQUEST['_listing_id'] ) ) {
 				$this->send_request_error( esc_html__( 'You don\'t have permissions to do this', 'jet-engine' ) );
 			}
@@ -161,6 +256,7 @@ class Jet_Engine_Listing_Admin_Screen {
 			'tax'       => $tax,
 		);
 
+		$post_data['meta_input']['_entry_type']   = $entry_type;
 		$post_data['meta_input']['_listing_data'] = $listing;
 		$post_data['meta_input']['_listing_type'] = $view_type;
 		$post_data['meta_input']['_elementor_page_settings']['listing_source'] = $source;
@@ -302,22 +398,40 @@ class Jet_Engine_Listing_Admin_Screen {
 	}
 
 	public function get_settings_button( $post_id ) {
-		return sprintf(
+
+		$edit_settings_button = sprintf(
 			'<button type="button" class="button button-small jet-engine-listing-edit-settings" data-listing-id="%1$s">%2$s<span class="spinner"></span></button>',
 			$post_id,
 			__( 'Edit Listing Settings', 'jet-engine' )
 		);
+
+		return apply_filters( 'jet-engine/templates/edit-settings-button', $edit_settings_button, $post_id );
 	}
 
-	public function get_listing_popup( $listing_id = false ) {
-		
-		$action = add_query_arg(
+	/**
+	 * Get URL of form action to create new listing/component
+	 * 
+	 * @return [type] [description]
+	 */
+	public function get_listing_popup_action() {
+		return add_query_arg(
 			array(
 				'action' => 'jet_create_new_listing',
 				'_nonce' => wp_create_nonce( $this->get_nonce_action() ),
 			),
 			esc_url( admin_url( 'admin.php' ) )
 		);
+	}
+
+	/**
+	 * Get listing popup content
+	 * 
+	 * @param  boolean $listing_id [description]
+	 * @return [type]              [description]
+	 */
+	public function get_listing_popup( $listing_id = false ) {
+		
+		$action = $this->get_listing_popup_action();
 
 		$sources = jet_engine()->listings->post_type->get_listing_item_sources();
 		$views   = jet_engine()->listings->post_type->get_listing_views();

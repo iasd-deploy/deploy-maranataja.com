@@ -1,5 +1,4 @@
 <?php
-
 namespace Jet_Engine\Bricks_Views\Elements;
 
 use Jet_Engine\Bricks_Views\Helpers\Controls_Hook_Bridge;
@@ -10,7 +9,16 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+if ( ! trait_exists( 'Jet_Engine_Get_Data_Sources_Trait' ) ) {
+	require_once jet_engine()->plugin_path( 'includes/traits/get-data-sources.php' );
+}
+
 class Dynamic_Image extends Base {
+
+	use \Jet_Engine_Get_Data_Sources_Trait;
+
+	public static $dynamic_sources = [];
+
 	// Element properties
 	public $category = 'jetengine'; // Use predefined element category 'general'
 	public $name = 'jet-engine-listing-dynamic-image'; // Make sure to prefix your elements
@@ -50,7 +58,7 @@ class Dynamic_Image extends Base {
 
 		$this->start_jet_control_group( 'content' );
 
-		$dynamic_image_source = $this->get_dynamic_sources( 'media' );
+		$dynamic_image_source = $this->get_formatted_dynamic_sources( 'media' );
 
 		if ( ! empty( $dynamic_image_source ) ) {
 
@@ -91,7 +99,7 @@ class Dynamic_Image extends Base {
 			'dynamic_image_source_custom',
 			[
 				'tab'         => 'content',
-				'label'       => esc_html__( 'Custom meta field/repeater key', 'jet-engine' ),
+				'label'       => esc_html__( 'Custom field/repeater key/component control', 'jet-engine' ),
 				'type'        => 'text',
 				'description' => esc_html__( 'Note: this field will override Source value', 'jet-engine' ),
 			]
@@ -141,7 +149,7 @@ class Dynamic_Image extends Base {
 			]
 		);
 
-		$image_link_source = $this->get_dynamic_sources( 'plain' );
+		$image_link_source = $this->get_formatted_dynamic_sources( 'plain' );
 
 		if ( ! empty( $image_link_source ) ) {
 
@@ -188,7 +196,7 @@ class Dynamic_Image extends Base {
 			'image_link_source_custom',
 			[
 				'tab'         => 'content',
-				'label'       => esc_html__( 'Custom meta field/repeater key', 'jet-engine' ),
+				'label'       => esc_html__( 'Custom field/repeater key/component control', 'jet-engine' ),
 				'type'        => 'text',
 				'description' => esc_html__( 'Note: this field will override Meta Field value', 'jet-engine' ),
 				'required'    => [ 'linked_image', '=', true ],
@@ -332,48 +340,32 @@ class Dynamic_Image extends Base {
 	}
 
 	// Get meta fields for post type
-	public function get_dynamic_sources( $for = 'media' ) {
+	public function get_formatted_dynamic_sources( $for = 'media' ) {
 
-		if ( 'media' === $for ) {
-			$default = array(
-				'label'   => esc_html__( 'General', 'jet-engine' ),
-				'options' => array(
-					'post_thumbnail' => esc_html__( 'Post thumbnail', 'jet-engine' ),
-					'user_avatar'    => esc_html__( 'User avatar', 'jet-engine' ),
-				),
-			);
-		} else {
-			$default = array(
-				'label'   => esc_html__( 'General', 'jet-engine' ),
-				'options' => array(
-					'_permalink' => esc_html__( 'Permalink', 'jet-engine' ),
-				),
-			);
+		if ( ! isset( self::$dynamic_sources[ $for ] ) ) {
 
-			if ( jet_engine()->modules->is_module_active( 'profile-builder' ) ) {
-				$default['options']['profile_page'] = esc_html__( 'Profile Page', 'jet-engine' );
+			$raw = $this->get_dynamic_sources( $for );
+			$formatted = [];
+
+			foreach ( $raw as $group ) {
+				$formatted[] = [
+					'label'   => $group['label'],
+					'options' => array_combine(
+						array_map( function( $item ) {
+							return $item['value'];
+						}, $group['values'] ),
+						array_map( function( $item ) {
+							return $item['label'];
+						}, $group['values'] )
+					),
+				];
 			}
 
+			self::$dynamic_sources[ $for ] = $formatted;
+
 		}
 
-		$result      = array();
-		$meta_fields = array();
-
-		if ( jet_engine()->meta_boxes ) {
-			$meta_fields = jet_engine()->meta_boxes->get_fields_for_select( $for );
-		}
-
-		if ( jet_engine()->options_pages ) {
-			$default['options']['options_page'] = esc_html__( 'Options', 'jet-engine' );
-		}
-
-		$result = apply_filters(
-			'jet-engine/listings/dynamic-image/fields',
-			array_merge( array( $default ), $meta_fields ),
-			$for
-		);
-
-		return $result;
+		return self::$dynamic_sources[ $for ];
 
 	}
 

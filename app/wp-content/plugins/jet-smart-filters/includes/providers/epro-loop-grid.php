@@ -98,7 +98,7 @@ class Jet_Smart_Filters_Provider_EPro_Loop_Grid extends Jet_Smart_Filters_Provid
 					'text'      => 'jet-smart-filters-elementor-loop-no-result'
 				));
 
-				echo '<div class="' . $classes['container'] . '"><div class="' . $classes['text'] . '">' . $no_result_text . '</div></div>';
+				echo '<div class="' . $classes['container'] . '"><div class="' . $classes['text'] . '">' . do_shortcode( $no_result_text ) . '</div></div>';
 			}
 		}
 	}
@@ -473,7 +473,7 @@ class Jet_Smart_Filters_Provider_EPro_Loop_Grid extends Jet_Smart_Filters_Provid
 
 		}
 
-		if ( isset( $query_args['post_type'] ) && $query_args['post_type'] === 'product' ) {
+		if ( isset( $query_args['post_type'] ) && $query_args['post_type'] === 'product' && function_exists( 'WC' ) ) {
 			foreach ( ['orderby', 'order'] as $value ) {
 				if ( array_key_exists( $value, $args ) ) {
 					WC()->query->remove_ordering_args();

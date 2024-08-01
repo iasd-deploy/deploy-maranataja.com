@@ -167,16 +167,18 @@ class Factory {
 				$operator = ! empty( $arg['operator'] ) ? $arg['operator'] : '=';
 				$value    = ! empty( $arg['value'] ) ? $arg['value'] : '';
 
-				if ( ! is_array( $value ) ) {
+				$array_operators = array( 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' );
+
+				if ( ! is_array( $value ) && in_array( $operator, $array_operators ) ) {
 					$value = preg_split( '/(?<=[^,]),[\s]?/', $value );
-				}
 
-				array_walk( $value, function( &$item ) {
-					$item = str_replace( ',,', ',', $item );
-				});
+					array_walk( $value, function( &$item ) {
+						$item = str_replace( ',,', ',', $item );
+					});
 
-				if ( 1 === count( $value ) ) {
-					$value = $value[0];
+					if ( 1 === count( $value ) ) {
+						$value = $value[0];
+					}
 				}
 
 				$arg['value'] = $value;
@@ -586,6 +588,7 @@ class Factory {
 
 					if ( 'checkbox' === $field['type'] ) {
 						$field['type'] = 'checkbox-raw';
+						$field['is_required'] = false;
 					}
 
 					$this->_quick_edit_columns[ $field['name'] ] = $field;

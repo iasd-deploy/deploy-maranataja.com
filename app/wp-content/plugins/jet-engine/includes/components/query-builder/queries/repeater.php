@@ -216,7 +216,7 @@ class Repeater_Query extends Base_Query {
 				}
 
 				$compare = ! empty( $clause['compare'] ) ? $clause['compare'] : '=';
-				$value   = ! \Jet_Engine_Tools::is_empty( $clause['value'] ) ? $clause['value'] : '';
+				$value   = ! \Jet_Engine_Tools::is_empty( $clause, 'value' ) ? $clause['value'] : '';
 
 				$matched = false;
 

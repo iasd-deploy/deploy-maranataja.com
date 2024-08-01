@@ -25,6 +25,18 @@
 		>
 			<div
 				slot="before-actions"
+				v-if="! fieldIsValid( field )"
+				class="jet-engine-field-warning"
+			>
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.71489 10.1136V6.71605H7.28511V10.1136H8.71489ZM8.71489 13.4716V11.7728H7.28511V13.4716H8.71489ZM0 16L8 0L16 16H0Z"/></svg>
+				<div
+					class="jet-engine-field-warning__tip"
+				>
+					{{ fieldIsValid( field, 'error' ) }}
+				</div>
+			</div>
+			<div
+				slot="before-actions"
 				v-if="showCondition( field )"
 				@click="showConditionPopup( index )"
 				:class="{
@@ -51,6 +63,7 @@
 				:disabled-fields="disabledFields"
 				:fields-names="fieldsNames"
 				:slug-delimiter="slugDelimiter"
+				:reservedNames="reservedNames"
 				@show-condition-popup="showConditionPopup( index )"
 				@show-repeater-condition-popup="showConditionPopup( index, $event )"
 			/>

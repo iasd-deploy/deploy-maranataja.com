@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.7.2' );
+define( 'W3TC_VERSION', '2.7.4' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -44,8 +44,8 @@ define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 
 // Image Service rate constants.
-define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );
-define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 1000 );
+define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 10 );
+define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 100 );
 define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', 10000 );
 define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 0 );
 
@@ -194,17 +194,26 @@ function w3tc_class_autoload( $class ) {
 			require $filename;
 			return;
 		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			echo esc_html(
-				sprintf(
-					// translators: 1 class name, 2 file name.
-					__(
-						'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-						'w3-total-cache'
-					),
-					$class,
-					$filename
-				)
-			);
+			if ( function_exists( 'esc_html' ) && function_exists( '__' ) ) {
+				echo esc_html(
+					sprintf(
+						// translators: 1 class name, 2 file name.
+						__(
+							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
+							'w3-total-cache'
+						),
+						$class,
+						$filename
+					)
+				);
+			} else {
+				printf(
+					'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
+					$class, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$filename // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			}
+
 			debug_print_backtrace();
 		}
 	}

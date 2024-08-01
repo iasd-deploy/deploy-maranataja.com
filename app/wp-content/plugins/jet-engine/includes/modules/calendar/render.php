@@ -24,7 +24,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 		}
 
 		public function default_settings() {
-			return array(
+			return apply_filters( 'jet-engine/calendar/render/default-settings', array(
 				'lisitng_id'               => '',
 				'group_by'                 => 'post_date',
 				'group_by_key'             => '',
@@ -46,7 +46,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 				'custom_query'             => false,
 				'custom_query_id'          => null,
 				'_element_id'              => '',
-			);
+			));
 		}
 
 		/**
@@ -179,7 +179,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 						$meta_key = esc_attr( $settings['group_by_key'] );
 						$multiday = isset( $settings['allow_multiday'] ) ? $settings['allow_multiday'] : '';
 						$end_key  = isset( $settings['end_date_key'] ) ? $settings['end_date_key'] : false;
-						
+
 						if ( ! $end_key ) {
 							$end_key = Jet_Engine_Advanced_Date_Field::instance()->data->end_date_field_name(
 								$meta_key 
@@ -212,7 +212,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 							$keys = [ $keys ];
 						}
 
-						if ( $end_dates && ! is_array( $keys ) ) {
+						if ( $end_dates && ! is_array( $end_dates ) ) {
 							$end_dates = [ $end_dates ];
 						}
 
@@ -416,7 +416,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 				$pad = 7 - abs( $pad );
 			}
 
-			$data_settings = array(
+			$data_settings = apply_filters( 'jet-engine/calendar/render/widget-settings', array(
 				'lisitng_id'               => isset( $settings['lisitng_id'] ) ? $settings['lisitng_id'] : false,
 				'week_days_format'         => $days_format,
 				'allow_multiday'           => $multiday,
@@ -435,7 +435,7 @@ if ( ! class_exists( 'Jet_Listing_Render_Calendar' ) ) {
 				'custom_query'             => isset( $settings['custom_query'] ) ? $settings['custom_query'] : false,
 				'custom_query_id'          => isset( $settings['custom_query_id'] ) ? $settings['custom_query_id'] : false,
 				'_element_id'              => isset( $settings['_element_id'] ) ? $settings['_element_id'] : '',
-			);
+			), $settings );
 
 			$data_settings = htmlspecialchars( json_encode( $data_settings ) );
 

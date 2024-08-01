@@ -143,6 +143,7 @@ if ( ! class_exists( 'Jet_Engine_Listings_Ajax_Handlers' ) ) {
 						if ( $widget ) {
 							$widget_instance = $elementor->elements_manager->create_element_instance( $widget );
 							$widget_settings = $widget_instance->get_settings_for_display();
+							$widget_settings['_id'] = $element_id;
 							//$_REQUEST['query'] = null;
 						}
 
@@ -204,14 +205,15 @@ if ( ! class_exists( 'Jet_Engine_Listings_Ajax_Handlers' ) ) {
 
 			ob_start();
 
-			$base_class       = 'jet-listing-grid';
-			$equal_cols_class = '';
+			$base_class        = 'jet-listing-grid';
+			$equal_cols_class  = '';
+			$equal_cols_height = ! empty( $widget_settings['equal_columns_height'] ) ? filter_var( $widget_settings['equal_columns_height'], FILTER_VALIDATE_BOOLEAN ) : false;
 
-			if ( ! empty( $widget_settings['equal_columns_height'] ) ) {
+			if ( $equal_cols_height ) {
 				$equal_cols_class = 'jet-equal-columns';
 			}
 
-			jet_engine()->listings->data->set_listing_by_id( $widget_settings['lisitng_id'] );
+			jet_engine()->listings->data->set_listing_by_id( absint( $widget_settings['lisitng_id'] ) );
 
 			$listing_source = jet_engine()->listings->data->get_listing_source();
 			$page           = ! empty( $_REQUEST['page'] ) ? absint( $_REQUEST['page'] ) : 1;

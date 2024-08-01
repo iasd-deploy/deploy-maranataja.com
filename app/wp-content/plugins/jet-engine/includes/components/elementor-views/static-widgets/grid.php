@@ -57,7 +57,19 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Grid_Widget' ) ) {
 						'handler' => 'JetListings',
 					),
 					'query'         => array(
-						'post_type' => jet_engine()->post_type->slug(),
+						'post_type'  => jet_engine()->post_type->slug(),
+						'meta_query' => [
+							'relation' => 'or',
+							[
+								'key'     => '_entry_type',
+								'value'   => '',
+								'compare' => 'NOT EXISTS',
+							],
+							[
+								'key'     => '_entry_type',
+								'value'   => 'listing',
+							],
+						],
 					),
 					'prevent_looping' => true,
 				)
@@ -451,7 +463,7 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Grid_Widget' ) ) {
 				'custom_query_id',
 				array(
 					'label'   => __( 'Custom Query', 'jet-engine' ),
-					'type'    => Controls_Manager::SELECT,
+					'type'    => Controls_Manager::SELECT2,
 					'default' => '',
 					'options' => \Jet_Engine\Query_Builder\Manager::instance()->get_queries_for_options(),
 					'condition' => array(

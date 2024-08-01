@@ -22,6 +22,14 @@ trait Meta_Query_Trait {
 
 		foreach ( $raw as $query_row ) {
 
+			if ( ! empty( $query_row['compare'] )
+				 && in_array( $query_row['compare'], array( 'IN', 'NOT IN' ) )
+				 && ! is_array( $query_row['value'] )
+			) {
+				$query_row['value'] = explode( ',', $query_row['value'] );
+				$query_row['value'] = array_map( 'trim', $query_row['value'] );
+			}
+
 			if ( ! empty( $query_row['type'] ) && 'TIMESTAMP' === $query_row['type'] ) {
 				$query_row['type']  = 'NUMERIC';
 				$query_row['value'] = \Jet_Engine_Tools::is_valid_timestamp( $query_row['value'] ) ? $query_row['value'] : strtotime( $query_row['value'] );

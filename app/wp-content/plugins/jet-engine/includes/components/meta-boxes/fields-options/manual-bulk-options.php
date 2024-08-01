@@ -41,7 +41,7 @@ class Manual_Bulk_Options extends Manual_Options {
 		$raw = ! empty( $field['bulk_options'] ) ? $field['bulk_options'] : '';
 		$result = [];
 
-		$raw = explode( PHP_EOL, $raw );
+		$raw = preg_split( '/\r\n|\r|\n/', $raw );
 
 		if ( empty( $raw ) ) {
 			return $result;

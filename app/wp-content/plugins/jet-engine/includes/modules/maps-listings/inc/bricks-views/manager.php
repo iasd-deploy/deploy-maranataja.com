@@ -50,7 +50,8 @@ class Manager {
 		$settings = [];
 
 		if ( $page_id && $element_id ) {
-			$settings = Helpers::get_element_settings( $page_id, $element_id );
+			$settings        = Helpers::get_element_settings( $page_id, $element_id );
+			$settings['_id'] = $element_id;
 		}
 
 		jet_engine()->bricks_views->listing->render->set_bricks_query( $listing_id, $settings );

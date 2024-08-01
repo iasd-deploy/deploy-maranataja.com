@@ -28,7 +28,10 @@ if ( '' !== $args['button_icon'] ) {
 	<div class="jet-date-period__wrapper">
 		<div class="jet-date-period__prev" <?php echo jet_smart_filters()->data->get_tabindex_attr(); ?>><i class="fa fa-chevron-left" aria-hidden="true"></i></div>
 		<div class="jet-date-period__datepicker date">
-			<div class="jet-date-period__datepicker-button input-group-addon" <?php echo jet_smart_filters()->data->get_tabindex_attr(); ?>><?php echo $datepicker_button_text ?></div>
+			<div class="jet-date-period__datepicker-button input-group-addon" <?php echo jet_smart_filters()->data->get_tabindex_attr(); ?>>
+				<?php echo $datepicker_button_text ?>
+				<?php include jet_smart_filters()->get_template( 'svg/angle-down.svg' ); ?>
+			</div>
 			<input
 				class="jet-date-period__datepicker-input"
 				name="<?php echo $query_var; ?>"

@@ -28,8 +28,12 @@ class Jet_Smart_Filters_Admin_Setting_Pages {
 				'class' => 'Jet_Smart_Filters_Admin_Setting_Page_URL_Structure',
 				'args'  => array(),
 			),
-			'jet-smart-filters-ajax-request-type' => array(
-				'class' => 'Jet_Smart_Filters_Admin_Setting_Page_Ajax_Request_Type',
+			'jet-smart-filters-seo-rules-settings' => array(
+				'class' => 'Jet_Smart_Filters_Admin_Setting_Page_Seo_Rules',
+				'args'  => array(),
+			),
+			'jet-smart-filters-ajax-request-settings' => array(
+				'class' => 'Jet_Smart_Filters_Admin_Setting_Page_Ajax_Request_Settings',
 				'args'  => array(),
 			),
 			'jet-smart-filters-accessibility-settings' => array(
@@ -61,7 +65,8 @@ class Jet_Smart_Filters_Admin_Setting_Pages {
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/general.php' );
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/indexer.php' );
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/url-structure.php' );
-		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/ajax-request-type.php' );
+		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/seo-rules.php' );
+		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/ajax-request-settings.php' );
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/accessibility-settings.php' );
 		require jet_smart_filters()->plugin_path( 'admin/setting-pages/pages/provider-preloader.php' );
 

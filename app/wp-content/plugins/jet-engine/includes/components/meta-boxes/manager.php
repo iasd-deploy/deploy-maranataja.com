@@ -149,7 +149,7 @@ if ( ! class_exists( 'Jet_Engine_Meta_Boxes' ) ) {
 			add_action(
 				'jet-engine/post-types/meta-fields',
 				function() {
-					echo '<jet-meta-fields v-model="metaFields"></jet-meta-fields>';
+					echo '<jet-meta-fields v-model="metaFields" :reserved-names="reservedFieldsNames" :field-validation-callback="validateFieldName" :hide-options="getHiddenOptions()"></jet-meta-fields>';
 				}
 			);
 

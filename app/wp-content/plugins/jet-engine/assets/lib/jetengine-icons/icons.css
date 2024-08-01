@@ -85,6 +85,9 @@
 .jet-engine-icon-layout-switcher:before {
 	content: "\e913";
 }
+.jet-engine-icon-component:before {
+	content: "\e914";
+}
 
 .category-jetsmartfilters .bricks-add-element .element-icon {
 	font-size: 26px;

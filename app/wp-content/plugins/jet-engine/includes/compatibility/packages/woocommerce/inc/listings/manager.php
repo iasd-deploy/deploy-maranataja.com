@@ -925,7 +925,7 @@ class Manager {
 
 		$_product = $this->maybe_convert_object_to_wc_product( $object );
 
-		if ( is_callable( [ $_product, $property ] ) ) {
+		if ( is_a( $_product, 'WC_Product' ) && is_callable( [ $_product, $property ] ) ) {
 			return call_user_func( [ $_product, $property ] );
 		} else {
 			$result = $this->get_wc_product_method_with_param( null, $property, $_product );

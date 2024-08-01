@@ -6,8 +6,9 @@ namespace Jet_Engine\Blocks_Views\Dynamic_Content;
  */
 class Dynamic_Block_Parser {
 
-	private $block;
-	private $attrs;
+	public $block;
+	public $attrs;
+	public $data;
 
 	public function __construct( $block, $attrs, $data ) {
 		$this->block = $block;

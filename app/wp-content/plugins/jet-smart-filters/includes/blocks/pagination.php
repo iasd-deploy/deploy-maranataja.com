@@ -535,9 +535,12 @@ if ( ! class_exists( 'Jet_Smart_Filters_Block_Pagination' ) ) {
 			}
 
 			if ( $nav_enabled ) {
-				$controls['nav_enabled'] = true;
-				$controls['prev']        = $settings['prev_text'];
-				$controls['next']        = $settings['next_text'];
+				$controls['nav_enabled']       = true;
+				$controls['prev']              = $settings['prev_text'];
+				$controls['next']              = $settings['next_text'];
+				$controls['hide_inactive_nav'] = isset( $settings['hide_inactive_prev_next'] )
+					? filter_var( $settings['hide_inactive_prev_next'], FILTER_VALIDATE_BOOLEAN )
+					: false;
 			} else {
 				$controls['nav_enabled'] = false;
 			}

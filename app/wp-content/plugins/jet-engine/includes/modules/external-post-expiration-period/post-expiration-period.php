@@ -37,7 +37,7 @@ class Jet_Engine_Module_Post_Expiration_Period extends Jet_Engine_External_Modul
 	 * @return string
 	 */
 	public function module_name() {
-		return __( 'Post expiration period', 'jet-engine' );
+		return __( 'Post Expiration Period', 'jet-engine' );
 	}
 
 	/**

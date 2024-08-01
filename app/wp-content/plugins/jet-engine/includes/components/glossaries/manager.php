@@ -33,6 +33,7 @@ class Manager {
 		require_once $this->component_path( 'settings.php' );
 		require_once $this->component_path( 'forms.php' );
 		require_once $this->component_path( 'filters.php' );
+		require_once $this->component_path( 'fixer.php' );
 
 		$this->settings    = new Settings();
 		$this->forms       = new Forms();

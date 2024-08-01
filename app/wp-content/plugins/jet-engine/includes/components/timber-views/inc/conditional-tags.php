@@ -21,6 +21,7 @@ class Conditional_Tags {
 	 * - call conditions checker inside this function
 	 */
 	public function __construct() {
+		add_action( 'jet-engine/twig-views/editor/before-enqueue-assets', [ $this, 'conditions_assets' ] );
 		add_action( 'jet-engine/twig-views/editor/custom-actions', [ $this, 'register_conditional_tags_action' ] );
 		add_filter( 'timber/twig', [ $this, 'add_functions' ] );
 	}
@@ -54,12 +55,17 @@ class Conditional_Tags {
 
 	}
 
-	public function register_conditional_tags_action() {
+	/**
+	 * Enqueue conditions-specific assets
+	 * 
+	 * @return [type] [description]
+	 */
+	public function conditions_assets() {
 
 		wp_enqueue_script(
 			'jet-engine-timber-editor-conditions', 
 			Package::instance()->package_url( 'assets/js/conditions-editor.js' ),
-			[ 'jet-engine-timber-editor' ],
+			[ 'jquery', 'cx-vue-ui' ],
 			jet_engine()->get_version(),
 			true
 		);
@@ -82,11 +88,13 @@ class Conditional_Tags {
 				'twig_notice'     => __( 'More details about the conditional logic in the official <a href="https://twig.symfony.com/doc/2.x/tags/if.html" target="_blank">Twig documentation</a>', 'jet-engine' ),
 			]
 		);
+	}
 
+	public function register_conditional_tags_action() {
 		?>
 		<jet-engine-timber-editor-conditions 
 			@insert="insertDynamicData"
-		></jet-engine-timber-dynamic-data>
+		></jet-engine-timber-editor-conditions>
 		<?php
 	}
 

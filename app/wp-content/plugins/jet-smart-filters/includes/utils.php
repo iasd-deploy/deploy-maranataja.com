@@ -141,7 +141,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Utils' ) ) {
 
 				if ( 'post__in' === $key ) {
 					if ( ! is_array( $value ) ) {
-						$value = array( $value );
+						$value = ! empty( $value ) ? array( $value ) : array();
 					}
 
 					if ( ! empty( $current_query_args[ $key ] ) ) {
@@ -314,7 +314,9 @@ if ( ! class_exists( 'Jet_Smart_Filters_Utils' ) ) {
 					break;
 			}
 
-			return $result;
+			return jet_smart_filters()->URL_aliases->use_url_aliases
+				? jet_smart_filters()->URL_aliases->apply_aliases_to_url( $result )
+				: $result;
 		}
 
 		/**

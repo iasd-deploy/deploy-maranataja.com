@@ -187,6 +187,7 @@ if ( ! class_exists( 'Jet_Engine_Modules' ) ) {
 				'Jet_Engine_Module_Custom_Visibility_Conditions' => $path . 'external-custom-visibility-conditions/custom-visibility-conditions.php',
 				'Jet_Engine_Module_Trim_Callback'                => $path . 'external-trim-callback/trim-callback.php',
 				'Jet_Engine_Module_Post_Expiration_Period'       => $path . 'external-post-expiration-period/post-expiration-period.php',
+				'Jet_Engine_Module_Layout_Switcher'              => $path . 'external-layout-switcher/layout-switcher.php',
 
 			) );
 

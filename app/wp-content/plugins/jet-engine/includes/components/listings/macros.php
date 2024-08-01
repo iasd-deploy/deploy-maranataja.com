@@ -185,7 +185,7 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 			switch ( $class ) {
 
 				case 'WP_Post':
-					return get_post_meta( $object->ID, $meta_key, true );
+					return jet_engine()->listings->data->get_meta( $meta_key );
 
 				case 'WP_Term':
 					return get_term_meta( $object->term_id, $meta_key, true );

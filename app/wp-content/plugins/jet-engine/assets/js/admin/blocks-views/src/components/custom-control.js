@@ -4,8 +4,19 @@ const {
 	SelectControl,
 	ToggleControl,
 	TextControl,
-	TextareaControl
+	TextareaControl,
+	ColorPalette,
+	BaseControl,
+	Button,
+	Flex,
+	FlexBlock,
+	FlexItem
 } = wp.components;
+
+const {
+	MediaUpload,
+	MediaUploadCheck
+} = wp.blockEditor;
 
 const {
 	Component,
@@ -63,7 +74,7 @@ class CustomControl extends Component {
 		return ( htmlDescription && <p
 			className="components-base-control__help"
 			style={ {
-			    fontSize: '12px',
+				fontSize: '12px',
 				fontStyle: 'normal',
 				color: 'rgb(117, 117, 117)',
 				margin: '-7px 0 20px',
@@ -87,6 +98,8 @@ class CustomControl extends Component {
 
 		let htmlDescription = ( control.has_html && control.description ) ? control.description : '';
 		let description     = ( ! htmlDescription && control.description  ) ? control.description : '';
+
+		const uid = Math.floor( Math.random() * 89999 ) + 10000;
 
 		switch ( control.type ) {
 
@@ -191,6 +204,80 @@ class CustomControl extends Component {
 						dangerouslySetInnerHTML={{ __html: control.raw }}
 					></p>
 				</Fragment>;
+
+			case 'color':
+
+				const colorPalette = wp.data.select( 'core/block-editor' ).getSettings().colors;
+
+				return <BaseControl
+						label={ control.label }
+						id={ 'color_label_' + uid }
+					>
+					<ColorPalette
+						colors={ colorPalette }
+						value={ value }
+						ariaLabel={ control.label }
+						id={ 'color_label_' + uid }
+						onChange={ newValue => {
+							onChange( newValue );
+						} }
+					/>
+				</BaseControl>;
+
+			case 'media':
+
+				const mediaId = value.id || false;
+
+				return <BaseControl
+					label={ control.label }
+					id={ 'media_label_' + uid }
+				>
+					<Flex
+						align="flex-start"
+					>
+						<FlexItem>
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={ ( media ) => {
+										onChange( {
+											id: media.id,
+											url: media.url,
+											thumb: media.sizes.thumbnail.url
+										} );
+									} }
+									type="image"
+									value={ value.id || false }
+									render={ ( { open } ) => (
+										<Button
+											isSecondary
+											icon="edit"
+											onClick={ open }
+										>Select Image</Button>
+									)}
+								/>
+							</MediaUploadCheck>
+							{ undefined !== value.id &&
+								<div>
+									<Button
+										style={ { marginTop: '5px' } }
+										onClick={ () => {
+											onChange( { id: false } );
+										} }
+										isLink
+										isDestructive
+									>
+										Clear
+									</Button>
+								</div>
+							}
+						</FlexItem>
+						<FlexItem>
+						{ undefined !== value.thumb &&
+							<img src={ value.thumb } width="80px" height="auto" />
+						}
+						</FlexItem>
+					</Flex>
+				</BaseControl>;
 
 			default:
 				return <Fragment>

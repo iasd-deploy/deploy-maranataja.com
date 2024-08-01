@@ -98,7 +98,10 @@ if ( ! class_exists( 'Jet_Engine_Base_Data' ) ) {
 			}
 
 			$item = $this->sanitize_item_from_request();
-			$id   = $this->update_item_in_db( $item );
+
+			$this->before_item_update( $item, true );
+
+			$id = $this->update_item_in_db( $item );
 
 			$this->after_item_update( $item, true );
 

@@ -37,7 +37,7 @@ class Jet_Engine_Module_Custom_Visibility_Conditions extends Jet_Engine_External
 	 * @return string
 	 */
 	public function module_name() {
-		return __( 'Custom visibility conditions', 'jet-engine' );
+		return __( 'Custom Visibility Conditions', 'jet-engine' );
 	}
 
 	/**

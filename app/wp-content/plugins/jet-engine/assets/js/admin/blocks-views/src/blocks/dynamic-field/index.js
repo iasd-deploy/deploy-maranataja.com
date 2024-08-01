@@ -79,6 +79,15 @@ registerBlockType( 'jet-engine/dynamic-field', {
 			};
 		}
 
+		// Unset component controls do avoid request overloading
+		if ( listing.component_controls_list ) {
+			delete listing.component_controls_list;
+		}
+
+		if ( listing.component_style_controls_list ) {
+			delete listing.component_style_controls_list;
+		}
+
 		return [
 			props.isSelected && (
 					<InspectorControls
@@ -143,18 +152,16 @@ registerBlockType( 'jet-engine/dynamic-field', {
 								/>
 							}
 
-							{ -1 !== ['object', 'meta', 'repeater_field'].indexOf( attributes.dynamic_field_source ) &&
-								<TextControl
-									type="text"
-									label={ __("Custom Object field / Meta field / Repeater key") }
-									value={ attributes.dynamic_field_post_meta_custom }
-									onChange={ newValue =>
-										props.setAttributes({
-											dynamic_field_post_meta_custom: newValue
-										})
-									}
-								/>
-							}
+							<TextControl
+								type="text"
+								label={ __("Object field / Meta field / Repeater key / Component prop") }
+								value={ attributes.dynamic_field_post_meta_custom }
+								onChange={ newValue =>
+									props.setAttributes({
+										dynamic_field_post_meta_custom: newValue
+									})
+								}
+							/>
 
 							{ 'acf_field_groups' === attributes.dynamic_field_source && undefined !== window.JetEngineListingData.acfFields &&
 								<GroupedSelectControl

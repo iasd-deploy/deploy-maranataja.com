@@ -80,9 +80,9 @@ class User_Ip_Store extends Base_Store {
 	}
 
 	/**
-	 * Get post IDs from store
+	 * Get post IDs from store (unfiltered)
 	 */
-	public function get( $store_id ) {
+	public function get_unfiltered( $store_id ) {
 
 		$val = $this->db->query( array(
 			'store_id' => $store_id,
@@ -95,7 +95,14 @@ class User_Ip_Store extends Base_Store {
 			$store = array();
 		}
 
-		return apply_filters( 'jet-engine/data-stores/store/data', $store, $store_id );
+		return $store;
+	}
+
+	/**
+	 * Get post IDs from store
+	 */
+	public function get( $store_id ) {
+		return apply_filters( 'jet-engine/data-stores/store/data', $this->get_unfiltered( $store_id ), $store_id );
 	}
 
 	/**
@@ -103,7 +110,7 @@ class User_Ip_Store extends Base_Store {
 	 */
 	public function add_to_store( $store_id, $post_id ) {
 
-		$store = $this->get( $store_id );
+		$store = $this->get_unfiltered( $store_id );
 		$count = count( $store );
 
 		if ( ! in_array( $post_id, $store ) ) {
@@ -128,7 +135,7 @@ class User_Ip_Store extends Base_Store {
 	 */
 	public function remove( $store_id, $post_id ) {
 
-		$store = $this->get( $store_id );
+		$store = $this->get_unfiltered( $store_id );
 
 		if ( false !== ( $index = array_search( $post_id, $store ) ) ) {
 

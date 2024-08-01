@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67
+class ComposerStaticInit94c4b71bcde764d13f2979261af726e4
 {
     public static $files = array (
         'b45b351e6b6f7487d819961fef2fda77' => __DIR__ . '/..' . '/jakeasmith/http_build_url/src/http_build_url.php',
@@ -15,10 +15,14 @@ class ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67
         '914c4a8cb7e06f7d6e1ddf6997c1785f' => __DIR__ . '/..' . '/wpml/fp/core/functions.php',
         '348332d63f916da7598941d18c24311d' => __DIR__ . '/..' . '/wpml/fp/core/strings_functions.php',
         '766b758ee51e52c53cf3312a1dba9e34' => __DIR__ . '/..' . '/wpml/fp/core/system.php',
-        '995b589e693a50f54393aa31ee1c3763' => __DIR__ . '/..' . '/yoast/whip/src/facades/wordpress.php',
+        '81db02b30f563b92907e271b66bd7559' => __DIR__ . '/..' . '/yoast/whip/src/Facades/wordpress.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'Y' => 
+        array (
+            'Yoast\\WHIPv2\\' => 13,
+        ),
         'W' => 
         array (
             'WPML\\Collect\\' => 13,
@@ -42,6 +46,10 @@ class ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67
     );
 
     public static $prefixDirsPsr4 = array (
+        'Yoast\\WHIPv2\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/yoast/whip/src',
+        ),
         'WPML\\Collect\\' => 
         array (
             0 => __DIR__ . '/..' . '/wpml/collect/src/Illuminate',
@@ -1998,31 +2006,6 @@ class ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67
         'WPML_XML_Transform' => __DIR__ . '/../..' . '/classes/xml-config/transform/interface-wpml-xml-transform.php',
         'WP_Async_Request' => __DIR__ . '/..' . '/a5hleyrich/wp-background-processing/classes/wp-async-request.php',
         'WP_Background_Process' => __DIR__ . '/..' . '/a5hleyrich/wp-background-processing/classes/wp-background-process.php',
-        'Whip_BasicMessage' => __DIR__ . '/..' . '/yoast/whip/src/messages/Whip_BasicMessage.php',
-        'Whip_Configuration' => __DIR__ . '/..' . '/yoast/whip/src/Whip_Configuration.php',
-        'Whip_DismissStorage' => __DIR__ . '/..' . '/yoast/whip/src/interfaces/Whip_DismissStorage.php',
-        'Whip_EmptyProperty' => __DIR__ . '/..' . '/yoast/whip/src/exceptions/Whip_EmptyProperty.php',
-        'Whip_Host' => __DIR__ . '/..' . '/yoast/whip/src/Whip_Host.php',
-        'Whip_HostMessage' => __DIR__ . '/..' . '/yoast/whip/src/messages/Whip_HostMessage.php',
-        'Whip_InvalidOperatorType' => __DIR__ . '/..' . '/yoast/whip/src/exceptions/Whip_InvalidOperatorType.php',
-        'Whip_InvalidType' => __DIR__ . '/..' . '/yoast/whip/src/exceptions/Whip_InvalidType.php',
-        'Whip_InvalidVersionComparisonString' => __DIR__ . '/..' . '/yoast/whip/src/exceptions/Whip_InvalidVersionComparisonString.php',
-        'Whip_InvalidVersionRequirementMessage' => __DIR__ . '/..' . '/yoast/whip/src/messages/Whip_InvalidVersionRequirementMessage.php',
-        'Whip_Listener' => __DIR__ . '/..' . '/yoast/whip/src/interfaces/Whip_Listener.php',
-        'Whip_Message' => __DIR__ . '/..' . '/yoast/whip/src/interfaces/Whip_Message.php',
-        'Whip_MessageDismisser' => __DIR__ . '/..' . '/yoast/whip/src/Whip_MessageDismisser.php',
-        'Whip_MessageFormatter' => __DIR__ . '/..' . '/yoast/whip/src/Whip_MessageFormatter.php',
-        'Whip_MessagePresenter' => __DIR__ . '/..' . '/yoast/whip/src/interfaces/Whip_MessagePresenter.php',
-        'Whip_MessagesManager' => __DIR__ . '/..' . '/yoast/whip/src/Whip_MessagesManager.php',
-        'Whip_NullMessage' => __DIR__ . '/..' . '/yoast/whip/src/messages/Whip_NullMessage.php',
-        'Whip_Requirement' => __DIR__ . '/..' . '/yoast/whip/src/interfaces/Whip_Requirement.php',
-        'Whip_RequirementsChecker' => __DIR__ . '/..' . '/yoast/whip/src/Whip_RequirementsChecker.php',
-        'Whip_UpgradePhpMessage' => __DIR__ . '/..' . '/yoast/whip/src/messages/Whip_UpgradePhpMessage.php',
-        'Whip_VersionDetector' => __DIR__ . '/..' . '/yoast/whip/src/interfaces/Whip_VersionDetector.php',
-        'Whip_VersionRequirement' => __DIR__ . '/..' . '/yoast/whip/src/Whip_VersionRequirement.php',
-        'Whip_WPDismissOption' => __DIR__ . '/..' . '/yoast/whip/src/Whip_WPDismissOption.php',
-        'Whip_WPMessageDismissListener' => __DIR__ . '/..' . '/yoast/whip/src/Whip_WPMessageDismissListener.php',
-        'Whip_WPMessagePresenter' => __DIR__ . '/..' . '/yoast/whip/src/presenters/Whip_WPMessagePresenter.php',
         'icl_cache' => __DIR__ . '/../..' . '/inc/cache.php',
         'wpml_zip' => __DIR__ . '/../..' . '/inc/wpml_zip.php',
     );
@@ -2030,9 +2013,9 @@ class ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit6034aef0fcfc434a14338a1cf077ad67::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit94c4b71bcde764d13f2979261af726e4::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit94c4b71bcde764d13f2979261af726e4::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit94c4b71bcde764d13f2979261af726e4::$classMap;
 
         }, null, ClassLoader::class);
     }

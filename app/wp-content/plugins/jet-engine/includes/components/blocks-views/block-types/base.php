@@ -243,7 +243,12 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Type_Base' ) ) {
 			$listing_id = isset( $_REQUEST['post_id'] ) ? absint( $_REQUEST['post_id'] ) : false;
 			$object_id  = isset( $_REQUEST['object'] ) ? absint( $_REQUEST['object'] ) : jet_engine()->listings->data->get_current_object();
 			$attributes = $this->prepare_attributes( $attributes );
-			$render     = $this->get_render_instance( $attributes );
+
+			if ( $this->is_edit_mode() ) {
+				do_action( 'jet-engine/blocks-views/render-block-preview', $this, $attributes );
+			}
+
+			$render = $this->get_render_instance( $attributes );
 
 			if ( ! $render ) {
 				return __( 'Item renderer class not found', 'jet-engine' );

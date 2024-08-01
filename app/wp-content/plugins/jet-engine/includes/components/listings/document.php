@@ -92,8 +92,17 @@ class Jet_Engine_Listings_Document {
 		return self::get_listing_css_by_id( $this->main_id );
 	}
 
+	/**
+	 * Get CSS of listing by given ID
+	 * @param  [type] $id [description]
+	 * @return [type]     [description]
+	 */
 	public static function get_listing_css_by_id( $id ) {
-		return get_post_meta( $id, '_jet_engine_listing_css', true );
+		return apply_filters(
+			'jet-engine/listings/document/inline-css',
+			get_post_meta( $id, '_jet_engine_listing_css', true ),
+			$id
+		);
 	}
 
 	/**
@@ -167,6 +176,38 @@ class Jet_Engine_Listings_Document {
 			return isset( $this->settings[ $setting ] ) ? $this->settings[ $setting ] : false;
 		}
 
+	}
+
+	/**
+	 * Get content of the listing item to render
+	 * 
+	 * @return [type] [description]
+	 */
+	public function get_listing_content() {
+
+		$content = '';
+
+		if ( 'elementor' === $this->get_settings( '_listing_type' ) ) {
+			$content = get_post_meta( $this->get_main_id(), '_elementor_data', true );
+		} else {
+			$post = get_post( $this->get_main_id() );
+			$content = $post->post_content;
+		}
+
+		return apply_filters( 'jet-engine/listings/document/content', $content, $this );
+	}
+
+	/**
+	 * Return information about listing in array format
+	 * @return [type] [description]
+	 */
+	public function to_array() {
+		return [
+			'type'    => $this->get_settings( '_listing_type' ),
+			'html'    => $this->get_listing_html(),
+			'css'     => $this->get_listing_css(),
+			'content' => $this->get_listing_content(),
+		];
 	}
 
 }

@@ -7,7 +7,7 @@ if ( empty( $args ) ) {
 $query_var           = $args['query_var'];
 $placeholder         = $args['placeholder'];
 $hide_apply_button   = $args['hide_apply_button'];
-$current             = $this->get_current_filter_value( $args );
+$current             = htmlspecialchars( $this->get_current_filter_value( $args ) );
 $accessibility_label = $args['accessibility_label'];
 $classes = array(
 	'jet-search-filter'
@@ -30,7 +30,9 @@ if ( '' !== $args['button_icon'] ) {
 			<?php echo jet_smart_filters()->data->get_tabindex_attr(); ?>
 		>
 		<?php if ( 'ajax-ontyping' === $args['apply_type'] ) : ?>
-			<div class="jet-search-filter__input-clear"></div>
+			<div class="jet-search-filter__input-clear">
+				<?php include jet_smart_filters()->get_template( 'svg/close.svg' ); ?>
+			</div>
 			<div class="jet-search-filter__input-loading"></div>
 		<?php endif; ?>
 	</div>

@@ -1852,8 +1852,9 @@ registerBlockType( 'jet-engine/listing-grid', {
 							/>
 						</PanelBody> }
 						{ ! window.JetEngineListingData.legacy.is_disabled && window.JetEngineListingData.customPanles.listingGrid.length > 0 && <React.Fragment>
-							{ window.JetEngineListingData.customPanles.listingGrid.map( ( Panel ) => {
+							{ window.JetEngineListingData.customPanles.listingGrid.map( ( Panel, index ) => {
 								return <Panel
+									key={ 'custom_panel_' + index }
 									attributes={ props.attributes }
 									onChange={ ( data ) => {
 										props.setAttributes( data );

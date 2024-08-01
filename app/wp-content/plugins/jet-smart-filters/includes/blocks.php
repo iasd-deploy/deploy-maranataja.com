@@ -15,18 +15,31 @@ if ( ! class_exists( 'Jet_Smart_Filters_Blocks_Manager' ) ) {
 	 */
 	class Jet_Smart_Filters_Blocks_Manager {
 
+		protected $blocks_providers = null;
+
 		/**
 		 * Constructor for the class
 		 */
 		function __construct() {
+			add_action( 'init', [ $this, 'init' ] );
+		}
 
-			if ( ! class_exists( 'Jet_Engine' ) && ! class_exists( 'WooCommerce' ) ) {
+		/**
+		 * Initialize all required logic only when we have supported providers
+		 * @return [type] [description]
+		 */
+		public function init() {
+
+			$blocks_providers = $this->blocks_providers();
+
+			if ( empty( $blocks_providers ) ) {
 				return;
 			}
+			
+			$this->register_block_types();
 
-			add_action( 'init', array( $this, 'register_block_types' ) );
-			add_action( 'enqueue_block_editor_assets', array( $this, 'blocks_assets' ) );
-			add_filter( 'block_categories_all', array( $this, 'add_filters_category' ) );
+			add_action( 'enqueue_block_editor_assets', [ $this, 'blocks_assets' ] );
+			add_filter( 'block_categories_all', [ $this, 'add_filters_category' ] );
 
 		}
 
@@ -42,24 +55,24 @@ if ( ! class_exists( 'Jet_Smart_Filters_Blocks_Manager' ) ) {
 			wp_enqueue_style(
 				'jet-smart-filters-gutenberg-editor-styles',
 				jet_smart_filters()->plugin_url( 'admin/assets/css/gutenberg.css' ),
-				array('air-datepicker'),
+				[ 'air-datepicker' ],
 				jet_smart_filters()->get_version()
 			);
 
 			wp_enqueue_script(
 				'jet-smart-filters-blocks',
 				jet_smart_filters()->plugin_url( 'assets/js/blocks.js' ),
-				array('wp-blocks','wp-editor', 'wp-components', 'wp-i18n', 'jet-smart-filters', 'air-datepicker'),
+				[ 'wp-blocks','wp-editor', 'wp-components', 'wp-i18n', 'jet-smart-filters', 'air-datepicker', 'lodash' ],
 				jet_smart_filters()->get_version(),
 				true
 			);
 
-			$localized_data = apply_filters( 'jet-smart-filters/blocks/localized-data', array(
+			$localized_data = apply_filters( 'jet-smart-filters/blocks/localized-data', [
 				'filters'         => $this->get_filter_types_data(),
 				'providers'       => $this->get_providers_data(),
 				'image_sizes'     => jet_smart_filters()->utils->get_image_sizes(),
 				'sorting_orderby' => jet_smart_filters()->filter_types->get_filter_types( 'sorting' )->orderby_options()
-			) );
+			] );
 
 			wp_localize_script( 'jet-smart-filters-blocks', 'JetSmartFilterBlocksData', $localized_data );
 		}
@@ -69,15 +82,36 @@ if ( ! class_exists( 'Jet_Smart_Filters_Blocks_Manager' ) ) {
 		 */
 		public function get_filter_types_data() {
 
-			$filter_types_data = array();
+			$filter_types_data = [];
 
 			foreach ( array_keys( jet_smart_filters()->data->filter_types() ) as $filter_type ) {
 
-				$filter_types_data[$filter_type] = array( '0' => __( 'Select filter...', 'jet-smart-filters' ) ) + jet_smart_filters()->data->get_filters_by_type( $filter_type );
+				$filter_types_data[$filter_type] = [ '0' => __( 'Select filter...', 'jet-smart-filters' ) ] + jet_smart_filters()->data->get_filters_by_type( $filter_type );
 
 			}
 
 			return $filter_types_data;
+		}
+
+		public function blocks_providers() {
+
+			if ( null === $this->blocks_providers ) {
+				
+				$blocks_providers = [];
+
+				if ( class_exists( 'Jet_Engine' ) ) {
+					$blocks_providers['jet-engine'] = __( 'Listing Grid', 'jet-smart-filters' );
+				}
+
+				if ( class_exists( 'WooCommerce' ) ) {
+					$blocks_providers['woocommerce-shortcode'] = __( 'WooCommerce Shortcode', 'jet-smart-filters' );
+				}
+
+				$this->blocks_providers = apply_filters( 'jet-smart-filters/blocks/allowed-providers', $blocks_providers );
+
+			}
+
+			return $this->blocks_providers;
 		}
 
 		/**
@@ -85,19 +119,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Blocks_Manager' ) ) {
 		 */
 		public function get_providers_data() {
 
-			$providers_data = array(
+			$providers_data = [
 				'not-selected' => __( 'Select provider...', 'jet-smart-filters' )
-			);
+			];
 
-			if ( class_exists( 'Jet_Engine' ) ) {
-				$providers_data['jet-engine'] = __( 'Listing Grid', 'jet-smart-filters' );
-			}
-
-			if ( class_exists( 'WooCommerce' ) ) {
-				$providers_data['woocommerce-shortcode'] = __( 'WooCommerce Shortcode', 'jet-smart-filters' );
-			}
-
-			return apply_filters( 'jet-smart-filters/blocks/allowed-providers', $providers_data );
+			return array_merge( $providers_data, $this->blocks_providers() );
 		}
 
 		/**
@@ -107,13 +133,13 @@ if ( ! class_exists( 'Jet_Smart_Filters_Blocks_Manager' ) ) {
 
 			return array_merge(
 				$categories,
-				array(
-					array(
+				[
+					[
 						'slug'  => 'jet-smart-filters',
 						'title' => __( 'Jet Smart Filters', 'jet-smart-filters' ),
 						'icon'  => 'filter',
-					),
-				)
+					],
+				]
 			);
 		}
 

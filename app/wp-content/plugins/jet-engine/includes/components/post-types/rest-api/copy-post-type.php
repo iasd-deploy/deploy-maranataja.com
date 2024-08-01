@@ -70,6 +70,7 @@ class Jet_Engine_CPT_Rest_Copy_Post_Type extends Jet_Engine_Base_API_Endpoint {
 			'name'                  => $name,
 			'slug'                  => $slug,
 			'show_edit_link'        => $this->safe_get( $post_type_data, 'general_settings', 'show_edit_link' ),
+			'custom_storage'        => $this->safe_get( $post_type_data, 'general_settings', 'custom_storage' ),
 			'hide_field_names'      => $this->safe_get( $post_type_data, 'general_settings', 'hide_field_names' ),
 			'delete_metadata'       => $this->safe_get( $post_type_data, 'general_settings', 'delete_metadata' ),
 			'singular_name'         => $this->safe_get( $post_type_data, 'labels', 'singular_name' ),

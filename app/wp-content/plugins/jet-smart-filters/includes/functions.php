@@ -42,6 +42,7 @@ function jet_smart_filters_woo_prices( $args = array() ) {
 
 	if ( $wc_query ) {
 		$search = WC_Query::get_main_search_query_sql();
+		$search = apply_filters( 'jet-smart-filters/range-filter/search-query', $search, 'woo_prices' );
 	} else {
 		$search = false;
 	}

@@ -21,3 +21,6 @@ import './blocks/section';
 // Common
 import './common/styles';
 import './hooks';
+
+import './block-components/settings';
+import './block-components/register';

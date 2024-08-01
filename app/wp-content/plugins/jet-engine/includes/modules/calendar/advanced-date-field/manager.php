@@ -227,6 +227,9 @@ function jet_engine_advanced_date_next( $result, $format = 'd F Y', $field = '' 
 
 	$found_index = false;
 
+	// https://github.com/Crocoblock/issues-tracker/issues/10072
+	asort( $dates, SORT_NUMERIC );
+
 	foreach ( $dates as $index => $date ) {
 		if ( $date > $time ) {
 			$next_date = $date;
@@ -238,9 +241,9 @@ function jet_engine_advanced_date_next( $result, $format = 'd F Y', $field = '' 
 	$result_date = jet_engine_date( $format, $next_date );
 	$end_dates   = Jet_Engine_Advanced_Date_Field::instance()->data->get_end_dates( $post_id, $field );
 
-	if ( ! empty( $end_dates ) && ! empty( $end_dates[ $index ] ) ) {
-		
-		$end_date  = jet_engine_date( $format, $end_dates[ $index ] );
+	if ( ! empty( $end_dates ) && ! empty( $end_dates[ $found_index ] ) ) {
+
+		$end_date  = jet_engine_date( $format, $end_dates[ $found_index ] );
 		$md_format = apply_filters( 
 			'jet-engine/calendar/advanced-date/multiday-format', 
 			'%1$s - %2$s', $result_date, $end_date
@@ -275,12 +278,12 @@ function jet_engine_advanced_end_date_next( $result, $format = 'd F Y', $field =
 		return jet_engine_date( $format, $dates[0] );
 	}
 
-	$found_index = false;
+	// https://github.com/Crocoblock/issues-tracker/issues/10072
+	asort( $dates, SORT_NUMERIC );
 
-	foreach ( $dates as $index => $date ) {
+	foreach ( $dates as $date ) {
 		if ( $date > $time ) {
 			$next_date = $date;
-			$found_index = $index;
 			break;
 		}
 	}

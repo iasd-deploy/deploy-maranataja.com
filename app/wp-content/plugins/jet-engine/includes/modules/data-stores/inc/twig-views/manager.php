@@ -12,7 +12,7 @@ class Manager {
 	 * Constructor for the class
 	 */
 	function __construct() {
-		add_action( 'jet-engine/timber-views/register-functions', [ $this, 'register_button_funciton' ] );
+		add_action( 'jet-engine/twig-views/register-functions', [ $this, 'register_button_funciton' ] );
 	}
 
 	public function register_button_funciton( $registry ) {

@@ -90,11 +90,16 @@
 				return;
 			}
 
+			/*
+			No need anymore to manually re-init the block.
+			JetSmartFilters automatically re-init blocks.
+
 			var $blocksListing = $provider.closest( '.jet-listing-grid--blocks' );
 
 			if ( $blocksListing.length ) {
 				JetEngine.widgetListingGrid( $blocksListing );
 			}
+			*/
 
 			if ( window.JetPopupFrontend && window.JetPopupFrontend.initAttachedPopups ) {
 				window.JetPopupFrontend.initAttachedPopups( $provider );
@@ -1310,6 +1315,13 @@
 
 					}
 
+					// Re-init Bricks scripts
+					if ( window.bricksIsFrontend ) {
+						document.dispatchEvent(
+							new CustomEvent("bricks/ajax/query_result/displayed")
+						);
+					}
+
 					Promise.all( JetEngine.assetsPromises ).then( function() {
 						JetEngine.initElementsHandlers( $html );
 						JetEngine.assetsPromises = [];
@@ -1586,10 +1598,10 @@
 								JetEngine.loadFrontStoresItems( $widget );
 								JetEngine.lazyLoading = false;
 
-								var needReInitFilters = false,
-									isEditMode = window.elementorFrontend && window.elementorFrontend.isEditMode();
+								let needReInitFilters = false;
+								let isFrontend = JetEngine.isFrontend();
 
-								if ( ! isEditMode && window.JetSmartFilterSettings ) {
+								if ( isFrontend && window.JetSmartFilterSettings ) {
 
 									if ( response.data.filters_data ) {
 										$.each( response.data.filters_data, function( param, data ) {
@@ -1805,6 +1817,10 @@
 					}
 
 					JetEngine.initElementsHandlers( $clonedSlides );
+
+					if ( $slider.find('.bricks-lazy-hidden').length ) {
+						bricksLazyLoad();
+					}
 				} );
 			}
 
@@ -2041,6 +2057,10 @@
 					return;
 				}
 
+				if ( ! window?.elementorFrontend?.hooks?.doAction ) {
+					return;
+				}
+
 				if ( 'widget' === elementType ) {
 					elementType = $this.data( 'widget_type' );
 					window.elementorFrontend.hooks.doAction( 'frontend/element_ready/widget', $this, $ );
@@ -2236,6 +2256,21 @@
 			if ( $( selector ).length ) {}
 
 			$( 'head' ).append( styleHtml );
+		},
+
+		isFrontend: function () {
+			// Check the Elementor
+			if (typeof window.elementorFrontend !== 'undefined') {
+				return !window.elementorFrontend.isEditMode();
+			}
+
+			// Check the Bricks
+			if (typeof window.bricksIsFrontend !== 'undefined') {
+				return window.bricksIsFrontend;
+			}
+
+			// If no builders are found, we assume it is frontend.
+			return true;
 		},
 
 		filters: ( function() {

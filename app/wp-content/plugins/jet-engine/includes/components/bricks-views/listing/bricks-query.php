@@ -10,21 +10,20 @@ namespace Jet_Engine\Bricks_Views\Listing;
  */
 class Bricks_Query extends \Bricks\Query {
 
+	public $is_component_listing = false;
+
 	/**
 	 * Class constructor
 	 *
 	 * @param array $element
 	 */
 	public function __construct( $element = [] ) {
-
 		$this->register_query();
 
-		$this->element_id   = 'jet-listing-el';
+		$this->element_id   = ! empty( $element['id'] ) ? $element['id'] : '';
 		$this->object_type  = 'jet-engine-query';
 		$this->settings     = ! empty( $element['settings'] ) ? $element['settings'] : [];
 		$this->query_result = [];
 		$this->is_looping   = true;
-
 	}
-
 }

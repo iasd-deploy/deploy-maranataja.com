@@ -43,14 +43,14 @@ class WPML_PO_Import_Strings {
 
 		foreach ( $strings as $k => $string ) {
 			$original = wp_kses_post( $string->original );
-			$context  = filter_var( $string->context, FILTER_SANITIZE_STRING );
+			$context  = (string) \WPML\API\Sanitize::string( $string->context );
 
 			$string->original = str_replace( '\n', "\n", $original );
 			$name             = isset( $string->name )
-				? (string) filter_var( $string->name, FILTER_SANITIZE_STRING ) : md5( $original );
+				? (string) \WPML\API\Sanitize::string( $string->name ) : md5( $original );
 
 			$string_id = icl_register_string( array(
-				'domain'  => filter_var( $_POST['icl_st_domain_name'], FILTER_SANITIZE_STRING ),
+				'domain'  => (string) \WPML\API\Sanitize::string( $_POST['icl_st_domain_name']),
 				'context' => $context
 			),
 				$name,

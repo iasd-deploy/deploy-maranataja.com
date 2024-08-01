@@ -82,6 +82,20 @@ class Manager {
 			return new \WP_Error( 'rel_not_found', __( 'Relation instance not found by ID. Please check your form settings', 'jet-engine' ) );
 		}
 
+		$allow_update  = apply_filters(
+			'jet-engine/relation/forms/allow_update',
+			[
+				'allowed'       => true,
+				'error_message' => 'Relation update not allowed',
+			],
+			$args,
+			$relation_instance
+		);
+
+		if ( ! $allow_update['allowed'] ) {
+			return new \WP_Error( 'cannot_update_relation', $allow_update['error_message'] );
+		}
+
 		if ( empty( $parent_id ) ) {
 			$parent_id = array();
 		}

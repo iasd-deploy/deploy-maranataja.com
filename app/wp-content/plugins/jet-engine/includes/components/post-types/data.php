@@ -162,6 +162,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Data' ) ) {
 				'exclude_from_search',
 				'with_front',
 				'show_edit_link',
+				'custom_storage',
 				'hide_field_names',
 				'delete_metadata',
 			);
@@ -315,6 +316,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Data' ) ) {
 				'show_edit_link'   => isset( $args['show_edit_link'] ) ? $args['show_edit_link'] : false,
 				'hide_field_names' => isset( $args['hide_field_names'] ) ? $args['hide_field_names'] : false,
 				'delete_metadata'  => isset( $args['delete_metadata'] ) ? $args['delete_metadata'] : false,
+				'custom_storage'   => isset( $args['custom_storage'] ) ? $args['custom_storage'] : false,
 			);
 
 			$meta_fields = array();
@@ -379,12 +381,103 @@ if ( ! class_exists( 'Jet_Engine_CPT_Data' ) ) {
 
 			$this->query_args['status'] = 'built-in';
 
+			$this->before_item_update( $item );
+
 			$id = $this->update_item_in_db( $item );
+
+			$this->after_item_update( $item );
 
 			if ( ! $id ) {
 				return false;
 			} else {
 				return $id;
+			}
+
+		}
+
+		/**
+		 * Check if current storage table already exists
+		 * 
+		 * @param  [type]  $item   [description]
+		 * @param  boolean $is_new [description]
+		 * @return [type]          [description]
+		 */
+		public function before_item_update( $item = [], $is_new = false ) {
+
+			if ( ! isset( $item['id'] ) ) {
+				$is_new = true;
+			}
+
+			/**
+			 * @todo probabaly process as hook from \Jet_Engine\CPT\Custom_Tables\Manager class
+			 */
+			if ( ! empty( $item['args']['custom_storage'] ) ) {
+
+				$db = \Jet_Engine\CPT\Custom_Tables\Manager::instance()->get_db_instance( $item['slug'] );
+
+				if ( $is_new && $db->is_table_exists() ) {
+					throw new \Exception( sprintf(
+						__( 'You creating a Post Type with "%s" custom storage. But this table already exists in your DB. Please rename your post type.', 'jet-engine' ),
+						$db->table()
+					) );
+				}
+
+				if ( ! $is_new && $db->is_table_exists() ) {
+
+					$id        = $item['id'];
+					$prev_item = $this->get_item_for_edit( $id );
+
+					// we changed slug, but table with new slug already exists - so throwing error
+					if ( $prev_item 
+						&& $prev_item['general_settings']['slug']
+						&& $prev_item['general_settings']['slug'] !== $item['slug']
+					) {
+						throw new \Exception( sprintf(
+							__( 'You creating a Post Type with "%s" custom storage. But this table already exists in your DB. Please rename your post type.', 'jet-engine' ),
+							$db->table()
+						) );
+					}
+
+				}
+
+			}
+
+			$this->delete_metadata_on_update( $item );
+
+		}
+
+		/**
+		 * Process custom_storagge option after item update
+		 * 
+		 * @param  [type]  $item   [description]
+		 * @param  boolean $is_new [description]
+		 * @return [type]          [description]
+		 */
+		public function after_item_update( $item = [], $is_new = false ) {
+			
+			if ( ! empty( $item['args']['custom_storage'] ) ) {
+
+				/**
+				 * @todo probabaly process as hook from \Jet_Engine\CPT\Custom_Tables\Manager class
+				 */
+				$fields = ! empty( $item['meta_fields'] ) ? $item['meta_fields'] : [];
+				$db     = \Jet_Engine\CPT\Custom_Tables\Manager::instance()->get_db_instance(
+					$item['slug'],
+					\Jet_Engine\CPT\Custom_Tables\Manager::instance()->prepare_fields( $fields )
+				);
+
+				if ( $is_new ) {
+					$db->create_table();
+				} else {
+
+					if ( ! $db->is_table_exists() ) {
+						$db->create_table();
+					}
+
+					$db->adjust_fields_to_schema();
+
+				}
+
 			}
 
 		}
@@ -502,6 +595,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Data' ) ) {
 				'general_settings' => array(
 					'name'             => $post_type_object['label'],
 					'slug'             => $post_type_object['name'],
+					'custom_storage'   => false,
 					'show_edit_link'   => false,
 					'hide_field_names' => false,
 					'delete_metadata'  => false,
@@ -527,13 +621,6 @@ if ( ! class_exists( 'Jet_Engine_CPT_Data' ) ) {
 
 			return $post_type_data;
 
-		}
-
-		/**
-		 * Before item update
-		 */
-		public function before_item_update( $item ) {
-			$this->delete_metadata_on_update( $item );
 		}
 
 		/**

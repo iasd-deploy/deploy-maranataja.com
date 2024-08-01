@@ -77,6 +77,7 @@ class Settings {
 		$repeater = new Repeater();
 
 		foreach ( Module::instance()->get_condition_controls() as $name => $control_data ) {
+			$control_data['render_type'] = 'none';
 			$repeater->add_control( $name, $control_data );
 		}
 
@@ -96,6 +97,7 @@ class Settings {
 					'jedv_enabled' => 'yes',
 				),
 				'style_transfer' => false,
+				'render_type' => 'none',
 			)
 		);
 

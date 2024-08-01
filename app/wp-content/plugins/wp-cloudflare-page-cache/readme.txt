@@ -3,7 +3,7 @@ Contributors: optimole, salvatorefresta, isaumya
 Tags: cloudflare cache, improve speed, improve performance, page caching
 Requires at least: 4.9
 Requires PHP: 7.0
-Tested up to: 6.5
+Tested up to: 6.6
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -166,6 +166,29 @@ First check the questions mentioned in the FAQ tab inside the plugin settings pa
 
 
 == Changelog ==
+
+#####   Version 4.7.13 (2024-07-18)
+
+- Fixed Zone ID selection for creating Cache Rule where the correct domain was not picked
+
+
+
+
+#####   Version 4.7.12 (2024-07-15)
+
+- Fixed fatal error when calling get_objects() method
+
+
+
+
+#####   Version 4.7.11 (2024-07-10)
+
+- Fixed an issue where the SpinupWP provider detection function wasn't working properly.
+- Removed module preload for instant.page script as it breaks WordPress 6.5 Interactivity API
+- Migrated to the new Page Rules
+
+
+
 
 #####   Version 4.7.10 (2024-04-17)
 

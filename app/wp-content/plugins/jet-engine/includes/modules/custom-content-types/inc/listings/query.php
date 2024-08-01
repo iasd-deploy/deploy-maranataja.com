@@ -38,8 +38,6 @@ class Query {
 
 		add_filter( 'jet-smart-filters/pre-get-indexed-data', array( $this, 'get_indexed_data' ), 10, 4 );
 
-		
-
 		add_action( 'jet-engine/custom-content-types/after-register-instances', function( $manager ) {
 
 			$post_types = $manager->get_post_types_map();
@@ -58,8 +56,8 @@ class Query {
 	}
 
 	public function format_filter_args( $query_args = array() ) {
-    
-    	$args = array();
+
+		$args = array();
 
 		if ( ! empty( $query_args['meta_query'] ) ) {
 			

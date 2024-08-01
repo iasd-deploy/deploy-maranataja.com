@@ -79,6 +79,10 @@ class Query_Results_Macro extends \Jet_Engine_Base_Macros {
 
 		$items = $query->get_items();
 
+		if ( empty( $items ) || ! is_array( $items ) ) {
+			return false;
+		}
+
 		switch ( $result_type ) {
 			case 'ids':
 				$items = array_map( function( $item ) {

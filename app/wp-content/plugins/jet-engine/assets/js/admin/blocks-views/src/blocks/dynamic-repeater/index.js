@@ -61,6 +61,15 @@ registerBlockType( 'jet-engine/dynamic-repeater', {
 				};
 			}
 
+			// Unset component controls do avoid request overloading
+			if ( listing.component_controls_list ) {
+				delete listing.component_controls_list;
+			}
+
+			if ( listing.component_style_controls_list ) {
+				delete listing.component_style_controls_list;
+			}
+
 			return [
 				props.isSelected && (
 					<InspectorControls

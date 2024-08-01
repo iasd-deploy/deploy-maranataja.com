@@ -60,21 +60,28 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 		}
 
 		/**
-		 * Print preview CSS for listing
+		 * Print preview CSS for listing by render instance
 		 *
 		 * @param  object $render Render instance
 		 * @return void
 		 */
 		public function print_preview_css( $render ) {
-			// $this->print_css();
+			$this->print_listing_css( $render->listing_id );
+		}
 
-			// Print CSS only for current listing.
-			$listing_id = $render->listing_id;
+		/**
+		 * Print listing CSS for given listing ID
+		 * 
+		 * @param  int $listing_id Listing/Component ID to print CSS for
+		 * @return void
+		 */
+		public function print_listing_css( $listing_id ) {
 
 			if ( ! empty( $this->enqueued_css[ $listing_id ] ) && ! in_array( $listing_id, $this->printed_css ) ) {
 				echo $this->enqueued_css[ $listing_id ];
 				$this->printed_css[] = $listing_id;
 			}
+
 		}
 
 		public function print_css() {
@@ -96,8 +103,16 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views_Render' ) ) {
 		 * @return [type] [description]
 		 */
 		public function get_listing_content( $listing_id ) {
+
+			$print_css = false;
+
+			if ( jet_engine()->listings->components->is_component( $listing_id ) ) {
+				$print_css = true;
+			}
+
+			$this->enqueue_listing_css( $listing_id, $print_css );
+			
 			$content = $this->get_raw_content( $listing_id );
-			$this->enqueue_listing_css( $listing_id );
 			$content = do_shortcode( $this->parse_content( $content, $listing_id ) );
 			$content = $this->add_link_to_content( $content, $listing_id );
 

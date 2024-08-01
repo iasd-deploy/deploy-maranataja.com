@@ -52,6 +52,7 @@ class Package {
 		require_once $this->package_path( 'view/render.php' );
 		require_once $this->package_path( 'conditional-tags.php' );
 		require_once $this->package_path( 'object-factory.php' );
+		require_once $this->package_path( 'components/register.php' );
 		
 		$this->editor   = new Editor\Render();
 		$this->listing  = new Editor\Listing();
@@ -59,6 +60,7 @@ class Package {
 		$this->render   = new View\Render();
 
 		new Conditional_Tags();
+		new Components\Register();
 
 		add_action( 'init', [ $this, 'after_init_hook' ], 999 );
 

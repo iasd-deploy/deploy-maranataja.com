@@ -83,6 +83,41 @@ if ( ! class_exists( 'Jet_Engine_CPT_Page_Edit' ) ) {
 		}
 
 		/**
+		 * Returns list of post properties disallowed to use as meta fields names
+		 * 
+		 * @return [type] [description]
+		 */
+		public function disallowed_post_properties() {
+
+			return apply_filters( 'jet-engine/post-type/disallowed-post-properties', [
+				'ID',
+				'post_date',
+				'post_date_gmt',
+				'post_content',
+				'post_title',
+				'post_excerpt',
+				'post_status',
+				'comment_status',
+				'ping_status',
+				'post_password',
+				'post_name',
+				'to_ping',
+				'pinged',
+				'post_modified',
+				'post_modified_gmt',
+				'post_content_filtered',
+				'post_parent',
+				'guid',
+				'menu_order',
+				'post_type',
+				'post_mime_type',
+				'comment_count',
+				'filter',
+			] );
+
+		}
+
+		/**
 		 * Register add controls
 		 * @return [type] [description]
 		 */
@@ -143,6 +178,8 @@ if ( ! class_exists( 'Jet_Engine_CPT_Page_Edit' ) ) {
 				$redirect     = $this->manager->get_edit_item_link( '%id%' );
 			}
 
+			$custom_table_format = \Jet_Engine\CPT\Custom_Tables\Manager::instance()->get_db_instance( '<table>' );
+
 			wp_localize_script(
 				'jet-engine-cpt-edit',
 				'JetEngineCPTConfig',
@@ -159,9 +196,11 @@ if ( ! class_exists( 'Jet_Engine_CPT_Page_Edit' ) ) {
 					'edit_button_label'    => $button_label,
 					'redirect'             => $redirect,
 					'is_built_in'          => $is_built_in,
+					'table_name_format'    => $custom_table_format->table(),
 					'admin_columns_cb'     => $this->get_allowed_admin_columns_cb(),
 					'positions'            => Jet_Engine_Tools::get_available_menu_positions(),
 					'default_position'     => Jet_Engine_Tools::get_default_menu_position(),
+					'post_properties'      => $this->disallowed_post_properties(),
 					'slug_error'           => __( 'Maximum 20 characters length', 'jet-engine' ),
 					'help_links'           => array(
 						array(

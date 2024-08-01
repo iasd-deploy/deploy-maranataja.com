@@ -1273,6 +1273,12 @@ class Relation {
 			return $exists[0];
 		}
 
+		$allow_update = apply_filters( 'jet-engine/relation/update/allow_update', true, $parent_object, $child_object, $this );
+
+		if ( ! $allow_update ) {
+			return false;
+		}
+
 		do_action( 'jet-engine/relation/update/before', $parent_object, $child_object, $this );
 
 		$update = false;

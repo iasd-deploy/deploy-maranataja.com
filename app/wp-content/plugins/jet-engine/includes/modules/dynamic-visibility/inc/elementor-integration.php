@@ -44,6 +44,8 @@ class Elementor_Integration extends Condition_Checker {
 		add_action( 'elementor/element/after_add_attributes', array( $this, 'maybe_add_resize_columns_class' ) );
 		add_action( 'elementor/frontend/column/after_render', array( $this, 'add_resize_columns_prop' ) );
 
+		add_filter( 'elementor/element/is_dynamic_content', array( $this, 'maybe_set_element_as_dynamic' ), 10, 3 );
+
 	}
 
 
@@ -53,6 +55,10 @@ class Elementor_Integration extends Condition_Checker {
 	 * @param object $element
 	 */
 	public function before_element_render( $element ) {
+
+		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+			return;
+		}
 
 		$settings = $element->get_settings();
 
@@ -88,6 +94,10 @@ class Elementor_Integration extends Condition_Checker {
 	 * @param object $element
 	 */
 	public function after_element_render( $element ) {
+
+		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+			return;
+		}
 
 		if ( ! in_array( $element->get_id(), $this->hidden_elements_ids ) ) {
 			return;
@@ -165,6 +175,22 @@ class Elementor_Integration extends Condition_Checker {
 				'class' => 'jedv-resize-columns',
 			) );
 		}
+	}
+
+	public function maybe_set_element_as_dynamic( $result, $data, $element ) {
+
+		if ( empty( $data['settings'] ) ) {
+			return $result;
+		}
+
+		$is_dv_enabled = ! empty( $data['settings']['jedv_enabled'] ) ? $data['settings']['jedv_enabled'] : false;
+		$is_dv_enabled = filter_var( $is_dv_enabled, FILTER_VALIDATE_BOOLEAN );
+
+		if ( $is_dv_enabled ) {
+			return true;
+		}
+
+		return $result;
 	}
 
 }

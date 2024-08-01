@@ -31,7 +31,7 @@ class Custom_Terms extends Terms {
 				add_filter( 'update_term_metadata', function( $return, $term_id, $meta_key, $meta_value ) use ( $field ) {
 
 					if ( $field === $meta_key ) {
-						$this->preload( $user_id, $meta_value, $meta_key );
+						$this->preload( $term_id, $meta_value, $meta_key );
 					}
 
 					return $return;
@@ -40,7 +40,7 @@ class Custom_Terms extends Terms {
 				add_action( 'add_term_metadata', function( $return, $term_id, $meta_key, $meta_value ) use ( $field ) {
 
 					if ( $field === $meta_key ) {
-						$this->preload( $user_id, $meta_value, $meta_key );
+						$this->preload( $term_id, $meta_value, $meta_key );
 					}
 
 					return $return;

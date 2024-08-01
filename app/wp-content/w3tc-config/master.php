@@ -1,6 +1,5 @@
-<?php exit; ?>
-{
-    "version": "2.7.0",
+<?php exit; ?>{
+    "version": "2.7.4",
     "cluster.messagebus.debug": false,
     "cluster.messagebus.enabled": false,
     "cluster.messagebus.sns.region": "",
@@ -335,6 +334,7 @@
     "pgcache.prime.limit": 10,
     "pgcache.prime.sitemap": "",
     "pgcache.prime.post.enabled": false,
+    "pgcache.prime.post.update.enabled": false,
     "pgcache.rest": "",
     "pgcache.cookiegroups.enabled": false,
     "pgcache.cookiegroups.groups": {
@@ -1102,5 +1102,9 @@
     "cloudflare_api_ssl": "full",
     "cloudflare_api_security_header": "0",
     "cloudflare_api_tls_1_2_only": "0",
-    "cloudflare_api_tls_client_auth": "0"
+    "cloudflare_api_tls_client_auth": "0",
+    "pgcache.bad_behavior_path": "",
+    "newrelic": {
+        "monitoring_type": "apm"
+    }
 }

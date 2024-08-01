@@ -61,6 +61,8 @@ class Preview {
 			$post = $preview_object;
 		}
 
+		do_action( 'jet-engine/twig-views/editor/before-render-preview', $preview_object, $this );
+
 		$preview_html = Package::instance()->render_html(
 			$_POST['html'], 
 			Package::instance()->get_context_for_object( $preview_object )

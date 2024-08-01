@@ -69,6 +69,15 @@ registerBlockType( 'jet-engine/dynamic-link', {
 				};
 			}
 
+			// Unset component controls do avoid request overloading
+			if ( listing.component_controls_list ) {
+				delete listing.component_controls_list;
+			}
+
+			if ( listing.component_style_controls_list ) {
+				delete listing.component_style_controls_list;
+			}
+
 			return [
 				props.isSelected && (
 						<InspectorControls
@@ -124,7 +133,8 @@ registerBlockType( 'jet-engine/dynamic-link', {
 								{ 'delete_post_link' !== attributes.dynamic_link_source &&
 									<TextControl
 										type="text"
-										label={ __("Or enter post meta field key/repeater key") }
+										label={ __("Or set manually") }
+									help={ __("Here you can set the custom/meta field name, repeater key, component control name, etc. Please note that in the case of the custom/meta field name, this option overrides the value selected above.") }
 										value={attributes.dynamic_link_source_custom}
 										onChange={ newValue =>
 											props.setAttributes({

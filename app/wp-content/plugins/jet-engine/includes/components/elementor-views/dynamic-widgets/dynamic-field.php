@@ -79,7 +79,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 			'dynamic_field_post_object',
 			array(
 				'label'     => __( 'Object Field', 'jet-engine' ),
-				'type'      => Controls_Manager::SELECT,
+				'type'      => 'jet-select2',
 				'default'   => 'post_title',
 				'groups'    => $this->get_object_fields(),
 				'condition' => array(
@@ -139,7 +139,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 				'dynamic_field_post_meta',
 				array(
 					'label'     => __( 'Meta Field', 'jet-engine' ),
-					'type'      => Controls_Manager::SELECT,
+					'type'      => 'jet-select2',
 					'default'   => '',
 					'groups'    => $meta_fields,
 					'condition' => array(
@@ -159,7 +159,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 					'dynamic_field_option',
 					array(
 						'label'     => __( 'Option', 'jet-engine' ),
-						'type'      => Controls_Manager::SELECT,
+						'type'      => 'jet-select2',
 						'default'   => '',
 						'groups'    => $options_pages_select,
 						'condition' => array(
@@ -192,7 +192,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 		$this->add_control(
 			'dynamic_field_post_meta_custom',
 			array(
-				'label'       => __( 'Custom Object field / Meta field / Repeater key', 'jet-engine' ),
+				'label'       => __( 'Object field / Meta field / Repeater key / Component prop', 'jet-engine' ),
 				'type'        => Controls_Manager::TEXT,
 				'default'     => '',
 				'label_block' => true,
@@ -292,7 +292,7 @@ class Jet_Listing_Dynamic_Field_Widget extends \Jet_Listing_Dynamic_Widget {
 			'filter_callback',
 			array(
 				'label'     => __( 'Callback', 'jet-engine' ),
-				'type'      => Controls_Manager::SELECT,
+				'type'      => 'jet-select2',
 				'default'   => '',
 				'options'   => jet_engine()->listings->get_allowed_callbacks(),
 				'condition' => array(

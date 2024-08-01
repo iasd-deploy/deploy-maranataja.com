@@ -23,10 +23,10 @@
 						description="<?php _e( 'Enable/disable additional built-in features', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'vertical-fullwidth' ]"
 					>
-						<div class="cx-vui-inner-panel">
+						<div class="cx-vui-inner-panel" style="padding: 10px 10px 20px 10px;">
 							<div tabindex="0" class="cx-vui-repeater">
 								<div class="cx-vui-repeater__items jet-engine-modules">
-									<div class="cx-vui-repeater-item cx-vui-panel cx-vui-repeater-item--is-collpased" v-for="module in internalModules">
+									<div class="cx-vui-repeater-item cx-vui-panel cx-vui-repeater-item--is-collpased" v-for="module in internalModules" style="align-content: center;">
 										<div class="cx-vui-repeater-item__heading cx-vui-repeater-item__heading--is-collpased">
 											<div class="cx-vui-repeater-item__heading-start">
 												<cx-vui-switcher
@@ -34,7 +34,6 @@
 													:value="isActive( module.value )"
 													@input="switchActive( $event, module )"
 												></cx-vui-switcher>
-												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 												<div class="cx-vui-repeater-item__title je-module-heading" @click="switchActive( $event, module )">
 													{{ module.label }}
 												</div>
@@ -128,10 +127,10 @@
 						description="<?php _e( 'Activate/deactivate external features. These features will be installed as separate plugins.', 'jet-engine' ); ?>"
 						:wrapper-css="[ 'vertical-fullwidth' ]"
 					>
-						<div class="cx-vui-inner-panel">
+						<div class="cx-vui-inner-panel" style="padding: 10px 10px 20px 10px;">
 							<div tabindex="0" class="cx-vui-repeater">
 								<div class="cx-vui-repeater__items jet-engine-modules">
-									<div class="cx-vui-repeater-item cx-vui-panel cx-vui-repeater-item--is-collpased" v-for="module in externalModules">
+									<div class="cx-vui-repeater-item cx-vui-panel cx-vui-repeater-item--is-collpased" v-for="module in externalModules" style="align-content:center;">
 										<div class="cx-vui-repeater-item__heading cx-vui-repeater-item__heading--is-collpased">
 											<div class="cx-vui-repeater-item__heading-start">
 												<cx-vui-switcher
@@ -139,7 +138,6 @@
 													:value="isExternalActive( module )"
 													@input="switchExternalActive( $event, module )"
 												></cx-vui-switcher>
-												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 												<div class="cx-vui-repeater-item__title je-module-heading" @click="switchActive( $event, module )">
 													{{ module.label }}
 												</div>

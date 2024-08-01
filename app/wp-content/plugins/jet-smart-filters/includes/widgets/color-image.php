@@ -39,16 +39,17 @@ class Jet_Smart_Filters_Color_Image_Widget extends Jet_Smart_Filters_Base_Widget
 		$css_scheme = apply_filters(
 			'jet-smart-filters/widgets/color-image/css-scheme',
 			array(
-				'item'                 => '.jet-color-image-list__row',
-				'button'               => '.jet-color-image-list__button',
-				'label'                => '.jet-color-image-list__label',
-				'decorator'            => '.jet-color-image-list__decorator',
-				'list-item'            => '.jet-color-image-list__row',
-				'list-wrapper'         => '.jet-color-image-list-wrapper',
-				'filter'               => '.jet-filter',
-				'filters-label'        => '.jet-filter-label',
-				'apply-filters'        => '.apply-filters',
-				'apply-filters-button' => '.apply-filters__button',
+				'item'                  => '.jet-color-image-list__row',
+				'button'                => '.jet-color-image-list__button',
+				'label'                 => '.jet-color-image-list__label',
+				'decorator'             => '.jet-color-image-list__decorator',
+				'list-item'             => '.jet-color-image-list__row',
+				'list-wrapper'          => '.jet-color-image-list-wrapper',
+				'filter'                => '.jet-filter',
+				'filters-label'         => '.jet-filter-label',
+				'apply-filters'         => '.apply-filters',
+				'apply-filters-button'  => '.apply-filters__button',
+				'dropdown-apply-button' => '.jet-filter-items-dropdown__apply-button',
 			)
 		);
 

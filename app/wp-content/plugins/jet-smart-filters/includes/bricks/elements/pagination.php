@@ -223,6 +223,17 @@ class Jet_Smart_Filters_Pagination_Widget extends \Jet_Engine\Bricks_Views\Eleme
 		);
 
 		$this->register_jet_control(
+			'hide_inactive_prev_next',
+			[
+				'tab'      => 'content',
+				'label'    => esc_html__( 'Hide inactive', 'jet-smart-filters' ),
+				'type'     => 'checkbox',
+				'default'  => true,
+				'required' => [ 'enable_prev_next', '=', true ],
+			]
+		);
+
+		$this->register_jet_control(
 			'enable_load_more',
 			[
 				'tab'     => 'content',
@@ -566,9 +577,12 @@ class Jet_Smart_Filters_Pagination_Widget extends \Jet_Engine\Bricks_Views\Eleme
 		}
 
 		if ( true === $nav_enabled ) {
-			$controls['nav_enabled'] = true;
-			$controls['prev']        = $settings['prev_text'];
-			$controls['next']        = $settings['next_text'];
+			$controls['nav_enabled']       = true;
+			$controls['prev']              = $settings['prev_text'];
+			$controls['next']              = $settings['next_text'];
+			$controls['hide_inactive_nav'] = isset( $settings['hide_inactive_prev_next'] )
+				? filter_var( $settings['hide_inactive_prev_next'], FILTER_VALIDATE_BOOLEAN )
+				: false;
 		} else {
 			$controls['nav_enabled'] = false;
 		}

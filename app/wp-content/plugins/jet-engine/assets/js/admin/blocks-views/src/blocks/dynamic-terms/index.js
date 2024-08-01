@@ -61,6 +61,15 @@ registerBlockType( 'jet-engine/dynamic-terms', {
 				};
 			}
 
+			// Unset component controls do avoid request overloading
+			if ( listing.component_controls_list ) {
+				delete listing.component_controls_list;
+			}
+
+			if ( listing.component_style_controls_list ) {
+				delete listing.component_style_controls_list;
+			}
+
 			return [
 				props.isSelected && (
 					<InspectorControls
@@ -254,7 +263,18 @@ registerBlockType( 'jet-engine/dynamic-terms', {
 									props.setAttributes({ hide_if_empty: ! attributes.hide_if_empty });
 								} }
 							/>
-
+							{ ! attributes.hide_if_empty &&
+								<TextControl
+									type="text"
+									label={ __("Fallback") }
+									value={attributes.field_fallback}
+									onChange={ newValue =>
+										props.setAttributes({
+											field_fallback: newValue
+										})
+									}
+								/>
+							}
 							<SelectControl
 								label={ 'Context' }
 								options={ allowedContextList }

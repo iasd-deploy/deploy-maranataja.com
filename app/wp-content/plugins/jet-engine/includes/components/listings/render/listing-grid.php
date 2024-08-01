@@ -959,7 +959,7 @@ if ( ! class_exists( 'Jet_Engine_Render_Listing_Grid' ) ) {
 
 			jet_engine()->admin_bar->register_item( 'edit_post_' . $listing_id, array(
 				'title'     => get_the_title( $listing_id ),
-				'sub_title' => jet_engine()->admin_bar->get_post_type_label( jet_engine()->post_type->slug() ),
+				'sub_title' => esc_html__( 'Listing Item', 'jet-engine' ),
 				'href'      => jet_engine()->post_type->admin_screen->get_edit_url( $view_type, $listing_id ),
 			) );
 
@@ -1300,7 +1300,7 @@ if ( ! class_exists( 'Jet_Engine_Render_Listing_Grid' ) ) {
 				$base_class . '--' . absint( $settings['lisitng_id'] ),
 			);
 
-			if ( ! empty( $settings['inline_columns_css'] ) ) {
+			if ( ! empty( $settings['inline_columns_css'] ) && filter_var( $settings['inline_columns_css'], FILTER_VALIDATE_BOOLEAN ) ) {
 
 				$inline_css = '';
 
@@ -1529,7 +1529,12 @@ if ( ! class_exists( 'Jet_Engine_Render_Listing_Grid' ) ) {
 				$static_inject = ob_get_clean();
 
 				if ( ! $content ) {
-					jet_engine()->frontend->set_listing( absint( $settings['lisitng_id'] ) );
+					$listing_id = apply_filters(
+						'jet-engine/listing/listing-id',
+						absint( $settings['lisitng_id'] ), $settings, $post_obj, $this
+					);
+
+					jet_engine()->frontend->set_listing( $listing_id );
 					$content = jet_engine()->frontend->get_listing_item( $post_obj );
 				}
 

@@ -23,6 +23,8 @@ class Manager {
 		add_action( 'jet-engine/bricks-views/init', array( $this, 'init' ), 10 );
 		add_action( 'jet-engine/bricks-views/listing/before-css-generation', array( $this, 'before_css_generation' ), 10 );
 		add_action( 'jet-engine/bricks-views/listing/after-css-generation', array( $this, 'after_css_generation' ), 10 );
+		add_filter( 'jet-engine/calendar/render/default-settings', array( $this, 'add_default_settings' ), 10, 2 );
+		add_filter( 'jet-engine/calendar/render/widget-settings', array( $this, 'add_widget_settings' ), 10, 2 );
 	}
 
 	public function init() {
@@ -57,5 +59,15 @@ class Manager {
 
 		// Reset query if it was stored before.
 		$query->reset_query();
+	}
+
+	public function add_default_settings( $default_settings ) {
+		$default_settings['_id'] = '';
+		return $default_settings;
+	}
+
+	public function add_widget_settings( $widget_settings, $settings ) {
+		$widget_settings['_id'] = isset( $settings['_id'] ) ? $settings['_id'] : '';
+		return $widget_settings;
 	}
 }

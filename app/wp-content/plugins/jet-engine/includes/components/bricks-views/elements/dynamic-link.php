@@ -104,7 +104,7 @@ class Dynamic_Link extends Base {
 			'dynamic_link_source_custom',
 			[
 				'tab'         => 'content',
-				'label'       => esc_html__( 'Custom meta field/repeater key', 'jet-engine' ),
+				'label'       => esc_html__( 'Custom field/repeater key/component control', 'jet-engine' ),
 				'type'        => 'text',
 				'description' => esc_html__( 'Note: this field will override Meta Field value', 'jet-engine' ),
 				'required'    => [ 'dynamic_link_source', '!=', 'delete_post_link' ],

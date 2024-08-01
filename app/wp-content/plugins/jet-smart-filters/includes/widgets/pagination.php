@@ -199,6 +199,21 @@ class Jet_Smart_Filters_Pagination_Widget extends Widget_Base {
 		);
 
 		$this->add_control(
+			'hide_inactive_prev_next',
+			array(
+				'label'        => esc_html__( 'Hide inactive', 'jet-smart-filters' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'jet-smart-filters' ),
+				'label_off'    => esc_html__( 'No', 'jet-smart-filters' ),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+				'condition'    => array(
+					'enable_prev_next' => 'yes',
+				),
+			)
+		);
+
+		$this->add_control(
 			'enable_load_more',
 			array(
 				'label'        => esc_html__( 'Enable Load More', 'jet-smart-filters' ),
@@ -854,9 +869,12 @@ class Jet_Smart_Filters_Pagination_Widget extends Widget_Base {
 		}
 
 		if ( 'yes' === $nav_enabled ) {
-			$controls['nav_enabled'] = true;
-			$controls['prev']        = $settings['prev_text'];
-			$controls['next']        = $settings['next_text'];
+			$controls['nav_enabled']       = true;
+			$controls['prev']              = $settings['prev_text'];
+			$controls['next']              = $settings['next_text'];
+			$controls['hide_inactive_nav'] = isset( $settings['hide_inactive_prev_next'] )
+				? filter_var( $settings['hide_inactive_prev_next'], FILTER_VALIDATE_BOOLEAN )
+				: false;
 		} else {
 			$controls['nav_enabled'] = false;
 		}

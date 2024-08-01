@@ -8,9 +8,108 @@
 	right: 0;
 	box-shadow: 0px 4px 10px #23282d30;
 	border-radius: 4px;
+	&.align-left {
+		left: 0;
+		right: auto;
+	}
 	.jet-engine-timber-editor-presets & {
 		left: 0;
 		width: 800px;
+	}
+}
+
+.jet-engine-timber-css-vars-helper {
+	position: relative;
+	display: flex;
+	justify-content:flex-end;
+	padding: 3px 0 0;
+	.jet-engine-timber-css-vars-trigger {
+		text-decoration: underline dashed;
+	}
+	.jet-engine-timber-css-var {
+		display: flex;
+		gap: 5px;
+		color: #007CBA;
+		align-items:center;
+		cursor: pointer;
+		padding: 2px 0;
+		margin: 0 0 1px;
+		font-size: 12px;
+		line-height: 16px;
+		&:hover {
+			font-weight: bold;
+		}
+		&__preview {
+			width: 14px;
+			height: 14px;
+			border: 1px solid currentColor;
+			border-radius: 8px;
+		}
+	}
+}
+
+.jet-engine-timber-settings__nav {
+	padding: 0 0 10px;
+	&-link {
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
+		}
+		&.is-active {
+			font-weight: bold;
+		}
+	}
+}
+
+.jet-engine-timber-settings__media {
+	width: 80px;
+	height: 80px;
+	background: #f4f4f5;
+	cursor: pointer;
+	display: flex;
+	justify-content:center;
+	align-items:center;
+	align-content: center;
+	svg.jet-engine-timber-settings__media-add {
+		path {
+			fill: #7B7E81;
+		}
+	}
+	&:hover {
+		svg.jet-engine-timber-settings__media-add {
+			path {
+				fill: #23282D;
+			}
+		}
+	}
+	&-preview {
+		width: 80px;
+		height: 80px;
+		position: relative;
+		overflow: hidden;
+		img {
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+	}
+	&-remove {
+		position:absolute;
+		right: 5px;
+		top: 5px;
+		padding: 3px 4px 1px 4px;
+		border-radius: 3px;
+		color: #7B7E81;
+		border: 1px solid currentColor;
+		background: rgba( 255,255,255,.5 );
+		&:hover {
+			color: #23282D;
+		}
+		svg {
+			path {
+				fill: currentColor;
+			}
+		}
 	}
 }
 
@@ -195,8 +294,50 @@
 		}
 	}
 	&__popup {
-		right: -10px;
-		margin: 10px 0 0 0;
+		position: fixed;
+		display: flex;
+		justify-content:center;
+		align-items:center;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		z-index: 999;
+
+		&-content {
+			background: #fff;
+			width: 600px;
+			padding: 30px 40px;
+			box-shadow: 0px 4px 10px rgba(35, 40, 45, .2);
+			border-radius: 4px;
+			max-height: 84vh;
+			overflow: auto;
+			position: relative;
+		}
+
+		&-overlay {
+			background: rgba( 0,0,0,.8 );
+			position: fixed;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			z-index: -1;
+		}
+
+		&-close {
+			position: absolute;
+			right: 5px;
+			top: 5px;
+			width: 24px;
+			height: 24px;
+			cursor: pointer;
+			opacity: .5;
+			&:hover {
+				opacity: 1;
+			}
+		}
+
 		.jet-listings-popup__form-row {
 			padding: 7px 0;
 			small {
@@ -222,6 +363,51 @@
 		}
 		.jet-listings-popup__form-col {
 			flex: 0 0 45%;
+		}
+	}
+	.cx-vui-repeater {
+		.cx-vui-repeater-item {
+			box-shadow: none;
+			margin: 0 0 15px;
+			border: 1px solid #ECECEC;
+			.cx-vui-repeater-item__heading {
+				padding: 10px 15px;
+			}
+			.cx-vui-repeater-item__copy, .cx-vui-repeater-item__clean {
+				margin: 0 0 0 5px;
+			}
+			.cx-vui-repeater-item__heading-start {
+				gap: 5px;
+			}
+			.cx-vui-repeater-item__title, .cx-vui-repeater-item__subtitle {
+				font-size: 13px;
+			}
+			.cx-vui-component {
+				padding: 10px 15px;
+			}
+			.cx-vui-component__meta {
+				padding: 0 0 5px;
+				margin: 0;
+				border: none;
+			}
+			.cx-vui-component__label {
+				font-size: 13px;
+				padding: 0;
+			}
+			.cx-vui-component--media {
+				display: flex;
+				gap: 15px;
+				align-items: center;
+				.cx-vui-component__desc {
+					padding: 0;
+				}
+				.cx-vui-component__meta {
+					flex: 1 1 auto;
+				}
+				.cx-vui-component__control {
+					flex: 0 0 80px;
+				}
+			}
 		}
 	}
 }
@@ -295,8 +481,16 @@
 		}
 		&-text {
 			font-weight: bold;
-			font-size: 16px;
+			font-size: 15px;
 			line-height: 28px;
+			display: flex;
+			align-items: center;
+			.jet-engine-timber-css-vars-helper {
+				padding: 0;
+				font-weight: normal;
+				font-size: 13px;
+				margin: 0 0 0 10px;
+			}
 		}
 		&-actions {
 			display: flex;

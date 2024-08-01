@@ -41,6 +41,19 @@ if ( ! class_exists( 'Jet_Engine_Woo_Package' ) ) {
 
 			$this->create_wc_package_instance();
 
+			$custom_orders_table_is_enabled = get_option( 'woocommerce_custom_orders_table_enabled' ) === 'yes';
+
+			if ( $custom_orders_table_is_enabled ) {
+				add_filter( 'cx_post_meta/args',            array( $this, 'modify_order_meta_args' ) );
+				add_filter( 'cx_post_meta/get_fields/post', array( $this, 'modify_order_post_object' ), 10, 2 );
+
+				add_filter(
+					'jet-engine/meta-boxes/is-allowed-on-current-admin-hook',
+					array( $this, 'is_allowed_on_current_admin_hook' ),
+					10, 3
+				);
+			}
+
 		}
 
 		/**
@@ -305,6 +318,51 @@ if ( ! class_exists( 'Jet_Engine_Woo_Package' ) ) {
 
 		public function remove_ordering_filters_before_listing() {
 			WC()->query->remove_ordering_args();
+		}
+
+		public function modify_order_meta_args( $args ) {
+
+			if ( in_array( 'shop_order', $args['page'] ) ) {
+				array_unshift( $args['page'], 'woocommerce_page_wc-orders' );
+			}
+
+			return $args;
+		}
+
+		public function modify_order_post_object( $post, $post_meta ) {
+
+			if ( is_object( $post ) ) {
+				return $post;
+			}
+
+			if ( ! in_array( 'shop_order', $post_meta->args['page'] ) ) {
+				return $post;
+			}
+
+			if ( empty( $_GET['page'] ) || 'wc-orders' !== $_GET['page'] ) {
+				return $post;
+			}
+
+			if ( empty( $_GET['action'] ) || 'edit' !== $_GET['action'] ) {
+				return $post;
+			}
+
+			if ( empty( $_GET['id'] ) ) {
+				return $post;
+			}
+
+			$id = esc_attr( $_GET['id'] );
+
+			return get_post( $id );
+		}
+
+		public function is_allowed_on_current_admin_hook( $result, $hook, $post_meta  ) {
+
+			if ( 'shop_order' === $post_meta->post_type && 'woocommerce_page_wc-orders' === $hook  ) {
+				return true;
+			}
+
+			return $result;
 		}
 
 	}

@@ -459,6 +459,11 @@ if ( ! class_exists( 'Jet_Engine_CPT_User_Meta' ) ) {
 					 */
 					do_action( 'jet-engine/user-meta/before-delete/' . $key, $user_id, false, $this );
 
+					// Delete all separate fields of repeater.
+					if ( 'repeater' === $field['type'] && ! empty( $field['save_separate'] ) ) {
+						$this->delete_repeater_separate_fields( $user_id, $key, $field );
+					}
+
 					update_user_meta( $user_id, $key, false );
 
 					continue;
@@ -467,6 +472,11 @@ if ( ! class_exists( 'Jet_Engine_CPT_User_Meta' ) ) {
 				$value = $this->sanitize_meta( $field, $_POST[ $key ] );
 
 				do_action( 'jet-engine/user-meta/before-save/' . $key, $user_id, $value, $key, $this );
+
+				// Save the value of each repeater field as a separate field.
+				if ( 'repeater' === $field['type'] && ! empty( $field['save_separate'] ) ) {
+					$this->save_repeater_separate_fields( $user_id, $key, $value, $field );
+				}
 
 				update_user_meta( $user_id, $key, $value );
 
@@ -566,6 +576,73 @@ if ( ! class_exists( 'Jet_Engine_CPT_User_Meta' ) ) {
 
 			$this->is_allowed_on_admin_hook = true;
 			return $this->is_allowed_on_admin_hook;
+		}
+
+		/**
+		 * Returns the repeater separate field key.
+		 *
+		 * @param $repeater_key
+		 * @param $field_key
+		 *
+		 * @return string
+		 */
+		public function get_repeater_separate_field_key( $repeater_key, $field_key ) {
+			return apply_filters(
+				'jet-engine/user-meta/repeater/separate_field_key',
+				$repeater_key . '_' . $field_key,
+				$repeater_key,
+				$field_key
+			);
+		}
+
+		/**
+		 * Delete all separate fields of repeater.
+		 *
+		 * @param $user_id
+		 * @param $key
+		 * @param $field
+		 */
+		public function delete_repeater_separate_fields( $user_id, $key, $field ) {
+
+			if ( empty( $field['fields'] ) ) {
+				return;
+			}
+
+			foreach ( $field['fields'] as $repeater_field_key => $repeater_field ) {
+				delete_user_meta( $user_id, $this->get_repeater_separate_field_key( $key, $repeater_field_key ) );
+			}
+		}
+
+		/**
+		 * Save the value of each repeater field as a separate field.
+		 *
+		 * @param $user_id
+		 * @param $key
+		 * @param $value
+		 * @param $field
+		 */
+		public function save_repeater_separate_fields( $user_id, $key, $value, $field ) {
+
+			$this->delete_repeater_separate_fields( $user_id, $key, $field );
+
+			if ( empty( $value ) || ! is_array( $value ) ) {
+				return;
+			}
+
+			foreach ( $value as $repeater_item_value ) {
+
+				if ( empty( $repeater_item_value ) ) {
+					continue;
+				}
+
+				foreach ( $repeater_item_value as $repeater_field_key => $repeater_field_value ) {
+					add_user_meta(
+						$user_id,
+						$this->get_repeater_separate_field_key( $key, $repeater_field_key ),
+						$repeater_field_value
+					);
+				}
+			}
 		}
 
 	}

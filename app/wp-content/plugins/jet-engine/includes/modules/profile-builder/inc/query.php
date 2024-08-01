@@ -275,7 +275,7 @@ class Query {
 
 			$current_object = jet_engine()->listings->data->get_current_object();
 
-			if ( 'users' === $listing || ( 'query' === $listing && 'WP_User' === get_class( $current_object ) ) ) {
+			if ( in_array( $listing, array( 'users', 'query' ) ) && 'WP_User' === get_class( $current_object ) ) {
 				$user = $current_object;
 			} elseif ( $this->is_single_user_page() ) {
 				$user = $this->get_queried_user();

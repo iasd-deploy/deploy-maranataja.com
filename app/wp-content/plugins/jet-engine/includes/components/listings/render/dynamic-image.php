@@ -165,16 +165,22 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Image' ) ) {
 				$this
 			);
 
+			$image = apply_filters( 'jet-engine/listings/dynamic-image/image-data', false, $this->get_settings() );
+
+			// If image output is not totally rewritten,
+			// but we already get image tag with the data - use it as custom output
+			if ( ! $custom_output && is_array( $image ) && ! empty( $image['image_tag'] ) ) {
+				$custom_output = $image['image_tag'];
+			}
+
 			if ( $custom_output ) {
 				echo $custom_output;
 				return;
 			}
 
-			$image = false;
-
 			$object_context = isset( $settings['object_context'] ) ? $settings['object_context'] : false;
 
-			if ( jet_engine()->relations->legacy->is_relation_key( $field ) ) {
+			if ( ! $image && jet_engine()->relations->legacy->is_relation_key( $field ) ) {
 				$related_post = get_post_meta( get_the_ID(), $field, false );
 				if ( ! empty( $related_post ) ) {
 					$related_post = $related_post[0];
@@ -182,7 +188,7 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Image' ) ) {
 						$image = get_post_thumbnail_id( $related_post );
 					}
 				}
-			} else {
+			} elseif ( ! $image ) {
 				$image = jet_engine()->listings->data->get_meta_by_context( $field, $object_context );
 			}
 

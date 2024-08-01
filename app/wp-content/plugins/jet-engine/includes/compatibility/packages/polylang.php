@@ -26,6 +26,27 @@ if ( ! class_exists( 'Jet_Engine_Polylang_Package' ) ) {
 			if ( jet_engine()->relations ) {
 				$this->relations_hooks();
 			}
+			
+			//Data Stores
+			add_filter( 'jet-engine/data-stores/store/data', array( $this, 'set_translated_store' ), 10, 2 );
+			// https://github.com/Crocoblock/issues-tracker/issues/9567
+			add_action( 'jet-engine/data-stores/after-remove-from-store', array( $this, 'remove_ip_store_translations' ), 10, 3 );
+		}
+
+		public function remove_ip_store_translations( $post_id, $store, $factory ) {
+			if ( $factory->is_user_store() || $factory->get_type()->type_id() !== 'user_ip' ) {
+				return;
+			}
+			
+			$translations = pll_get_post_translations( $post_id );
+
+			foreach ( $translations as $id ) {
+				if ( $id === $post_id ) {
+					continue;
+				}
+				
+				$factory->get_type()->remove( $store, $id );
+			}
 		}
 
 		/**
@@ -55,6 +76,38 @@ if ( ! class_exists( 'Jet_Engine_Polylang_Package' ) ) {
 
 			return $obj_id;
 		}
+		
+		/**
+		 * Set translated data store item IDs to show
+		 *
+		 * @param array   $store     Array of store items
+		 * @param string  $store_id  Store ID
+		 *
+		 * @return array  Array of store items
+		 */
+		public function set_translated_store( $store, $store_id ) {
+
+			if ( empty( $store ) ) {
+				return $store;
+			}
+
+			$store_instance = \Jet_Engine\Modules\Data_Stores\Module::instance()->stores->get_store( $store_id );
+
+			if ( $store_instance->is_user_store() || $store_instance->get_arg( 'is_cct' ) ) {
+				return $store;
+			}
+
+			$store = array_map( function( $item ) {
+
+				if ( ! is_array( $item ) ) {
+					$item = $this->set_translated_object( $item );
+				}
+
+				return $item;
+			}, $store );
+
+			return $store;
+		}	
 
 		/**
 		 * Translate Admin Labels

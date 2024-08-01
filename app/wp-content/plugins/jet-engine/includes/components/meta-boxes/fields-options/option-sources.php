@@ -317,6 +317,10 @@ class Jet_Engine_Meta_Boxes_Option_Sources {
 		switch ( $field_args['type'] ) {
 			case 'checkbox':
 
+				if ( ! is_array( $_POST[ $field ] ) ) {
+					return false;
+				}
+
 				$custom_values = array_diff( array_keys( $_POST[ $field ] ), $meta_options );
 
 				if ( ! empty( $custom_values ) ) {

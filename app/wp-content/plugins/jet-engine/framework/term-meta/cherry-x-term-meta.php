@@ -2,7 +2,7 @@
 /**
  * Term Meta module
  *
- * Version: 1.6.0
+ * Version: 1.6.1
  */
 
 // If this file is called directly, abort.
@@ -359,6 +359,17 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 
 					// Specific key will be deleted only on `editedtag` page
 					if ( ! empty( $_POST['action'] ) && 'editedtag' === $_POST['action'] ) {
+
+						/**
+						 * Fires before specific key will be deleted
+						 */
+						do_action( 'cx_term_meta/before_delete_meta/' . $key, $term_id, $key, $field );
+
+						// Delete all separate fields of repeater.
+						if ( 'repeater' === $field['type'] && ! empty( $field['save_separate'] ) ) {
+							$this->delete_repeater_separate_fields( $term_id, $key, $field );
+						}
+
 						update_term_meta( $term_id, $key, false );
 					}
 
@@ -370,7 +381,12 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 				/**
 				 * Hook on before current metabox saving with meta box id as dynamic part
 				 */
-				do_action( 'cx_term_meta/before_save_meta/' . $key, $term_id, $new_val, $key );
+				do_action( 'cx_term_meta/before_save_meta/' . $key, $term_id, $new_val, $key, $field );
+
+				// Save the value of each repeater field as a separate field.
+				if ( 'repeater' === $field['type'] && ! empty( $field['save_separate'] ) ) {
+					$this->save_repeater_separate_fields( $term_id, $key, $new_val, $field );
+				}
 
 				update_term_meta( $term_id, $key, $new_val );
 
@@ -454,6 +470,73 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 			}
 
 			return is_array( $value ) ? $value : sanitize_text_field( $value );
+		}
+
+		/**
+		 * Returns the repeater separate field key.
+		 *
+		 * @param $repeater_key
+		 * @param $field_key
+		 *
+		 * @return string
+		 */
+		public function get_repeater_separate_field_key( $repeater_key, $field_key ) {
+			return apply_filters(
+				'cx_term_meta/repeater/separate_field_key',
+				$repeater_key . '_' . $field_key,
+				$repeater_key,
+				$field_key
+			);
+		}
+
+		/**
+		 * Delete all separate fields of repeater.
+		 *
+		 * @param $term_id
+		 * @param $key
+		 * @param $field
+		 */
+		public function delete_repeater_separate_fields( $term_id, $key, $field ) {
+
+			if ( empty( $field['fields'] ) ) {
+				return;
+			}
+
+			foreach ( $field['fields'] as $repeater_field_key => $repeater_field ) {
+				delete_term_meta( $term_id, $this->get_repeater_separate_field_key( $key, $repeater_field_key ) );
+			}
+		}
+
+		/**
+		 * Save the value of each repeater field as a separate field.
+		 *
+		 * @param $term_id
+		 * @param $key
+		 * @param $value
+		 * @param $field
+		 */
+		public function save_repeater_separate_fields( $term_id, $key, $value, $field ) {
+
+			$this->delete_repeater_separate_fields( $term_id, $key, $field );
+
+			if ( empty( $value ) || ! is_array( $value ) ) {
+				return;
+			}
+
+			foreach ( $value as $repeater_item_value ) {
+
+				if ( empty( $repeater_item_value ) ) {
+					continue;
+				}
+
+				foreach ( $repeater_item_value as $repeater_field_key => $repeater_field_value ) {
+					add_term_meta(
+						$term_id,
+						$this->get_repeater_separate_field_key( $key, $repeater_field_key ),
+						$repeater_field_value
+					);
+				}
+			}
 		}
 
 	}

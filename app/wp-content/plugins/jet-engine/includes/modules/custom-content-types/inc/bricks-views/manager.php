@@ -18,15 +18,20 @@ class Manager {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'register_providers' ), 10 );
+		add_action( 'init', array( $this, 'add_dynamic_data_provider' ), 10 );
 		add_filter( 'bricks/query/loop_object_id', array( $this, 'set_loop_object_id' ), 10, 2 );
 	}
 
-	public function register_providers() {
-		require_once Module::instance()->module_path( 'bricks-views/dynamic-data/providers.php' );
+	public function add_dynamic_data_provider() {
 		require_once Module::instance()->module_path( 'bricks-views/dynamic-data/provider.php' );
 
-		Dynamic_Data\Providers::register(['content-types']);
+		add_filter( 'jet-engine/bricks-views/dynamic_data/register_providers', array( $this, 'add_provider_to_list' ), 10, 2 );
+	}
+
+	public function add_provider_to_list( $providers ) {
+		$providers['content-types'] = 'Jet_Engine\Modules\Custom_Content_Types\Bricks_Views\Dynamic_Data';
+
+		return $providers;
 	}
 
 	/**

@@ -45,10 +45,11 @@ class JetEngineRepeater extends React.Component {
 	}
 
 	addNew() {
+
 		const data = [ ...this.props.data ];
 
-		data.push(this.props.default);
-		this.props.onChange(data);
+		data.push( this.props.default );
+		this.props.onChange( data );
 
 	}
 

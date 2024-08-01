@@ -103,7 +103,7 @@ class Elementor {
 			$this->source_meta,
 			array(
 				'label'       => esc_html__( 'Query:', 'jet-engine' ),
-				'type'        => \Elementor\Controls_Manager::SELECT,
+				'type'        => \Elementor\Controls_Manager::SELECT2,
 				'default'     => '',
 				'label_block' => true,
 				'options'     => Query_Manager::instance()->get_queries_for_options(),

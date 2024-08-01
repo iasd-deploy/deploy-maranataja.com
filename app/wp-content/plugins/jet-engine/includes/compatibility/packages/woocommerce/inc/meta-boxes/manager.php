@@ -62,16 +62,29 @@ class Manager {
 	}
 
 	/**
-	 * Add Meta boxes editor JS file
+	 * Add Meta boxes editor JS file.
+	 *
+	 * @since 3.2.0
+	 * @since 3.5.2 Added localize config.
 	 */
 	public function add_editor_js() {
+
 		wp_enqueue_script(
 			'jet-engine-wc-meta-boxes',
 			Package::instance()->package_url( 'assets/js/admin/meta-boxes.js' ),
-			array( 'jet-plugins' ),
+			[ 'jet-plugins' ],
 			jet_engine()->get_version(),
 			true
 		);
+
+		wp_localize_script(
+			'jet-engine-wc-meta-boxes',
+			'JetEngineWCMBConfig',
+			[
+				'product_types' => \Jet_Engine_Tools::prepare_list_for_js( wc_get_product_types(), ARRAY_A ),
+			]
+		);
+
 	}
 
 	/**
@@ -158,7 +171,6 @@ class Manager {
 	 * Display additional meta box controls for WooCommerce related sources.
 	 *
 	 * @since  3.2.0
-	 * @access public
 	 *
 	 * @return void
 	 */
@@ -244,24 +256,7 @@ class Manager {
 			:label="'<?php _e( 'Exclude or Include Product Types', 'jet-engine' ); ?>'"
 			:description="'<?php _e( 'Select product types where this meta box should be hidden or shown.', 'jet-engine' ); ?>'"
 			:wrapper-css="[ 'equalwidth' ]"
-			:options-list="[
-				{
-					value: 'simple',
-					label: '<?php _e( 'Simple Product', 'jet-engine' ) ?>'
-				},
-				{
-					value: 'variable',
-					label: '<?php _e( 'Variable Product', 'jet-engine' ) ?>'
-				},
-				{
-					value: 'grouped',
-					label: '<?php _e( 'Grouped Product', 'jet-engine' ) ?>'
-				},
-				{
-					value: 'external',
-					label: '<?php _e( 'External/Affiliate Product', 'jet-engine' ) ?>'
-				},
-			]"
+			:options-list="window.JetEngineWCMBConfig.product_types"
 			:size="'fullwidth'"
 			:multiple="true"
 			:conditions="[
@@ -407,9 +402,9 @@ class Manager {
 		\Jet_Engine_Tools::delete_metadata_by_object_where(
 			'post',
 			$to_delete,
-			array(
+			[
 				'post_type' => 'product',
-			)
+			]
 		);
 	}
 
@@ -417,9 +412,9 @@ class Manager {
 		\Jet_Engine_Tools::delete_metadata_by_object_where(
 			'post',
 			$to_delete,
-			array(
+			[
 				'post_type' => 'product_variation',
-			)
+			]
 		);
 	}
 

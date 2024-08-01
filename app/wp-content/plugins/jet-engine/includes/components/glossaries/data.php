@@ -1,5 +1,6 @@
 <?php
 namespace Jet_Engine\Glossaries;
+
 /**
  * Glossaries data controller class
  */
@@ -153,11 +154,32 @@ class Data extends \Jet_Engine_Base_Data {
 	 */
 	public function filter_item_for_register( $item ) {
 
+		if ( empty( $item['status'] ) || $item['status'] !== 'glossary' ) {
+			return array();
+		}
+
 		$result         = array();
 		$args           = maybe_unserialize( $item['args'] );
 		$labels         = maybe_unserialize( $item['labels'] );
 		$item['fields'] = maybe_unserialize( $item['meta_fields'] );
-		$result         = array_merge( $item, $args, $labels );
+
+		if ( ! is_array( $args ) || ! is_array( $labels ) || ! is_array( $item['fields'] ) ) {
+			new Fixer( $item );
+
+			if ( ! is_array( $args ) ) {
+				$args = array();
+			}
+
+			if ( ! is_array( $labels ) ) {
+				$labels = array();
+			}
+
+			if ( ! is_array( $item['fields'] ) ) {
+				$item['fields'] = array();
+			}
+		}
+
+		$result = array_merge( $item, $args, $labels );
 
 		unset( $result['args'] );
 		unset( $result['status'] );
@@ -173,6 +195,10 @@ class Data extends \Jet_Engine_Base_Data {
 	 * @return array
 	 */
 	public function filter_item_for_edit( $item ) {
+
+		if ( empty( $item['status'] ) || $item['status'] !== 'glossary' ) {
+			return array();
+		}
 
 		$result         = array();
 		$args           = maybe_unserialize( $item['args'] );
@@ -244,6 +270,11 @@ class Data extends \Jet_Engine_Base_Data {
 		if ( $file_id ) {
 
 			$file_path = get_attached_file( $file_id );
+
+			if ( ! $file_path ) {
+				return array();
+			}
+
 			$mime      = get_post_mime_type( $file_id );
 			$label_col = ! empty( $item['label_col'] ) ? $item['label_col'] : false;
 			$value_col = ! empty( $item['value_col'] ) ? $item['value_col'] : false;

@@ -52,6 +52,8 @@ class Save extends Preview {
 			],
 		], Package::instance()->get_view_slug() );
 
+		do_action( 'jet-engine/twig-views/editor/after-save', $listing_id, $settings, $this );
+
 		wp_send_json_success();
 
 	}

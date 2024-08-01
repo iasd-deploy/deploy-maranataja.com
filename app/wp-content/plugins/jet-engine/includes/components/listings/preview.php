@@ -123,6 +123,8 @@ class Jet_Engine_Listings_Preview {
 
 		}
 
+		do_action( 'jet-engine/listings/document/set-preview', $document, $this );
+
 		$this->is_set = true;
 
 	}
