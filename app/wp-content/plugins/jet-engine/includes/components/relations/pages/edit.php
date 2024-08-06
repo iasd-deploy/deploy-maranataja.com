@@ -84,6 +84,7 @@ if ( ! class_exists( 'Jet_Engine_Relations_Page_Edit' ) ) {
 						'width',
 						'default_val',
 						'revision_support',
+						'repeater_save_separate',
 					)
 				) );
 			}

@@ -1,5 +1,77 @@
 # ChangeLog
 
+## 3.5.3
+* ADD: Dynamic Terms Widget. Fallback Field;
+* UPD: Listing Grid Widget. Change Custom Query control UI type;
+* FIX: Locations and Distance filter. Multiple filter on the page;
+* FIX: Data Stores. Remove from User IP Store + Polylang and WPML;
+* FIX: Bricks. Export/import Bricks listings and components;
+* FIX: Blocks editor & Bricks. Lazy Load + Auto Column;
+* FIX: Bricks. Listing on archive page with lazy load is not displayed;
+* FIX: Bricks. Elements doesn't show info in Bricks query loop after on of the previous updates;
+* FIX: Meta Fields. Value is not presetting in repeater inner checkbox field.
+* FIX: Components & Bricks. Styling problems.
+
+## 3.5.2
+* ADD: Custom Meta Storage. Trigger core hooks after adding, updating, deleting custom storage fields;
+* ADD: `Parent Object` context;
+* UPD: Product type list in WC meta box conditional settings;
+* UPD: Field vdata alidation in Quick Edit section;
+* FIX: Dynamic Visibility: Compatibility with Elemetns cache fgor Elementor;
+* FIX: Gamipress fatal error;
+* FIX: Components + Bricks:  PHP warning;
+* FIX: Bricks + Listing Grid: Re-initialize Bricks scripts after `load more` event;
+* FIX: Advanced date: getting incorrect next or end date;
+* FIX: Injection Listing not working with Meta or Taxonomy;
+* FIX: Glossary: Handle errors for file glossaries after site migration;
+* FIX: Issue with layout of wysiwyg metafield;
+* FIX: Set current page object for Listing Grid popups;
+
+## 3.5.1
+* ADD: `jet-engine/relations/types/posts/get-items/post-statuses` hook;
+* FIX: Bricks Builder: Improve the generation of styles for the listing grid;
+* FIX: CCT Quick Edit always scroll to top of the page;
+* FIX: Meta fields for WooCommerce orders with High-performance order storage feature;
+* FIX: Field values count callback when WooCommerce is activated;
+* FIX: Filtering dynamic table by query without cache query results;
+* FIX: An issue with delete post option;
+* FIX: Fatal errors in some cases;
+* FIX: Converts a value to non-negative integer;
+* FIX: Ensure listing document type is always set for Elementor;
+* FIX: Sets the queried object for rendering JetEngine dynamic widgets in a popup;
+* FIX: Dynamic Link widget do not show correct link in Elementor Loop item on Profile page;
+* FIX: Warning about unique "key" prop in block editor;
+* FIX: Dynamic Visibility. Deprecated error with PHP 8.3.4;
+* FIX: Dynamic Calendar. Multi days aren't shown.
+
+## 3.5.0
+* ADD: Components Functionality;
+* ADD: Allow to store default post Meta Data in custom DB tables;
+* ADD: Query Builder: new query type - Merged Query;
+* ADD: Allow to store repeater sub fields as separate meta fields;
+* ADD: Layout Switcher module: stable release;
+* UPD: Minor fixes and improvements.
+
+## 3.4.6
+* ADD: Aability to set Query Builder preview query count;
+* FIX: Bricks Builder. Dynamic User Data in Listing Grid;
+* FIX: Bricks Builder. Generating dynamic styles for the Dynamic Calendar;
+* FIX: Bricks Builder. Filters + Lazy Load and Custom Query in listing;
+* FIX: https://github.com/Crocoblock/suggestions/issues/7481;
+* FIX: Not all Listing Items templates appear on the injection listing dropdown;
+* FIX: Fatal error if no macro object;
+* FIX: Data Store issue with Polylang;
+
+## 3.4.5
+* ADD: Query Builder. Add ability to query Form Records by IDs for JetFormBuilder Query type;
+* FIX: Dynamic Calendar. Problem with displaying current month events;
+* FIX: Bricks Builder. Problem with the Dynamic Image and infinite loop slider in the Listing Grid;
+* FIX: Listing Grid. Injection by checkbox meta doesn't work;
+* FIX: Listing Grid. Infinite Scroll duplicates items in Blocks Editor;
+* FIX: Related data incorrectly get on the front-end in some cases;
+* FIX: Dynamic Function fail on SQL with whitespaces after semi-colon;
+* FiX: Permalink option with context for related items doesn't work in some cases.
+
 ## 3.4.4
 * ADD: Ability to sort by calc columns in SQL query https://github.com/Crocoblock/suggestions/issues/7200;
 * ADD: Allow to delete related meta data when deleting meta field;

@@ -53,6 +53,8 @@ if ( ! class_exists( 'Jet_Engine_WPML_Package' ) ) {
 
 			// Data stores hooks
 			add_filter( 'jet-engine/data-stores/store/data', array( $this, 'set_translated_store' ), 10, 2 );
+			// https://github.com/Crocoblock/issues-tracker/issues/9567
+			add_action( 'jet-engine/data-stores/after-remove-from-store', array( $this, 'remove_ip_store_translations' ), 10, 3 );
 
 			// Translated media and posts fields.
 			add_filter( 'jet-engine/listing/data/get-post-meta', array( $this, 'set_translated_post_meta' ), 10, 3 );
@@ -64,6 +66,27 @@ if ( ! class_exists( 'Jet_Engine_WPML_Package' ) ) {
 
 				$translated_tax_query = new WPML_Display_As_Translated_Tax_Query( $sitepress, $wpml_term_translations );
 				$translated_tax_query->add_hooks();
+			}
+		}
+
+		public function remove_ip_store_translations( $post_id, $store, $factory ) {
+			if ( $factory->is_user_store() || $factory->get_type()->type_id() !== 'user_ip' ) {
+				return;
+			}
+			
+			$type = apply_filters( 'wpml_element_type', get_post_type( $post_id ) );
+			$trid = apply_filters( 'wpml_element_trid', false, $post_id, $type );
+			
+			$translations = apply_filters( 'wpml_get_element_translations', array(), $trid, $type );
+
+			foreach ( $translations as $translation ) {
+				$id = $translation->element_id ?? 0;
+
+				if ( ! $id || $id === $post_id ) {
+					continue;
+				}
+				
+				$factory->get_type()->remove( $store, $id );
 			}
 		}
 

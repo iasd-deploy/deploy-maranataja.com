@@ -216,7 +216,7 @@ class Dynamic_Field extends Base {
 			'dynamic_field_post_meta_custom',
 			[
 				'tab'         => 'content',
-				'label'       => esc_html__( 'Custom Object field / Meta field / Repeater key', 'jet-engine' ),
+				'label'       => esc_html__( 'Object field / Meta field / Repeater key / Component prop', 'jet-engine' ),
 				'type'        => 'text',
 				'description' => esc_html__( 'Note: this field will override Object field / Meta field value', 'jet-engine' ),
 				'required'    => [ 'dynamic_field_source', '!=', [ 'query_var', 'options_page', 'relations_hierarchy' ] ],

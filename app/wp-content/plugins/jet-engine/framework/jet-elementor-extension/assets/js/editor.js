@@ -265,9 +265,16 @@
 				}
 			});
 
+			var Select2ControlItemView = elementor.modules.controls.Select2.extend({
+				className: function className() {
+					return elementor.modules.controls.Repeater.prototype.className.apply( this, arguments ) + ' elementor-control-type-select2';
+				}
+			});
+
 			// Add controls views
 			elementor.addControlView( 'jet-query',    QueryControlItemView );
 			elementor.addControlView( 'jet-repeater', RepeaterControlItemView );
+			elementor.addControlView( 'jet-select2',  Select2ControlItemView );
 		}
 
 	};

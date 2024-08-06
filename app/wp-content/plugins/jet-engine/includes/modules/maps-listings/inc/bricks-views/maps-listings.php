@@ -859,6 +859,7 @@ class Maps_Listings extends Listing_Grid {
 			$this->settings['scrollwheel'] = false;
 		}
 
+		$this->set_attribute( '_root', 'class', 'brxe-' . $this->id );
 		$this->set_attribute( '_root', 'data-is-block', 'jet-engine/bricks-' . $this->jet_element_render );
 		$this->set_attribute( '_root', 'class', 'jet-listing-base' );
 		$this->set_attribute( '_root', 'data-id', $this->id );

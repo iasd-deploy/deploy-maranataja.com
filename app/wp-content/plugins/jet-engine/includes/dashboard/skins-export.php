@@ -56,6 +56,12 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 					'default' => array(),
 				),
 				array(
+					'key'     => 'components',
+					'var'     => 'components',
+					'cb'      => array( $this, 'export_components' ),
+					'default' => array(),
+				),
+				array(
 					'key'     => 'meta_boxes',
 					'var'     => 'meta_boxes',
 					'cb'      => array( $this, 'export_meta_boxes' ),
@@ -108,6 +114,8 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 			if ( ! current_user_can( 'export' ) ) {
 				return;
 			}
+
+			do_action( 'jet-engine/dashboard/export-import/process', 'export', $this );
 
 			$this->id = null;
 
@@ -510,6 +518,28 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 		}
 
 		/**
+		 * Process components export
+		 * 
+		 * @return [type] [description]
+		 */
+		public function export_components( $components = array() ) {
+			
+			$result = array();
+
+			$this->id .= implode( '', $components );
+
+			if ( ! empty( $components ) ) {
+				foreach ( $components as $c_id ) {
+					$component = jet_engine()->listings->components->get( $c_id, 'id' );
+					$listing = jet_engine()->listings->get_new_doc( [], $c_id );
+					$result[] = array_merge( $listing->to_array(), $component->to_array() );
+				}
+			}
+
+			return $result;
+		}
+
+		/**
 		 * Export listings
 		 *
 		 * @return array
@@ -532,15 +562,13 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 
 			foreach ( $query as $post ) {
 				
-				$listing_type = jet_engine()->listings->data->get_listing_type( $post->ID );
+				$listing = jet_engine()->listings->get_new_doc( [], $post->ID );
 
-				$result[] = array(
+				$result[] = array_merge( array(
 					'title'    => $post->post_title,
 					'slug'     => $post->post_name,
-					'type'     => $listing_type,
 					'settings' => get_post_meta( $post->ID, '_elementor_page_settings', true ),
-					'content'  => ( 'elementor' === $listing_type ) ? get_post_meta( $post->ID, '_elementor_data', true ) : $post->post_content,
-				);
+				), $listing->to_array() );
 			}
 
 			return $result;
@@ -556,6 +584,7 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 			$taxonomies    = jet_engine()->taxonomies->get_items();
 			$meta_boxes    = jet_engine()->meta_boxes->get_items();
 			$listing_items = jet_engine()->listings->get_listings();
+			$components    = jet_engine()->listings->components->registry->get_components();
 			$relations     = jet_engine()->relations->get_active_relations();
 			$glossaries    = jet_engine()->glossaries->settings->get();
 			$queries       = Jet_Engine\Query_Builder\Manager::instance()->get_queries_for_options( true, null, true );
@@ -620,6 +649,17 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 				$item = $new_item;
 			} );
 
+			array_walk( $components, function( &$item ) {
+
+				$new_item = array(
+					'value' => $item->get_id(),
+					'label' => $item->get_display_name(),
+				);
+
+				$item = $new_item;
+
+			} );
+
 			array_walk( $options_pages, function( &$item ) {
 
 				$new_item = array(
@@ -638,6 +678,7 @@ if ( ! class_exists( 'Jet_Engine_Skins_Export' ) ) {
 			$config['taxonomies']    = array_values( $taxonomies );
 			$config['meta_boxes']    = array_values( $meta_boxes );
 			$config['listing_items'] = array_values( $listing_items );
+			$config['components']    = array_values( $components );
 			$config['relations']     = array_values( $relations );
 			$config['glossaries']    = array_values( $glossaries );
 			$config['queries']       = array_values( $queries );

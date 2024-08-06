@@ -790,6 +790,15 @@ if ( ! class_exists( 'Jet_Engine_Listings_Data' ) ) {
 				case 'current_post_author':
 					return jet_engine()->listings->data->get_current_author_object();
 
+				case 'parent_object':
+					$parent_object = jet_engine()->listings->objects_stack->get_parent_object_from_stack();
+
+					if ( ! $parent_object ) {
+						$parent_object = jet_engine()->listings->objects_stack->get_root_object();
+					}
+
+					return $parent_object;
+
 				default:
 					return apply_filters( 'jet-engine/listings/data/object-by-context/' . $context, null );
 			}
@@ -1010,6 +1019,10 @@ if ( ! class_exists( 'Jet_Engine_Listings_Data' ) ) {
 				return false;
 			}
 
+			if ( property_exists( $object, $key ) ) {
+				return maybe_unserialize( $object->$key );
+			}
+
 			$class  = get_class( $object );
 			$result = '';
 
@@ -1080,6 +1093,7 @@ if ( ! class_exists( 'Jet_Engine_Listings_Data' ) ) {
 						);
 					}
 
+					return $result;
 			}
 
 		}

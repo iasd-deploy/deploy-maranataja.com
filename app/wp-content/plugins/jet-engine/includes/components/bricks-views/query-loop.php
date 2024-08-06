@@ -2,6 +2,7 @@
 
 namespace Jet_Engine\Bricks_Views;
 
+use Bricks\Api;
 use Bricks\Query;
 use Bricks\Database;
 use Jet_Engine\Bricks_Views\Helpers\Options_Converter;
@@ -14,8 +15,12 @@ class Query_Loop {
 		add_filter( 'bricks/setup/control_options', array( $this, 'setup_query_controls' ) );
 		add_filter( 'bricks/element/settings', array( $this, 'add_render_filter_for_bricks_element' ), 10, 2 );
 		add_filter( 'jet-engine/listings/data/the-post/is-main-query', array( $this, 'maybe_modify_is_main_query' ) );
+
 		add_action( 'bricks/query/before_loop', array( $this, 'set_initial_object_before_render' ), 10 );
 		add_action( 'bricks/query/after_loop', array( $this, 'reset_object_after_render' ), 10 );
+
+		add_action( 'bricks/frontend/before_render_data', array( $this, 'set_object_before_popup_rendering' ), 10, 2 );
+		add_action( 'bricks/frontend/after_render_data', array( $this, 'reset_object_after_popup_rendering' ), 10, 2);
 	}
 
 	public function setup_query_controls( $control_options ) {
@@ -166,5 +171,88 @@ class Query_Loop {
 	// Set current User or Term object to dynamic widgets in a bricks loop
 	public function set_current_object() {
 		jet_engine()->listings->data->set_current_object( Query::get_loop_object() );
+	}
+
+	/**
+	 * Sets the queried object for rendering JetEngine dynamic widgets in a popup.
+	 *
+	 * @param array  $elements Array of elements to be rendered.
+	 * @param string $area     The area where the elements will be rendered.
+	 *
+	 * @return void
+	 */
+	public function set_object_before_popup_rendering( $elements, $area ) {
+		if ( $area !== 'popup' || ! $this->is_ajax_popup_looping() ) {
+			return;
+		}
+
+		$this->innitial_object = jet_engine()->listings->data->get_current_object();
+
+		jet_engine()->listings->data->set_current_object( get_queried_object() );
+	}
+
+	/**
+	 * Sets the initial object after popup rendering.
+	 *
+	 * @param array  $elements Array of elements to be rendered.
+	 * @param string $area     The area where the elements will be rendered.
+	 *
+	 * @return void
+	 */
+	public function reset_object_after_popup_rendering( $elements, $area ) {
+		if ( $area !== 'popup' || ! $this->is_ajax_popup_looping() ) {
+			return;
+		}
+
+		// Set initial object for generating dynamic style in Listing grid
+		if ( ! empty( $this->initial_object ) ) {
+			jet_engine()->listings->data->set_current_object( $this->initial_object );
+		}
+	}
+
+	/**
+	 * Checks if the AJAX popup is currently in a looping state.
+	 *
+	 * @return bool Returns true if the popup is in a looping state, false otherwise.
+	 */
+	public function is_ajax_popup_looping() {
+		if ( ! Api::is_current_endpoint( 'load_popup_content' ) ) {
+			return false;
+		}
+
+		$request_data     = $this->jet_get_request_data();
+		$is_looping       = $request_data['isLooping'] ?? '';
+		$popup_context_id = $request_data['popupContextId'] ?? '';
+
+		if ( empty( $popup_context_id ) || empty( $is_looping ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Retrieves the request data for the current context.
+	 *
+	 * @return array|false The request data as an associative array, or false if no data is found.
+	 */
+	public function jet_get_request_data() {
+		$data = false;
+
+		if ( bricks_is_rest_call() ) {
+			$data = file_get_contents( 'php://input' );
+		} elseif ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && 'bricks_render_element' === $_REQUEST['action'] ) {
+			$data = $_REQUEST;
+		}
+
+		if ( ! $data ) {
+			return false;
+		}
+
+		if ( is_string( $data ) ) {
+			$data = json_decode( $data, true );
+		}
+
+		return $data;
 	}
 }

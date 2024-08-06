@@ -245,7 +245,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Indexer_Data' ) ) {
 						$key,
 						$data,
 						$this,
-						$queried_ids
+						$queried_ids,
+						$provider_key
 					);
 				}
 			}

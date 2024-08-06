@@ -2,7 +2,7 @@
 /**
  * Jet Dashboard Module
  *
- * Version: 2.1.7
+ * Version: 2.2.0
  */
 
 namespace Jet_Dashboard;

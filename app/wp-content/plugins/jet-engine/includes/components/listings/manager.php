@@ -121,6 +121,12 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 		public $callbacks = null;
 
 		/**
+		 * Holds instance of components manager
+		 * @var null
+		 */
+		public $components = null;
+
+		/**
 		 * Constructor for the class
 		 */
 		function __construct() {
@@ -135,8 +141,10 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 			require jet_engine()->plugin_path( 'includes/components/listings/legacy.php' );
 			require jet_engine()->plugin_path( 'includes/components/listings/preview.php' );
 			require jet_engine()->plugin_path( 'includes/classes/url-shemes-manager.php' );
+			require jet_engine()->plugin_path( 'includes/components/listings/components/manager.php' );
 
 			$this->post_type     = new Jet_Engine_Listings_Post_Type();
+			$this->components    = new \Jet_Engine\Listings\Components\Manager();
 			$this->macros        = new Jet_Engine_Listings_Macros();
 			$this->filters       = new Jet_Engine_Listings_Filters();
 			$this->data          = new Jet_Engine_Listings_Data();
@@ -211,8 +219,20 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 					'post_type'      => jet_engine()->post_type->slug(),
 					'post_status'    => 'publish',
 					'posts_per_page' => -1,
-					'orderby'        => 'ID',
+					'orderby'        => 'date',
 					'order'          => 'DESC',
+					'meta_query'     => [
+						'relation' => 'or',
+						[
+							'key'     => '_entry_type',
+							'value'   => '',
+							'compare' => 'NOT EXISTS',
+						],
+						[
+							'key'     => '_entry_type',
+							'value'   => 'listing',
+						],
+					],
 				) );
 			}
 
@@ -290,7 +310,7 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 		 * @return [type] [description]
 		 */
 		public function get_id() {
-			return $this->_id;
+			return apply_filters( 'jet-engine/listings/document-id', $this->_id );
 		}
 
 		/**
@@ -497,6 +517,7 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 				'queried_user'        => __( 'Queried User', 'jet-engine' ),
 				'current_post_author' => __( 'Current Post Author', 'jet-engine' ),
 				'wp_object'           => __( 'Default WordPress Object (for current page)', 'jet-engine' ),
+				'parent_object'       => __( 'Parent Object', 'jet-engine' ),
 			) );
 
 			if ( 'blocks' === $for ) {

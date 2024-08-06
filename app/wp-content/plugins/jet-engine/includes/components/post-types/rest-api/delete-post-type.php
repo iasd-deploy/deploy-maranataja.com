@@ -66,7 +66,20 @@ class Jet_Engine_CPT_Rest_Delete_Post_Type extends Jet_Engine_Base_API_Endpoint 
 				break;
 
 			case 'delete':
+
 				$this->delete_posts( $from_post_type );
+
+				/**
+				 * @todo probabaly process as hook from \Jet_Engine\CPT\Custom_Tables\Manager class
+				 */
+				if ( 
+					! empty( $post_type_data['general_settings']['custom_storage'] )
+					&& true === $post_type_data['general_settings']['custom_storage']
+				) {
+					$db = \Jet_Engine\CPT\Custom_Tables\Manager::instance()->get_db_instance( $from_post_type, [] );
+					$db->drop_table();
+				}
+
 				break;
 
 		}

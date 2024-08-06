@@ -106,33 +106,13 @@ class Base extends \Bricks\Element {
 		return apply_filters( 'jet-engine/bricks-views/element/parsed-attrs', $attrs, $this );
 	}
 
-	public function jet_get_request_data() {
-		$data = false;
-
-		if ( bricks_is_rest_call() ) {
-			$data = file_get_contents( 'php://input' );
-		} elseif ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && 'bricks_render_element' === $_REQUEST['action'] ) {
-			$data = $_REQUEST;
-		}
-
-		if ( ! $data ) {
-			return false;
-		}
-
-		if ( is_string( $data ) ) {
-			$data = json_decode( $data, true );
-		}
-
-		return $data;
-	}
-
 	public function get_post_id() {
 
 		if ( ! bricks_is_rest_call() && ! wp_doing_ajax() ) {
 			return false;
 		}
 
-		$data    = $this->jet_get_request_data();
+		$data    = jet_engine()->bricks_views->get_request_data();
 		$post_id = ! empty( $data['postId'] ) ? absint( $data['postId'] ) : false;
 
 		if ( $post_id ) {
@@ -144,7 +124,12 @@ class Base extends \Bricks\Element {
 	}
 
 	public function is_requested_element() {
-		$data = $this->jet_get_request_data();
+		if ( ! bricks_is_builder_call() ) {
+			return false;
+		}
+
+		$data = jet_engine()->bricks_views->get_request_data();
+
 		return ( $data && $data['element']['id'] === $this->id );
 	}
 

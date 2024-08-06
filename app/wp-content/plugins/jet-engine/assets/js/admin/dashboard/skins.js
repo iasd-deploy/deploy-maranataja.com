@@ -122,6 +122,7 @@
 				relations: exportConfig.relations,
 				optionsPages: exportConfig.options_pages,
 				listingItems: exportConfig.listing_items,
+				componentsList: exportConfig.components,
 				glossariesList: exportConfig.glossaries,
 				queriesList: exportConfig.queries,
 				skin: exportConfig.skin_vars,

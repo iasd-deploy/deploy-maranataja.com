@@ -19,6 +19,16 @@
 			v-model="query.form_id"
 		></cx-vui-f-select>
 		<cx-vui-input
+			label="<?php _e( 'Record ID in', 'jet-engine' ); ?>"
+			description="<?php _e( 'Query records with given IDs. Comma-separated form record IDs list - 1, 10, 25', 'jet-engine' ); ?>"
+			:wrapper-css="[ 'equalwidth', 'has-macros' ]"
+			size="fullwidth"
+			name="record__in"
+			v-model="query.record__in"
+		>
+			<jet-query-dynamic-args v-model="dynamicQuery.record__in"></jet-query-dynamic-args>
+		</cx-vui-input>
+		<cx-vui-input
 			label="<?php _e( 'User', 'jet-engine' ); ?>"
 			description="<?php _e( 'Query records only for given user. Please set user ID, you can find it in the address bar on user profile page.', 'jet-engine' ); ?>"
 			:wrapper-css="[ 'equalwidth', 'has-macros' ]"

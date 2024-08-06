@@ -489,6 +489,10 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 							$result[ $field['name'] ]['collapsed'] = filter_var( $field['repeater_collapsed'], FILTER_VALIDATE_BOOLEAN );
 						}
 
+						if ( ! empty( $field['repeater_save_separate'] ) ) {
+							$result[ $field['name'] ]['save_separate'] = filter_var( $field['repeater_save_separate'], FILTER_VALIDATE_BOOLEAN );
+						}
+
 						break;
 
 					case 'iconpicker':
@@ -701,6 +705,13 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 		public function is_allowed_on_current_admin_hook( $hook ) {
 
 			if ( null !== $this->is_allowed_on_admin_hook ) {
+				return $this->is_allowed_on_admin_hook;
+			}
+
+			$pre_check = apply_filters( 'jet-engine/meta-boxes/is-allowed-on-current-admin-hook', null, $hook, $this );
+
+			if ( null !== $pre_check ) {
+				$this->is_allowed_on_admin_hook = $pre_check;
 				return $this->is_allowed_on_admin_hook;
 			}
 
@@ -1303,7 +1314,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 				$result['default'] = array();
 			}
 
-			if ( ! empty( $field['type'] ) && 'select' === $field['type'] && ! empty( $field['placeholder'] ) ) {
+			if ( ! empty( $field['type'] ) && 'select' === $field['type'] && ! empty( $field['placeholder'] ) && ! $multiple ) {
 				if ( $this->is_blocks() ) {
 					$result['options'][] = array(
 						'value' => '',

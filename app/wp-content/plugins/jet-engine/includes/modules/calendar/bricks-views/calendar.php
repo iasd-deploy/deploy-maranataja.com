@@ -1249,6 +1249,7 @@ class Calendar extends Listing_Grid {
 	public function parse_jet_render_attributes( $attrs = [] ) {
 
 		$attrs['show_posts_nearby_months'] = $attrs['show_posts_nearby_months'] ?? false;
+		$attrs['_id']                      = $this->id;
 
 		return $attrs;
 	}

@@ -90,8 +90,13 @@ if ( ! class_exists( 'Jet_Engine_Render_Dynamic_Terms' ) ) {
 
 			if ( empty( $terms ) || is_wp_error( $terms ) ) {
 
-				if ( ! empty( $settings['hide_if_empty'] ) ) {
+				$hide_if_empty = isset( $settings['hide_if_empty'] ) ? $settings['hide_if_empty'] : false;
+				$hide_if_empty = filter_var( $hide_if_empty, FILTER_VALIDATE_BOOLEAN );
+
+				if ( $hide_if_empty ) {
 					$this->show_field = false;
+				} elseif ( ! Jet_Engine_Tools::is_empty( $settings, 'field_fallback' ) ) {
+					echo wp_kses_post( $settings['field_fallback'] );
 				}
 
 				return;

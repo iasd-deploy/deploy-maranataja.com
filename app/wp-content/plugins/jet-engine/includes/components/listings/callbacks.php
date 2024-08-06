@@ -513,7 +513,7 @@ class Jet_Engine_Listings_Callbacks {
 			case 'jet_engine_date':
 
 				// Added to prevent print `January 1, 1970` if date field is empty.
-				if ( empty( $result ) ) {
+				if ( empty( $result ) || is_object( $result ) || is_array( $result ) ) {
 					return '';
 				}
 

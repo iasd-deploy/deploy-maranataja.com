@@ -54,8 +54,6 @@
 							self.$set( self.generalSettings, 'api_access_role', [] );
 						}
 
-						console.log( self.generalSettings.api_schema );
-
 						if ( ! self.generalSettings.api_schema ) {
 							self.$set( self.generalSettings, 'api_schema', [ { arg: '', value: '' } ] );
 						}
@@ -228,6 +226,10 @@
 
 				if ( self.generalSettings.preview_query_string ) {
 					preview.query_string = self.generalSettings.preview_query_string;
+				}
+
+				if ( self.generalSettings.preview_query_count ) {
+					preview.query_count = self.generalSettings.preview_query_count;
 				}
 
 				query         = self.generalSettings[ self.generalSettings.query_type ];

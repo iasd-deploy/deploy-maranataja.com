@@ -55,7 +55,7 @@ class Assets extends \Bricks\Assets {
 	 *
 	 * @return string $inline_css
 	 */
-	public static function generate_inline_css( $post_id = 0 ) {
+	public static function generate_inline_css( $post_id = 0, $force = false ) {
 
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
@@ -64,7 +64,12 @@ class Assets extends \Bricks\Assets {
 		$inline_css = '';
 		$elements   = get_post_meta( $post_id, BRICKS_DB_PAGE_CONTENT, true );
 
-		$cached            = get_post_meta( $post_id, self::$css_cache_key, true );
+		$cached = false;
+
+		if ( ! $force ) {
+			$cached = get_post_meta( $post_id, self::$css_cache_key, true );
+		}
+
 		$has_dynamic_value = false;
 
 		if ( $cached ) {
@@ -83,29 +88,33 @@ class Assets extends \Bricks\Assets {
 		$any          = Query::is_any_looping();
 		$query_object = Query::get_query_object( $any );
 
-		if ( empty( $query_object ) ) {
+		if ( empty( $query_object ) && ! $force ) {
 			return '';
 		}
-
-		$custom_query    = $query_object->settings['custom_query'] ?? false;
-		$custom_query    = filter_var( $custom_query, FILTER_VALIDATE_BOOLEAN );
-		$custom_query_id = ! empty ( $query_object->settings['custom_query_id'] ) ? intval( $query_object->settings['custom_query_id'] ) : 0;
 
 		$element_query    = [];
 		$element_settings = [
 			'hasLoop' => 1,
 		];
 
-		// Check if the listing query builder is set
-		if ( $custom_query && $custom_query_id ) {
-			$element_settings['jet_engine_query_builder_id'] = $custom_query_id;
-			$element_settings['listing_settings']            = $query_object->settings;
-			$element_query['objectType']                     = 'jet_engine_query_builder';
-		} else {
-			$element_query = self::get_query_args( $query_object->settings, $post_id );
-		}
+		if ( ! empty( $query_object ) ) {
 
-		$element_settings['query'] = $element_query;
+			$custom_query    = $query_object->settings['custom_query'] ?? false;
+			$custom_query    = filter_var( $custom_query, FILTER_VALIDATE_BOOLEAN );
+			$custom_query_id = ! empty ( $query_object->settings['custom_query_id'] ) ? intval( $query_object->settings['custom_query_id'] ) : 0;
+
+			// Check if the listing query builder is set
+			if ( $custom_query && $custom_query_id ) {
+				$element_settings['jet_engine_query_builder_id'] = $custom_query_id;
+				$element_settings['listing_settings']            = $query_object->settings;
+				$element_query['objectType']                     = 'jet_engine_query_builder';
+			} else {
+				$element_query = self::get_query_args( $query_object->settings, $post_id );
+			}
+
+			$element_settings['query'] = $element_query;
+
+		}
 
 		// Saves $inline_css before generating Listing grid styles
 		if ( ! empty( self::$inline_css ) ) {
@@ -140,7 +149,7 @@ class Assets extends \Bricks\Assets {
 		// Create a wrapper element representing a container element for generating dynamic css
 		if ( ! empty( $element_query ) ) {
 			$wrapper = [
-				'id'       => 'jet-listing-elements',
+				'id'       => 'jet-listing-el',
 				'name'     => 'div',
 				'parent'   => 0,
 				'settings' => $element_settings,
@@ -235,13 +244,14 @@ class Assets extends \Bricks\Assets {
 			$inline_css .= "\n/* CUSTOM FONTS CSS */\n" . self::$inline_css['custom_fonts'];
 		}
 
-		// #7 Dynamic data CSS
-		if ( ! empty( self::$inline_css_dynamic_data ) ) {
-			$inline_css .= self::$inline_css_dynamic_data;
-		}
-
 		// Make CSS selector to nested listing elements builder agnostic
-		$inline_css = str_replace( '.brxe-jet-listing-elements', '.jet-listing-base', $inline_css );
+		$inline_css = str_replace( '.brxe-jet-listing-el', '.jet-listing-base', $inline_css );
+
+		// #7 Dynamic data CSS
+		if ( $query_object && ! empty( self::$inline_css_dynamic_data ) ) {
+			// Make CSS selector to nested listing elements builder agnostic
+			$inline_css .= str_replace( '.brxe-jet-listing-el', ".brxe-{$query_object->element_id}", self::$inline_css_dynamic_data );
+		}
 
 		/**
 		 * Build Google fonts array by scanning inline CSS for Google fonts
@@ -249,10 +259,12 @@ class Assets extends \Bricks\Assets {
 		self::jet_load_webfonts( $inline_css, $post_id );
 		self::jet_load_extra_assets( $elements, $post_id );
 
-		if ( $has_dynamic_value ) {
-			delete_post_meta( $post_id, self::$css_cache_key );
-		} else {
-			update_post_meta( $post_id, self::$css_cache_key, $inline_css );
+		if ( ! $force ) {
+			if ( $has_dynamic_value ) {
+				delete_post_meta( $post_id, self::$css_cache_key );
+			} else {
+				update_post_meta( $post_id, self::$css_cache_key, $inline_css );
+			}
 		}
 
 		// Returns $inline_css after generating Listing grid styles

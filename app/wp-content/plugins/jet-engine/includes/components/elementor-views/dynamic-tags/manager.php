@@ -123,7 +123,18 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Tags_Manager' ) ) {
 				return $content;
 			}
 
-			$css = str_replace( '.elementor-' . $post_id, '.jet-listing-dynamic-post-' . $post_id, $css );
+			// Allow components to prevent selectors replacing or set it's own replacement scheme
+			$replace_selectors = apply_filters( 
+				'jet-engine/elementor-views/dynamic-tags/replace-dynamic-css-selector',
+				[ '.elementor-' . $post_id => '.jet-listing-dynamic-post-' . $post_id ], 
+				$listing_id,
+				$post_id
+			);
+
+			if ( false !== $replace_selectors ) {
+				$css = str_replace( array_keys( $replace_selectors ), array_values( $replace_selectors ), $css );
+			}
+
 			$css = sprintf( '<style type="text/css">%s</style>', $css );
 
 			return $css . $content;

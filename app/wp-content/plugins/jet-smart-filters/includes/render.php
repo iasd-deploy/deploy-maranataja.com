@@ -27,10 +27,14 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 			'plain_query',
 		);
 
+		public $use_signature_verification = false;
+
 		/**
 		 * Constructor for the class
 		 */
 		public function __construct() {
+
+			$this->use_signature_verification = filter_var( jet_smart_filters()->settings->get( 'use_signature_verification', false ), FILTER_VALIDATE_BOOLEAN );
 
 			add_action( 'parse_request', array( $this, 'apply_filters_from_request' ) );
 			add_action( 'parse_request', array( $this, 'apply_filters_from_permalink' ) );
@@ -197,6 +201,78 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 		}
 
 		/**
+		 * Verify request signature.
+		 * Request signature made on provider settings store.
+		 * It helps to prevent from injecting any 3rd party data into the request.
+		 * 
+		 * @return [type] [description]
+		 */
+		public function verify_request_signature() {
+
+			$result = false;
+
+			if ( ! empty( $_REQUEST['settings']['jsf_signature'] ) ) {
+
+				$request_signature = $_REQUEST['settings']['jsf_signature'];
+				unset( $_REQUEST['settings']['jsf_signature'] );
+				$check_signature = $this->create_signature( $_REQUEST['settings'] );
+				$result = ( $check_signature === $request_signature ) ? true : false;
+
+			} elseif ( empty( $_REQUEST['settings'] ) ) {
+				// if settings completely empty - they're cannot be hacked
+				$result = true;
+			}
+
+			return apply_filters( 'jet-smart-filters/render/ajax/verify-signature', $result );
+
+		}
+
+		/**
+		 * Create signature based on input array
+		 * 
+		 * @return [type] [description]
+		 */
+		public function create_signature( $data = [] ) {
+
+			$secret = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
+			$data = $this->prepare_data_for_sign( $data );
+			$signature_string = json_encode( $data );
+
+			return md5( $signature_string . $secret );
+
+		}
+
+		/**
+		 * Prepare data for signature to ensure consistency
+		 * 
+		 * @param  array  $data [description]
+		 * @return [type]       [description]
+		 */
+		public function prepare_data_for_sign( $data = [] ) {
+			
+			$prepared_data = [];
+
+			foreach ( $data as $key => $value ) {
+
+				if ( is_array( $value ) && ! empty( $value ) ) {
+					$prepared_data[ $key ] = $this->prepare_data_for_sign( $value );
+				} elseif ( ! is_array( $value ) ) {
+					
+					// convert booleans into strings manually
+					if ( false === $value ) {
+						$value = 'false';
+					} elseif ( true === $value ) {
+						$value = 'true';
+					}
+
+					$prepared_data[ $key ] = (string) $value;
+				}
+			}
+
+			return array_filter( $prepared_data );
+		}
+
+		/**
 		 * Apply filters in AJAX request
 		 */
 		public function ajax_apply_filters() {
@@ -213,6 +289,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Render' ) ) {
 			do_action( 'jet-smart-filters/render/ajax/before', $this, $provider_id, $query_id, $provider );
 
 			jet_smart_filters()->query->get_query_from_request();
+
+			// verify ajax request signature
+			if ( $this->use_signature_verification && ! $this->verify_request_signature( $_REQUEST ) ) {
+				wp_send_json_error( __( 'Request data is incorrect.', 'jet-smart-filters' ) );
+			}
 
 			if ( ! empty( $_REQUEST['props'] ) ) {
 

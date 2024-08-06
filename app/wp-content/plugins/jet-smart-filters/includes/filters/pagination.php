@@ -30,8 +30,8 @@ if ( ! class_exists( 'Jet_Smart_Filters_Pagination_Filter' ) ) {
 			$pages             = 10;
 			$page              = 4;
 			$items_enabled     = filter_var( $controls['items_enabled'], FILTER_VALIDATE_BOOLEAN );
-			$pages_mid_size    = $controls['pages_mid_size'];
-			$pages_end_size    = $controls['pages_end_size'];
+			$pages_mid_size    = ! empty( $controls['pages_mid_size'] ) ? absint( $controls['pages_mid_size'] ) : 0;
+			$pages_end_size    = ! empty( $controls['pages_end_size'] ) ? absint( $controls['pages_end_size'] ) : 0;
 			$nav_enabled       = filter_var( $controls['nav_enabled'], FILTER_VALIDATE_BOOLEAN );
 			$load_more_enabled = filter_var( $controls['load_more_enabled'], FILTER_VALIDATE_BOOLEAN );
 			$pages_show_all    = ( 0 === $pages_mid_size ) ? true : false;

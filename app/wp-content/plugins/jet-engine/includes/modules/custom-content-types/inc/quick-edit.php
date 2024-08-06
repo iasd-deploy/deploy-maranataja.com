@@ -116,6 +116,9 @@ class Quick_Edit extends Pages\Edit_Item_Page {
 				'id'           => 'cct_created',
 				'name'         => 'cct_created',
 				'title'        => __( 'Published', 'jet-engine' ),
+				'extra_attr'   => array(
+					'step' => '1',
+				),
 			),
 		);
 
@@ -125,6 +128,17 @@ class Quick_Edit extends Pages\Edit_Item_Page {
 
 	public function render_fields() {
 		$this->init_builder();
-		$this->builder->render();
+		$html = $this->builder->render( false );
+
+		$replace_map_attrs = array(
+			'data-required=' => 'required=',
+			'data-min='      => 'min=',
+			'data-max='      => 'max=',
+			'data-step='     => 'step=',
+		);
+
+		$html = str_replace( array_keys( $replace_map_attrs ), array_values( $replace_map_attrs ), $html );
+
+		echo $html;
 	}
 }

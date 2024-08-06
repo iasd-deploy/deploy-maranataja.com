@@ -29,6 +29,10 @@
 				$document.on( 'submit.JetListings', '#templates_type_form', self.ajaxSubmit );
 			}
 
+			if ( window.JetListingsSettings.addNewComponent ) {
+				$( '.page-title-action' ).after( window.JetListingsSettings.addNewComponent );
+			}
+
 			$( 'body' ).on( 'change', '#listing_source', self.switchListingSources );
 
 			self.applyCustomOptions();
@@ -98,7 +102,7 @@
 					self.closePopup();
 
 					let previewWindow = window.elementor.$preview[0].contentWindow;
-										
+
 					previewWindow.elementorCommon.api.internal( 'panel/state-loading' );
 					previewWindow.elementorCommon.api.run( 'editor/documents/switch', {
 						id: listingID
@@ -133,9 +137,13 @@
 
 			let $this    = $( this );
 			let formEl   = $this.closest( 'form' )[0];
-			let formData = new FormData( formEl );
+			
+			if ( window.JetPlugins ) {
+				formEl = window.JetPlugins.hooks.applyFilters( 'jetEngine.listing.formEl', formEl, $this );
+			}
 
-			const values = {};
+			const formData = new FormData( formEl );
+			const values   = {};
 
 			for( var data of formData.entries() ) {
 				values[ data[0] ] = data[1];
@@ -215,7 +223,13 @@
 				event.preventDefault();
 			}
 
-			$( '.jet-listings-popup.jet-listings-popup--new' ).addClass( 'jet-listings-popup-active' );
+			let $popup = $( '.jet-listings-popup.jet-listings-popup--new' );
+
+			if ( window.JetPlugins ) {
+				$popup = window.JetPlugins.hooks.applyFilters( 'jetEngine.listing.popup', $popup, event, defaultArgs );
+			}
+
+			$popup.first().addClass( 'jet-listings-popup-active' );
 
 			if ( defaultArgs ) {
 				for ( const arg in defaultArgs ) {
@@ -230,7 +244,9 @@
 			let $this = $( this );
 			let $popup = $this.closest( '.jet-listings-popup' )
 
-			if ( $popup.hasClass( 'jet-listings-popup--new' ) ) {
+			if ( $popup.hasClass( 'jet-listings-popup--new' ) 
+				|| $popup.hasClass( 'jet-listings-popup--keep-alive' ) 
+			) {
 				$popup.removeClass( 'jet-listings-popup-active' );
 				window.history.pushState( "", document.title, window.location.pathname + window.location.search );
 			} else {

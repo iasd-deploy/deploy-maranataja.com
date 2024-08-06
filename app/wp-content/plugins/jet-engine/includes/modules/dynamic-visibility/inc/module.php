@@ -19,6 +19,8 @@ class Module {
 	 */
 	public $conditions = null;
 
+	private $condition_controls = null;
+
 	/**
 	 * Constructor for the class
 	 */
@@ -46,6 +48,10 @@ class Module {
 	}
 
 	public function get_condition_controls() {
+
+		if ( null !== $this->condition_controls ) {
+			return $this->condition_controls;
+		}
 
 		$data = array();
 
@@ -165,6 +171,8 @@ class Module {
 				'jedv_condition' => Module::instance()->conditions->get_conditions_with_type_detect(),
 			),
 		);
+
+		$this->condition_controls = $data;
 
 		return $data;
 

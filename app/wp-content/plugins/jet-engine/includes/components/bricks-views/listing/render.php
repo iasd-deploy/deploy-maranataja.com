@@ -5,13 +5,15 @@
 
 namespace Jet_Engine\Bricks_Views\Listing;
 
+use \Bricks\Database;
 
 /**
  * Define render class
  */
 class Render {
 
-	private $current_query;
+	protected $current_query;
+	protected $elements_as_global = [];
 
 	public function __construct() {
 		add_filter( 'jet-engine/listing/content/bricks', [ $this, 'get_listing_content_cb' ], 10, 2 );
@@ -22,6 +24,9 @@ class Render {
 
 		add_action( 'jet-smart-filters/render/ajax/before', [ $this, 'set_query_on_filters_ajax' ] );
 		add_action( 'jet-engine/ajax-handlers/before-do-ajax', [ $this, 'set_query_on_listing_ajax' ], 10, 2 );
+
+		add_filter( 'jet-engine/listing/render/default-settings', [ $this, 'add_default_settings' ] );
+		add_filter( 'jet-engine/listing/grid/nav-widget-settings', [ $this, 'add_widget_settings' ], 10, 2 );
 	}
 
 	public function set_bricks_query( $listing_id = 0, $settings = [] ) {
@@ -30,12 +35,21 @@ class Render {
 			$listing_id = isset( $settings['lisitng_id'] ) ? absint( $settings['lisitng_id'] ) : 0;
 		}
 
-		if ( $listing_id && jet_engine()->bricks_views->is_bricks_listing( $listing_id ) ) {
-			$this->current_query[ $listing_id ] = jet_engine()->bricks_views->listing->get_bricks_query( [
-				'id'       => 'jet-engine-listing-grid',
-				'settings' => $settings,
-			] );
+		if ( ! $listing_id || ! jet_engine()->bricks_views->is_bricks_listing( $listing_id ) ) {
+			return;
 		}
+
+		if ( jet_engine()->listings->components->is_component( $listing_id ) ) {
+			// If we already has some query and component in context of this query - doesn't create new query
+			if ( ! empty( $this->current_query ) || \Bricks\Query::is_any_looping() ) {
+				return;
+			}
+		}
+
+		$this->current_query[ $listing_id ] = jet_engine()->bricks_views->listing->get_bricks_query( [
+			'id'       => $settings['_id'] ?? '',
+			'settings' => $settings,
+		] );
 
 	}
 
@@ -69,17 +83,26 @@ class Render {
 	public function destroy_bricks_query( $render ) {
 
 		$listing_id = $render->get_settings( 'lisitng_id' );
+		
+		if ( $listing_id ) {
+			$this->destroy_bricks_query_for_listing( $listing_id );
+		}
+
+	}
+
+	public function destroy_bricks_query_for_listing( $listing_id ) {
+
 		$current_query = $this->get_current_query( $listing_id );
 
 		if ( $current_query ) {
 			$current_query->is_looping = false;
+			$current_query->is_component_listing = false;
 
 			// Destroy Query to explicitly remove it from global store
 			$current_query->destroy();
 
 			unset( $this->current_query[ $listing_id ] );
 		}
-
 	}
 
 	public function remap_columns( $columns, $settings ) {
@@ -108,22 +131,44 @@ class Render {
 			return;
 		}
 
-		ob_start();
-		jet_engine()->bricks_views->listing->render_assets( $listing_id );
-		$result = ob_get_clean();
+		$is_component = jet_engine()->listings->components->is_component( $listing_id );
+		$post         = jet_engine()->listings->data->get_current_object();
+		$object_id    = jet_engine()->listings->data->get_current_object_id();
 
-		$post = jet_engine()->listings->data->get_current_object();
+		ob_start();
+
+		if ( $is_component ) {
+
+			$elements_to_merge = [];
+
+			foreach ( $bricks_data as $index => $element ) {
+				
+				$bricks_data[ $index ]['global'] = $element['id'];
+
+				if ( ! in_array( $element['id'], $this->elements_as_global ) ) {
+					$elements_to_merge[] = $bricks_data[ $index ];
+					$this->elements_as_global[] = $element['id'];
+				}
+			}
+
+			if ( ! empty( $elements_to_merge ) ) {
+				Database::$global_data['elements'] = array_merge( Database::$global_data['elements'], $elements_to_merge );
+			}
+
+		}
+
+		jet_engine()->bricks_views->listing->render_assets( $listing_id, $is_component );
+		$result = ob_get_clean();
 
 		// Retrieve the current query object based on the listing ID.
 		$current_query = $this->get_current_query( $listing_id );
 
 		// Set current query loop index to the adjusted value.
-		if ( isset( $post->ID ) && $current_query ) {
-			$current_query->loop_index = $post->ID;
-		}
-
-		if ( ( isset( $post->cct_slug ) || isset( $post->_ID ) ) && $current_query ) {
-			$current_query->loop_index = $post->_ID;
+		if ( $current_query 
+			&& ! $current_query->is_component_listing 
+		) {
+			$current_query->loop_object = $post;
+			$current_query->loop_index  = $object_id;
 		}
 
 		// Prepare flat list of elements for recursive calls
@@ -173,4 +218,13 @@ class Render {
 
 	}
 
+	public function add_default_settings( $settings ) {
+		$settings['_id'] = '';
+		return $settings;
+	}
+
+	public function add_widget_settings( $widget_settings, $settings ) {
+		$widget_settings['_id'] = $settings['_id'] ?? '';
+		return $widget_settings;
+	}
 }

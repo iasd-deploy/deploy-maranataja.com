@@ -41,11 +41,11 @@ class Users extends Base {
 	public function add_preload_hooks( $preload_fields ) {
 
 		foreach ( $preload_fields as $field ) {
-
-			$field  = str_replace( '_custom::users::', '', $field );
 			$fields = explode( '+', $field );
 
 			if ( 1 === count( $fields ) ) {
+				$field = str_replace( 'user::', '', $field );
+
 				add_filter( 'update_user_metadata', function( $return, $user_id, $meta_key, $meta_value ) use ( $field ) {
 
 					if ( $field === $meta_key ) {
@@ -65,12 +65,14 @@ class Users extends Base {
 				}, 10, 4 );
 
 			} else {
-				$this->field_groups[] = $fields;
+				$this->field_groups[] = array_map( function ( $item ) {
+					return str_replace( 'user::', '', $item );
+				}, $fields );
 			}
 		}
 
 		if ( ! empty( $this->field_groups ) ) {
-			add_action( 'save_post', array( $this, 'preload_groups' ), 9999 );
+			add_action( 'wp_update_user', array( $this, 'preload_groups' ), 9999 );
 		}
 	}
 

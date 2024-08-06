@@ -3,7 +3,7 @@
  * Filter items moreless template
  */
 
-if ( empty( $args ) || ! $args['less_items_count'] || $args['less_items_count'] > count( $options ) ) {
+if ( empty( $args['less_items_count'] ) || $args['less_items_count'] > count( $options ) ) {
 	return;
 }
 

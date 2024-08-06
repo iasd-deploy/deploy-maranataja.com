@@ -71,8 +71,27 @@ class Posts extends Base {
 		global $wpdb;
 		$table = $wpdb->posts;
 
+		$post_statuses = apply_filters(
+			'jet-engine/relations/types/posts/get-items/post-statuses',
+			array( 'publish' ), $object_name, $relation
+		);
+
+		if ( empty( $post_statuses ) ) {
+			$post_statuses = array( 'publish' );
+		}
+
+		if ( ! is_array( $post_statuses ) ) {
+			$post_statuses = array( $post_statuses );
+		}
+
+		$post_statuses = array_map( function ( $status ) {
+			return sprintf( "'%s'", esc_sql( $status ) );
+		}, $post_statuses );
+
+		$post_statuses = sprintf( '( %s )', implode( ', ', $post_statuses ) );
+
 		$res = $wpdb->get_results(
-			"SELECT ID AS value, post_title AS label FROM $table WHERE post_type='{$object_name}' AND post_status = 'publish' ORDER BY ID DESC",
+			"SELECT ID AS value, post_title AS label FROM $table WHERE post_type='{$object_name}' AND post_status IN {$post_statuses} ORDER BY ID DESC",
 			ARRAY_A
 		);
 

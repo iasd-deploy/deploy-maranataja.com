@@ -173,10 +173,11 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 		$css_scheme = apply_filters(
 			'jet-smart-filters/widgets/base/css-scheme',
 			array(
-				'filter'               => '.jet-filter',
-				'filters-label'        => '.jet-filter-label',
-				'apply-filters'        => '.apply-filters',
-				'apply-filters-button' => '.apply-filters__button',
+				'filter'                => '.jet-filter',
+				'filters-label'         => '.jet-filter-label',
+				'apply-filters'         => '.apply-filters',
+				'apply-filters-button'  => '.apply-filters__button',
+				'dropdown-apply-button' => '.jet-filter-items-dropdown__apply-button',
 			)
 		);
 
@@ -310,7 +311,7 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 			array(
 				'name'     => 'filter_apply_button_typography',
 				'scheme'   => Scheme_Typography::TYPOGRAPHY_1,
-				'selector' => '{{WRAPPER}} ' . $css_scheme['apply-filters-button'],
+				'selector' => '{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ', {{WRAPPER}} ' . $css_scheme['dropdown-apply-button'],
 			)
 		);
 
@@ -329,7 +330,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'label'     => esc_html__( 'Text Color', 'jet-smart-filters' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] => 'color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button']  => 'color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] => 'color: {{VALUE}}',
 				),
 			)
 		);
@@ -340,7 +342,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'label'     => esc_html__( 'Background Color', 'jet-smart-filters' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button']  => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] => 'background-color: {{VALUE}}',
 				),
 			)
 		);
@@ -360,7 +363,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'label'     => esc_html__( 'Text Color', 'jet-smart-filters' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ':hover' => 'color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ':hover'  => 'color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] . ':hover' => 'color: {{VALUE}}',
 				),
 			)
 		);
@@ -371,7 +375,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'label'     => esc_html__( 'Background Color', 'jet-smart-filters' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ':hover' => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ':hover'  => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] . ':hover' => 'background-color: {{VALUE}}',
 				),
 			)
 		);
@@ -382,7 +387,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'label'     => esc_html__( 'Border Color', 'jet-smart-filters' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ':hover' => 'border-color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ':hover'  => 'border-color: {{VALUE}}',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] . ':hover' => 'border-color: {{VALUE}}',
 				),
 				'condition' => array(
 					'filter_apply_button_border_border!' => '',
@@ -401,7 +407,7 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'label'       => esc_html__( 'Border', 'jet-smart-filters' ),
 				'placeholder' => '1px',
 				'default'     => '1px',
-				'selector'    => '{{WRAPPER}} ' . $css_scheme['apply-filters-button'],
+				'selector'    => '{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ', {{WRAPPER}} ' . $css_scheme['dropdown-apply-button'],
 				'separator'   => 'before'
 			)
 		);
@@ -413,7 +419,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', '%' ),
 				'selectors'  => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button']  => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				),
 			)
 		);
@@ -422,7 +429,7 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 			Group_Control_Box_Shadow::get_type(),
 			array(
 				'name'     => 'filter_apply_button_shadow',
-				'selector' => '{{WRAPPER}} ' . $css_scheme['apply-filters-button'],
+				'selector' => '{{WRAPPER}} ' . $css_scheme['apply-filters-button'] . ', {{WRAPPER}} ' . $css_scheme['dropdown-apply-button'],
 			)
 		);
 
@@ -433,7 +440,8 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', '%' ),
 				'selectors'  => array(
-					'{{WRAPPER}} ' . $css_scheme['apply-filters-button'] => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} ' . $css_scheme['apply-filters-button']  => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} ' . $css_scheme['dropdown-apply-button'] => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				),
 				'separator'  => 'before'
 			)
@@ -699,22 +707,18 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 		$apply_indexer     = ! empty( $settings['apply_indexer'] ) ? filter_var( $settings['apply_indexer'], FILTER_VALIDATE_BOOLEAN ) : false;
 		$filter_image_size = ! empty( $settings['filter_image_size'] ) ? $settings['filter_image_size'] : 'full';
 		$change_items_rule = ! empty( $settings['change_items_rule'] ) ? $settings['change_items_rule'] : 'always';
+
+		/**
+		 * Additional settings
+		 */
 		// search
-		$search_enabled     = ! empty( $settings['search_enabled'] ) ? filter_var( $settings['search_enabled'], FILTER_VALIDATE_BOOLEAN ) : false;
-		$search_placeholder = ! empty( $settings['search_placeholder'] ) && $search_enabled ? $settings['search_placeholder'] : false;
+		$search_enabled   = ! empty( $settings['search_enabled'] ) ? filter_var( $settings['search_enabled'], FILTER_VALIDATE_BOOLEAN ) : false;
 		// more/less
 		$less_items_count = ! empty( $settings['moreless_enabled'] ) && ! empty( $settings['less_items_count'] ) ? (int)$settings['less_items_count'] : false;
-		$more_text        = ! empty( $settings['more_text'] ) ? $settings['more_text'] : false;
-		$less_text        = ! empty( $settings['less_text'] ) ? $settings['less_text'] : false;
 		// dropdown
-		$dropdown_enabled     = ! empty( $settings['dropdown_enabled'] ) ? $settings['dropdown_enabled'] : false;
-		$dropdown_placeholder = ! empty( $settings['dropdown_placeholder'] ) ? $settings['dropdown_placeholder'] : false;
-		// dropdown n selected
-		$dropdown_n_selected_enabled = ! empty( $settings['dropdown_n_selected_enabled'] ) ? filter_var( $settings['dropdown_n_selected_enabled'], FILTER_VALIDATE_BOOLEAN ) : false;
-		$dropdown_n_selected_number  = isset( $settings['dropdown_n_selected_number'] ) && $settings['dropdown_n_selected_number'] >= 0 ? $settings['dropdown_n_selected_number'] : 3;
-		$dropdown_n_selected_text    = isset( $settings['dropdown_n_selected_text'] ) ? $settings['dropdown_n_selected_text'] : __( 'and {number} others', 'jet-smart-filters' );
+		$dropdown_enabled = ! empty( $settings['dropdown_enabled'] ) ? $settings['dropdown_enabled'] : false;
 		// scroll
-		$scroll_height = ! empty( $settings['scroll_enabled'] ) && ! empty( $settings['scroll_height'] ) ? (int)$settings['scroll_height'] : false;
+		$scroll_height    = ! empty( $settings['scroll_enabled'] ) && ! empty( $settings['scroll_height'] ) ? (int)$settings['scroll_height'] : false;
 
 		if ( $apply_indexer ){
 			$indexer_class   = 'jet-filter-indexed';
@@ -773,20 +777,30 @@ class Jet_Smart_Filters_Base_Widget extends Widget_Base {
 			}
 
 			// search
-			if ( $search_enabled ) $filter_template_args['search_enabled'] = $search_enabled;
-			if ( $search_placeholder ) $filter_template_args['search_placeholder'] = $search_placeholder;
+			if ( $search_enabled ) {
+				$filter_template_args['search_enabled']     = $search_enabled;
+				$filter_template_args['search_placeholder'] = ! empty( $settings['search_placeholder'] ) ? $settings['search_placeholder'] : __( 'Search...', 'jet-smart-filters' );
+			}
 			// more/less
-			if ( $less_items_count ) $filter_template_args['less_items_count'] = $less_items_count;
-			if ( $more_text ) $filter_template_args['more_text'] = $more_text;
-			if ( $less_text ) $filter_template_args['less_text'] = $less_text;
+			if ( $less_items_count ) {
+				$filter_template_args['less_items_count'] = $less_items_count;
+				$filter_template_args['more_text']        = ! empty( $settings['more_text'] ) ? $settings['more_text'] : __( 'More', 'jet-smart-filters' );
+				$filter_template_args['less_text']        = ! empty( $settings['less_text'] ) ? $settings['less_text'] : __( 'Less', 'jet-smart-filters' );
+			}
 			//dropdown
-			if ( $dropdown_enabled ) $filter_template_args['dropdown_enabled'] = $dropdown_enabled;
-			if ( $dropdown_placeholder ) $filter_template_args['dropdown_placeholder'] = $dropdown_placeholder;
-			//dropdown n selected
-			if ( $dropdown_n_selected_enabled ) {
-				$filter_template_args['dropdown_n_selected_enabled'] = $dropdown_n_selected_enabled;
-				$filter_template_args['dropdown_n_selected_number'] = $dropdown_n_selected_number;
-				$filter_template_args['dropdown_n_selected_text'] = $dropdown_n_selected_text;
+			if ( $dropdown_enabled ) {
+				$filter_template_args['dropdown_enabled']           = $dropdown_enabled;
+				$filter_template_args['dropdown_placeholder']       = ! empty( $settings['dropdown_placeholder'] ) ? $settings['dropdown_placeholder'] : __( 'Select some options', 'jet-smart-filters' );
+				$filter_template_args['dropdown_apply_button']      = ! empty( $settings['dropdown_apply_button'] ) ? $settings['dropdown_apply_button'] : false;
+				$filter_template_args['dropdown_apply_button_text'] = ! empty( $settings['dropdown_apply_button_text'] ) ? $settings['dropdown_apply_button_text'] : esc_html__( 'Apply', 'jet-smart-filters' );
+
+				// dropdown n selected
+				$dropdown_n_selected_enabled = ! empty( $settings['dropdown_n_selected_enabled'] ) ? filter_var( $settings['dropdown_n_selected_enabled'], FILTER_VALIDATE_BOOLEAN ) : false;
+				if ( $dropdown_n_selected_enabled ) {
+					$filter_template_args['dropdown_n_selected_enabled'] = $dropdown_n_selected_enabled;
+					$filter_template_args['dropdown_n_selected_number']  = isset( $settings['dropdown_n_selected_number'] ) && $settings['dropdown_n_selected_number'] >= 0 ? $settings['dropdown_n_selected_number'] : 3;
+					$filter_template_args['dropdown_n_selected_text']    = isset( $settings['dropdown_n_selected_text'] ) ? $settings['dropdown_n_selected_text'] : __( 'and {number} others', 'jet-smart-filters' );
+				}
 			}
 			// scroll
 			if ( $scroll_height ) $filter_template_args['scroll_height'] = $scroll_height;

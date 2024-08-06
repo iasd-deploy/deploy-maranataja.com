@@ -337,7 +337,8 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Functions' ) ) {
 					'term_meta' => __( 'Term Meta', 'jet-engine' ),
 					'user_meta' => __( 'User Meta', 'jet-engine' ),
 				),
-				'condition' => array(
+				'description'     => __( '<b>Please note:</b> if you used <b>Custom Meta Storage</b> feature for meta data you want to get with Dynamic Functions, you need to use <b>SQL Query Results</b> function type', 'jet-engine' ),
+				'condition'       => array(
 					'function_name!' => 'query_var',
 				),
 			);

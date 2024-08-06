@@ -320,6 +320,10 @@ if ( ! class_exists( 'Jet_Engine_CPT_Admin_Filters' ) ) {
 
 			$result = array();
 
+			if ( empty( $filter['options_source'] ) ) {
+				return $result;
+			}
+
 			switch ( $filter['options_source'] ) {
 
 				case 'field_options':

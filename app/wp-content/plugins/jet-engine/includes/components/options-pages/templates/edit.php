@@ -148,7 +148,7 @@
 				></cx-vui-switcher>
 			</div>
 		</cx-vui-collapse>
-		<jet-meta-fields v-model="fieldsList" :hide-options="[ 'quick_editable', 'revision_support' ]"></jet-meta-fields>
+		<jet-meta-fields v-model="fieldsList" :hide-options="[ 'quick_editable', 'revision_support', 'repeater_save_separate' ]"></jet-meta-fields>
 	</div>
 	<div class="jet-engine-edit-page__actions">
 		<div class="jet-engine-edit-page__actions-panel">

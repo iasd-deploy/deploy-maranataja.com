@@ -46,12 +46,14 @@ if ( ! class_exists( 'Jet_Engine_Blocks_Views' ) ) {
 			require $this->component_path( 'block-types.php' );
 			require $this->component_path( 'ajax-handlers.php' );
 			require $this->component_path( 'dynamic-content/manager.php' );
+			require $this->component_path( 'components/register.php' );
 
 			$this->render          = new Jet_Engine_Blocks_Views_Render();
 			$this->block_types     = new Jet_Engine_Blocks_Views_Types();
 			$this->dynamic_content = new \Jet_Engine\Blocks_Views\Dynamic_Content\Manager();
 
 			new Jet_Engine_Blocks_Views_Ajax_Handlers();
+			new \Jet_Engine\Blocks_Views\Components\Register();
 		}
 
 		/**

@@ -19,6 +19,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Pro_Package' ) ) {
 	 */
 	class Jet_Engine_Elementor_Pro_Package {
 
+		private $initial_object = null;
+
 		/**
 		 * Constructor for the class
 		 */
@@ -31,18 +33,18 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Pro_Package' ) ) {
 			add_filter( 'jet-engine/listings/data/the-post/is-main-query', array( $this, 'maybe_modify_is_main_query' ), 10, 3 );
 			add_filter( 'jet-engine/listings/data/default-object',         array( $this, 'set_default_object_on_ajax' ) );
 
+			// Taxonomy Loop compatibility hooks.
+			add_action( 'elementor/frontend/before_get_builder_content', array( $this, 'set_current_obj_before_term_loop_item' ) );
+			add_action( 'elementor/frontend/get_builder_content',        array( $this, 'set_initial_obj_after_term_loop_item' ) );
+
 		}
 
 		public function on_elementor_init() {
-			$is_active_page_transitions = Elementor\Plugin::instance()->experiments->is_feature_active( 'page-transitions' );
-
-			if ( $is_active_page_transitions ) {
-				add_filter(
-					'jet-engine/listings/dynamic-link/custom-attrs',
-					array( $this, 'disable_page_transition_for_delete_link' ),
-					10, 2
-				);
-			}
+			add_filter(
+				'jet-engine/listings/dynamic-link/custom-attrs',
+				array( $this, 'disable_page_transition_for_delete_link' ),
+				10, 2
+			);
 		}
 
 		public function disable_page_transition_for_delete_link( $attrs, $render ) {
@@ -204,6 +206,44 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Pro_Package' ) ) {
 			}
 
 			return $default_object;
+		}
+
+		public function is_term_loop_item( $doc ) {
+
+			if ( 'loop-item' !== $doc->get_name() ) {
+				return false;
+			}
+
+			global $wp_query;
+
+			return ! empty( $wp_query->loop_term );
+		}
+
+		public function set_current_obj_before_term_loop_item( $doc ) {
+
+			if ( ! $this->is_term_loop_item( $doc ) ) {
+				return;
+			}
+
+			$this->initial_object = jet_engine()->listings->data->get_current_object();
+
+			global $wp_query;
+
+			jet_engine()->listings->data->set_current_object( $wp_query->loop_term );
+		}
+
+		public function set_initial_obj_after_term_loop_item( $doc ) {
+
+			if ( ! $this->is_term_loop_item( $doc ) ) {
+				return;
+			}
+
+			if ( empty( $this->initial_object ) ) {
+				return;
+			}
+
+			jet_engine()->listings->data->set_current_object( $this->initial_object );
+			$this->initial_object = null;
 		}
 
 	}

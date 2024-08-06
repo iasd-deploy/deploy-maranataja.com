@@ -27,6 +27,11 @@ class Jet_Smart_Filters_Rating_Widget extends Jet_Smart_Filters_Base_Widget {
 		return 'jet-smart-filters-icon-rating-filter';
 	}
 
+	public function get_style_depends() {
+
+		return array( 'font-awesome' );
+	}
+
 	public function get_help_url() {
 
 		return jet_smart_filters()->widgets->prepare_help_url(

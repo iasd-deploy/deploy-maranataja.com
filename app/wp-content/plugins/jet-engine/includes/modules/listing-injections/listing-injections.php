@@ -522,13 +522,23 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 									break;
 
 								case 'LIKE':
-									if ( false !== strpos( $compare_val, $meta_val ) ) {
+
+									if ( is_array( $meta_val ) ) {
+										$meta_val = json_encode( $meta_val );
+									}
+
+									if ( false !== strpos( $meta_val, $compare_val ) ) {
 										$matched = true;
 									}
 									break;
 
 								case 'NOT LIKE':
-									if ( false === strpos( $compare_val, $meta_val ) ) {
+
+									if ( is_array( $meta_val ) ) {
+										$meta_val = json_encode( $meta_val );
+									}
+
+									if ( false === strpos( $meta_val, $compare_val ) ) {
 										$matched = true;
 									}
 									break;
@@ -607,7 +617,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 						$terms = ! empty( $item['terms'] ) ? explode( ',', $item['terms'] ) : array();
 						$terms = array_map( 'trim', $terms );
 
-						if ( ! empty( $terms ) && has_term( $terms, $tax, $post ) ) {
+						if ( ! empty( $terms ) && $this->object_has_terms( $post, $tax, $terms ) ) {
 							if ( $once ) {
 								if ( ! isset( $this->injected_counter[ $item['item'] ] ) ) {
 									$this->increase_count( $item['item'], $i, $item );
@@ -698,6 +708,19 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 
 			return false;
 
+		}
+
+		public function object_has_terms( $object, $tax = '', $terms = [] ) {
+
+				$result    = false;
+				$object_id = isset( $object->ID ) ? $object->ID : false;
+		
+				if ( ! empty( $terms ) && $object_id ) {
+					$result = has_term( $terms, $tax, $object_id );
+				}
+				
+				return apply_filters( 'jet-engine/listing-injections/object-has-terms', $result, $object, $tax, $terms );
+		
 		}
 
 		public function get_injected_hash( $item ) {

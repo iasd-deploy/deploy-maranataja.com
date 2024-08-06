@@ -152,6 +152,10 @@ class Preset {
 
 		$content_type = Module::instance()->manager->get_content_types( $slug );
 
+		if ( ! $content_type ) {
+			return false;
+		}
+
 		$item      = false;
 		$from      = ! empty( $args['post_from'] ) ? $args['post_from'] : 'current_post';
 		$query_var = ! empty( $args['query_var'] ) ? $args['query_var'] : false;

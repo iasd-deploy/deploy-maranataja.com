@@ -18,16 +18,55 @@ class Plugin_Settings extends Base {
 		return 'plugin-settings';
 	}
 
+	public function get_args() {
+
+		return array(
+			'key'      => array(
+				'required' => false,
+			),
+			'settings' => array(
+				'required' => true,
+			),
+		);
+	}
+
 	public function callback( $request ) {
 
-		$data = array_map(
-			function( $setting ) {
-				return is_array( $setting ) ? $setting : esc_attr( $setting );
-			},
-			$request->get_params()
-		);
+		$args     = $request->get_params();
+		$key      = $args['key'];
+		$settings = $args['settings'];
 
-		update_option( jet_smart_filters()->settings->key, $data );
+		if ( $key ) {
+
+			// update specified option by key
+			$data = array_map(
+				function( $setting ) {
+					return is_array( $setting ) ? $setting : esc_attr( $setting );
+				},
+				$settings
+			);
+
+			jet_smart_filters()->settings->update( $key, $data );
+
+			if ( $key === 'seo_sitemap_rules' ) {
+				jet_smart_filters()->seo_sitemap->update_seo_sitemap();
+			}
+
+		} else {
+
+			// update all settings
+			$data = array_map(
+				function( $setting ) {
+					return is_array( $setting ) ? $setting : esc_attr( $setting );
+				},
+				$settings
+			);
+
+			jet_smart_filters()->seo_sitemap->process_seo_sitemap_settings( $data );
+
+			update_option( jet_smart_filters()->settings->key, $data );
+
+		}
 
 		return rest_ensure_response( [
 			'status'  => 'success',

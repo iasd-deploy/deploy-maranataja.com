@@ -189,6 +189,21 @@ class Jet_Listing_Dynamic_Terms_Widget extends Widget_Base {
 		);
 
 		$this->add_control(
+			'field_fallback',
+			array(
+				'label'       => esc_html__( 'Fallback', 'jet-engine' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => '',
+				'label_block' => true,
+				'description' => __( 'Show this if field value is empty', 'jet-engine' ),
+				'dynamic'     => array( 'active' => true, ),
+				'condition'   => array(
+					'hide_if_empty' => '',
+				),
+			)
+		);
+
+		$this->add_control(
 			'object_context',
 			array(
 				'label'     => __( 'Context', 'jet-engine' ),
@@ -671,7 +686,7 @@ class Jet_Listing_Dynamic_Terms_Widget extends Widget_Base {
 	}
 
 	protected function render() {
-		jet_engine()->listings->render_item( 'dynamic-terms', $this->get_settings() );
+		jet_engine()->listings->render_item( 'dynamic-terms', $this->get_settings_for_display() );
 	}
 
 }

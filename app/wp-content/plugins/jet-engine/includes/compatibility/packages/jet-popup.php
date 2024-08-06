@@ -156,6 +156,20 @@ if ( ! class_exists( 'Jet_Engine_Popup_Package' ) ) {
 				return $content;
 			}
 
+			if ( ! empty( $popup_data['page_url'] ) && apply_filters( 'jet-engine/compatibility/popup-package/set-queried-object', true, $popup_data ) ) {
+				$_SERVER['REQUEST_URI'] = str_replace( site_url(), '', $popup_data['page_url'] );
+				$_SERVER['REQUEST_URI'] = preg_replace( '/#.+$/', '', $_SERVER['REQUEST_URI'] );
+				$_SERVER['PHP_SELF']    = '/index.php';
+
+				global $wp;
+	
+				$wp->parse_request();
+				$wp->query_posts();
+				wp_reset_postdata();
+
+				do_action( 'jet-engine/profile-builder/query/maybe-setup-props' );
+			}
+			
 			do_action( 'jet-engine/compatibility/popup-package/get-content', $content, $popup_data );
 
 			$source   = ! empty( $popup_data['listingSource'] ) ? $popup_data['listingSource'] : 'posts';

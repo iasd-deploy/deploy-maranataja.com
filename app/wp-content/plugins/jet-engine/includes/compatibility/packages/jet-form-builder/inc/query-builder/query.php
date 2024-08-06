@@ -301,7 +301,9 @@ class Form_Query extends \Jet_Engine\Query_Builder\Queries\SQL_Query {
 	 * @return string[]
 	 */
 	public function get_args_to_explode() {
-		return array();
+		return array(
+			'record__in',
+		);
 	}
 
 }

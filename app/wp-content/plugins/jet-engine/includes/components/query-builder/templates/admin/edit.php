@@ -373,6 +373,16 @@
 						v-model="generalSettings.preview_query_string"
 						@input="updatePreview"
 					></cx-vui-input>
+					<cx-vui-input
+						label="<?php _e( 'Preview query count', 'jet-engine' ); ?>"
+						description="<?php _e( 'Number of items to show', 'jet-engine' ); ?>"
+						:wrapper-css="[ 'preview-control' ]"
+						type="number"
+						size="fullwidth"
+						name="query_preview_query_count"
+						v-model="generalSettings.preview_query_count"
+						@input="updatePreview"
+					></cx-vui-input>
 				</div>
 				<div :class="{ 'jet-engine-query-preview__body': true, 'jet-engine-query-preview__body-updating': updatingPreview }">
 					<div class="jet-engine-query-preview__count"><b><?php _e( 'Results Count:', 'get-engine' ); ?></b> {{ previewCount }}</div>

@@ -43,10 +43,8 @@ class Jet_Listing_Item_Document extends Elementor\Core\Base\Document {
 		return '.jet-listing-item.single-jet-engine.elementor-page-' . $this->get_main_id();
 	}
 
-	protected function register_controls() {
-
-		parent::register_controls();
-
+	public function register_jet_controls() {
+		
 		$this->start_controls_section(
 			'jet_listing_settings',
 			array(
@@ -272,6 +270,13 @@ class Jet_Listing_Item_Document extends Elementor\Core\Base\Document {
 		);
 
 		$this->end_controls_section();
+
+	}
+
+	protected function register_controls() {
+
+		parent::register_controls();
+		$this->register_jet_controls();
 
 	}
 

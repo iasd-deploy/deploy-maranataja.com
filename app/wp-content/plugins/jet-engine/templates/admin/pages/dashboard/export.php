@@ -110,6 +110,16 @@
 						v-model="skin.listing_items"
 					></cx-vui-checkbox>
 				</div>
+				<div class="jet-engine-skins-settings-item">
+					<cx-vui-checkbox
+						name="components"
+						label="<?php _e( 'Components', 'jet-engine' ); ?>"
+						return-type="array"
+						:wrapper-css="[ 'vertical-fullwidth' ]"
+						:options-list="componentsList"
+						v-model="skin.components"
+					></cx-vui-checkbox>
+				</div>
 
 				<?php do_action( 'jet-engine/dashboard/templates/export/after-items' ); ?>
 

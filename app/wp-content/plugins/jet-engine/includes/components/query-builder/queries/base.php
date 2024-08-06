@@ -45,6 +45,15 @@ abstract class Base_Query {
 	}
 
 	/**
+	 * Returns query type for 3rd party integrations. For any internal usage take property directly
+	 * 
+	 * @return string
+	 */
+	public function get_query_type() {
+		return $this->query_type;
+	}
+
+	/**
 	 * Register Rest API endpoint for this query if enbaled.
 	 * 
 	 * @return [type] [description]

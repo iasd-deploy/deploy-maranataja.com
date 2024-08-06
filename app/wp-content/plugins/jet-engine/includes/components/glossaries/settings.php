@@ -385,6 +385,8 @@ class Settings {
 								:title="settings.fields[ fieldIndex ].label"
 								:subtitle="settings.fields[ fieldIndex ].value"
 								:collapsed="isCollapsed( field )"
+								:icon="getWarningIcon()"
+								:showIcon="isInvalidValue( settings.fields[ fieldIndex ].value )"
 								:index="fieldIndex"
 								@clone-item="cloneField( $event, fieldIndex )"
 								@delete-item="deleteField( $event, fieldIndex )"
@@ -397,7 +399,18 @@ class Settings {
 									:size="'fullwidth'"
 									:value="settings.fields[ fieldIndex ].value"
 									@input="setFieldProp( fieldIndex, 'value', $event )"
-								></cx-vui-input>
+								>
+									<cx-vui-alert
+										type="warning"
+										:value="isInvalidValue( settings.fields[ fieldIndex ].value )"
+									><?php
+										_e( 'It is recommended that all values contain only lowercase Latin 
+											letters and numbers, without spaces and special characters for better 
+											compatibility with forms, filters and queries. Use hyphens and 
+											underscores to separate words. But if everything is working fine for 
+											you, you can ignore this message.', 'jet-engine' );
+									?></cx-vui-alert>
+								</cx-vui-input>
 								<cx-vui-input
 									:label="'<?php _e( 'Field Label', 'jet-engine' ); ?>'"
 									:description="'<?php _e( 'This will be shown for the user', 'jet-engine' ); ?>'"

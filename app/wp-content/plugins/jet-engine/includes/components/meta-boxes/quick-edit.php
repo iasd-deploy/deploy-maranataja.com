@@ -199,7 +199,8 @@ if ( ! class_exists( 'Jet_Engine_CPT_Quick_Edit' ) ) {
 
 			$post      = get_post( $post_id );
 			$post_meta = new Cherry_X_Post_Meta();
-			$value     = $post_meta->get_meta( $post, $this->get_field( 'name' ), false, $this->get_field() );
+			$default   = $this->get_field( 'value' );
+			$value     = $post_meta->get_meta( $post, $this->get_field( 'name' ), $default, $this->get_field() );
 
 			if ( 'select' === $this->get_field( 'type' ) && $this->get_field( 'multiple' ) && ! is_array( $value ) ) {
 				$value = array( $value );
@@ -214,6 +215,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Quick_Edit' ) ) {
 			if ( 'checkbox' === $this->get_field( 'type' ) ) {
 				$this->set_field( 'type', 'checkbox-raw' );
 				$this->set_field( 'value', array() );
+				$this->set_field( 'required', false );
 			}
 
 			if ( 'text' === $this->get_field( 'type' ) && ! empty( $value )
@@ -287,7 +289,18 @@ if ( ! class_exists( 'Jet_Engine_CPT_Quick_Edit' ) ) {
 			}
 
 			$builder->register_control( $field );
-			$builder->render();
+			$control_html = $builder->render( false );
+
+			$replace_map_attrs = array(
+				'data-required=' => 'required=',
+				'data-min='      => 'min=',
+				'data-max='      => 'max=',
+				'data-step='     => 'step=',
+			);
+
+			$control_html = str_replace( array_keys( $replace_map_attrs ), array_values( $replace_map_attrs ), $control_html );
+
+			echo $control_html;
 
 			printf( '<input type="hidden" name="jet_engine_quick_edit[]" value="%s">', $this->get_trigger_col() );
 
@@ -305,7 +318,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Quick_Edit' ) ) {
 						width: 24.5%;
 						min-width: 250px;
 						box-sizing: border-box;
-						justify-content: flex-between;
+						justify-content: space-between;
 					}
 					.inline-edit-row .cx-control select[multiple] {
 						height: 120px;
@@ -321,6 +334,9 @@ if ( ! class_exists( 'Jet_Engine_CPT_Quick_Edit' ) ) {
 					}
 					.inline-edit-row .cx-ui-kit__content {
 						flex: 0 0 calc( 100% - 115px );
+					}
+					.inline-edit-row .cx-control__required {
+						color: #e54343;
 					}
 				</style>';
 

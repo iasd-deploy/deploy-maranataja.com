@@ -12,8 +12,10 @@ class Manager {
 
 	private $initial_object = null;
 
+	private $processing_item = null;
+
 	public function __construct() {
-		
+
 		add_action( 'jet-engine-query-gateway/control', array( $this, 'register_controls' ), 10, 2 );
 		add_action( 'jet-engine-query-gateway/do-item', array( $this, 'set_item_object' ) );
 		add_action( 'jet-engine-query-gateway/reset-item', array( $this, 'reset_item_object' ) );
@@ -23,7 +25,7 @@ class Manager {
 		foreach ( array( 'jet-tabs', 'jet-elements' ) as $plugin_slug ) {
 			add_filter( $plugin_slug . '/widget/loop-items', array( $this, 'jet_plugins_compatibility' ), 10, 3 );
 		}
-		
+
 	}
 
 	public function set_item_object( $item ) {
@@ -32,13 +34,35 @@ class Manager {
 			// Store initial object
 			if ( ! $this->initial_object ) {
 				$this->initial_object = jet_engine()->listings->data->get_current_object();
+			} else {
+				// Remove prevent item from stack.
+				$prev_item = jet_engine()->listings->data->get_current_object();
+
+				if ( $prev_item !== $this->initial_object ) {
+					do_action( 'jet-engine/object-stack/decrease', $prev_item );
+				}
 			}
 
+			$this->processing_item = $item['_jet_engine_queried_object'];
+
 			jet_engine()->listings->data->set_current_object( $item['_jet_engine_queried_object'] );
+
+			// Add item to stack.
+			do_action( 'jet-engine/object-stack/increase', $item['_jet_engine_queried_object'] );
+			add_action( 'jet-engine/listings/frontend/object-done', array( $this, 'add_processing_item_to_stack' ), 20 );
+		}
+	}
+
+	public function add_processing_item_to_stack() {
+		if ( $this->processing_item ) {
+			do_action( 'jet-engine/object-stack/increase', $this->processing_item );
 		}
 	}
 
 	public function reset_item_object() {
+
+		$this->processing_item = null;
+		remove_action( 'jet-engine/listings/frontend/object-done', array( $this, 'add_processing_item_to_stack' ), 20 );
 
 		if ( ! $this->initial_object ) {
 			return;
@@ -48,6 +72,10 @@ class Manager {
 			$this->initial_object = null;
 			return;
 		}
+
+		// Remove last item from stack.
+		$last_item = jet_engine()->listings->data->get_current_object();
+		do_action( 'jet-engine/object-stack/decrease', $last_item );
 
 		jet_engine()->listings->data->set_current_object( $this->initial_object );
 
@@ -64,7 +92,7 @@ class Manager {
 	}
 
 	public function query_enbaled( $control_name, $widget ) {
-		
+
 		$is_active   = $widget->get_settings( 'jet_engine_query_' . $control_name );
 		$query_id    = $widget->get_settings( 'jet_engine_query_id_' . $control_name );
 		$control_val = $widget->get_settings( $control_name );
@@ -134,7 +162,7 @@ class Manager {
 	}
 
 	public function store_widget_data( $widget_name, $control_name ) {
-		
+
 		if ( empty( $this->_controls_map[ $widget_name ] ) ) {
 			$this->_controls_map[ $widget_name ] = array();
 		}
@@ -144,7 +172,7 @@ class Manager {
 	}
 
 	public function register_controls( $widget, $control_name ) {
-		
+
 		$this->store_widget_data( $widget->get_name(), $control_name );
 
 		$widget->add_control(

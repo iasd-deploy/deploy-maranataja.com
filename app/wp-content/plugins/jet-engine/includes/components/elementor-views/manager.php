@@ -36,6 +36,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 				return;
 			}
 
+			add_filter( 'get_post_metadata', [ $this, 'ensure_listing_doct_type' ], 10, 3 );
+
 			add_filter( 'jet-engine/templates/listing-views', array( $this, 'add_elementor_listing_view' ) );
 
 			add_filter( 'jet-engine/templates/create/data', array( $this, 'inject_listing_settings' ) );
@@ -89,6 +91,42 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 			add_filter( 'jet-engine/listings/dynamic-image/link-attr', array( $this, 'add_lightbox_attr' ), 10, 2 );
 
 			add_filter( 'jet-engine/gallery/lightbox-attr', array( $this, 'add_lightbox_attr_for_gallery' ), 10, 3 );
+
+			require jet_engine()->plugin_path( 'includes/components/elementor-views/components/register.php' );
+
+			new \Jet_Engine\Elementor_Views\Components\Register();
+
+		}
+
+		/**
+		 * Ensure listing document type is always set.
+		 * In some cases Elementor\Core\Base\Document::TYPE_META_KEY was empty for listing, 
+		 * this caused conflicts between Listing Items and Components
+		 * 
+		 * Fix for https://github.com/Crocoblock/issues-tracker/issues/10125
+		 * 
+		 * @param  [type] $result   [description]
+		 * @param  [type] $post_id  [description]
+		 * @param  [type] $meta_key [description]
+		 * @return [type]           [description]
+		 */
+		public function ensure_listing_doct_type( $result, $post_id, $meta_key ) {
+
+			if ( \Elementor\Core\Base\Document::TYPE_META_KEY !== $meta_key ) {
+				return $result;
+			}
+
+			if ( jet_engine()->post_type->slug() !== get_post_type( $post_id ) ) {
+				return $result;
+			}
+
+			if ( jet_engine()->listings->components->is_component( $post_id ) ) {
+				$result = jet_engine()->listings->components->get_component_base_name();
+			} else {
+				$result = jet_engine()->listings->get_id();
+			}
+
+			return $result;
 
 		}
 
@@ -255,7 +293,7 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 				'jet-engine-icons',
 				jet_engine()->plugin_url( 'assets/lib/jetengine-icons/icons.css' ),
 				array(),
-				jet_engine()->get_version()
+				jet_engine()->get_version() . '-icons'
 			);
 
 		}
@@ -411,6 +449,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Views' ) ) {
 				'jet-engine-not-supported',
 				'Jet_Engine_Not_Supported'
 			);
+
+			do_action( 'jet-engine/elementor-views/documents-registered', $documents_manager );
 
 		}
 

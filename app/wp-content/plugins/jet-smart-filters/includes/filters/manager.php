@@ -91,6 +91,23 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Manager' ) ) {
 				)
 			) );
 
+			if ( jet_smart_filters()->render->use_signature_verification && ! empty( $localized_data['settings'] ) ) {
+				foreach( $localized_data['settings'] as $provider => $provider_queries ) {
+					foreach( $provider_queries as $query_id => $query_settings ) {
+						
+						if ( ! empty( $query_settings['jsf_signature'] ) ) {
+							unset( $query_settings['jsf_signature'] );
+						}
+
+						$signature = jet_smart_filters()->render->create_signature( $query_settings );
+						$query_settings['jsf_signature'] = $signature;
+
+						$localized_data['settings'][ $provider ][ $query_id ] = $query_settings;
+
+					}
+				}
+			}
+
 			wp_localize_script( 'jet-smart-filters', 'JetSmartFilterSettings', $localized_data );
 		}
 
@@ -150,17 +167,10 @@ if ( ! class_exists( 'Jet_Smart_Filters_Filter_Manager' ) ) {
 				return;
 			}
 
-			wp_register_style(
-				'font-awesome',
-				jet_smart_filters()->plugin_url( 'assets/lib/font-awesome/font-awesome.min.css' ),
-				array(),
-				'4.7.0'
-			);
-
 			wp_enqueue_style(
 				'jet-smart-filters',
 				jet_smart_filters()->plugin_url( 'assets/css/public.css' ),
-				array('font-awesome'),
+				array(),
 				jet_smart_filters()->get_version()
 			);
 

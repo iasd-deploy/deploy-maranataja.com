@@ -34,6 +34,10 @@ class Users_Query extends Base_Query {
 			return $this->current_wp_query;
 		}
 
+		if ( null === $this->final_query ) {
+			$this->setup_query();
+		}
+
 		$args = $this->final_query;
 
 		// Prevent php error if `paged` argument is empty string.

@@ -25,6 +25,8 @@ class Preview {
 
 		$this->post_id = $post_id;
 
+		do_action( 'jet-engine/bricks-views/setup-preview', $post_id );
+
 		$post_type                    = $this->get_post_type();
 		$je_post_type                 = $post_type === jet_engine()->post_type->slug();
 		$is_query_loop_render_element = bricks_is_rest_call() && Query::is_looping();

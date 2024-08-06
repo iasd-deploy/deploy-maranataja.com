@@ -2,177 +2,37 @@
 
 	'use strict';
 
-	window.controlsHelper = {
-		methods: {
-			getPreparedControls( instance ) {
-
-				const controls = [];
-
-				for ( const controlID in instance ) {
-
-					let control     = instance[ controlID ];
-					let optionsList = [];
-					let type        = control.type;
-					let label       = control.label;
-					let defaultVal  = control.default;
-					let groupsList  = [];
-					let condition   = control.condition || {};
-					let multiple    = false;
-
-					switch ( control.type ) {
-
-						case 'switcher':
-							type = 'cx-vui-switcher';
-							break;
-
-						case 'text':
-						case 'number':
-							type = 'cx-vui-input';
-							break;
-
-						case 'textarea':
-							type = 'cx-vui-textarea';
-							break;
-
-						case 'select':
-						case 'select2':
-
-							if ( 'select' === control.type ) {
-								type = 'cx-vui-select';
-							} else {
-								type = 'cx-vui-f-select';
-								multiple = true;
-							}
-
-							if ( control.groups ) {
-
-								for ( var i = 0; i < control.groups.length; i++) {
-
-									let group = control.groups[ i ];
-
-									if ( group.values ) {
-										groupsList.push( {
-											label: group.label,
-											options: group.values,
-										} );
-									} else {
-										groupsList.push( {
-											label: group.label,
-											options: group.options,
-										} );
-									}
-									
-
-								}
-							}
-
-							/* else {
-								for ( const optionValue in control.options ) {
-									optionsList.push( {
-										value: optionValue,
-										label: control.options[ optionValue ],
-									} );
-								}
-							}*/
-
-							break;
-					}
-
-					controls.push( {
-						type: type,
-						name: controlID,
-						label: label,
-						description: control.description,
-						default: defaultVal,
-						optionsList: control.options,
-						groupsList: groupsList,
-						condition: condition,
-						multiple: multiple,
-					} );
-
-				}
-
-				return controls;
-			},
-			checkCondition: function( condition, settings ) {
-
-				let checkResult = true;
-
-				condition = condition || {};
-
-				for ( let [ fieldName, check ] of Object.entries( condition ) ) {
-					
-					let isNegative = false;
-					
-					if ( fieldName.includes( '!' ) ) {
-						fieldName = fieldName.replace( '!', '' );
-						isNegative = true;
-					}
-
-					if ( check && check.length ) {
-						if ( isNegative ) {
-							if ( check.includes( settings[ fieldName ] ) ) {
-								checkResult = false;
-							}
-						} else {
-							if ( ! settings[ fieldName ] || ! check.includes( settings[ fieldName ] ) ) {
-								checkResult = false;
-							}
-						}
-						
-					} else {
-						if ( isNegative ) {
-							if ( check == settings[ fieldName ] ) {
-								checkResult = false;
-							}
-						} else {
-							if ( check != settings[ fieldName ] ) {
-								checkResult = false;
-							}
-						}
-					}
-				}
-
-				return checkResult;
-
-			}
-		}
-	}
-
-	window.popupHelper = {
-		data() {
-			return {
-				showPopup: false,
-			};
-		},
-		methods: {
-			closePopup() {
-				if ( this.showPopup ) {
-					this.switchPopup();
-				}
-			},
-			switchPopup() {
-				if ( this.showPopup ) {
-					this.showPopup = false;
-					this.onPopupClose();
-				} else {
-					this.onPopupShow();
-					this.showPopup = true;
-				}
-			},
-			onPopupClose() {
-			},
-			onPopupShow() {
-			}
-		}
-	}
-
 	Vue.component( 'jet-style', {
-		render: function (createElement) {
-			return createElement( 'style', this.replaceSelector( this.$slots.default[0].text ) );
+		render: function ( createElement ) {
+			return createElement( 'style', this.replaceSelector(
+				this.prependVars( this.$slots.default[0].text )
+			) );
 		},
-		props: [ 'listingId' ],
+		props: [ 'listingId', 'cssVars' ],
 		methods: {
+			prependVars( css ) {
+				let result = 'selector {';
+				
+				for ( var i = 0; i < window.JetEngineTimberEditor.css_variables.length; i++ ) {
+					let varName = this.getVarName( window.JetEngineTimberEditor.css_variables[ i ].var );
+					result += varName + ': ' + window.JetEngineTimberEditor.css_variables[ i ].value + ';';
+				}
+
+				if ( this.cssVars && this.cssVars.length ) {
+					for ( var i = 0; i < this.cssVars.length; i++ ) {
+						let varName = this.getVarName( this.cssVars[ i ].var );
+						result += varName + ': ' + this.cssVars[ i ].value + ';';
+					}
+				}
+
+				result += '}';
+
+				return result + css;
+			},
+			getVarName( varName ) {
+				varName = varName.replace( 'var( ', '' ).replace( ' )', '' );
+				return varName;
+			},
 			replaceSelector( css ) {
 				return css.replaceAll( 'selector', '.jet-listing-' + this.listingId );
 			}
@@ -284,6 +144,68 @@
 		}
 	} );
 
+	Vue.component( 'jet-engine-timber-css-vars-helper', {
+		template: `<div 
+				class="jet-engine-timber-css-vars-helper"
+				v-click-outside.capture="closePopup"
+				v-click-outside:mousedown.capture="closePopup"
+				v-click-outside:touchstart.capture="closePopup"
+				@keydown.esc="closePopup"
+			>
+			<a href="#" class="jet-engine-timber-css-vars-trigger" @click.prevent="isActive = ! isActive">{{ buttonLabel }}</a>
+			<div v-if="isActive" class="jet-engine-timber-dynamic-data__popup jet-engine-timber-editor-popup align-left">
+				<div class="jet-engine-timber-css-vars">
+					<div 
+						class="jet-engine-timber-css-var"
+						v-for="( varItem ) in mergedVars()"
+						@click="submitVar( varItem.var )"
+					>
+						<span
+							class="jet-engine-timber-css-var__preview"
+							:style="{ background: varPreview( varItem ) }"
+						></span>
+						<span class="jet-engine-timber-css-var__val">{{ varLabel( varItem ) }}</span>
+					</div>
+				</div>
+			</div>
+		</div>`,
+		directives: { clickOutside: window.JetVueUIClickOutside },
+		data() {
+			return {
+				cssVars: window.JetEngineTimberEditor.css_variables,
+				isActive: false,
+			};
+		},
+		props: [ 'buttonLabel', 'mergeVars' ],
+		methods: {
+			submitVar( value ) {
+				this.closePopup();
+				this.$emit( 'input', value );
+			},
+			closePopup() {
+				this.isActive = false;
+			},
+			varLabel( varItem ) {
+				return varItem.label || varItem.var;
+			},
+			varPreview( varItem ) {
+				if ( varItem.value ) {
+					return varItem.value;
+				} else {
+					return 'linear-gradient( 135deg, #fff 0%, #fff 45%, #7B7E81 50%, #fff 55%, #fff 100% )';
+				}
+			},
+			mergedVars() {
+				if ( this.mergeVars && this.mergeVars.length ) {
+					return this.mergeVars.concat( this.cssVars );
+				} else {
+					return this.cssVars;
+				}
+
+			}
+		}
+	} );
+
 	Vue.component( 'jet-engine-timber-settings', {
 		template: '#jet_engine_timber_editor_settings_template',
 		directives: { clickOutside: window.JetVueUIClickOutside },
@@ -291,16 +213,62 @@
 		data() {
 			return {
 				showPopup: false,
+				entryType: window.JetEngineTimberEditor.entry_type,
+				componentControlTypes: window.JetEngineTimberEditor.component_control_types,
 				settings: {},
+				mediaFrame: null,
+				currentMediaControl: null,
+				componentControlsMode: 'content',
 			};
 		},
 		mounted() {
+
 			this.settings = { ...this.value };
+
+			if ( ! this.settings.component_controls_list ) {
+				this.$set( this.settings, 'component_controls_list', [] );
+			}
+
+			if ( ! this.settings.component_style_controls_list ) {
+				this.$set( this.settings, 'component_style_controls_list', [] );
+			}
+
+			this.mediaFrame = window.wp.media.frames.file_frame = wp.media({
+				multiple: false,
+			});
+
+			this.mediaFrame.on( 'select', () => {
+
+				if ( null === this.currentMediaControl ) {
+					return;
+				}
+				
+				const attachment = this.mediaFrame.state().get( 'selection' ).toJSON();
+
+				let imgURL;
+				let imgThumb;
+
+				imgURL = attachment[0].sizes.full.url;
+
+				if ( attachment[0].sizes.thumbnail ) {
+					imgThumb = attachment[0].sizes.thumbnail.url;
+				} else {
+					imgThumb = attachment[0].sizes.full.url;
+				}
+				
+				this.setControlProp( 'component_controls_list', 'control_default_image', {
+					id: attachment[0].id,
+					url: imgURL,
+					thumb: imgThumb,
+				}, this.currentMediaControl );
+
+			} );
+
 		},
 		watch: {
 			settings: {
 				handler( newSettings, oldSettings ) {
-					
+
 					this.switchControls( newSettings );
 
 					// it's not initial setup
@@ -313,6 +281,82 @@
 			}
 		},
 		methods: {
+			hasControlDefaultImage( control ) {
+				
+				if ( ! control.control_default_image ) {
+					return false;
+				}
+
+				if ( 'false' == control.control_default_image ) {
+					return false;
+				}
+
+				if ( control.control_default_image.url ) {
+					return true;
+				}
+
+				return false;
+
+			},
+			openMediaFrame( control, controlIndex ) {
+				this.currentMediaControl = controlIndex;
+				this.mediaFrame.open();
+			},
+			clearMediaControl( controlIndex ) {
+				this.setControlProp( 'component_controls_list', 'control_default_image', false, controlIndex );
+			},
+			getRandomID() {
+				return Math.floor( Math.random() * 8999 ) + 1000;
+			},
+			isCollapsed( object ) {
+				if ( undefined === object.collapsed || true === object.collapsed ) {
+					return true;
+				} else {
+					return false;
+				}
+			},
+			addNewControl( where, defaultControl ) {
+
+				var control = defaultControl;
+				
+				control.collapsed = false;
+				control.id        = this.getRandomID();
+
+				this.settings[ where ].push( control );
+
+			},
+			
+			cloneControl( index, where ) {
+
+				var newControl = JSON.parse( JSON.stringify( this.settings[ where ][ index ] ) );
+
+				newControl.control_label = newControl.control_label + ' (Copy)';
+				newControl.control_name  = newControl.control_name + '_copy';
+				newControl.id            = this.getRandomID();
+
+				this.settings[ where ].splice( index + 1, 0, newControl );
+
+			},
+			deleteControl( index, where ) {
+				this.settings[ where ].splice( index, 1 );
+			},
+			preSetControlName( index, where ) {
+
+				if ( ! this.settings[ where ][ index ].control_label ) {
+					return;
+				}
+
+				let regex = /\s+/g;
+				let name = this.settings[ where ][ index ].control_label.toLowerCase().replace( regex, '_' );
+
+				this.setControlProp( where, 'control_name', name, index );
+
+			},
+			setControlProp( where, prop, value, index ) {
+				var control = JSON.parse( JSON.stringify( this.settings[ where ][ index ] ) );
+				control[ prop ] = value;
+				this.settings[ where ].splice( index, 1, control );
+			},
 			closePopup() {
 				if ( this.showPopup ) {
 					this.switchPopup();
@@ -560,7 +604,6 @@
 			@keydown.esc="closePopup"
 		>
 			<cx-vui-button
-				button-style="accent-border"
 				@click="switchPopup"
 				button-style="link-accent"
 				size="link"
@@ -703,8 +746,38 @@
 
 		},
 		methods: {
+			instanceVars( withResult ) {
+
+				const result = [];
+
+				if ( this.settings.component_style_controls_list && this.settings.component_style_controls_list.length ) {
+					for ( var i = 0; i < this.settings.component_style_controls_list.length; i++ ) {
+
+						let itemVar = {
+							label: this.settings.component_style_controls_list[ i ].control_label,
+							var: 'var( --jet-component-' + this.settings.component_style_controls_list[ i ].control_name + ' )',
+						};
+
+						if ( withResult ) {
+							itemVar.value = this.settings.component_style_controls_list[ i ].control_default;
+						}
+
+						result.push( itemVar );
+					}
+				}
+
+				return result;
+
+			},
 			getPreviewWidth() {
 				return '' + this.previewSettings.width + this.previewSettings.units;
+			},
+			insertCSSVar( cssVar ) {
+
+				let doc = this.cssEditor.codemirror.getDoc();
+				let cursor = doc.getCursor();
+
+				doc.replaceRange( cssVar, cursor );
 			},
 			insertDynamicData( newData ) {
 

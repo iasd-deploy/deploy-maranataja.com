@@ -143,6 +143,8 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 				$query_id = $widget_settings['_element_id'];
 			}
 
+			$query_id = apply_filters( 'jet-engine/compatibility/listing/query-id', $query_id, $widget_settings );
+
 			$filters_data = array();
 
 			$filters_settings = array(

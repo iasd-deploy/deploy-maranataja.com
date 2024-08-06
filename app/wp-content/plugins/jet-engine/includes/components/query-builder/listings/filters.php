@@ -239,7 +239,7 @@ class Filters {
 				'found_posts'   => $query->get_items_total_count(),
 				'max_num_pages' => $query->get_items_pages_count(),
 				'page'          => $query->get_current_items_page(),
-				'query_type'    => $query->query_type,
+				'query_type'    => $query->get_query_type(),
 				'query_id'      => $query->id,
 				'query_meta'    => $query->get_query_meta(),
 			), $provider, $query_id ),

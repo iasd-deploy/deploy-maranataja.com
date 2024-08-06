@@ -170,12 +170,18 @@
 			}
 
 			reset() {
-				this.updateLocationData( {}, true, [ 'distance' ] );
-				this.$distanceInput.find( 'option:selected' ).removeAttr( 'selected' );
+				this.resetLocationData( false );
+			}
+
+			resetLocationData( silent ) {
+				this.updateLocationData( {}, silent, [ 'address', 'longitude', 'latitude', 'distance' ] );
+				this.clearDistance();
 				this.clearLocation();
 			}
 
 			setData( newData ) {
+
+				this.resetLocationData( true );
 
 				if ( newData ) {
 					this.updateLocationData( { ...newData }, true );
@@ -201,7 +207,16 @@
 			}
 
 			selectDistance( distance ) {
-				this.$distanceInput.find( 'option[value="' + distance + '"]' ).attr( 'selected', true );
+				this.clearDistance();
+				this.$distanceInput.find( 'option[value="' + distance + '"]' )
+					.prop( 'selected', true )
+					.attr( 'selected', true );
+			}
+
+			clearDistance() {
+				this.$distanceInput.find( 'option[selected]' )
+					.removeProp( 'selected' )
+					.removeAttr( 'selected' );
 			}
 
 			get activeValue() {
@@ -252,7 +267,7 @@
 			}
 
 			processData() {
-				if ( this.hasLocation() ) {
+				if ( ! this.locationDataIsEmpty ) {
 					this.dataValue = { ...this.locationData };
 				} else {
 					this.dataValue = false;
@@ -266,8 +281,6 @@
 
 				this.switchClear();
 				this.switchLocate( true );
-
-				this.updateLocationData( {}, false, [ 'address', 'longitude', 'latitude' ] );
 
 			}
 
@@ -348,6 +361,7 @@
 				}
 
 				if ( ! silent ) {
+					this.emitFiterChange();
 					this.maybeApplyFilter();
 				}
 

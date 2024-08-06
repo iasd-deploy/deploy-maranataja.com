@@ -48,6 +48,11 @@ class Control_Select extends Base {
 
 	public static function get_posts_options( $options ) {
 		$query_args = $options['query'];
+
+		if ( ! isset( $query_args['numberposts'] ) ) {
+			$query_args['numberposts'] = -1;
+		}
+
 		$posts      = get_posts( $query_args );
 		$posts      = wp_list_pluck( $posts, 'post_title', 'ID' );
 

@@ -28,8 +28,8 @@ class Functions_Registry {
 
 		$this->register_function( new Functions\Dynamic_Data() );
 		$this->register_function( new Functions\Dynamic_URL() );
-		
-		do_action( 'jet-engine/timber-views/register-functions', $this );
+
+		do_action( 'jet-engine/twig-views/register-functions', $this );
 
 		foreach ( $this->get_functions() as $function ) {
 			$twig->addFunction( new TwigFunction(

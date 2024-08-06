@@ -43,11 +43,32 @@ class Package {
 
 		add_filter( 'jet-engine/query-builder/types/sql-query/cast-objects', [ $this, 'add_product_to_cast' ] );
 
+		//properly get meta/terms from WC Product
+		//https://github.com/Crocoblock/issues-tracker/issues/9921
+		add_filter( 'jet-engine/listing-injections/item-meta-value', [ $this, 'get_injection_product_meta' ], 10, 3 );
+		add_filter( 'jet-engine/listing-injections/object-has-terms', [ $this, 'product_has_terms' ], 10, 4 );
+
 	}
 
 	public function add_product_to_cast( $objects ) {
 		$objects['wc_get_product'] = __( 'WC Product', 'jet-engine' );
 		return $objects;
+	}
+
+	public function get_injection_product_meta( $value, $post, $meta_key ) {
+		if ( ! is_a( $post, 'WC_Product' ) ) {
+			return $value;
+		}
+		
+		return [ $post->get_meta( $meta_key ) ];
+	}
+
+	public function product_has_terms( $has_terms, $post, $tax, $terms ) {
+		if ( ! is_a( $post, 'WC_Product' ) ) {
+			return $has_terms;
+		}
+
+		return has_term( $terms, $tax, $post->get_id() );
 	}
 
 	public function register_macros() {

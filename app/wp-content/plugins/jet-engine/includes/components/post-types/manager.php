@@ -76,6 +76,8 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 			add_action( 'jet-engine/meta-boxes/register-instances', array( $this, 'init_meta_boxes' ) );
 			add_action( 'current_screen', array( $this, 'init_edit_links' ) );
 
+			require_once $this->component_path( 'custom-tables/manager.php' );
+
 		}
 
 		/**
@@ -130,6 +132,18 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 
 							if ( empty( $this->built_in_defaults[ $post_type ] ) ) {
 								$this->built_in_defaults[ $post_type ] = $args;
+							}
+
+							if ( 
+								isset( $built_in['custom_storage'] ) 
+								&& true === $built_in['custom_storage'] 
+								&& ! empty( $built_in['meta_fields'] )
+							) {
+								\Jet_Engine\CPT\Custom_Tables\Manager::instance()->register_storage(
+									'post',
+									$post_type,
+									$built_in['meta_fields']
+								);
 							}
 
 							$labels = ! empty( $built_in['labels'] ) ? maybe_unserialize( $built_in['labels'] ) : null;
@@ -392,6 +406,19 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 
 			foreach ( $this->get_items() as $post_type ) {
 
+				// register custom storage early, only when feature is enbaled and has fields
+				if ( 
+					isset( $post_type['custom_storage'] ) 
+					&& true === $post_type['custom_storage'] 
+					&& ! empty( $post_type['meta_fields'] )
+				) {
+					\Jet_Engine\CPT\Custom_Tables\Manager::instance()->register_storage(
+						'post',
+						$post_type['slug'],
+						$post_type['meta_fields']
+					);
+				}
+
 				if ( ! empty( $post_type['meta_fields'] ) ) {
 
 					$post_type['meta_fields'] = apply_filters( 'jet-engine/meta-boxes/raw-fields', $post_type['meta_fields'], $this );
@@ -471,6 +498,8 @@ if ( ! class_exists( 'Jet_Engine_CPT' ) ) {
 				}
 
 			}
+
+			do_action( 'jet-engine/post-types/registered' );
 
 		}
 

@@ -62,8 +62,14 @@ class Update_Preview extends \Jet_Engine_Base_API_Endpoint {
 		$more  = '';
 		$count = $query->get_items_total_count();
 
-		if ( 10 < $count ) {
-			$items = array_slice( $items, 0, 10 );
+		$max_count = absint( $preview['query_count'] ?? 10 );
+
+		if( ! $max_count  ) {
+			$max_count = 10;
+		}
+
+		if ( $max_count < $count ) {
+			$items = array_slice( $items, 0, $max_count );
 			$more  = "\r\n...";
 		}
 
@@ -103,6 +109,7 @@ class Update_Preview extends \Jet_Engine_Base_API_Endpoint {
 
 			$wp->parse_request();
 			$wp->query_posts();
+			wp_reset_postdata();
 
 		}
 

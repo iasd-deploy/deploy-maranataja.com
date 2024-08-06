@@ -14,6 +14,9 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 	 * Define Jet_Smart_Filters_Provider_EPro_Archive_Products class
 	 */
 	class Jet_Smart_Filters_Provider_EPro_Archive_Products extends Jet_Smart_Filters_Provider_Base {
+
+		public $default_query = null;
+
 		/**
 		 * Watch for default query
 		 */
@@ -36,10 +39,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 				return;
 			}
 
-			$default_query = $this->get_default_query( $query );
+			$this->default_query = $this->get_default_query( $query );
 
-			jet_smart_filters()->query->store_provider_default_query( $this->get_id(), $default_query );
-			//$query->set( 'jet_smart_filters', $this->get_id() );
+			if ( isset( $_REQUEST['jsf'] ) && explode( ':', $_REQUEST['jsf'] )[0] === $this->get_id() ) {
+				$query->set( 'jsf', $this->get_id() );
+			}
 		}
 
 		public function store_search_query( $query ) {
@@ -48,10 +52,11 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 				return;
 			}
 
-			$default_query = $this->get_default_query( $query );
+			$this->default_query = $this->get_default_query( $query );
 
-			jet_smart_filters()->query->store_provider_default_query( $this->get_id(), $default_query );
-			//$query->set( 'jet_smart_filters', $this->get_id() );
+			if ( isset( $_REQUEST['jsf'] ) && explode( ':', $_REQUEST['jsf'] )[0] === $this->get_id() ) {
+				$query->set( 'jsf', $this->get_id() );
+			}
 		}
 
 		public function get_default_query( $query ) {
@@ -124,6 +129,7 @@ if ( ! class_exists( 'Jet_Smart_Filters_Provider_EPro_Archive_Products' ) ) {
 			$default_settings['_el_widget_id'] = $widget->get_id();
 
 			jet_smart_filters()->providers->store_provider_settings( $this->get_id(), $default_settings, $query_id );
+			jet_smart_filters()->query->store_provider_default_query( $this->get_id(), $this->default_query, $query_id );
 
 			add_action( 'woocommerce_shortcode_before_products_loop', array( $this, 'store_props' ) );
 			add_action( 'woocommerce_shortcode_before_current_query_loop', array( $this, 'store_props' ) );

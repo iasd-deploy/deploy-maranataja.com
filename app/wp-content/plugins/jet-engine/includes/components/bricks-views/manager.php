@@ -34,16 +34,20 @@ class Manager {
 	 * Constructor for the class
 	 */
 	function __construct() {
+		
 		if ( ! $this->has_bricks() ) {
 			return;
 		}
 
 		do_action( 'jet-engine/bricks-views/init' );
 
+		$this->init_components();
+
 		add_action( 'init', array( $this, 'register_elements' ), 10 );
 		add_action( 'init', array( $this, 'init_listings' ), 10 );
 		add_action( 'init', array( $this, 'integrate_jet_engine_in_bricks_loop' ), 10 );
 		add_action( 'init', array( $this, 'integrate_query_builder_in_bricks' ), 10 );
+		add_action( 'init', array( $this, 'register_providers' ), 90 );
 
 		add_filter( 'jet-engine/gallery/grid/args', array( $this, 'add_arguments_to_gallery_grid' ), 10 );
 		add_filter( 'jet-engine/gallery/slider/args', array( $this, 'add_arguments_to_gallery_slider' ), 10 );
@@ -71,11 +75,25 @@ class Manager {
 		} );
 
 		$this->compat_tweaks();
+
+		add_action( 'jet-engine/dashboard/export-import/process', [ $this, 'init_export_import_manager' ] );
+	}
+
+	public function init_export_import_manager() {
+		require $this->component_path( 'export-import.php' );
+		new Export_Import();
 	}
 
 	public function init_listings() {
 		require $this->component_path( 'listing/manager.php' );
 		$this->listing = new Listing\Manager();
+	}
+
+	public function init_components() {
+
+		require $this->component_path( 'components/register.php' );
+		new Components\Register();
+
 	}
 
 	public function integrate_jet_engine_in_bricks_loop() {
@@ -88,12 +106,24 @@ class Manager {
 		new Query_Controller();
 	}
 
+	public function register_providers() {
+		require_once $this->component_path( 'dynamic-data/providers.php' );
+
+		$dynamic_data_providers = apply_filters( 'jet-engine/bricks-views/dynamic_data/register_providers', [] );
+
+		Dynamic_Data\Providers::register( $dynamic_data_providers );
+	}
+
 	public function component_path( $relative_path = '' ) {
 		return jet_engine()->plugin_path( 'includes/components/bricks-views/' . $relative_path );
 	}
 
 	public function register_elements() {
-		require $this->component_path( 'elements/base.php' );
+
+		if ( ! class_exists( '\Jet_Engine\Bricks_Views\Elements\Base' ) ) {
+			require $this->component_path( 'elements/base.php' );
+		}
+		
 		require $this->component_path( 'helpers/options-converter.php' );
 		require $this->component_path( 'helpers/controls-converter/base.php' );
 		require $this->component_path( 'helpers/controls-converter/control-text.php' );
@@ -138,6 +168,36 @@ class Manager {
 		$is_editor = ( ! empty( $_REQUEST['bricks'] ) && 'run' === $_REQUEST['bricks'] );
 
 		return $is_api || $is_ajax || $is_editor;
+	}
+
+	/**
+	 * Retrieves request data for Bricks elements.
+	 *
+	 * This method handles different types of requests to fetch the necessary data
+	 * for Bricks elements. It checks if the request is a REST call or an AJAX call
+	 * specifically for rendering Bricks elements. If the data is found, it is
+	 * returned as an associative array. Otherwise, the method returns false.
+	 *
+	 * @return array|false The request data as an associative array, or false if no data is found.
+	 */
+	public function get_request_data() {
+		$data = false;
+
+		if ( bricks_is_rest_call() ) {
+			$data = file_get_contents( 'php://input' );
+		} elseif ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && 'bricks_render_element' === $_REQUEST['action'] ) {
+			$data = $_REQUEST;
+		}
+
+		if ( ! $data ) {
+			return false;
+		}
+
+		if ( is_string( $data ) ) {
+			$data = json_decode( $data, true );
+		}
+
+		return $data;
 	}
 
 	public function is_bricks_listing( $listing_id ) {

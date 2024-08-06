@@ -468,6 +468,7 @@ $css_items_dropdown_scheme = apply_filters(
 		'dropdown'              => '.jet-filter-items-dropdown',
 		'dropdown-label'        => '.jet-filter-items-dropdown__label',
 		'dropdown-body'         => '.jet-filter-items-dropdown__body',
+		'dropdown-footer'       => '.jet-filter-items-dropdown__footer',
 		'dropdown-active-items' => '.jet-filter-items-dropdown__active',
 		'dropdown-active-item'  => '.jet-filter-items-dropdown__active__item',
 		'dropdown-n-selected'   => '.jet-filter-items-dropdown__n-selected',
@@ -849,10 +850,86 @@ $this->controls_manager->add_control([
 	'id'         => 'dropdown_body_items_padding',
 	'type'       => 'dimensions',
 	'label'      => esc_html__( 'Dropdown Body Items Padding', 'jet-smart-filters' ),
+	'separator'  => 'after',
 	'units'      => array( 'px', '%' ),
 	'css_selector'  => array(
 		'{{WRAPPER}} ' . $this->css_scheme['list-wrapper'] => 'padding: {{TOP}} {{RIGHT}} {{BOTTOM}} {{LEFT}};',
 	),
+]);
+
+$this->controls_manager->add_control([
+	'id'           => 'dropdown_footer_background_color',
+	'type'         => 'color-picker',
+	'label'        => esc_html__( 'Dropdown Footer Background Color', 'jet-smart-filters' ),
+	'css_selector' => array(
+		'{{WRAPPER}} ' . $css_items_dropdown_scheme['dropdown-footer'] => 'background-color: {{VALUE}}',
+	),
+	'attributes'   => [
+		'default' => [
+			'value' => ''
+		],
+	],
+	'separator'    => 'after',
+]);
+
+$this->controls_manager->add_control([
+	'id'           => 'dropdown_footer_border',
+	'type'         => 'border',
+	'label'        => esc_html__( 'Dropdown Footer Border', 'jet-smart-filters' ),
+	'css_selector' => array(
+		'{{WRAPPER}} ' . $css_items_dropdown_scheme['dropdown-footer'] => 'border-style:{{STYLE}};border-width:{{WIDTH}};border-radius:{{RADIUS}};border-color:{{COLOR}};',
+	),
+	'separator'    => 'after',
+]);
+
+$this->controls_manager->add_control([
+	'id'         => 'dropdown_footer_margin',
+	'type'       => 'dimensions',
+	'label'      => esc_html__( 'Dropdown Footer Margin', 'jet-smart-filters' ),
+	'units'      => array( 'px', '%' ),
+	'css_selector'  => array(
+		'{{WRAPPER}} ' . $css_items_dropdown_scheme['dropdown-footer'] => 'margin: {{TOP}} {{RIGHT}} {{BOTTOM}} {{LEFT}};',
+	),
+	'separator'  => 'after',
+]);
+
+$this->controls_manager->add_control([
+	'id'         => 'dropdown_footer_padding',
+	'type'       => 'dimensions',
+	'label'      => esc_html__( 'Dropdown Footer Padding', 'jet-smart-filters' ),
+	'units'      => array( 'px', '%' ),
+	'css_selector'  => array(
+		'{{WRAPPER}} ' . $css_items_dropdown_scheme['dropdown-footer'] => 'padding: {{TOP}} {{RIGHT}} {{BOTTOM}} {{LEFT}};',
+	),
+	'separator'  => 'after',
+]);
+
+$this->controls_manager->add_control([
+	'id'        => 'dropdown_footer_alignment',
+	'type'      => 'choose',
+	'label'     => esc_html__( 'Dropdown Footer Alignment', 'jet-smart-filters' ),
+	'options'   =>[
+		'left'    => [
+			'shortcut' => esc_html__( 'Left', 'jet-smart-filters' ),
+			'icon'  => 'dashicons-editor-alignleft',
+		],
+		'center'    => [
+			'shortcut' => esc_html__( 'Center', 'jet-smart-filters' ),
+			'icon'  => 'dashicons-editor-aligncenter',
+		],
+		'right'    => [
+			'shortcut' => esc_html__( 'Right', 'jet-smart-filters' ),
+			'icon'  => 'dashicons-editor-alignright',
+		],
+	],
+	'css_selector' => [
+		'{{WRAPPER}} ' . $css_items_dropdown_scheme['dropdown-footer'] => 'justify-content: {{VALUE}};',
+	],
+	'attributes' => [
+		'default' => [
+			'value' => 'right',
+		]
+	]
 ]);
 
 $this->controls_manager->end_section();
