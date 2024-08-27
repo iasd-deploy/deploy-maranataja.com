@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '4.6.12',
-        'version' => '4.6.12.0',
+        'pretty_version' => '4.6.13',
+        'version' => '4.6.13.0',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '638198591142bd5bdc9deb355b122c3cfed48827',
+        'reference' => '5ae1d953e255191d6f833f5d09e293051eaabbe0',
         'name' => 'wpml/core',
         'dev' => false,
     ),
@@ -164,12 +164,12 @@
             'dev_requirement' => false,
         ),
         'wpml/core' => array(
-            'pretty_version' => '4.6.12',
-            'version' => '4.6.12.0',
+            'pretty_version' => '4.6.13',
+            'version' => '4.6.13.0',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '638198591142bd5bdc9deb355b122c3cfed48827',
+            'reference' => '5ae1d953e255191d6f833f5d09e293051eaabbe0',
             'dev_requirement' => false,
         ),
         'wpml/core-api' => array(
